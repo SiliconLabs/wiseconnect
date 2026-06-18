@@ -1,6 +1,6 @@
 id: sl_gpio
 label: GPIO
-package: platform
+package: platform_siwx91x
 description: >
   The GPIO (General Purpose Input/Output) driver provides a comprehensive set of functions to
   configure and control the GPIO pins. The GPIO pins can be used for various purposes such as reading

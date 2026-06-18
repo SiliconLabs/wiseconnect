@@ -1,6 +1,6 @@
 id: sl_hspi_secondary
 label: HSPI Secondary 
-package: platform
+package: platform_siwx91x
 description: >
   The HSPI Secondary application shows how to read and write data between HSPI Secondary
   external device which is going to act as Primary and demonstrates about soc clock setting, 

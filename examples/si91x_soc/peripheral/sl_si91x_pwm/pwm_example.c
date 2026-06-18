@@ -25,7 +25,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "pwm_example.h"
 #include "rsi_debug.h"
-
 #include "sl_si91x_pwm.h"
 #include "sl_pwm_instances.h"
 #include "sl_si91x_peripheral_gpio.h"
@@ -34,15 +33,14 @@
  ******************************************************************************/
 #define EVENT_COUNT       10    // Count of events that can generate
 #define PRESCALE_A        0x100 // PWM Prescale_A value
-#define DEADTIME_A        0x08  // PWM deadtime_A
+#define DEADTIME_A        32    // PWM deadtime_A
 #define DT_COUNTER_A      0x00  // Dead time counter A enable
 #define DUTY_CYCLE_UPDATE 0x01  // Enable duty cycle updating bit in register
 #define OUTPUT_VALUE      1     // Output value set
 #define SL_ULP_PORT       4     // GPIO ULP port
 
-#define INTR_EVENT     0x01 // Rise PWM time period match channel 0 event
-#define FAULT_A_ENABLE 0x11 // Fault A enable for channel 0
-#define DT_ENABLE      0x01 // Dead time enable for channel 0
+#define FAULT_A_ENABLE 0x11                          // Fault A enable for channel 0
+#define INTR_EVENT     SL_RISE_TIME_PERIOD_MATCH_CH0 // Rise PWM time period match channel 0 event
 /*******************************************************************************
  **********************  GLOBAL variables   ************************************
  ******************************************************************************/
@@ -106,17 +104,10 @@ void pwm_example_init(void)
 #ifdef DEAD_TIME
     sl_si91x_pwm_dt_config_t dead_time;
     dead_time.counterSelect = 0;
-    dead_time.preScaleA     = 0;
+    dead_time.preScaleA     = SL_TIME_PERIOD_PRESCALE_8;
     dead_time.preScaleB     = 0;
     dead_time.deadTimeA     = DEADTIME_A;
     dead_time.deadTimeB     = 0;
-    // Control dead time insertion
-    status = sl_si91x_pwm_control_dead_time(SL_DEAD_TIME_ENABLE, DT_ENABLE);
-    if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_pwm_control_dead_time, Error code: %lu", status);
-      break;
-    }
-    DEBUGOUT("PWM Control dead time insertion is successful \n");
 
     // Set dead time control parameters for the required channel
     status = sl_si91x_pwm_select_dead_time(SL_DEAD_TIME_ENABLE, DT_COUNTER_A);

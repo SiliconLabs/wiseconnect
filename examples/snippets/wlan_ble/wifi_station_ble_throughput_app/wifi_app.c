@@ -151,14 +151,18 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 }
 #endif
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     LOG_PRINT("F: Join Event received with %lu bytes payload\n", result_length);
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -166,7 +170,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 
 void wifi_app_callbacks_init(void)
 {
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 /*====================================================*/
@@ -325,6 +329,26 @@ void receive_data_from_udp_client(void)
   LOG_PRINT("\r\nListening on Local Port %d\r\n", DEVICE_PORT);
 
   LOG_PRINT("\r\nUDP_RX Async Throughput test start\r\n");
+
+#if CONTINUOUS_THROUGHPUT
+  // Continuous throughput mode - loop forever with interval reporting
+  while (1) {
+    // Reset for each interval
+    has_data_received = 0;
+    bytes_read        = 0;
+    start             = osKernelGetTickCount();
+
+    // Wait for TEST_TIMEOUT interval or max bytes
+    while (!has_data_received) {
+      osThreadYield();
+    }
+
+    now = osKernelGetTickCount();
+    LOG_PRINT("\r\nTotal bytes received : %ld\r\n", bytes_read);
+    measure_and_print_throughput(bytes_read, (now - start));
+  }
+#else
+  // Single measurement mode
   start = osKernelGetTickCount();
   while (!has_data_received) {
     osThreadYield();
@@ -336,10 +360,12 @@ void receive_data_from_udp_client(void)
   measure_and_print_throughput(bytes_read, (now - start));
 
   close(client_socket);
+#endif
 }
 #else
 void receive_data_from_udp_client(void)
 {
+  sl_status_t status = SL_STATUS_OK;
   int client_socket = -1;
   uint32_t total_bytes_received = 0;
   int socket_return_value = 0;
@@ -372,12 +398,20 @@ void receive_data_from_udp_client(void)
   while (1) {
     read_bytes = recvfrom(client_socket, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (read_bytes < 0) {
-      LOG_PRINT("\r\nReceive failed with BSD error: %d\r\n", errno);
-      close(client_socket);
-      return;
-    } else if (read_bytes > 0) {
-      total_bytes_received = total_bytes_received + read_bytes;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
+    total_bytes_received = total_bytes_received + read_bytes;
 
     now = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
@@ -520,6 +554,26 @@ void receive_data_from_tcp_client(void)
   LOG_PRINT("\r\nClient Socket ID : %d\r\n", client_socket);
 
   LOG_PRINT("\r\nTCP_RX Async Throughput test start\r\n");
+
+#if CONTINUOUS_THROUGHPUT
+  // Continuous throughput mode - loop forever with interval reporting
+  while (1) {
+    // Reset for each interval
+    has_data_received = 0;
+    bytes_read        = 0;
+    start             = osKernelGetTickCount();
+
+    // Wait for TEST_TIMEOUT interval or max bytes
+    while (!has_data_received) {
+      osThreadYield();
+    }
+
+    now = osKernelGetTickCount();
+    LOG_PRINT("\r\nTotal bytes received : %ld\r\n", bytes_read);
+    measure_and_print_throughput(bytes_read, (now - start));
+  }
+#else
+  // Single measurement mode
   start = osKernelGetTickCount();
 
   while (!has_data_received) {
@@ -534,6 +588,7 @@ void receive_data_from_tcp_client(void)
   close(client_socket);
   close(server_socket);
   measure_and_print_throughput(bytes_read, (now - start));
+#endif
 }
 #else
 void receive_data_from_tcp_client(void)
@@ -600,7 +655,7 @@ void receive_data_from_tcp_client(void)
     if (read_bytes < 0) {
       if (errno == 0) {
         // get the error code returned by the firmware
-        status = sl_si91x_get_saved_firmware_status();
+        status = sl_wifi_get_saved_firmware_status();
         if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
           continue;
         } else {
@@ -764,7 +819,7 @@ void receive_data_from_tls_client(void)
     if (read_bytes < 0) {
       if (errno == 0) {
         // get the error code returned by the firmware
-        status = sl_si91x_get_saved_firmware_status();
+        status = sl_wifi_get_saved_firmware_status();
         if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
           continue;
         } else {

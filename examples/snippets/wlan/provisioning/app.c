@@ -103,8 +103,16 @@ typedef enum {
  ******************************************************/
 
 // Access Point (AP) event handlers
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 
 //Application start API
 static void application_start(void *argument);
@@ -148,7 +156,7 @@ static const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
+static sl_net_wifi_client_profile_t wifi_client_profile_4 = {
     .config = {
         .channel.channel = SL_WIFI_AUTO_CHANNEL,
         .channel.band = SL_WIFI_AUTO_BAND,
@@ -183,14 +191,18 @@ void app_init(void)
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
-static sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+static sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                         sl_status_t status_code,
+                                         char *result,
+                                         uint32_t result_length,
+                                         void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
   printf("in join CB\r\n");
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     printf("F: Join Event received with %lu bytes payload\n", result_length);
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   return SL_STATUS_OK;
 }
@@ -219,8 +231,8 @@ static void application_start(void *argument)
         }
 
         // Set callbacks for AP client connection and disconnection events
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
         printf("Wi-Fi AP initialized\r\n");
 
         // Bring the Wi-Fi AP interface up
@@ -236,6 +248,7 @@ static void application_start(void *argument)
         server_config.default_handler = default_handler;
         server_config.handlers_list   = (sl_http_server_handler_t *)provisioning_server_request_handlers;
         server_config.handlers_count  = sizeof(provisioning_server_request_handlers) / sizeof(sl_http_server_handler_t);
+        server_config.client_idle_time = 1; // 1 second timeout to prevent hanging on slow/dead clients
 
         status = sl_http_server_init(&server_handle, &server_config);
         if (status != SL_STATUS_OK) {
@@ -291,20 +304,37 @@ static void application_start(void *argument)
         }
         printf("Wi-Fi client interface initialized\r\n");
 
-        sl_wifi_credential_t cred  = { 0 };
-        sl_wifi_credential_id_t id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
-        cred.type                  = SL_WIFI_PSK_CREDENTIAL;
-        memcpy(cred.psk.value, wifi_client_credential, strlen((char *)wifi_client_credential));
+        sl_wifi_security_t sec_type = string_to_security_type(wifi_client_security_type);
+        sl_wifi_credential_id_t id;
 
-        status =
-          sl_net_set_credential(id, SL_NET_WIFI_PSK, wifi_client_credential, strlen((char *)wifi_client_credential));
+        if (sec_type == SL_WIFI_OPEN) {
+          id = SL_NET_NO_CREDENTIAL_ID;
+        } else {
+          // Handle PSK-based security (WPA, WPA2, WPA3, etc.)
+          id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
+          status =
+            sl_net_set_credential(id, SL_NET_WIFI_PSK, wifi_client_credential, strlen((char *)wifi_client_credential));
+          if (status != SL_STATUS_OK) {
+            printf("Failed to set Wi-Fi client credential: 0x%lx\r\n", status);
+            return;
+          }
+        }
 
         memset(&provisioned_access_point, 0, sizeof(provisioned_access_point));
         provisioned_access_point.ssid.length = strlen((char *)wifi_client_profile_ssid);
         memcpy(provisioned_access_point.ssid.value, wifi_client_profile_ssid, provisioned_access_point.ssid.length);
-        provisioned_access_point.security      = string_to_security_type(wifi_client_security_type);
+        provisioned_access_point.security      = sec_type;
         provisioned_access_point.encryption    = SL_WIFI_CCMP_ENCRYPTION;
         provisioned_access_point.credential_id = id;
+
+        wifi_client_profile_4.config.ssid.length = strlen((char *)wifi_client_profile_ssid);
+        memcpy(wifi_client_profile_4.config.ssid.value,
+               wifi_client_profile_ssid,
+               wifi_client_profile_4.config.ssid.length);
+        wifi_client_profile_4.config.security      = string_to_security_type(wifi_client_security_type);
+        wifi_client_profile_4.config.credential_id = (wifi_client_profile_4.config.security == SL_WIFI_OPEN)
+                                                       ? SL_NET_NO_CREDENTIAL_ID
+                                                       : SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID;
 
         //  Keeping the station ipv4 record in profile_id_0
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
@@ -316,7 +346,7 @@ static void application_start(void *argument)
         printf("SSID %s\r\n", provisioned_access_point.ssid.value);
 
         // Connect to the provisioned access point
-        sl_wifi_set_join_callback(join_callback_handler, NULL);
+        sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
         status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &provisioned_access_point, 25000);
         if (status != SL_STATUS_OK) {
           printf("Failed to bring Wi-Fi client interface up: 0x%lx\r\n", status);
@@ -387,11 +417,18 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -399,11 +436,18 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -570,6 +614,7 @@ static sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server
 }
 
 static sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                                  sl_status_t status_code,
                                                   sl_wifi_scan_result_t *scan_result,
                                                   uint32_t result_length,
                                                   void *arg)
@@ -579,10 +624,10 @@ static sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(result_length);
 
+  callback_status = status_code;
   // Check if the scan event indicates failure
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)scan_result;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   if (scan_result->scan_count) {
@@ -645,8 +690,10 @@ static sl_status_t wifi_scan_request_handler(sl_http_server_t *handle, sl_http_s
     memset(scan_result_buffer, 0, SCAN_RESULT_BUFFER_SIZE);
 
     printf("WLAN scan started \r\n");
-    scan_complete = false;
-    sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, (void *)scan_result_buffer);
+    scan_complete   = false;
+    callback_status = SL_STATUS_FAIL;
+
+    sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, (void *)scan_result_buffer);
     status = sl_wifi_start_scan(SL_WIFI_AP_INTERFACE, NULL, &wifi_scan_configuration);
     if (SL_STATUS_IN_PROGRESS == status) {
       printf("Scanning...\r\n");

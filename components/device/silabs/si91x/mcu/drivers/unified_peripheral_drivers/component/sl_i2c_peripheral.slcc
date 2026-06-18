@@ -1,6 +1,6 @@
 id: sl_i2c_peripheral
 label: SL I2C Peripheral
-package: platform
+package: platform_siwx91x
 description: >
   I2C (Inter-Integrated Circuit) is another serial communication protocol. 
   It facilitates communication between multiple devices over just two wires: a data line (SDA - Serial Data) 

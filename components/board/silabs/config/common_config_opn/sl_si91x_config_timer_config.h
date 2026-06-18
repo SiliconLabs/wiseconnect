@@ -103,7 +103,7 @@ sl_config_timer_config_t ct_configuration = {
 #ifndef SL_SCT_PERIPHERAL
 #define SL_SCT_PERIPHERAL SCT
 #endif
-#warning "CT peripheral is not configured. Please configure the CT pins according to the board connections."
+
 // SCT IN0 on GPIO_25
 #ifndef SL_SCT_IN0_PORT
 #define SL_SCT_IN0_PORT HP
@@ -138,5 +138,10 @@ sl_config_timer_config_t ct_configuration = {
 #endif
 // [SCT_SL_SCT]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "Config Timer pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif /* SL_SI91X_CONFIG_TIMER_CONFIG_H */

@@ -19,25 +19,47 @@
 
 // -----------------------------------------------------------------------------
 // Prototypes
+
 /***************************************************************************/ /**
- * It is an initialization function, it initializes the clock, pin configuration
- * init_para for I2C communication.
- * 
+ * Initialize I2C with PS4 power requirement
+ *
+ * Adds PS4, re-initializes GPIO pin mux, resets I2C hardware FSM, and
+ * performs full I2C driver initialization. Call before each I2C transaction
+ * cycle to recover from M4 deep sleep state corruption.
+ *
  * @param none
  * @return none
  ******************************************************************************/
-void i2c_leader_example_init(void);
+void i2c_init(void);
 
 /***************************************************************************/ /**
- * The state machine code for send and receive is implemented here.
- * This function is called in while loop.
- * 
+ * Deinitialize I2C and remove PS4 power requirement
+ *
+ * Performs clean I2C driver shutdown while PS4 is active, then removes PS4
+ * to allow M4 deep sleep between transactions.
+ *
+ * @param none
+ * @return none
+ ******************************************************************************/
+void i2c_deinit(void);
+
+/***************************************************************************/ /**
+ * Execute one I2C temperature read cycle
+ *
+ * Reads temperature from LM75 sensor using a state machine (write pointer
+ * register, then read data). PS4 must be active before calling.
+ *
  * @param none
  * @return none
  ******************************************************************************/
 void i2c_leader_example_process_action(void);
-void i2c_init(void);
 
-extern float sensor_data;
+/***************************************************************************/ /**
+ * Getter function for current temperature sensor reading
+ *
+ * @param none
+ * @return Temperature in Celsius (float)
+ ******************************************************************************/
+float get_sensor_temperature(void);
 
 #endif /* I2C_LEADER_EXAMPLE_H_ */

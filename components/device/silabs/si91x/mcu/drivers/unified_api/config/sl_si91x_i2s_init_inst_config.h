@@ -80,9 +80,12 @@ extern "C" {
 #define SL_INSTANCE_SAMPLING_RATE SL_I2S_SAMPLING_RATE_8000
 
 // </e>
+#else
 
-#endif
-// </e>
+#warning \
+  "The sl_si91x_i2s_init_INSTANCE_config.h file requires specifying the INSTANCE name for custom I2S configurations. To properly configure I2S either enable user configuration by installing the [ENABLE USER CONFIGURATION] component or set USER_CONFIGURATION_ENABLE to 1, and then define all required MACROS in sl_si91x_i2s_init_INSTANCE_config.h according to your board specifications."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

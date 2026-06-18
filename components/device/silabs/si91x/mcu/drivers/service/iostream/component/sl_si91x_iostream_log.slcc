@@ -1,6 +1,6 @@
 id: si91x_iostream_log
 label: SI91X IOSTREAM LOG
-package: platform
+package: platform_siwx91x
 description: >
   This component enables the redirection of printf statements to the default IOSTREAM output stream.
   It automatically configures printf output to use the currently configured IOSTREAM interface,

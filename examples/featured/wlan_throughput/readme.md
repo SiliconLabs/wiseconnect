@@ -105,7 +105,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - Install the [Keil IDE](https://www.keil.com/).
-- Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+- Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
 - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
 - Connect the SiWx91x NCP to STM32F411RE Nucleo Board using the following steps:
   - Connect the male Arduino compatible header on the carrier board to the female Arduino compatible header on the STM32F411RE Nucleo board.
@@ -114,13 +114,13 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   
     ![Figure: Setup](resources/readme/stm32_setup.png)
   - Connect the setup to the computer.
-- Open the Wi-Fi Throughput µVision project - **wlan_throughput.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → wlan_throughput → Keil project**.
+- Open the Wi-Fi Throughput µVision project - **wlan_throughput.uvprojx** by navigating to **WiSeConnect SDK → examples → wlan_throughput → Keil project**.
 
 ### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension 
+- Install Studio and WiSeConnect extension 
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
@@ -218,7 +218,7 @@ Configure the following parameters in `app.c` to test the throughput app as per 
       #define PLL_MODE      1
       ```
 
-  > **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+  > **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -350,5 +350,6 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 ##### For NCP with EFR host:
   ![Figure: TLS_RX](resources/readme/TLS_RX_NCP.png)
 
-**Note:**
->  The captured reference images are measured in an isolated chamber. However, variations can be observed if throughputs are measured in dense environments, i.e., in a dense environment, we can observe less throughput.
+>**Note:** The captured reference images are measured in an isolated chamber. However, variations can be observed if throughputs are measured in dense environments, i.e., in a dense environment, we can observe less throughput.
+
+> **Note:** For UART NCP applications, the handshake feature bit (`SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE`) is enabled by default to ensure reliable socket connections and proper power-save operation. You can control this feature by using the `ENABLE_UART_NCP_BITMAP` macro in your preprocessor settings.

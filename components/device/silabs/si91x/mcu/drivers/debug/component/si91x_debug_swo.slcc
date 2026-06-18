@@ -1,6 +1,6 @@
 id: si91x_debug_swo
 label: SI91X SWO Debug
-package: platform
+package: platform_siwx91x
 description: >
   Driver for debugging using Serial Wire Output.
   The driver can be configured to output hardware interrupt events and

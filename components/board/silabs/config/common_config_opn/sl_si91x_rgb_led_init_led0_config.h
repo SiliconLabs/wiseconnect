@@ -12,7 +12,7 @@
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_LED_LED0_RED
 // $[GPIO_SL_SI91X_LED_LED0_RED]
-#warning "RGB LED is not configured. Please configure the RGB LED pins according to the board connections."
+
 #ifndef SL_SI91X_LED_LED0_RED_PORT
 #define SL_SI91X_LED_LED0_RED_PORT HP
 #endif
@@ -56,21 +56,10 @@
 #define SL_LED_LED0_BLUE_PORT   RTE_LED0_LEDB_PORT
 #define SL_LED_LED0_BLUE_NUMBER RTE_LED0_LEDB_NUMBER
 #define SL_LED_LED0_BLUE_PAD    RTE_LED0_LEDB_PAD
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-#define SL_LED_LED0_RED_PIN    (50 % 16)
-#define SL_LED_LED0_RED_PORT   RTE_LED0_LEDR_PORT
-#define SL_LED_LED0_RED_NUMBER RTE_LED0_LEDR_NUMBER
-#define SL_LED_LED0_RED_PAD    RTE_LED0_LEDR_PAD
 
-#define SL_LED_LED0_GREEN_PIN    (51 % 16)
-#define SL_LED_LED0_GREEN_PORT   RTE_LED0_LEDG_PORT
-#define SL_LED_LED0_GREEN_NUMBER RTE_LED0_LEDG_NUMBER
-#define SL_LED_LED0_GREEN_PAD    RTE_LED0_LEDG_PAD
+#warning \
+  "RGB LED pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
 
-#define SL_LED_LED0_BLUE_PIN    15
-#define SL_LED_LED0_BLUE_PORT   RTE_LED0_LEDB_PORT
-#define SL_LED_LED0_BLUE_NUMBER RTE_LED0_LEDB_NUMBER
-#define SL_LED_LED0_BLUE_PAD    RTE_LED0_LEDB_PAD
-#endif
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_RGB_LED_INIT_INST_CONFIG_H

@@ -77,15 +77,15 @@ static const sl_wifi_device_configuration_t sntp_client_configuration = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                       | SL_SI91X_TCP_IP_FEAT_SNTP_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_WIFI_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -116,11 +116,19 @@ static void application_start(void *argument);
 /******************************************************
  *               Function Definitions
  ******************************************************/
-static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t module_status_handler(sl_wifi_event_t event,
+                                         sl_status_t status_code,
+                                         void *data,
+                                         uint32_t data_length,
+                                         void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
-  sl_si91x_module_state_stats_response_t *notif = (sl_si91x_module_state_stats_response_t *)data;
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  sl_wifi_module_state_stats_response_t *notif = (sl_wifi_module_state_stats_response_t *)data;
 
   SL_DEBUG_LOG("---> Module status handler event with length : %lu\r\n", data_length);
   SL_DEBUG_LOG("  <> Timestamp : %lu, state_code : 0x%02X, reason_code : 0x%02X, channel : %u, rssi : %u.\n",
@@ -139,9 +147,8 @@ static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint
   return SL_STATUS_OK;
 }
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -157,7 +164,7 @@ static void application_start(void *argument)
     printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
-  sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, module_status_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_STATS_RESPONSE_EVENTS, module_status_handler, NULL);
 
   status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
   if (status != SL_STATUS_OK) {

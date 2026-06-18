@@ -1,5 +1,5 @@
 id: nvm3_network_config_manager
-package: wiseconnect3_sdk
+package: wifi
 description: >
   NVM3 Network Config Manager provides an API to manage network credentials and profiles stored in NVM3
 label: NVM3 Network Configuration Manager
@@ -17,8 +17,10 @@ source:
 - path: src/sl_net_nvm_profiles.c
 define:
 - name: SL_SI91X_NVM3_CONFIG_MANAGER
+- name: NVM3_LOCK_OVERRIDE
 requires:
 - name: network_manager
 - name: nvm3_credential_manager
+- name: nvm3_lib
 conflicts:
 - name: basic_network_config_manager

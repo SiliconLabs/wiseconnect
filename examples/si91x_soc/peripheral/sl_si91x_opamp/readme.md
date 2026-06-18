@@ -41,9 +41,9 @@ The following configurations are used in this example:
 
 ## About Example Code
 
-- [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) - This example file initializes the OPAMP peripheral and configure the OPAMP instances by giving input on non-inverting terminal and inverting terminal of the OPAMP and checking output.
-- In this example, first the OPAMP is initialized by enabling clocks and BOD through [`sl_si91x_opamp_init`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-init) API.
-- Sets OPAMP instance and OPAMP feature configuration [`sl_si91x_opamp_set_configuration`](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-set-configuration) API (inputs are configured as per the usecase macros enabled).
+- [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) - This example file initializes the OPAMP peripheral and configure the OPAMP instances by giving input on non-inverting terminal and inverting terminal of the OPAMP and checking output.
+- In this example, first the OPAMP is initialized by enabling clocks and BOD through [`sl_si91x_opamp_init`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-init) API.
+- Sets OPAMP instance and OPAMP feature configuration [`sl_si91x_opamp_set_configuration`](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/opamp#sl-si91x-opamp-set-configuration) API (inputs are configured as per the usecase macros enabled).
 - Optional integration with DAC for external voltage comparison.
 
 ## Prerequisites/Setup Requirements
@@ -51,13 +51,13 @@ The following configurations are used in this example:
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-- For serial console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+- For Serial Console setup instructions, refer to [link name](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -67,11 +67,11 @@ The following configurations are used in this example:
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -90,7 +90,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
-- Configure the following macros in [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) file and update/modify following macros if required.
+- Configure the following macros in [`opamp_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/peripheral/sl_si91x_opamp/opamp_example.c) file and update/modify following macros if required.
 
 1. Select OPAMP Reference Voltage   
     - 2500: 2.5 V
@@ -390,10 +390,15 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 - Calculate the Output Voltage    
   [Vout2=(V2-V1)*R2/R1+Vref]
 
-   **NOTE:** 
+  **Notes:** 
   - The **Instrumentation Amplifier** configuration internally initializes and uses the **DAC peripheral** to provide reference voltage for the differential amplifier stage.
   - This DAC configuration is handled by the driver and does not require user intervention.
   - If you have enabled `DAC` in the OPAMP UC, this will  conflict with the internal DAC usage in Instrumentation Amplifier mode.
+  - In the above formula, Vref (the DAC output voltage) depends on the OPAMP reference voltage.
+    - For an OPAMP reference voltage of 3.3 V, Vref is approximately 1.65 V.
+    - For an OPAMP reference voltage of 2.5 V, Vref is approximately 1.26 V.
+
+    Use the appropriate Vref value in formula based on your selected OPAMP reference voltage.
 
 #### Trans-Impedance Amplifier
 
@@ -405,6 +410,11 @@ Calculate the output voltage [Vout=-(Vin-Vref)*(R2/R1)+Vref].
 - Use a Logic analyzer / Oscilloscope to monitor output voltage.
 - Calculate the output voltage 
   [Vout2=Vref-Iin*R2]
+  **NOTE:**
+   - When DAC is enabled for input selection, VOUT is functional only on GPIO30. Avoid using ULP_GPIO_4 for VOUT, as DAC output on the same pin may cause signal interference and unreliable readings
+   - When using ULP_GPIO_6 and ULP_GPIO_7, ensure that:
+     - No external pull-ups are connected.
+     - No internal pull-ups are enabled.
 
 ### Important Note on OPAMP Selection and Debugging
 

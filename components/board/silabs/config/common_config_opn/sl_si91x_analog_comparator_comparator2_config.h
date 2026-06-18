@@ -37,6 +37,7 @@
 // <h>Analog Comparator Configuration
 
 #define SL_ANALOG_COMPARATOR_COMPARATOR2 2
+#define SL_ANALOG_COMPARATOR2_PIN_INPUT  1
 
 // <o SL_ANALOG_COMPARATOR2_NON_INVERTING_INPUT> Non-inverting Input
 //   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0=> External Input-0
@@ -77,7 +78,7 @@
 #ifndef SL_COMP2_PERIPHERAL
 #define SL_COMP2_PERIPHERAL COMP2
 #endif
-#warning "Analog Comparator peripheral is not configured. Please configure the pins according to the board connections."
+
 // COMP2 COMP_P1 on GPIO_27
 #ifndef SL_COMP2_COMP_P1_PORT
 #define SL_COMP2_COMP_P1_PORT HP
@@ -105,22 +106,16 @@
 #if (SL_ANALOG_COMPARATOR2_NON_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
 // Converting location value to get desired pin for comparator2 non-inverting
 // input
-#define SL_ANALOG_COMPARATOR2_NON_INVERTING_PIN_INPUT SL_COMP2_P1_LOC - 1
+#define SL_ANALOG_COMPARATOR2_NON_INVERTING_PIN_INPUT SL_ANALOG_COMPARATOR2_PIN_INPUT
 #endif
 #if (SL_ANALOG_COMPARATOR2_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
 // Converting location value to get desired pin for comparator2 inverting input
-#define SL_ANALOG_COMPARATOR2_INVERTING_PIN_INPUT SL_COMP2_N1_LOC - 2
+#define SL_ANALOG_COMPARATOR2_INVERTING_PIN_INPUT SL_ANALOG_COMPARATOR2_PIN_INPUT
 #endif
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-#if (SL_ANALOG_COMPARATOR2_NON_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-// Converting location value to get desired pin for comparator2 non-inverting
-// input
-#define SL_ANALOG_COMPARATOR2_NON_INVERTING_PIN_INPUT 1
-#endif
-#if (SL_ANALOG_COMPARATOR2_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-// Converting location value to get desired pin for comparator2 inverting input
-#define SL_ANALOG_COMPARATOR2_INVERTING_PIN_INPUT 1
-#endif
-#endif
+
+#warning \
+  "Analog Comparator 2 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_ANALOG_COMPARATOR_COMPARATOR2_CONFIG_H

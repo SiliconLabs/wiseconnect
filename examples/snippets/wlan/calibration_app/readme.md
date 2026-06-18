@@ -63,7 +63,7 @@ This application demonstrates the procedure to calibrate the carrier frequency o
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -74,13 +74,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit user requirements and development environment. Read through the following sections and make any changes needed. 
 
-1. Ensure that SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION (BIT(18)) is enabled in the sl_wifi_device_configuration_t.sl_si91x_boot_configuration_t.ext_custom_feature_bit_map structure variable. This setting will disable the automatic compensation for frequency offsets, thereby ensuring error-free calibration.
+1. Ensure that SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION (BIT(18)) is enabled in the sl_wifi_device_configuration_t.sl_wifi_system_boot_configuration_t.ext_custom_feature_bit_map structure variable. This setting will disable the automatic compensation for frequency offsets, thereby ensuring error-free calibration.
 
 2. Configure the following parameters in **app.c** to test calibration app as per requirements:
 
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_1;
-  sl_si91x_request_tx_test_info_t tx_test_info = {
+  sl_wifi_request_tx_test_info_t tx_test_info = {
     .enable      = 1,          // Enable/disable tx test mode
     .power       = 18,         // Tx RF power in the range [2:18] dBm
     .rate        = rate,      // WLAN data rate of 6 Mbps
@@ -98,7 +98,7 @@ The application can be configured to suit user requirements and development envi
       3 - Continuous Wave Mode (non modulation) in single tone mode (center frequency -2.5 MHz)
       4 - Continuous Wave Mode (non modulation) in single tone mode (center frequency + 5MHz)
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -115,7 +115,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
  ```sh
     sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_1;
-    sl_si91x_request_tx_test_info_t tx_test_info = {
+    sl_wifi_request_tx_test_info_t tx_test_info = {
       .enable      = 1,          // Enable/disable tx test mode
       .power       = 18,         // Tx RF power in the range [2:18] dBm
       .rate        = rate,      // WLAN data rate of 6 Mbps

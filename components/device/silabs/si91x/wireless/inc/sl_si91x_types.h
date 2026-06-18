@@ -28,7 +28,6 @@
  *
  ******************************************************************************/
 #pragma once
-
 #include "sl_si91x_constants.h"
 #include "sl_wifi_host_interface.h"
 #include "sl_wifi_device.h"
@@ -53,16 +52,6 @@ typedef struct sl_si91x_fdset_s {
 /// Flag to indicate that host would receive the response from firmware in asynchronous manner.
 #define SI91X_PACKET_WITH_ASYNC_RESPONSE (1 << 4)
 
-/// Si91x specific command type
-typedef enum {
-  SI91X_COMMON_CMD      = 0, ///< SI91X Common Command
-  SLI_SI91X_WLAN_CMD    = 1, ///< SI91X Wireless LAN Command
-  SLI_SI91X_NETWORK_CMD = 2, ///< SI91X Network Command
-  SLI_SI91X_BT_CMD      = 3, ///< SI91X Bluetooth Command
-  SLI_SI91X_SOCKET_CMD  = 4, ///< SI91X Socket Command
-  SI91X_CMD_MAX         = 5  ///< SI91X Maximum Command value
-} sli_si91x_command_type_t;
-
 /** \addtogroup SL_SI91X_CONSTANTS 
  * @{
  * */
@@ -73,7 +62,7 @@ typedef enum {
 
 /// Si91x band mode.
 /// @note Only 2.4 GHz is currently supported.
-typedef sl_wifi_band_mode_t sl_si91x_band_mode_t;
+typedef sl_wifi_band_mode_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_band_mode_t;
 
 /// Si91x region code.
 /// @note Singapore region is not currently supported.
@@ -107,10 +96,8 @@ typedef sl_wifi_band_mode_t sl_si91x_band_mode_t;
 #define CN             SL_WIFI_REGION_CN           ///< China
 #define IGNORE_REGION  SL_WIFI_IGNORE_REGION       ///< Do not update region code during initialization
 
-/**
- * @typedef sl_si91x_region_code_t
- */
-typedef sl_wifi_region_code_t sl_si91x_region_code_t; ///< sl_si91x_region_code_t
+/// Si91X Region Code
+typedef sl_wifi_region_code_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_region_code_t; ///< sl_si91x_region_code_t
 
 /// Si91x Wi-Fi VAP ID
 #define SL_SI91X_WIFI_CLIENT_VAP_ID   SL_WIFI_CLIENT_VAP_ID   ///< Wi-Fi Client VAP ID
@@ -118,10 +105,8 @@ typedef sl_wifi_region_code_t sl_si91x_region_code_t; ///< sl_si91x_region_code_
 #define SL_SI91X_WIFI_CLIENT_VAP_ID_1 SL_WIFI_CLIENT_VAP_ID_1 ///< Wi-Fi Client 1 VAP ID
 #define SL_SI91X_WIFI_AP_VAP_ID_1     SL_WIFI_AP_VAP_ID_1     ///< Wi-Fi Access point 1 VAP ID
 
-/**
- * @typedef sl_si91x_vap_id_t
- */
-typedef sl_wifi_vap_id_t sl_si91x_vap_id_t; ///< Si91x Wi-Fi VAP ID
+///Si91x VAP-ID
+typedef sl_wifi_vap_id_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_vap_id_t; ///< Si91x Wi-Fi VAP ID
 
 /// Si91x Timeout types
 typedef enum {
@@ -143,83 +128,35 @@ typedef enum {
  * @{
  * */
 
-/**
-  * @typedef sl_si91x_boot_configuration_t
-  */
-typedef sl_wifi_system_boot_configuration_t sl_si91x_boot_configuration_t; ///< Si91x Boot configuration structure
+///Si91x boot configuration
+typedef sl_wifi_system_boot_configuration_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_boot_configuration_t; ///< Si91x Boot configuration structure
 
-/**
- * @typedef sl_si91x_timeout_t
- */
-typedef sl_wifi_timeout_t sl_si91x_timeout_t; ///< Si91x Timeout configuration structure
+///Si91x Timeout
+typedef sl_wifi_timeout_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_timeout_t; ///< Si91x Timeout configuration structure
 
-/**
- * @typedef sl_si91x_module_state_stats_response_t
- */
-typedef sl_wifi_module_state_stats_response_t sl_si91x_module_state_stats_response_t; ///< Si91x module state statistics
+///Si91x Module State Response
+typedef sl_wifi_module_state_stats_response_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_module_state_stats_response_t; ///< Si91x module state statistics
 
-/**
- * @typedef sl_si91x_fw_version_info_t
- */
-typedef sl_wifi_system_fw_version_info_t sl_si91x_fw_version_info_t; ///< Fireware version information
+/// Si91x Firmware Version
+typedef sl_wifi_system_fw_version_info_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_fw_version_info_t; ///< Fireware version information
 
-/**
- * @typedef sl_si91x_fw_version_ext_info_t
- * Firmware version extended information
- */
-typedef sl_wifi_fw_version_ext_info_t sl_si91x_fw_version_ext_info_t; ///< Firmware version extended information
+/// Si91x Firmware Version Extended information
+typedef sl_wifi_fw_version_ext_info_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_fw_version_ext_info_t; ///< Firmware version extended information
 
-/**
- * @typedef sl_si91x_firmware_header_t
- * 
- */
-typedef sl_wifi_firmware_header_t sl_si91x_firmware_header_t; ///< Firmware header information for Si91x devices.
+/// Si91x Firmware Header
+typedef sl_wifi_firmware_header_t SL_DEPRECATED_API_WISECONNECT_4_0
+  sl_si91x_firmware_header_t; ///< Firmware header information for Si91x devices.
 
 /** @} */
 
 /// driver TX/RX packet structure
-typedef sl_wifi_system_packet_t sl_si91x_packet_t;
-
-/// Si91x queue packet structure
-typedef struct {
-  sl_wifi_buffer_t *host_packet;         ///< Si91x host buffer
-  uint8_t firmware_queue_id;             ///< Si91x firmware queue id
-  sli_si91x_command_type_t command_type; ///< Si91x command type
-  //  uint16_t packet_id;                   ///< Packet id, used internally to track packets
-  uint8_t flags;              ///< One of the values from Si91x packet response flags
-  uint16_t frame_status;      ///< Si91x command status
-  void *sdk_context;          ///< SDK context, unused internally to invoke user callbacks
-  uint32_t command_timeout;   ///< Si91x command timeout
-  uint32_t command_tickcount; ///< Command_tickcount stores the tickcount when the command is given to the bus thread
-} sli_si91x_queue_packet_t;
-
-/// Si91x specific buffer queue structure
-typedef struct {
-  sl_wifi_buffer_t *head; ///< Head
-  sl_wifi_buffer_t *tail; ///< Tail
-} sli_si91x_buffer_queue_t;
+typedef sl_wifi_system_packet_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_packet_t;
 
 /// NWP Buffer allocation command parameters
 /// The summation of all three ratios should max 10 and the ratio should be in decimal value.
-typedef sl_wifi_system_dynamic_pool_t sl_si91x_dynamic_pool;
-
-/// Structure to represent a command queue
-typedef struct {
-  sli_si91x_buffer_queue_t tx_queue;    ///< TX queue
-  sli_si91x_buffer_queue_t rx_queue;    ///< RX queue
-  sli_si91x_buffer_queue_t event_queue; ///< Event queue
-  void *mutex;                          ///< Pointer to mutex
-  uint32_t flag;                        ///< Flags
-  bool sequential;                      ///< Indicates if the commands are sequential
-  bool command_in_flight;               ///< Indicates if a command is currently being processed
-  uint16_t frame_type;                  ///< Type of the frame associated with the command
-  uint8_t firmware_queue_id;            ///< ID of the firmware queue for the command
-  uint32_t rx_counter;                  ///< Counter for received packets
-  uint32_t tx_counter;                  ///< Counter for transmitted packets
-  uint16_t packet_id;                   ///< ID of the packet associated with the command
-  uint8_t flags;                        ///< Flags associated with the command
-  uint32_t command_tickcount;           ///< Command tick count
-  uint32_t command_timeout;             ///< Command timeout
-  void *sdk_context;                    ///< Context data associated with the command
-  bool is_queue_initialiazed;           ///< indicates queue is initialiazed or not.
-} sli_si91x_command_queue_t;
+typedef sl_wifi_system_dynamic_pool_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_dynamic_pool;

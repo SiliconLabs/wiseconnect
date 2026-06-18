@@ -1,5 +1,5 @@
 id: device_needs_ram_execution
-package: platform
+package: platform_siwx91x
 description: >
   RAM Execution Component is used to enable a pre-determined selection of components to execute from RAM.
   Note:

@@ -1,6 +1,6 @@
 id: sl_i2c
 label: I2C
-package: platform
+package: platform_siwx91x
 description: >
   The I2C driver supports read, write, and transferring data in various speed modes. 
   Offering both blocking and non-blocking data transfer functions. 

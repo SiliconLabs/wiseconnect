@@ -83,7 +83,7 @@ extern "C" {
 #ifndef SL_SSI_MASTER_PERIPHERAL
 #define SL_SSI_MASTER_PERIPHERAL SSI_MASTER
 #endif
-#warning "SSI peripheral is not configured. Please configure the SSI pins according to the board connections."
+
 // SSI_MASTER MOSI_DATA0 on GPIO_26
 #ifndef SL_SSI_MASTER_MOSI_DATA0_PORT
 #define SL_SSI_MASTER_MOSI_DATA0_PORT HP
@@ -129,7 +129,12 @@ extern "C" {
 #endif
 // [SSI_MASTER_SL_SSI_MASTER]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "SSI Primary peripheral pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 
 #if (defined(SL_SSI_PRIMARY_TRANSFER_MODE) && (SL_SSI_PRIMARY_TRANSFER_MODE == SPI_TRANSFER_MODE_QUAD))
 #if (SPI_QUAD_MODE != 1)

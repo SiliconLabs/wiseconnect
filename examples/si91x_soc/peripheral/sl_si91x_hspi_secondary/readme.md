@@ -16,6 +16,7 @@
   - [HSPI Secondary Data Flow](#hspi-secondary-data-flow)
 
 ## About Example Code
+
 This example showcases the use of the HSPI secondary interface with GPDMA, providing reliable communication with an SPI primary device and efficient management of HSPI operation callbacks.
 
 ## Prerequisites/Setup Requirements
@@ -23,14 +24,14 @@ This example showcases the use of the HSPI secondary interface with GPDMA, provi
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A]
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
 - An external SPI Primary device.
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) section in the *WiSeConnect Developer's Guide*.
+  - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output) section in the *WiSeConnect Developer's Guide*.
 
 ### Setup Diagram
 
@@ -40,26 +41,20 @@ This example showcases the use of the HSPI secondary interface with GPDMA, provi
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-
-2. [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-3. [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-4. [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
-- Configure UC from the slcp component to enable or disable the DMA.
+- Configure UC from the slcp component to enable or disable the DMA and to set the buffer size.
 
-  >![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
- - To change the buffer size do modify the below macros in [`sl_si91x_hspi_secondary_drv_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_hspi_secondary_drv_config.h) file under config drop down
-  
-      ```c
-      #define SL_HSPI_TX_BUFFER_SIZE 1024    ///< TX buffer Size
-      #define SL_HSPI_RX_BUFFER_SIZE 1024   ///< RX buffer Size
-      ```
-  >![Figure: hspi_buffer_size_config](resources/readme/hspi_buffer_size_config.png)
+  ![Figure: hspi_secondary_uc](resources/uc_screen/hspi_secondary_uc.png)
+
 ### Pin Configuration
 
 | GPIO pin  |  Connection |  Description|
@@ -69,7 +64,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 |GPIO_27   | P29 | HSPI_MOSI |
 |GPIO_28   | P31 | HSPI_MISO |
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, see the [Recommendations Guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -90,14 +85,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   - ####  If GPDMA is disabled
   >![Figure: output_hspi_secondary_blocking](resources/readme/output_hspi_secondary_blocking.png) 
-
-   - If DMA is enabled:
-
-     ![Figure: Introduction](resources/readme/output_hspi_secondary.PNG)
-
-   - If DMA is disabled
-
-     ![Figure: Introduction](resources/readme/output_hspi_secondary_blocking.PNG)
 
 ## HSPI Secondary Data Flow
 

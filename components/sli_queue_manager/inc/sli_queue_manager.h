@@ -29,16 +29,27 @@
  ******************************************************************************/
 #ifndef SLI_QUEUE_MANAGER_H
 #define SLI_QUEUE_MANAGER_H
+
 #include "sli_queue_manager_types.h"
 
 /**
- * @brief Initialize the queue manager instance.
- * @brief This creates an array of queue handles of length indicated by queue_count in the instance pointer provided by the user.
+ * @brief Initializes a queue manager with the specified queue node pool.
  *
- * @param queue Queue Handle.
- * @return sl_status_t
+ * This function sets up a queue manager instance, associating it with a 
+ * specific pool type for managing queue nodes. It prepares the queue 
+ * manager for subsequent operations such as enqueueing and dequeueing.
+ *
+ * @param[in,out] handle Pointer to the queue manager instance to initialize.
+ *                       This must be a valid pointer to an uninitialized 
+ *                       `sli_queue_t` structure.
+ * @param[in] queue_node_pool The type of pool to use for managing queue nodes.
+ *                            This specifies the memory pool from which 
+ *                            queue nodes will be allocated.
+ *
+ * @return SL_STATUS_OK if the initialization was successful.
+ *         Appropriate error code otherwise.
  */
-sl_status_t sli_queue_manager_init(sli_queue_t *handle);
+sl_status_t sli_queue_manager_init(sli_queue_t *handle, sli_buffer_manager_pool_types_t queue_node_pool);
 
 /**
  * @brief Enqueue a packet to the queue.
@@ -47,7 +58,20 @@ sl_status_t sli_queue_manager_init(sli_queue_t *handle);
  * @param node Packet which is to be added in to the queue. 
  * @return sl_status_t
  */
-sl_status_t sli_queue_manager_enqueue(sli_queue_t *handle, sl_slist_node_t *node);
+sl_status_t sli_queue_manager_enqueue(sli_queue_t *handle, void *data);
+
+/**
+ * @brief Enqueues a node into the specified queue.
+ *
+ * This function adds the given node to the end of the queue managed by the provided handle.
+ *
+ * @param[in,out] handle Pointer to the queue handle where the node will be enqueued.
+ * @param[in] node Pointer to the queue node to be enqueued.
+ * @return sl_status_t Status code indicating the result of the operation.
+ *         - SL_STATUS_OK on success.
+ *         - Appropriate error code on failure (e.g., invalid parameters, queue full).
+ */
+sl_status_t sli_queue_manager_enqueue_node(sli_queue_t *handle, sli_queue_node_t *node);
 
 /**
  * @brief Add a packet to the head of the queue identified by queue_id in the given instance.
@@ -56,7 +80,7 @@ sl_status_t sli_queue_manager_enqueue(sli_queue_t *handle, sl_slist_node_t *node
  * @param node Packet which is to be added in to the queue.
  * @return sl_status_t
  */
-sl_status_t sli_queue_manager_add_to_queue_head(sli_queue_t *handle, sl_slist_node_t *node);
+sl_status_t sli_queue_manager_add_to_queue_head(sli_queue_t *handle, void *data);
 
 /**
  * @brief Dequeue a packet from the queue identified by queue_id in the given instance.
@@ -65,7 +89,25 @@ sl_status_t sli_queue_manager_add_to_queue_head(sli_queue_t *handle, sl_slist_no
  * @param node Pointer to hold packet which is to be removed from the queue.
  * @return sl_status_t
  */
-sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, sl_slist_node_t **node);
+sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, void **data);
+
+/**
+ * @brief Dequeues a node from the specified queue.
+ *
+ * Removes the front node from the queue referenced by the given handle and returns
+ * a pointer to the dequeued node through the data parameter.
+ *
+ * @param[in]  handle Pointer to the queue handle from which to dequeue a node.
+ * @param[out] node  Pointer to a pointer that will receive the dequeued node.
+ *
+ * @return sl_status_t
+ *         - SL_STATUS_OK if the operation was successful.
+ *         - SL_STATUS_EMPTY if the queue is empty.
+ *         - SL_STATUS_NULL_POINTER if handle or data is NULL.
+ *
+ * @note The caller is responsible for managing the memory of the dequeued node.
+ */
+sl_status_t sli_queue_manager_dequeue_node(sli_queue_t *handle, sli_queue_node_t **node);
 
 /**
  * @brief Remove a packet from the queue identified by id_handler.
@@ -79,7 +121,7 @@ sl_status_t sli_queue_manager_dequeue(sli_queue_t *handle, sl_slist_node_t **nod
 sl_status_t sli_queue_manager_remove_node_from_queue(sli_queue_t *handle,
                                                      sli_queue_manager_node_match_handler_t id_handler,
                                                      void *node_match_data,
-                                                     sl_slist_node_t **node);
+                                                     void **data);
 
 /**
  * @brief Remove all packets from the queue identified by id_handler.

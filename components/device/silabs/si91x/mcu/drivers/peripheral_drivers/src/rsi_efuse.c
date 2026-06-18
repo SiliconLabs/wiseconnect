@@ -365,7 +365,7 @@ rsi_error_t efuse_direct_read_byte(EFUSE_Type *pstcEfuse, uint16_t u16Addr, uint
   return RSI_OK;
 }
 
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 // This creates a table with the addresses of all the functions
 // This table of function pointers is the API interface.
 

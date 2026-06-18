@@ -1,5 +1,5 @@
 id: sl_veml6035
-package: platform
+package: platform_siwx91x
 label: VEML6035
 description: >
   The VEML6035 Ambient Light Sensor provides an implementation of a highly accurate ambient light sensor API.

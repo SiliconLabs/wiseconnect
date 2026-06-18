@@ -1,6 +1,6 @@
 id: wakeup_source_config
 label: PM Wakeup Source Configuration
-package: platform
+package: platform_siwx91x
 description: >
   Wakeup Source Configuration component will enable the NPSS peripherals as wakeup source. 
   This also initializes the peripheral and configure as a wakeup source as per the selection in User Configuration.

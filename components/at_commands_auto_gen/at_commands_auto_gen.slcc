@@ -1,5 +1,5 @@
 id: at_commands_auto_gen
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Generates AT commands support files from template files
 label: AT Commands Autogen

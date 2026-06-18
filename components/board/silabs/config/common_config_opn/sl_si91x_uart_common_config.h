@@ -31,23 +31,39 @@
 #ifndef SL_SI91X_UART_COMMON_CONFIG_H
 #define SL_SI91X_UART_COMMON_CONFIG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* NOTE: User should configure all macros defined below, while creating an
+ * instance other than pre-defined one */
+
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>DMA Configuration
+// <h>UART1 Configuration
 
 // <q SL_UART1_DMA_CONFIG_ENABLE> UART1 DMA
 // <i> Default: 1
 #define SL_UART1_DMA_CONFIG_ENABLE 1
 
+// <o SL_UART1_CLOCK_SRC> UART1 Clock Source
+// <USART_ULPREFCLK=> ULP REF CLK
+// <USART_SOCPLLCLK=> SOC PLL CLK
+// <USART_INTFPLLCLK=> INTF PLL CLK
+// <i> Default: USART_ULPREFCLK
+#define SL_UART1_CLOCK_SRC USART_ULPREFCLK
+
 // </h>
 // <<< end of configuration section >>>
+
 #if USER_CONFIGURATION_ENABLE
+
 // <<< sl:start pin_tool >>>
 // <uart1 signal=TX,RX,CTS,RTS> SL_UART1
 // $[UART1_SL_UART1]
 #ifndef SL_UART1_PERIPHERAL
 #define SL_UART1_PERIPHERAL UART1
 #endif
-#warning "UART peripheral is not configured. Please configure the UART pins according to the board connections."
+
 // UART1 TX on GPIO_7
 #ifndef SL_UART1_TX_PORT
 #define SL_UART1_TX_PORT HP
@@ -93,5 +109,14 @@
 #endif
 // [UART1_SL_UART1]$
 // <<< sl:end pin_tool >>>
+
+#else
+
+#warning \
+  "UART peripheral pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
+#ifdef __cplusplus
+}
 #endif
 #endif // SL_SI91X_UART_COMMON_CONFIG_H

@@ -1,5 +1,5 @@
 id: ble
-package: wiseconnect3_sdk
+package: bluetooth_le_siwx91x
 description: >
   BLE API Implementation
 label: BLE

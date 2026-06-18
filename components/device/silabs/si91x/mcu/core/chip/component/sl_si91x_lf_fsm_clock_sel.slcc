@@ -1,6 +1,6 @@
 id: sl_si91x_lf_fsm_clock_selection
 label: SL SI91X LF-FSM CLOCK SELECTION
-package: platform
+package: platform_siwx91x
 metadata:
   sbom:
     license: MSLA

@@ -50,11 +50,7 @@ void adc_static_mode_example_init(void)
 {
   sl_adc_version_t version;
   sl_status_t status;
-#ifdef SLI_SI915
-  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
-#else
-  sl_adc_channel_config.channel = 0;
-#endif
+  sl_adc_channel_config.channel = SL_ADC_CHANNEL_1;
 
   do {
     // Version information of ADC driver

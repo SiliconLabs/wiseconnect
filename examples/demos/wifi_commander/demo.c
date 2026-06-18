@@ -50,17 +50,17 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define APP_MAJOR_VERSION   3
-#define APP_MINOR_VERSION   5
+#define APP_MAJOR_VERSION   4
+#define APP_MINOR_VERSION   0
 #define APP_PATCH_VERSION   0
 #define FW_CHIP_ID          23
 #define FW_ROM_ID           17
 #define FW_MAJOR            2
-#define FW_MINOR            14
+#define FW_MINOR            15
 #define FW_SECURITY_VERSION 5
 #define FW_PATCH_NUM        0
 #define FW_CUSTOMER_ID      0
-#define FW_BUILD_NUM        6
+#define FW_BUILD_NUM        2
 
 /******************************************************
  *                   Enumerations
@@ -79,23 +79,31 @@
  ******************************************************/
 void application_start(const void *unused);
 
-static sl_status_t wifi_ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t wifi_ap_connected_event_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
+                                                   void *data,
+                                                   uint32_t data_length,
+                                                   void *arg);
 static sl_status_t wifi_ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                      sl_status_t status_code,
                                                       void *data,
                                                       uint32_t data_length,
                                                       void *arg);
 static sl_status_t wifi_client_scan_event_handler(sl_wifi_event_t event,
+                                                  sl_status_t status_code,
                                                   sl_wifi_scan_result_t *result,
                                                   uint32_t result_length,
                                                   void *arg);
 static sl_status_t wifi_scan_results_event(sl_wifi_scan_result_t *scan_result);
 
 static sl_status_t wifi_client_join_callback_handler(sl_wifi_event_t event,
+                                                     sl_status_t status_code,
                                                      char *result,
                                                      uint32_t result_length,
                                                      void *arg);
 
 static sl_status_t wifi_client_module_status_handler(sl_wifi_event_t event,
+                                                     sl_status_t status_code,
                                                      void *data,
                                                      uint32_t data_length,
                                                      void *arg);
@@ -120,22 +128,23 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
 void wifi_set_all_event_group_cb(void)
 {
   // This API would never fail, No return check required
-  sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, wifi_ap_connected_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, wifi_ap_disconnected_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_SCAN_RESULT_EVENTS, (sl_wifi_callback_function_t)wifi_client_scan_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_JOIN_EVENTS, (sl_wifi_callback_function_t)wifi_client_join_callback_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS,
-                       (sl_wifi_callback_function_t)wifi_client_module_status_handler,
-                       NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, wifi_ap_connected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, wifi_ap_disconnected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_SCAN_RESULT_EVENTS,
+                          (sl_wifi_callback_function_v2_t)wifi_client_scan_event_handler,
+                          NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_JOIN_EVENTS, (sl_wifi_callback_function_v2_t)wifi_client_join_callback_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_STATS_RESPONSE_EVENTS,
+                          (sl_wifi_callback_function_v2_t)wifi_client_module_status_handler,
+                          NULL);
   return;
 }
 
@@ -164,12 +173,19 @@ void application_start(const void *unused)
   }
 }
 
-static sl_status_t wifi_ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t wifi_ap_connected_event_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
+                                                   void *data,
+                                                   uint32_t data_length,
+                                                   void *arg)
 {
   // Suppress warnings for unused parameters
   UNUSED_PARAMETER(data_length);
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // Cast the void pointer to sl_mac_address_t* to access the MAC address of the connected client
   // Notify the xAPI event handler about the client connection
@@ -179,14 +195,18 @@ static sl_status_t wifi_ap_connected_event_handler(sl_wifi_event_t event, void *
 }
 
 static sl_status_t wifi_ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                      sl_status_t status_code,
                                                       void *data,
                                                       uint32_t data_length,
                                                       void *arg)
 {
   // Suppress warnings for unused parameters
   UNUSED_PARAMETER(data_length);
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // Cast the void pointer to sl_mac_address_t* to access the MAC address of the disconnected client
   // Notify the xAPI event handler about the client disconnection
@@ -196,17 +216,19 @@ static sl_status_t wifi_ap_disconnected_event_handler(sl_wifi_event_t event,
 }
 
 static sl_status_t wifi_client_scan_event_handler(sl_wifi_event_t event,
+                                                  sl_status_t status_code,
                                                   sl_wifi_scan_result_t *result,
                                                   uint32_t result_length,
                                                   void *arg)
 {
   sl_status_t status = SL_STATUS_FAIL;
   UNUSED_PARAMETER(arg);
+
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     //Raise a scan failed event
     app_wifi_evt_scan_error_event(SL_STATUS_FAIL);
 
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   if (result_length != 0) {
     status = wifi_scan_results_event(result);
@@ -215,6 +237,7 @@ static sl_status_t wifi_client_scan_event_handler(sl_wifi_event_t event,
 }
 
 static sl_status_t wifi_client_join_callback_handler(sl_wifi_event_t event,
+                                                     sl_status_t status_code,
                                                      char *result,
                                                      uint32_t result_length,
                                                      void *arg)
@@ -222,23 +245,30 @@ static sl_status_t wifi_client_join_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(result_length);
+
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     app_wifi_evt_client_join_event(0);
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   app_wifi_evt_client_join_event(1);
   return SL_STATUS_OK;
 }
 
-static sl_status_t wifi_client_module_status_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t wifi_client_module_status_handler(sl_wifi_event_t event,
+                                                     sl_status_t status_code,
+                                                     void *data,
+                                                     uint32_t data_length,
+                                                     void *arg)
 {
   // Suppress warnings for unused parameters
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
   UNUSED_PARAMETER(data_length);
 
-  // Cast the void pointer to sl_si91x_module_state_stats_response_t* to access the module state statistics
-  sl_si91x_module_state_stats_response_t *notif = (sl_si91x_module_state_stats_response_t *)data;
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+  // Cast the void pointer to sl_wifi_module_state_stats_response_t* to access the module state statistics
+  sl_wifi_module_state_stats_response_t *notif = (sl_wifi_module_state_stats_response_t *)data;
 
   // Notify the xAPI event handler about the module state statistics
   /*

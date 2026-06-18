@@ -80,7 +80,12 @@ volatile uint16_t rsi_ble_att1_val_hndl;
 volatile uint16_t rsi_ble_att2_val_hndl;
 volatile uint16_t rsi_ble_att3_val_hndl;
 extern void rsi_ui_app_task(void);
+#if (WIFI_APP == MQTT_APP)
 void wifi_app_task();
+#elif (WIFI_APP == TCP_APP)
+void wlan_app_thread(void *unused);
+#endif
+
 uint32_t rsi_app_resp_max_no_of_supp_adv_sets       = 0;
 uint32_t rsi_app_resp_max_adv_data_len              = 0;
 int8_t rsi_app_resp_tx_power                        = 0;
@@ -90,7 +95,15 @@ uint8_t rsi_app_resp_get_dev_addr[RSI_DEV_ADDR_LEN] = { 0 };
 #define RSI_BLE_CHAR_SERV_UUID   0x2803
 #define RSI_BLE_CLIENT_CHAR_UUID 0x2902
 
+#if BTDM_DEBUG_LOGGING
+#include "SEGGER_RTT.h"
+osSemaphoreId_t bt_debug_logs_sem;
+static uint8_t si91x_application_debug_buffer[1024] = { 0 };
+extern void rsi_task_bt_debug_logs(void);
+#endif
+
 osSemaphoreId_t ble_wait_on_connect;
+
 int32_t rsi_ble_dual_role(void);
 void connect_timeout_handler(TimerHandle_t xTimer);
 
@@ -120,7 +133,7 @@ static const sl_wifi_device_configuration_t
                .oper_mode = SL_SI91X_CLIENT_MODE,
                .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
-               .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+               .feature_bit_map = (SL_WIFI_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
                                    | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1),
 #else
                .feature_bit_map        = SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE | SL_SI91X_FEAT_DEV_TO_HOST_ULP_GPIO_1,
@@ -132,9 +145,10 @@ static const sl_wifi_device_configuration_t
 #endif
                                          | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL,
 
-               .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+               .custom_feature_bit_map =
+                 (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                .ext_custom_feature_bit_map =
-                 (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+                 (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
 #ifdef RSI_PROCESS_MAX_RX_DATA
                .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_TCP_MAX_RECV_LENGTH),
@@ -179,8 +193,11 @@ static const sl_wifi_device_configuration_t
 #if RSI_BLE_AE_MAX_ADV_SETS
                   | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
+#if BTDM_DEBUG_LOGGING
+                  | BIT(25)
+#endif
                     ),
-               .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) } };
+               .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP) } };
 
 const osThreadAttr_t thread_attributes = {
   .name       = "common_thread",
@@ -228,6 +245,21 @@ const osThreadAttr_t wifi_thread_attributes = {
   .tz_module  = 0,
   .reserved   = 0,
 };
+
+#if BTDM_DEBUG_LOGGING
+const osThreadAttr_t bt_debug_logs_thread_attributes = {
+  .name       = "bt_debug_logs_thread",
+  .attr_bits  = 0,
+  .cb_mem     = 0,
+  .cb_size    = 0,
+  .stack_mem  = 0,
+  .stack_size = 1024,
+  .priority   = osPriorityBelowNormal3,
+  .tz_module  = 0,
+  .reserved   = 0,
+};
+#endif
+
 rsi_ble_att_list_t *rsi_gatt_get_attribute_from_list(rsi_ble_t *p_val, uint16_t handle)
 {
   uint16_t i;
@@ -1296,6 +1328,9 @@ int32_t rsi_ble_dual_role(void)
   rsi_ble_add_simple_chat_serv2();
   //! adding BLE Custom  Service service
   rsi_ble_add_custom_service_serv();
+#if BTDM_DEBUG_LOGGING
+  osSemaphoreRelease(bt_debug_logs_sem);
+#endif
 
   // callbacks
 
@@ -1393,6 +1428,14 @@ void rsi_wlan_ble_app_init(void)
     return;
   }
   printf("\r\nWi-Fi initialization is successful\n");
+#if BTDM_DEBUG_LOGGING
+  SEGGER_RTT_ConfigUpBuffer(1,
+                            "Si91x_ApplicationDebugBuffer",
+                            si91x_application_debug_buffer,
+                            sizeof(si91x_application_debug_buffer),
+                            SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+  printf("\r\nrtt config is successful\n");
+#endif
   //! Firmware version Prints
   status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
@@ -1425,12 +1468,32 @@ void rsi_wlan_ble_app_init(void)
   }
   //! Thread created for WIFI task
 #if WLAN_TASK_ENABLE
+#if (WIFI_APP == MQTT_APP)
   wifi_app_thread_id = osThreadNew((osThreadFunc_t)wifi_app_task, NULL, &wifi_thread_attributes);
   if (wifi_app_thread_id == NULL) {
     printf("\r\nwifi_app_thread failed to create\r\n");
     return;
   }
 #endif
+#if (WIFI_APP == TCP_APP)
+  wifi_app_thread_id = osThreadNew((osThreadFunc_t)wlan_app_thread, NULL, &wifi_thread_attributes);
+  if (wifi_app_thread_id == NULL) {
+    printf("\r\nwifi_app_thread failed to create\r\n");
+    return;
+  }
+#endif
+#endif
+#if BTDM_DEBUG_LOGGING
+  bt_debug_logs_sem = osSemaphoreNew(1, 0, NULL);
+  //! Create task for btdm debug logs
+  osThreadId_t bt_debug_logs_thread_id =
+    osThreadNew((osThreadFunc_t)rsi_task_bt_debug_logs, NULL, &bt_debug_logs_thread_attributes);
+  if (bt_debug_logs_thread_id == NULL) {
+    printf("\r\nbt_debug_logs_thread failed to create\r\n");
+    return;
+  }
+#endif
+
   osThreadTerminate(osThreadGetId());
   while (1)
     ;
@@ -1438,5 +1501,10 @@ void rsi_wlan_ble_app_init(void)
 
 void app_init(void)
 {
+#if BTDM_DEBUG_LOGGING
+  // Initialize RTT before any other operations
+  SEGGER_RTT_Init();
+  printf("\r\n RTT Initialization completed\r\n");
+#endif
   osThreadNew((osThreadFunc_t)rsi_wlan_ble_app_init, NULL, &thread_attributes);
 }

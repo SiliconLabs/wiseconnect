@@ -1,6 +1,6 @@
 id: sl_gspi
 label: GSPI
-package: platform
+package: platform_siwx91x
 description: >
   The GSPI Master driver supports sending, receiving, and transferring data at 116 MHz. 
   It enables full duplex and half duplex communication modes. 

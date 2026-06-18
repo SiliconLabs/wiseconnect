@@ -32,6 +32,7 @@
 #if !defined(GPIO_PRESENT)
 #include "sl_status.h"
 #include "sl_driver_gpio.h"
+#include "base_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -195,6 +196,45 @@ sl_status_t sl_si91x_gpio_driver_enable_host_pad_selection(uint8_t gpio_num);
  *******************************************************************************/
 sl_status_t sl_si91x_gpio_driver_select_pad_driver_strength(uint8_t gpio_num,
                                                             sl_si91x_gpio_driver_strength_select_t strength);
+
+/***************************************************************************/ /**
+ * @brief      Select power-on start for the HP instance of the GPIO peripheral.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock()
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver()
+ *
+ * @param[in]  gpio_num - GPIO pin number to be used (valid range: 6 to 57).
+ * @param[in]  pos      - Power-on start position of type sl_si91x_gpio_pos_t:
+ * -               '0' - Disable
+ * -               '1' - Enable
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_enable_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos);
+
+/***************************************************************************/ /**
+ * @brief      Select the Schmitt trigger for the HP instance of the GPIO peripheral.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock()
+ * -   \ref sl_si91x_gpio_driver_enable_pad_receiver()
+ *
+ * @param[in]  gpio_num     - GPIO pin number to be used (valid range: 6 to 57).
+ * @param[in]  schmitt_trig - Schmitt trigger of type sl_si91x_gpio_schmitt_trig_t:
+ * -               '0' - Disable
+ * -               '1' - Enable
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_select_pad_schmitt_trigger(uint8_t gpio_num,
+                                                            sl_si91x_gpio_schmitt_trig_t schmitt_trig);
 
 /***************************************************************************/ /**
  * @brief    Select the configuration of pull-up, pull-down, or repeater functionality 
@@ -665,6 +705,45 @@ sl_status_t sl_si91x_gpio_driver_select_ulp_pad_driver_strength(uint8_t gpio_num
                                                                 sl_si91x_gpio_driver_strength_select_t strength);
 
 /***************************************************************************/ /**
+ * @brief      Select power-on-start for the ULP instance of the GPIO peripheral.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock()
+ * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver()
+ *
+ * @param[in]  gpio_num - GPIO pin number to be used.
+ * @param[in]  pos      - Power-on start position of type sl_si91x_gpio_pos_t:
+ * -               '0' - Disable
+ * -               '1' - Enable
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_enable_ulp_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos);
+
+/***************************************************************************/ /**
+ * @brief      Select the Schmitt trigger for the ULP instance of the GPIO peripheral.
+ * @pre Pre-conditions:
+ * -   \ref sl_si91x_gpio_driver_enable_clock()
+ * -   \ref sl_si91x_gpio_driver_enable_ulp_pad_receiver()
+ *
+ * @param[in]  gpio_num     - GPIO pin number to be used.
+ * @param[in]  schmitt_trig - Schmitt trigger of type sl_si91x_gpio_schmitt_trig_t:
+ * -               '0' - Disable
+ * -               '1' - Enable
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *
+ * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *******************************************************************************/
+sl_status_t sl_si91x_gpio_driver_select_ulp_pad_schmitt_trigger(uint8_t gpio_num,
+                                                                sl_si91x_gpio_schmitt_trig_t schmitt_trig);
+
+/***************************************************************************/ /**
  * @brief  Select the configuration of pull-up, pull-down, or repeater functionality 
  *            for GPIO pins in the Ultra-Low-Power (ULP) instance. 
  * @pre Pre-conditions:
@@ -911,7 +990,7 @@ sl_status_t sl_si91x_gpio_driver_clear_uulp_npss_wakeup_interrupt(uint8_t npssgp
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
-sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_interrupt) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
  * @brief       Unmask the selected UULP GPIO interrupt.
@@ -931,7 +1010,8 @@ sl_status_t sl_si91x_gpio_driver_mask_uulp_npss_interrupt(uint8_t npssgpio_inter
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
-sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt);
+sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_interrupt)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
  * @brief    Clear the selected UULP GPIO interrupt.
@@ -952,7 +1032,7 @@ sl_status_t sl_si91x_gpio_driver_unmask_uulp_npss_interrupt(uint8_t npssgpio_int
  * 
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
-sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt);
+sl_status_t sl_si91x_gpio_driver_clear_uulp_interrupt(uint8_t npssgpio_interrupt) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
  * @brief       Mask the selected UULP GPIO interrupt.

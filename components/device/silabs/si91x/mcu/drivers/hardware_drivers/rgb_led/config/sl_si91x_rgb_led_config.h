@@ -11,8 +11,6 @@
 
 #ifdef SLI_SI917
 #include "RTE_Device_917.h"
-#else
-#include "RTE_Device_915.h"
 #endif
 
 #define SL_SI91X_RGB_LED_COUNT 1 // Define the number of RGB LEDs

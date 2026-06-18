@@ -35,6 +35,7 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 #include "sl_si91x_attestation.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
@@ -96,7 +97,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  attest,
                                                  (sizeof(sli_si91x_rsi_token_req_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(600000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   if (status != SL_STATUS_OK) {
     free(attest);
     if (buffer != NULL)
@@ -105,10 +106,10 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          attest,
                                          sizeof(sli_si91x_rsi_token_req_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(600000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -120,7 +121,7 @@ sl_status_t sl_si91x_attestation_get_token(uint8_t *token, uint16_t length, uint
 #endif
     return status;
   }
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   memcpy(token, packet->data, packet->length);
 #endif

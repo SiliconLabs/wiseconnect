@@ -1,6 +1,6 @@
 id: sdio_slave_drv
 label: SDIO Slave Driver
-package: platform
+package: platform_siwx91x
 description: >
   This component provides access to the SDIO Slave driver. 
 category: Device|Si91x|MCU|Peripheral|SDIO Slave Driver

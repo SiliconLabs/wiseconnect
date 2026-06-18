@@ -1,5 +1,5 @@
 id: http_client
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The HTTP Client provides an API to start a HTTP client service
 label: HTTP Client

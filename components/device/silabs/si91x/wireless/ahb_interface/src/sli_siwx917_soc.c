@@ -466,7 +466,7 @@ void unmask_ta_interrupt(uint32_t interrupt_no)
 
 void sli_m4_ta_interrupt_init(void)
 {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   //! Unmask the interrupt
   unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
                       | NWP_DEINIT_IN_COMM_FLASH
@@ -494,4 +494,59 @@ void sli_m4_ta_interrupt_init(void)
 void sli_si91x_ulp_wakeup_init(void)
 {
   // for compilation
+}
+
+/***************************************************************************/ /**
+ *  @fn          int16_t sli_si91x_set_default_nwp_fw(const uint8_t fw_image_number)
+ *  @pre         None
+ *  @brief       Selects the default NWP firmware image to load.
+ *               This function sends the appropriate command to select which
+ *               firmware image (0 or 1) should be loaded on boot.
+ *  @param[in]   fw_image_number    Firmware image number to select (0 or 1)
+ *  @return      errCode
+ *               0  = SUCCESS - RSI_ERROR_NONE
+ *               -1 = Timeout waiting for acknowledgment
+ *               -2 = Invalid firmware image number - RSI_ERROR_INVALID_PARAM
+ * @section description
+ * This API is used to set a default NWP firmware image during boot up.
+ ******************************************************************************/
+int16_t sli_si91x_set_default_nwp_fw(const uint8_t fw_image_number)
+{
+  uint16_t boot_cmd              = 0;
+  volatile uint32_t loop_counter = 0;
+  uint16_t out_reg_val           = 0;
+
+  if (fw_image_number > 1) {
+    return RSI_ERROR_INVALID_PARAM; // Error if firmware image number is not 0 or 1
+  }
+  // Prepare command with firmware image number
+  boot_cmd = HOST_INTERACT_REG_VALID
+             | SLI_SELECT_DEFAULT_NWP_FW_IMAGE_NUMBER; // Command to select default NWP firmware image
+
+  boot_cmd &= 0xF0FF;                           // Clear the lower nibble of the second byte
+  boot_cmd |= (uint16_t)(fw_image_number << 8); // Add the firmware image number
+
+  // Interrupts are being disabled but this API is expected to be called during bootup
+  __asm volatile("cpsid i" ::: "memory");
+
+  // Write the command to the interface register
+  SI91X_INTERFACE_IN_REGISTER = (uint32_t)boot_cmd;
+  __asm volatile("dsb");
+  __asm volatile("isb");
+
+  RSI_RESET_LOOP_COUNTER(loop_counter);
+  RSI_WHILE_LOOP((uint32_t)loop_counter, RSI_LOOP_COUNT_SET_IMAGE_WAIT)
+  {
+    out_reg_val = (*(volatile uint16_t *)(SLI_HOST_INTF_REG_OUT));
+    if (out_reg_val == (uint16_t)(SLI_SELECT_DEFAULT_NWP_FW_IMAGE_NUMBER | HOST_INTERACT_REG_VALID)) {
+      break;
+    }
+  }
+  // Enable the interrupts.
+  __asm volatile("cpsie i" ::: "memory");
+
+  // Return -1 if timedout waiting for response
+  RSI_CHECK_LOOP_COUNTER(loop_counter, RSI_LOOP_COUNT_SET_IMAGE_WAIT);
+
+  return RSI_ERROR_NONE;
 }

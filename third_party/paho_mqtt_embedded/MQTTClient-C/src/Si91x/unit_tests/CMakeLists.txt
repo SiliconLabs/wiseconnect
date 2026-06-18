@@ -6,6 +6,7 @@ include_directories(./inc
                     ../../../../../../components/common/inc
                     ../../../../../googletest/googletest/include
                     ../../../../../googletest/googlemock/include
+                    ../../../../../../components/sli_wifi/inc
                     ../../../../../../components/gsdk/common/inc
                     ../../../../../../components/protocol/wifi/inc
                     ../../../../../../components/service/bsd_socket/inc
@@ -16,6 +17,8 @@ include_directories(./inc
                     ../../../../../../components/device/silabs/si91x/wireless/inc
                     ../../../../../../components/device/silabs/si91x/wireless/socket/inc
                     ../../../../../../components/device/silabs/si91x/wireless/sl_net/inc
+                    ../../../../../../components/sli_wifi/inc
+                    ../../../../../../components/service/mdns/inc
 )
 
 # Add unit test cpp here

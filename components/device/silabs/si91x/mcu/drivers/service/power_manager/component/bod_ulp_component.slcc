@@ -1,6 +1,6 @@
 id: bod_ulp_component
 label: PM ULP BOD
-package: platform
+package: platform_siwx91x
 description: >
   ULP BOD component will enable BOD in the low-power state. It moves all the peripheral dependencies in RAM. 
   It also installs the peripheral component if already not installed. 
@@ -21,7 +21,7 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: bod_ps2
-    value: rsi_bod.o
+    value: rsi_bod.*
   - name: bod_ps2
-    value: sl_si91x_bod.o
+    value: sl_si91x_bod.*
 

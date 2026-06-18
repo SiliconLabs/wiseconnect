@@ -40,10 +40,6 @@ extern "C" {
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <e>DAC Enable
-#define INPUT_DAC_NEG_INPUT_EXTERNAL 0
-// </e>
-
 // <h>OPAMP Common Configuration
 
 // <o OPAMP_REF_VOLT> OPAMP Reference Voltage
@@ -52,20 +48,9 @@ extern "C" {
 // <i> Selection of OPAMP Reference Voltage
 #define OPAMP_REF_VOLT 3300
 
-// <o SL_OPAMP_CONFIGURATION_SELECTION> OPAMP Feature Selection
-//   <SL_OPAMP_UNITY_GAIN=> Unity Gain
-//   <SL_OPAMP_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Inverting PGA
-//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Non-Inverting PGA
-//   <SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP=> Inverting Hysteresis Comparator
-//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_HYST_COMP=> Non-Inverting Hysteresis Comparator
-//   <SL_OPAMP_CASCADED_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=>  Cascaded Inverting PGA
-//   <SL_OPAMP_CASCADED_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Cascaded Non-inverting PGA
-//   <SL_OPAMP_TWO_OPAMPS_DIFFERENTIAL_AMPLIFIER=> Two OPAMPs Differential Amplifier
-//   <SL_OPAMP_TRANS_IMPEDANCE_AMPLIFIER=> Trans-Impedance Amplifier
-//   <SL_OPAMP_INSTRUMENTATION_AMPLIFIER=> Instrumentation Amplifier
-// <i> Selection of OPAMP Feature
-
-#define SL_OPAMP_CONFIGURATION_SELECTION SL_OPAMP_UNITY_GAIN
+// <q INPUT_DAC_NEG_INPUT_EXTERNAL> DAC Enable
+// <i> Default: 0
+#define INPUT_DAC_NEG_INPUT_EXTERNAL 0
 
 // </h>
 // <<< end of configuration section >>>

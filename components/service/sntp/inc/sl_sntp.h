@@ -246,7 +246,7 @@ typedef struct {
  *    A valid pointer to the client configuration structure of type @ref sl_sntp_client_config_t. This parameter must not be null.
  * 
  * @param[in] timeout
- *    The timeout for starting the SNTP client. If the timeout is greater than 0, this function operates in blocking mode. Otherwise, results are returned via the @ref sl_sntp_client_event_handler_t callback.
+ *    The timeout for starting the SNTP client in milliseconds (ms). If the timeout is greater than 0, this function operates in blocking mode. Otherwise, results are returned via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @return
  *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
@@ -274,7 +274,7 @@ sl_status_t sl_sntp_client_start(sl_sntp_client_config_t *config, uint32_t timeo
  *   The length of the data buffer. In asynchronous mode, this parameter is given to the user in the user_data_length parameter of the event handler.
  * 
  * @param[in] timeout
- *   The timeout for getting the time. If the timeout is greater than 0, this function operates in blocking mode. Otherwise, results are returned via the @ref sl_sntp_client_event_handler_t callback.
+ *   The timeout for getting the time in milliseconds (ms). If the timeout is greater than 0, this function operates in blocking mode. Otherwise, results are returned via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @return
  *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
@@ -303,7 +303,7 @@ sl_status_t sl_sntp_client_get_time(uint8_t *data, uint16_t data_length, uint32_
  *    The parameter captures the length of the data buffer in synchronous mode. In asynchronous mode, the parameter is stated to the user via the user_data_length parameter of the event handler. 
  * 
  * @param[in] timeout
- *    The timeout captures time and date.If the timeout value is greater than 0, the function operates in blocking mode else, it returns the result via the @ref sl_sntp_client_event_handler_t callback.
+ *    The timeout for getting time and date in milliseconds (ms). If the timeout value is greater than 0, the function operates in blocking mode else, it returns the result via the @ref sl_sntp_client_event_handler_t callback.
  *
  * @return
  *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
@@ -329,7 +329,7 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
  *   A pointer is a sl_sntp_server_info_t type buffer where the server information is stored. In asynchronous mode, the parameter is passed to the user in the user_data parameter of the event handler.
  *   In synchronous mode the server information is returned in this data buffer.  
  * @param[in] timeout
- *   The timeout receives server information. If the timeout is greater than 0, the function operates in blocking mode else, it would return the result via the @ref sl_sntp_client_event_handler_t callback.
+ *   The timeout for receiving server information in milliseconds (ms). If the timeout is greater than 0, the function operates in blocking mode else, it would return the result via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @return
  *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
@@ -339,6 +339,12 @@ sl_status_t sl_sntp_client_get_time_date(uint8_t *data, uint16_t data_length, ui
  * 
  * @note
  *   This API must be called after the SNTP client has been started using @ref sl_sntp_client_start.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  */
 sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t timeout);
 
@@ -350,7 +356,7 @@ sl_status_t sl_sntp_client_get_server_info(sl_sntp_server_info_t *data, uint32_t
  *   The function stops the SNTP client. It operates in both synchronous and asynchronous modes based on the timeout value. In synchronous mode, the function blocks until the client stops or the timeout occurs. In asynchronous mode, the results are returned via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @param[in] timeout
- *   The timeout to stop the SNTP client. The function operates in blocking mode if the timeout value is greater than 0 else, results are returned via the @ref sl_sntp_client_event_handler_t callback.
+ *   The timeout to stop the SNTP client in milliseconds (ms). The function operates in blocking mode if the timeout value is greater than 0 else, results are returned via the @ref sl_sntp_client_event_handler_t callback.
  * 
  * @return
  *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.

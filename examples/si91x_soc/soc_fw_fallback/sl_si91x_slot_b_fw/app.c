@@ -39,6 +39,7 @@
 #include "sl_wifi.h"
 #include "socket.h"
 #include <string.h>
+#include <stddef.h>
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_hal_soc_soft_reset.h"
@@ -106,6 +107,9 @@ extern uint32_t __rom_length;
 //! Enables or disables updating of firmware slot information after a successful firmware update.
 #define SL_APP_UPDATE_FIRMWARE_SLOT 0
 
+//! Enables or disables combined image support (handling multiple images in sequence).
+#define SL_APP_COMBINED_IMAGE_SUPPORT 0
+
 //! Enables burning NWP security version after Wi-Fi connect (0: disable, 1: enable)
 #define SL_APP_BURN_NWP_SECURITY_VERSION 0
 
@@ -119,6 +123,11 @@ uint8_t ota_fw_upgrade_type = 0;
 
 // Flash offset for updater image
 uint32_t flash_offset_for_updater_image = 0;
+
+#if SL_APP_COMBINED_IMAGE_SUPPORT
+//! Count of combined images processed.
+uint8_t combined_image_count = 0;
+#endif
 
 // Global variable to store slot information for firmware fallback operations
 sl_si91x_fw_ab_slot_management_t global_slot_info = { 0 };
@@ -165,6 +174,15 @@ static sl_status_t sl_app_flash_erase_inactive_m4_slot(uint32_t ota_image_size);
 //! Calculates the flash offset for the updater image.
 static uint32_t sl_app_calculate_flash_offset_for_updater(void);
 
+#if SL_APP_COMBINED_IMAGE_SUPPORT
+//! Resets all state variables for processing the next firmware image in a combined image update.
+static void sl_app_reset_state_for_next_image(uint16_t *data_chunk,
+                                              uint16_t *chunk_max_count,
+                                              uint16_t *fwup_chunk_length,
+                                              uint8_t *fwup_chunk_type,
+                                              firmware_update_state_t *state);
+#endif
+
 /******************************************************
   *               Global Variable
   ******************************************************/
@@ -189,16 +207,16 @@ static sl_wifi_device_configuration_t sl_wifi_firmware_update_configuration = {
   .region_code         = US,
   .boot_config         = { .oper_mode                  = SL_SI91X_CLIENT_MODE,
                            .coex_mode                  = SL_SI91X_WLAN_ONLY_MODE,
-                           .feature_bit_map            = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                           .feature_bit_map            = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION),
                            .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                           .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                           .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                            .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK
 #ifndef SLI_SI91X_MCU_INTERFACE
                                                   | SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #else
                                                   | SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -394,8 +412,6 @@ static sl_status_t firmware_update_process(int client_socket)
         // Firmware update process completed successfully
         DEBUGOUT("\r\n Firmware Update Completed Successfully \r\n");
 
-        // Close the client socket
-        close(client_socket);
         // Perform integrity check on the downloaded firmware
         if (ota_fw_upgrade_type == 1) {
           ota_image_start_address = flash_offset_for_updater_image;
@@ -406,8 +422,10 @@ static sl_status_t firmware_update_process(int client_socket)
           return STATE_ERROR;
         } else {
           DEBUGOUT("\r\nFirmware verify check success:%lX %lX\r\n", status, ota_image_start_address);
-          if (ota_fw_upgrade_type == 0) {
+
+          // Update slot information after image verification
 #if SL_APP_UPDATE_FIRMWARE_SLOT
+          if (ota_fw_upgrade_type == 0) {
             // Updating M4 firmware slot
             if (m4_ota_image) {
 
@@ -435,10 +453,37 @@ static sl_status_t firmware_update_process(int client_socket)
                 DEBUGOUT("\r\n Successfully updated NWP slot information \r\n");
               }
             }
-#endif
           }
+#endif
+
+          // After updating slot info, check if we need to process the next image
+#if SL_APP_COMBINED_IMAGE_SUPPORT
+          if (!combined_image_count) {
+            DEBUGOUT("\r\n Ready for the Second Image \r\n");
+            sl_app_reset_state_for_next_image(&data_chunk,
+                                              &chunk_max_count,
+                                              &fwup_chunk_length,
+                                              &fwup_chunk_type,
+                                              &state);
+          }
+
+          combined_image_count++;
+#endif
         }
-        return SL_STATUS_OK; // Return success
+
+#if SL_APP_COMBINED_IMAGE_SUPPORT
+        if (combined_image_count == 2) {
+          // Close the client socket after all images are processed
+          close(client_socket);
+          return SL_STATUS_OK;
+        } else {
+          break;
+        }
+#else
+        // Close the client socket after single image is processed
+        close(client_socket);
+        return SL_STATUS_OK; // Return success for single image
+#endif
 
       case STATE_ERROR:
         // Handle errors encountered during the firmware update process
@@ -958,5 +1003,43 @@ static sl_status_t sl_app_flash_erase_inactive_m4_slot(uint32_t ota_image_size)
   }
   return status;
 }
+
+#if SL_APP_COMBINED_IMAGE_SUPPORT
+/**
+ * @brief Resets all state variables for processing the next firmware image in a combined image update.
+ *
+ * This function resets all the state variables, counters, and flags needed to process
+ * the next firmware image when handling combined images (e.g., M4 + NWP images).
+ *
+ * @param data_chunk Pointer to the current firmware data chunk counter (will be reset to 0).
+ * @param chunk_max_count Pointer to the maximum chunk count (will be reset to 0).
+ * @param fwup_chunk_length Pointer to the firmware chunk length (will be reset to 0).
+ * @param fwup_chunk_type Pointer to the firmware chunk type (will be reset to 0).
+ * @param state Pointer to the firmware update state (will be reset to STATE_SENDING_REQUEST).
+ */
+static void sl_app_reset_state_for_next_image(uint16_t *data_chunk,
+                                              uint16_t *chunk_max_count,
+                                              uint16_t *fwup_chunk_length,
+                                              uint8_t *fwup_chunk_type,
+                                              firmware_update_state_t *state)
+{
+  // Reset chunk tracking variables
+  *data_chunk        = 0;
+  *chunk_max_count   = 0;
+  *fwup_chunk_length = 0;
+  *fwup_chunk_type   = 0;
+  *state             = STATE_SENDING_REQUEST;
+
+  // Reset global state variables
+  number_of_remaining_bytes      = 0;
+  chunk                          = 1;
+  ota_image_start_address        = 0;
+  ota_image_size                 = 0;
+  m4_ota_image                   = 0;
+  ta_ota_image                   = 0;
+  ota_fw_upgrade_type            = 0;
+  flash_offset_for_updater_image = 0;
+}
+#endif
 
 // End of file

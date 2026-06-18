@@ -37,7 +37,6 @@
 // <q SL_UART1_DMA_CONFIG_ENABLE> DMA
 // <i> Default: 1
 #define SL_UART1_DMA_CONFIG_ENABLE 1
-
 // </h>
 // <<< end of configuration section >>>
 

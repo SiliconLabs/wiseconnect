@@ -34,6 +34,7 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
@@ -55,7 +56,7 @@ static sl_status_t sli_si91x_ccm_config_check(sl_si91x_ccm_config_t *config)
   return SL_STATUS_OK;
 }
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 static void sli_si91x_ccm_get_key_info(sli_si91x_ccm_request_t *request, const sl_si91x_ccm_config_t *config)
 {
   request->key_info.key_type                         = config->key_config.b0.key_type;
@@ -110,7 +111,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   memcpy(request->nonce, config->nonce, config->nonce_length);
   memcpy(request->tag, config->tag, config->tag_length);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_ccm_get_key_info(request, config);
 
 #else
@@ -120,10 +121,10 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sli_si91x_ccm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_CCM + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
 
@@ -134,7 +135,7 @@ static sl_status_t sli_si91x_ccm_pending(sl_si91x_ccm_config_t *config,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   memcpy(output, packet->data, packet->length);
   if (buffer != NULL)
@@ -181,7 +182,7 @@ static sl_status_t sli_si91x_ccm_side_band(sl_si91x_ccm_config_t *config, uint8_
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_ccm_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
@@ -202,7 +203,7 @@ sl_status_t sl_si91x_ccm(sl_si91x_ccm_config_t *config, uint8_t *output)
 
   if (((config->msg == NULL) && (config->msg_length != 0)) || ((config->ad == NULL) && (config->ad_length != 0))
       || (config->nonce == NULL) || (config->tag == NULL) || ((output == NULL) && (config->msg_length != 0))
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
       || (config->key_config.a0.key == NULL)
 #endif
   ) {

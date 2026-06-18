@@ -33,12 +33,16 @@
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_driver.h"
 #include "sl_si91x_constants.h"
-
+#include "sli_wifi_utility.h"
+#include "sl_si91x_protocol_types.h"
+#ifdef SLI_SI91X_INTERNAL_MDNS
+#include "sl_mdns.h"
+#endif
 extern sl_net_event_handler_t net_event_handler;
 
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer)
 {
-  sl_wifi_system_packet_t *packet     = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet     = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   sl_status_t status                  = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
   sl_ip_address_t ip                  = { 0 };
   sl_net_ip_configuration_t ip_config = { 0 };
@@ -66,6 +70,27 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
       data = &packet->data; // Use packet data directly for certain events
       break;
     }
+#ifdef SLI_SI91X_INTERNAL_MDNS
+    case SL_NET_MDNS_EVENT: {
+      sl_mdns_response_t *mdns_result = malloc(sizeof(sl_mdns_response_t));
+      if (mdns_result == NULL) {
+        return SL_STATUS_ALLOCATION_FAILED;
+      }
+
+      sl_status_t conv_status = sli_convert_si91x_mdns_response(mdns_result, (sli_net_mdns_response_t *)packet->data);
+      if (conv_status != SL_STATUS_OK) {
+        free(mdns_result);
+        return conv_status;
+      }
+
+      data = mdns_result;
+      break;
+    }
+    case SL_NET_MDNS_STOP_EVENT: {
+      data = NULL;
+      break;
+    }
+#endif
     case SL_NET_IP_ADDRESS_CHANGE_EVENT: {
 
       data                = &ip_config;
@@ -107,6 +132,18 @@ sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buf
   }
   // Call the registered event handler function with event details
   net_event_handler(event, status, data, packet->length);
-
+#ifdef SLI_SI91X_INTERNAL_MDNS
+  if (event == SL_NET_MDNS_EVENT) {
+    sl_mdns_response_t *mdns_result = (sl_mdns_response_t *)data;
+    if (mdns_result->txt.txt != NULL) {
+      free(mdns_result->txt.txt);
+    }
+    if (mdns_result->addr.addr != NULL) {
+      free(mdns_result->addr.addr);
+      mdns_result->addr.addr = NULL;
+    }
+    free(mdns_result);
+  }
+#endif
   return SL_STATUS_OK;
 }

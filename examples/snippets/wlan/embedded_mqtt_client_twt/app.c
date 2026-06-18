@@ -117,17 +117,17 @@ static sl_wifi_device_configuration_t wifi_mqtt_client_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #ifdef SLI_SI91X_MCU_INTERFACE
-                      | SL_SI91X_FEAT_WPS_DISABLE
+                      | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                       ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
                                               | SL_SI91X_TCP_IP_FEAT_SSL),
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
+                   .ext_custom_feature_bit_map = (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_DISABLE_DEBUG_PRINTS | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -135,7 +135,7 @@ static sl_wifi_device_configuration_t wifi_mqtt_client_configuration = {
                    .ext_tcp_ip_feature_bit_map = (SL_SI91X_CONFIG_FEAT_EXTENTION_VALID | SL_SI91X_EXT_EMB_MQTT_ENABLE),
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 sl_wifi_twt_request_t default_twt_setup_configuration = {
@@ -226,16 +226,16 @@ void mqtt_client_cleanup();
 void print_char_buffer(char *buffer, uint32_t buffer_length);
 sl_status_t mqtt_example();
 sl_status_t twt_callback_handler(sl_wifi_event_t event,
-                                 sl_si91x_twt_response_t *result,
+                                 sl_status_t status_code,
+                                 sl_wifi_twt_response_t *result,
                                  uint32_t result_length,
                                  void *arg);
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -290,7 +290,8 @@ static void application_start(void *argument)
 }
 
 sl_status_t twt_callback_handler(sl_wifi_event_t event,
-                                 sl_si91x_twt_response_t *result,
+                                 sl_status_t status_code,
+                                 sl_wifi_twt_response_t *result,
                                  uint32_t result_length,
                                  void *arg)
 {
@@ -298,7 +299,7 @@ sl_status_t twt_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(arg);
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   switch (event) {
@@ -579,7 +580,7 @@ sl_status_t mqtt_example()
   }
 
   //! Set TWT Config
-  sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
+  sl_wifi_set_twt_config_callback_v2(twt_callback_handler, NULL);
   if (TWT_AUTO_CONFIG == 1) {
     performance_profile.twt_selection = default_twt_selection_configuration;
     status                            = sl_wifi_target_wake_time_auto_selection(&performance_profile.twt_selection);

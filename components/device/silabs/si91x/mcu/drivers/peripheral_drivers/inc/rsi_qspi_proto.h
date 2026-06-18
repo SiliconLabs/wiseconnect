@@ -166,7 +166,7 @@ typedef struct spi_config_1_s {
   // Adesto octa flash
 #define ADESTO_OCTA_FLASH 10
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   // Adesto quad flash
 #define ADESTO_QUAD_FLASH 11
   //ISSI flash
@@ -482,8 +482,8 @@ struct qspi_func_s {
                                    uint32_t num_prot_bytes,
                                    uint32_t wr_reg_delay_ms);
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917)
+#if defined(SLI_SI917B0)
   void (*qspi_qspiload_key)(qspi_reg_t *qspi_reg,
                             uint8_t mode,
                             uint32_t *key1,
@@ -643,8 +643,8 @@ void qspi_auto_read(uint32_t cs_no,
 
 void qspi_flash_init(qspi_reg_t *qspi_reg, spi_config_t *spi_config, uint32_t wr_reg_delay_ms);
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917)
+#if defined(SLI_SI917B0)
 void qspi_qspiload_key(qspi_reg_t *qspi_reg,
                        uint8_t mode,
                        uint32_t *key1,

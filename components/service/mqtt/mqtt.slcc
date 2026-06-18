@@ -1,5 +1,5 @@
 id: mqtt
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The MQTT Client provides an API to start an MQTT client service
 label: MQTT Client

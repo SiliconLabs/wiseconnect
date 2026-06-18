@@ -1,6 +1,6 @@
 id: si91x_32kHz_external_oscillator
 label: SI91X 32kHz EXTERNAL OSCILLATOR
-package: platform
+package: platform_siwx91x
 metadata:
   sbom:
     license: MSLA

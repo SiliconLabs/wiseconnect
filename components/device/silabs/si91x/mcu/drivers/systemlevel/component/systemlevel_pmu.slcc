@@ -1,6 +1,6 @@
 id: systemlevel_pmu
 label: PMU
-package: platform
+package: platform_siwx91x
 description: >
   PMU API's
 category: Device|Si91x|MCU|Internal|System-Level Drivers

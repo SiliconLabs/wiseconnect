@@ -32,14 +32,36 @@
 
 #include "sl_status.h"
 #include "sl_slist.h"
+#include "sli_buffer_manager.h"
+
+/**
+ * @brief Represents a node in a queue.
+ *
+ * This structure is used to define a single node in a queue, where each node
+ * contains a pointer to the next node in the queue and a pointer to the data
+ * it holds.
+ *
+ * @struct sli_queue_node_s
+ * @var sli_queue_node_s::next
+ * Pointer to the next node in the queue. If this is the last node, the pointer
+ * will be NULL.
+ * @var sli_queue_node_s::data
+ * Pointer to the data stored in this node. The data can be of any type.
+ */
+typedef struct sli_queue_node_s {
+  struct sli_queue_node_s *next;
+  void *data;
+} sli_queue_node_t;
 
 /**
  * @struct sli_queue_t
  * @brief Structure representing a Queue handle.
  */
 typedef struct {
-  sl_slist_node_t *head;
-  sl_slist_node_t *tail;
+  sli_queue_node_t *head;
+  sli_queue_node_t *tail;
+  sli_buffer_manager_pool_types_t queue_node_pool;
+  void *lock;
 } sli_queue_t;
 
 /**
@@ -73,9 +95,7 @@ typedef struct {
  * @return
  *   Should return TRUE if the target node is found else it should return FALSE
  */
-typedef bool (*sli_queue_manager_node_match_handler_t)(sli_queue_t *handle,
-                                                       sl_slist_node_t *node,
-                                                       void *node_match_data);
+typedef bool (*sli_queue_manager_node_match_handler_t)(sli_queue_t *handle, void *data, void *node_match_data);
 
 /**
  * @typedef sli_queue_manager_flush_handler_t
@@ -95,6 +115,6 @@ typedef bool (*sli_queue_manager_node_match_handler_t)(sli_queue_t *handle,
  * @return
  *   N/A
  */
-typedef void (*sli_queue_manager_flush_handler_t)(sli_queue_t *handle, sl_slist_node_t *node, void *context);
+typedef void (*sli_queue_manager_flush_handler_t)(sli_queue_t *handle, void *data, void *context);
 
 #endif // SLI_QUEUE_MANAGER_TYPES_H

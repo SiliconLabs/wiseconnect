@@ -1,10 +1,11 @@
 project_name: ble_ae_central_uart_ncp
-package: ble
+package: bluetooth_le_siwx91x_app
 quality: production
 label: BLE - AE Central (UART NCP)
 category: Example|BLE
-description: |
-  ble_ae_central example application
+description: 'ble_ae_central example application
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -12,12 +13,6 @@ filter:
 - name: Project Difficulty
   value:
   - Advanced
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: app.c
 include:
@@ -36,25 +31,17 @@ component:
 - id: iostream_rtt
 - id: iostream_stdlib_config
 - id: uartdrv_usart
-  instance: [exp]
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+  instance:
+  - exp
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: sl_si91x_uart_bus
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: ble
-  from: wiseconnect3_sdk
 - id: sl_si91x_basic_buffers
-  from: wiseconnect3_sdk
 toolchain_settings:
 - option: gcc_linker_option
   value: -u _printf_float
@@ -67,7 +54,7 @@ configuration:
   value: '1'
 - name: configTOTAL_HEAP_SIZE
   value: '51200'
-- name: configTIMER_TASK_PRIORITY 
+- name: configTIMER_TASK_PRIORITY
   value: '55'
 readme:
 - path: readme.md
@@ -80,3 +67,11 @@ ui_hints:
   highlight:
   - path: readme.md
     focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

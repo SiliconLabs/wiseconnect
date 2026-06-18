@@ -1,5 +1,5 @@
 id: sl_si91x_button_917
-package: platform
+package: platform_siwx91x
 label: Button
 description: >
   The Button Driver provides an implementation of the Generic Button API. 

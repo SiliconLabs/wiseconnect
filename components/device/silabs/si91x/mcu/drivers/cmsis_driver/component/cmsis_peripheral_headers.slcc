@@ -1,6 +1,6 @@
 id: cmsis_peripheral_headers
 label: CMSIS Peripheral Header Files
-package: platform
+package: platform_siwx91x
 description: >
   CMSIS Peripheral Header Files
 category: Device|Si91x|MCU|Internal|CMSIS Drivers

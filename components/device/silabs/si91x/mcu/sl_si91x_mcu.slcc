@@ -1,5 +1,5 @@
 id: sl_si91x_mcu
-package: wiseconnect3_sdk
+package: platform_siwx91x
 label: Si91x MCU Subsystem
 description: >
   The Si91x MCU component initialises the Si91x MCU subsystem at startup.
@@ -24,6 +24,15 @@ requires:
   - name: rsilib_clock_update
   - name: udma_linker_config
   - name: si91x_debug
+  - name: rsilib_headers
+    condition: ["device_si91x"]
+  - name: romdriver_headers
+    condition: ["device_si91x"]
+  - name: cmsis_driver_headers
+    condition: ["device_si91x"]
+  - name: romdriver_romtable_headers 
+    condition: ["device_si91x"]
+  - name: si91x_log_none  
 define:
   - name: SLI_SI91X_ENABLE_OS
     condition: [freertos]

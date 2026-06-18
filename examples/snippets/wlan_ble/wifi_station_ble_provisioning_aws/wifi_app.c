@@ -33,6 +33,10 @@
  * Include files
  * */
 
+/******************************************************
+ *                    Configuration
+ ******************************************************/
+
 //! SL Wi-Fi SDK includes
 #include "sl_constants.h"
 #include "sl_wifi.h"
@@ -48,16 +52,17 @@
 #include "errno.h"
 #include "socket.h"
 #include "sl_si91x_socket.h"
-#include "sl_wifi_device.h"
-#include "sl_si91x_driver.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "sl_si91x_power_manager.h"
 #include "rsi_rom_power_save.h"
 #include "sl_si91x_driver_gpio.h"
-//! I2C related files
-#include "i2c_leader_example.h"
 #include "rsi_ps_config.h"
+#endif
+
+//! I2C related files
+#if defined(SLI_SI91X_MCU_INTERFACE)
+#include "i2c_leader_example.h"
 #endif
 
 #include "cmsis_os2.h"
@@ -71,7 +76,6 @@
 #include "aws_iot_config.h"
 #include "aws_iot_shadow_interface.h"
 #include "ble_config.h"
-#include "wifi_config.h"
 #include "aws_client_certificate.pem.crt.h"
 #include "aws_client_private_key.pem.key.h"
 #include "aws_starfield_ca.pem.h"
@@ -260,12 +264,19 @@ int32_t wifi_app_get_event(void)
 }
 
 // rejoin failure call back handler in station mode
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // update wlan application state
   disconnected = 1;
@@ -279,7 +290,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 void rsi_wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, int32_t status)
@@ -429,6 +440,7 @@ static sl_status_t show_scan_results()
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -439,8 +451,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
   SL_VERIFY_POINTER_OR_RETURN(scan_result, SL_STATUS_NULL_POINTER);
   memset(scan_result, 0, scanbuf_size);
@@ -503,8 +515,10 @@ void wifi_app_task(void)
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
 
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
@@ -541,6 +555,9 @@ void wifi_app_task(void)
             printf("Credentials set failed, id : %lu\r\n", id);
             continue;
           }
+        } else {
+          // For OPEN security, clear the credential ID
+          id = SL_WIFI_NO_CREDENTIAL_ID;
         }
         access_point.ssid.length = strlen((char *)coex_ssid);
         memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);
@@ -693,7 +710,7 @@ void wifi_app_mqtt_task(void)
   char client_id[25];
   sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
   sprintf(mac_id,
-          "%x:%x:%x:%x:%x:%x",
+          "%02x:%02x:%02x:%02x:%02x:%02x",
           mac_addr.octet[0],
           mac_addr.octet[1],
           mac_addr.octet[2],
@@ -878,11 +895,19 @@ void wifi_app_mqtt_task(void)
 #if (defined(SLI_SI91X_MCU_INTERFACE) && I2C_SENSOR_PERI_ENABLE)
           char temp_string[48] = { 0 };
 
-          // Initialize I2C
+          // Add PS4 and initialize I2C for this transaction
           i2c_init();
+
+          // Read temperature from LM75 sensor
           i2c_leader_example_process_action();
 
-          snprintf(temp_string, sizeof(temp_string) - 1, "Current Temperature in Celsius: %.2f", sensor_data);
+          // Clean shutdown and remove PS4 to allow M4 deep sleep
+          i2c_deinit();
+
+          snprintf(temp_string,
+                   sizeof(temp_string) - 1,
+                   "Current Temperature in Celsius: %.2f",
+                   get_sensor_temperature());
 
           publish_QOS0.payload    = temp_string;
           publish_QOS0.payloadLen = strlen(temp_string);

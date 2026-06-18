@@ -1,6 +1,6 @@
 id: rsilib_usart_rs485
 label: USART_RS485
-package: platform
+package: platform_siwx91x
 description: >
   Universal Synchronous and Asynchronous Receiver-Transmitter RS485 Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

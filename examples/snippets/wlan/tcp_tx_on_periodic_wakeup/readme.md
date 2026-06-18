@@ -63,7 +63,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Simplicity Studio and WiSeConnect 3 extension
+- Install Simplicity Studio and WiSeConnect extension
 - Connect SiWx917 device to the computer
 - Upgrade the device connectivity firmware
 - Create the Studio project
@@ -107,7 +107,7 @@ The application can be configured to suit your requirements and development envi
   #define SERVER_PORT        5002             // TCP server port of the remote TCP server
   ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

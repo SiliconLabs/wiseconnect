@@ -77,7 +77,9 @@
 #define MBEDTLS_SSL_TLS_C
 #define MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
 #define MBEDTLS_SSL_PROTO_TLS1_2
+#ifndef MBEDTLS_SSL_ALPN
 #define MBEDTLS_SSL_ALPN
+#endif
 
 /* X.509 certificate configurations */
 #define MBEDTLS_X509_USE_C
@@ -90,3 +92,6 @@
 #define MBEDTLS_ENTROPY_MIN_HARDWARE 128
 #define MBEDTLS_SSL_IN_CONTENT_LEN   6384
 #define MBEDTLS_SSL_OUT_CONTENT_LEN  6384
+
+/* PSA Crypto configuration */
+#define MBEDTLS_PSA_CRYPTO_C

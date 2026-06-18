@@ -84,48 +84,48 @@ extern "C" {
 #define SL_QEI_PERIPHERAL_NO 0
 #endif
 
-// QEI DIR on ULP_GPIO_7/GPIO_71
+// QEI DIR on GPIO_28
 #ifndef SL_QEI_DIR_PORT
-#define SL_QEI_DIR_PORT ULP
+#define SL_QEI_DIR_PORT HP
 #endif
 #ifndef SL_QEI_DIR_PIN
-#define SL_QEI_DIR_PIN 7
+#define SL_QEI_DIR_PIN 28
 #endif
 #ifndef SL_QEI_DIR_LOC
-#define SL_QEI_DIR_LOC 5
+#define SL_QEI_DIR_LOC 1
 #endif
 
-// QEI IDX on ULP_GPIO_8/GPIO_72
+// QEI IDX on GPIO_25
 #ifndef SL_QEI_IDX_PORT
-#define SL_QEI_IDX_PORT ULP
+#define SL_QEI_IDX_PORT HP
 #endif
 #ifndef SL_QEI_IDX_PIN
-#define SL_QEI_IDX_PIN 8
+#define SL_QEI_IDX_PIN 25
 #endif
 #ifndef SL_QEI_IDX_LOC
-#define SL_QEI_IDX_LOC 14
+#define SL_QEI_IDX_LOC 8
 #endif
 
-// QEI PHA on ULP_GPIO_1/GPIO_65
+// QEI PHA on GPIO_26
 #ifndef SL_QEI_PHA_PORT
-#define SL_QEI_PHA_PORT ULP
+#define SL_QEI_PHA_PORT HP
 #endif
 #ifndef SL_QEI_PHA_PIN
-#define SL_QEI_PHA_PIN 1
+#define SL_QEI_PHA_PIN 26
 #endif
 #ifndef SL_QEI_PHA_LOC
-#define SL_QEI_PHA_LOC 21
+#define SL_QEI_PHA_LOC 16
 #endif
 
-// QEI PHB on ULP_GPIO_10/GPIO_74
+// QEI PHB on GPIO_27
 #ifndef SL_QEI_PHB_PORT
-#define SL_QEI_PHB_PORT ULP
+#define SL_QEI_PHB_PORT HP
 #endif
 #ifndef SL_QEI_PHB_PIN
-#define SL_QEI_PHB_PIN 10
+#define SL_QEI_PHB_PIN 27
 #endif
 #ifndef SL_QEI_PHB_LOC
-#define SL_QEI_PHB_LOC 29
+#define SL_QEI_PHB_LOC 24
 #endif
 // [QEI_SL_QEI]$
 // <<< sl:end pin_tool >>>

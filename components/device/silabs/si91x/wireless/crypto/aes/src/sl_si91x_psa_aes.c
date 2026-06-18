@@ -43,66 +43,6 @@
 
 #define SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES 1408
 
-static void sli_si91x_set_input_config(const psa_key_attributes_t *attributes,
-                                       sl_si91x_aes_config_t *config,
-                                       const uint8_t *key_buffer,
-                                       size_t key_buffer_size)
-{
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-  /* Fetch key type from attributes */
-  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-  if (location == 0)
-    config->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-  else
-    config->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-
-  /* Set key_size from key_buffer_size */
-  if (key_buffer_size == 16)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_128;
-  if (key_buffer_size == 24)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_192;
-  if (key_buffer_size == 32)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_256;
-
-  config->key_config.b0.key_slot = 0;
-  memcpy(config->key_config.b0.key_buffer, key_buffer, config->key_config.b0.key_size);
-#else
-  config->key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-  config->key_config.a0.key_length = key_buffer_size;
-  memcpy(config->key_config.a0.key, key_buffer, config->key_config.a0.key_length);
-#endif
-}
-
-static void sli_si91x_psa_multipart_set_input_config(const psa_key_attributes_t *attributes,
-                                                     sli_si91x_psa_aes_multipart_config_t *config,
-                                                     const uint8_t *key_buffer,
-                                                     size_t key_buffer_size)
-{
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-  /* Fetch key type from attributes */
-  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
-  if (location == PSA_KEY_LOCATION_LOCAL_STORAGE)
-    config->key_config.b0.key_type = SL_SI91X_TRANSPARENT_KEY;
-  else
-    config->key_config.b0.key_type = SL_SI91X_WRAPPED_KEY;
-
-  /* Set key_size from key_buffer_size */
-  if (key_buffer_size == 16)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_128;
-  if (key_buffer_size == 24)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_192;
-  if (key_buffer_size == 32)
-    config->key_config.b0.key_size = SL_SI91X_AES_KEY_SIZE_256;
-
-  config->key_config.b0.key_slot = 0;
-  memcpy(config->key_config.b0.key_buffer, key_buffer, config->key_config.b0.key_size);
-#else
-  config->key_config.a0.key        = (uint8_t *)malloc(key_buffer_size);
-  config->key_config.a0.key_length = key_buffer_size;
-  memcpy(config->key_config.a0.key, key_buffer, config->key_config.a0.key_length);
-#endif
-}
-
 static psa_status_t sli_si91x_psa_multipart_check_input_parameters(sli_si91x_crypto_cipher_operation_t *operation,
                                                                    const psa_key_attributes_t *attributes,
                                                                    const uint8_t *key_buffer,
@@ -143,6 +83,115 @@ static psa_status_t sli_si91x_psa_multipart_check_input_parameters(sli_si91x_cry
 
 #endif // PSA_WANT_ALG_AES && PSA_WANT_KEY_TYPE_AES
 }
+
+static void sli_si91x_configure_key_settings(const psa_key_attributes_t *attributes,
+                                             void *key_config,
+                                             const uint8_t *key_buffer,
+                                             size_t key_buffer_size,
+                                             bool is_multipart)
+{
+#if defined(SLI_SI917B0)
+  sl_si91x_aes_key_config_b0_t *config_b0;
+  if (is_multipart) {
+    config_b0 = &((sli_si91x_psa_aes_multipart_config_t *)key_config)->key_config.b0;
+  } else {
+    config_b0 = &((sl_si91x_aes_config_t *)key_config)->key_config.b0;
+  }
+
+  /* Fetch key type from attributes */
+  psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
+
+  /* Determine key type based on storage location - different validation for different operation types */
+  if (is_multipart) {
+    config_b0->key_type = (location == PSA_KEY_LOCATION_LOCAL_STORAGE) ? SL_SI91X_TRANSPARENT_KEY
+                                                                       : SL_SI91X_WRAPPED_KEY;
+  } else {
+    config_b0->key_type = (location == 0) ? SL_SI91X_TRANSPARENT_KEY : SL_SI91X_WRAPPED_KEY;
+  }
+
+  /* Set key_size from key_buffer_size */
+  switch (key_buffer_size) {
+    case 16:
+      config_b0->key_size = SL_SI91X_AES_KEY_SIZE_128;
+      break;
+    case 24:
+      config_b0->key_size = SL_SI91X_AES_KEY_SIZE_192;
+      break;
+    case 32:
+      config_b0->key_size = SL_SI91X_AES_KEY_SIZE_256;
+      break;
+  }
+
+  config_b0->key_slot = 0;
+  memcpy(config_b0->key_buffer, key_buffer, config_b0->key_size);
+#else
+  sl_si91x_aes_key_config_a0_t *config_a0;
+  if (is_multipart) {
+    config_a0 = &((sli_si91x_psa_aes_multipart_config_t *)key_config)->key_config.a0;
+  } else {
+    config_a0 = &((sl_si91x_aes_config_t *)key_config)->key_config.a0;
+  }
+
+  config_a0->key        = (uint8_t *)malloc(key_buffer_size);
+  config_a0->key_length = key_buffer_size;
+  memcpy(config_a0->key, key_buffer, config_a0->key_length);
+#endif
+}
+
+static void sli_si91x_set_input_config(const psa_key_attributes_t *attributes,
+                                       sl_si91x_aes_config_t *config,
+                                       const uint8_t *key_buffer,
+                                       size_t key_buffer_size)
+{
+  sli_si91x_configure_key_settings(attributes, config, key_buffer, key_buffer_size, false);
+}
+
+static void sli_si91x_psa_multipart_set_input_config(const psa_key_attributes_t *attributes,
+                                                     sli_si91x_psa_aes_multipart_config_t *config,
+                                                     const uint8_t *key_buffer,
+                                                     size_t key_buffer_size)
+{
+  sli_si91x_configure_key_settings(attributes, config, key_buffer, key_buffer_size, true);
+}
+
+// Configures AES mode, IV usage, and optional wrap-IV settings based on a PSA algorithm.
+static psa_status_t sli_si91x_configure_aes_mode(psa_algorithm_t alg,
+                                                 uint16_t *aes_mode,
+                                                 sl_si91x_aes_config_t *config,
+                                                 const uint8_t **aes_iv,
+                                                 const uint8_t *iv)
+{
+  switch (alg) {
+    case PSA_ALG_ECB_NO_PADDING:
+      /* Setting mode as ECB_MODE */
+      *aes_mode = SL_SI91X_AES_ECB;
+#if defined(SLI_SI917B0)
+      /* Setting wrap iv mode as WRAP_IV_ECB_MODE */
+      config->key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
+#endif
+      break;
+    case PSA_ALG_CBC_NO_PADDING:
+      /* Setting mode as CBC_MODE */
+      *aes_mode = SL_SI91X_AES_CBC;
+      /* setting aes_iv with iv */
+      *aes_iv = iv;
+#if defined(SLI_SI917B0)
+      /* Setting wrap iv mode as WRAP_IV_CBC_MODE */
+      config->key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
+#endif
+      break;
+    case PSA_ALG_CTR:
+      /* Setting mode as CTR_MODE */
+      *aes_mode = SL_SI91X_AES_CTR;
+      /* setting aes_iv with iv */
+      *aes_iv = iv;
+      break;
+    default:
+      return PSA_ERROR_NOT_SUPPORTED;
+  }
+  return PSA_SUCCESS;
+}
+
 /*****************************************************************************
 * Encrypt a message using a AES cipher.
 *****************************************************************************/
@@ -176,33 +225,10 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-  switch (alg) {
-    case (PSA_ALG_ECB_NO_PADDING):
-      /* Setting mode as ECB_MODE */
-      aes_mode = SL_SI91X_AES_ECB;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-      /* Setting wrap iv mode as WRAP_IV_ECB_MODE */
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
-#endif
-      break;
-    case (PSA_ALG_CBC_NO_PADDING):
-      /* Setting mode as CBC_MODE */
-      aes_mode = SL_SI91X_AES_CBC;
-      /* setting aes_iv with iv */
-      aes_iv = iv;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-      /* Setting wrap iv mode as WRAP_IV_CBC_MODE */
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-#endif
-      break;
-    case (PSA_ALG_CTR):
-      /* Setting mode as CTR_MODE */
-      aes_mode = SL_SI91X_AES_CTR;
-      /* setting aes_iv with iv */
-      aes_iv = iv;
-      break;
-    default:
-      return PSA_ERROR_NOT_SUPPORTED;
+  // Configure AES mode (ECB/CBC/CTR) and IV pointer based on algorithm; return on unsupported algorithm
+  status = sli_si91x_configure_aes_mode(alg, &aes_mode, &config, &aes_iv, iv);
+  if (status != PSA_SUCCESS) {
+    return status;
   }
 
   config.aes_mode        = aes_mode;
@@ -216,7 +242,7 @@ psa_status_t sli_si91x_crypto_cipher_encrypt(const psa_key_attributes_t *attribu
   /* Calling sl_si91x_aes() for AES encryption */
   si91x_status = sl_si91x_aes(&config, output);
 
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
   free(config.key_config.a0.key);
 #endif
 
@@ -256,35 +282,18 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-  switch (alg) {
-    case (PSA_ALG_ECB_NO_PADDING):
-      /* Setting mode as ECB_MODE */
-      aes_mode = SL_SI91X_AES_ECB;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-      /* Setting wrap iv mode as WRAP_IV_ECB_MODE */
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_ECB_MODE;
-#endif
-      break;
-    case (PSA_ALG_CBC_NO_PADDING):
-      /* Setting mode as CBC_MODE */
-      aes_mode = SL_SI91X_AES_CBC;
-      aes_iv   = input;
-      input += SL_SI91X_IV_SIZE;
-      input_length -= SL_SI91X_IV_SIZE;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
-      /* Setting wrap iv mode as WRAP_IV_CBC_MODE */
-      config.key_config.b0.wrap_iv_mode = SL_SI91X_WRAP_IV_CBC_MODE;
-#endif
-      break;
-    case (PSA_ALG_CTR):
-      /* Setting mode as CTR_MODE */
-      aes_mode = SL_SI91X_AES_CTR;
-      aes_iv   = input;
-      input += SL_SI91X_IV_SIZE;
-      input_length -= SL_SI91X_IV_SIZE;
-      break;
-    default:
-      return PSA_ERROR_NOT_SUPPORTED;
+  // For decrypt, IV is extracted from input for CBC and CTR modes
+  const uint8_t *iv = (alg == PSA_ALG_CBC_NO_PADDING || alg == PSA_ALG_CTR) ? input : NULL;
+
+  status = sli_si91x_configure_aes_mode(alg, &aes_mode, &config, &aes_iv, iv);
+  if (status != PSA_SUCCESS) {
+    return status;
+  }
+
+  // Adjust input pointer and length for CBC and CTR modes
+  if (alg == PSA_ALG_CBC_NO_PADDING || alg == PSA_ALG_CTR) {
+    input += SL_SI91X_IV_SIZE;
+    input_length -= SL_SI91X_IV_SIZE;
   }
 
   config.aes_mode        = aes_mode;
@@ -298,7 +307,7 @@ psa_status_t sli_si91x_crypto_cipher_decrypt(const psa_key_attributes_t *attribu
   /* Calling sl_si91x_aes() for AES decryption */
   si91x_status = sl_si91x_aes(&config, output);
 
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
   free(config.key_config.a0.key);
 #endif
 

@@ -29,7 +29,11 @@
  ************************************************************************************/
 
 #include "sl_si91x_wdt_manager.h"
-#include "sl_si91x_wdt_config.h"
+#if defined SL_WDT_MANAGER_PRESENT_M4_UC_RC
+#include "sl_si91x_wdt_rc_config.h"
+#elif defined SL_WDT_MANAGER_PRESENT_M4_UC_XTAL
+#include "sl_si91x_wdt_xtal_config.h"
+#endif
 
 #if defined(SLI_SI91X_ENABLE_OS)
 #include "rsi_os.h"
@@ -160,8 +164,8 @@ sl_watchdog_manager_reset_reason_t sl_wdt_manager_get_system_reset_status(void)
  ******************************************************************************/
 sl_status_t sl_watchdog_manager_init(void)
 {
-  sl_status_t status;
-  watchdog_timer_config_t watchdog_config_internal;
+  sl_status_t status                               = SL_STATUS_OK;
+  watchdog_timer_config_t watchdog_config_internal = { 0 }; // Initialized the watch dog structure with zero
 
   // Power-Up WDT domain
   RSI_PS_NpssPeriPowerUp(SLPSS_PWRGATE_ULP_MCUWDT);
@@ -192,11 +196,13 @@ sl_status_t sl_watchdog_manager_init(void)
   // Configuring watchdog-timer
   status = sl_si91x_watchdog_set_configuration(&watchdog_config_internal);
   if (status != SL_STATUS_OK) {
+    return status;
   }
 
   // Registering timeout callback
   status = sl_si91x_watchdog_register_timeout_callback(on_timeout_callback);
   if (status != SL_STATUS_OK) {
+    return status;
     //Failed to register callback
   }
 #if defined(SL_SI91X_WATCHDOG_MANAGER_ENABLE_DURING_SLEEP) && (SL_SI91X_WATCHDOG_MANAGER_ENABLE_DURING_SLEEP == ENABLE)

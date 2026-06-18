@@ -1,7 +1,7 @@
 id: external_flash_none
 label: No External Flash
-package: platform
-description: Excludes an external flash from the SiWG91x part.
+package: platform_siwx91x
+description: Excludes an external flash from the SiWG91x part. For designs using on-module flash, select No External Flash.
 category: Device|Si91x|MCU|Flash
 quality: production
 metadata:

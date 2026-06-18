@@ -1,5 +1,5 @@
 id: si91x_debug
-package: wiseconnect3_sdk
+package: platform_siwx91x
 description: >
   "Provides debug functionality to the Si91x."
 label: Debug Unit

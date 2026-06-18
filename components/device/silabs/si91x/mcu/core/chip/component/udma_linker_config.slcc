@@ -1,6 +1,6 @@
 id: udma_linker_config
 label: UDMA Linker Configuration
-package: platform
+package: platform_siwx91x
 description: >
   Provides linker configuration for the UDMA component.
 category: Device|Si91x|MCU|Core

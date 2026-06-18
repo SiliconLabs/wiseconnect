@@ -324,17 +324,10 @@ static void on_comparator1_callback(void)
  ******************************************************************************/
 static void on_comparator2_callback(void)
 {
-#ifndef SLI_SI915
   // Toggling ULP_GPIO_1 on interrupt
   sl_gpio_t port_pin = { PORT_4, PIN_1 };
   sl_gpio_driver_set_pin_mode(&port_pin, PIN_MODE, PIN_OUTPUT_VALUE);
   sl_si91x_gpio_driver_set_pin_direction(PORT_4, PIN_1, PIN_DIRECTION);
-#else
-  // Toggling ULP_GPIO_4 on interrupt
-  sl_gpio_t port_pin = { PORT_4, PIN_4 };
-  sl_gpio_driver_set_pin_mode(&port_pin, PIN_MODE, PIN_OUTPUT_VALUE);
-  sl_si91x_gpio_driver_set_pin_direction(PORT_4, PIN_4, PIN_DIRECTION);
-#endif
   sl_gpio_driver_set_pin(&port_pin);
   sl_gpio_driver_clear_pin(&port_pin);
   DEBUGOUT("Comparator-2 non-inverting input voltage is greater\n");

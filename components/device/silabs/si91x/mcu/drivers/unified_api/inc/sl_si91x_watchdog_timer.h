@@ -39,6 +39,7 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_power_save.h"
 #include "rsi_wwdt.h"
+#include "base_types.h"
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #ifndef UNUSED_VARIABLE
@@ -177,7 +178,8 @@ void sl_si91x_watchdog_init_timer(void);
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/
-sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *timer_clk_config_ptr);
+sl_status_t sl_si91x_watchdog_configure_clock(watchdog_timer_clock_config_t *timer_clk_config_ptr)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**

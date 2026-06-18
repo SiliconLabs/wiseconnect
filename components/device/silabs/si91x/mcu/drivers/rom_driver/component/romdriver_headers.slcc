@@ -1,6 +1,6 @@
 id: romdriver_headers
 label: ROM Driver Headers
-package: platform
+package: platform_siwx91x
 description: >
   ROM Driver Headers
 category: Device|Si91x|MCU|Internal|ROM Drivers

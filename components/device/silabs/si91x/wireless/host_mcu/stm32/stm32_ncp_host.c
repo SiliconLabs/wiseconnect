@@ -27,6 +27,7 @@
 #include "sl_status.h"
 #include "stm32f4xx_hal.h"
 #include "sl_board_configuration.h"
+#include "sli_wifi_utility.h"
 
 #define SLI_SPI_BUFFER_LENGTH 2300
 #define SLI_DMA_ENABLED
@@ -282,7 +283,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void gpio_interrupt(void)
 {
   // Trigger SiWx91x BUS Event
-  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_wifi_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 }
 bool sl_si91x_host_is_in_irq_context(void)
 {

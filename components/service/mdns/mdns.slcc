@@ -1,5 +1,5 @@
 id: mdns
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The MDNS provides a simple, easy-to-use API to start a service that advertises service on network
 label: MDNS

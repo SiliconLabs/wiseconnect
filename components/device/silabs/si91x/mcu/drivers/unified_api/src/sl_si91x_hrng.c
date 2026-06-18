@@ -110,7 +110,7 @@ sl_status_t sl_si91x_hrng_init(void)
  ******************************************************************************/
 sl_status_t sl_si91x_hrng_deinit(void)
 {
-  int32_t error_code = RSI_CLK_PeripheralClkEnable1(M4CLK, HWRNG_PCLK_DYN_CTRL_DISABLE);
+  int32_t error_code = RSI_CLK_PeripheralClkDisable1(M4CLK, HWRNG_PCLK_ENABLE);
   return convert_rsi_to_sl_error_code(error_code);
 }
 
@@ -124,7 +124,23 @@ sl_status_t sl_si91x_hrng_start(sl_si91x_hrng_mode_t hrng_mode)
   int32_t error_code = rng_start(pHRNG, hrng_mode);
   return convert_rsi_to_sl_error_code(error_code);
 }
+/***************************************************************************/
+/**
+ * This function sets the soft reset bit of the HRNG peripheral.
+ ***************************************************************************/
+void sl_si91x_hrng_soft_reset_set(void)
+{
+  rng_soft_reset_set(pHRNG);
+}
 
+/***************************************************************************/
+/**
+ * This function clears the soft reset bit of the HRNG peripheral.
+ ***************************************************************************/
+void sl_si91x_hrng_soft_reset_clear(void)
+{
+  rng_soft_reset_clear(pHRNG);
+}
 /***************************************************************************/
 /**
  * This function reads random data from the HRNG using the LFSR input latch register.

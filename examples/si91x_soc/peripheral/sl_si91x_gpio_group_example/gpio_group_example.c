@@ -38,11 +38,11 @@
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
 // Define GPIO port and pin. Here SL_SI91X_GPIO_8_PORT corresponds to GPIO pin 8's port number : 0.
-// This is defined to '0' which is PORT_A and GPIO_PIN_NUMBER8 refers to GPIO pin number 8.
+// This is defined to '0' which is PORT_A and SL_SI91X_GPIO_8_PIN refers to GPIO pin number 8.
 // Same representation followed for other port and pins.
 static sl_si91x_gpio_pin_config_t sl_gpio_pin_config[NUMBER_OF_PINS] = {
-  { { SL_SI91X_GPIO_8_PORT, GPIO_PIN_NUMBER8 }, GPIO_INPUT },
-  { { SL_SI91X_GPIO_9_PORT, GPIO_PIN_NUMBER9 }, GPIO_INPUT },
+  { { SL_SI91X_GPIO_8_PORT, SL_SI91X_GPIO_8_PIN }, GPIO_INPUT },
+  { { SL_SI91X_GPIO_9_PORT, SL_SI91X_GPIO_9_PIN }, GPIO_INPUT },
   { { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN }, GPIO_INPUT },
 #ifndef SL_SI91X_ACX_MODULE
   { { SL_SI91X_ULP_GPIO_10_PORT, SL_SI91X_ULP_GPIO_10_PIN }, GPIO_INPUT },

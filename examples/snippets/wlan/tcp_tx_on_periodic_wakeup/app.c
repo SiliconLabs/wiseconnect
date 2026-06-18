@@ -112,9 +112,9 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
 #ifdef SLI_SI91X_MCU_INTERFACE
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION
 #if ENABLE_NWP_POWER_SAVE
                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
@@ -122,11 +122,11 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
 #endif
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-                      | SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+                      | SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -137,7 +137,7 @@ static const sl_wifi_device_configuration_t sl_wifi_throughput_configuration = {
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
 #if defined(SLI_SI91X_MCU_INTERFACE) || ENABLE_NWP_POWER_SAVE
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP)
 #else
                    .config_feature_bit_map = 0
 #endif
@@ -160,9 +160,8 @@ void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr)
 }
 #endif
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 

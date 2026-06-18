@@ -59,34 +59,27 @@ extern "C" {
 // <<< end of configuration section >>>
 #if USER_CONFIGURATION_ENABLE
 // <<< sl:start pin_tool >>>
-// <dac0 signal=OUT> SL_DAC0
-// $[DAC0_SL_DAC0]
-#ifndef SL_DAC0_PERIPHERAL
-#define SL_DAC0_PERIPHERAL DAC0
+// <dac signal=(OUT)> SL_DAC
+// $[DAC_SL_DAC]
+#ifndef SL_DAC_PERIPHERAL
+#define SL_DAC_PERIPHERAL DAC1
 #endif
-#warning "DAC peripheral is not configured. Please configure the DAC pins according to the board connections."
-// DAC0 OUT on ULP_GPIO_4/GPIO_68
-#ifndef SL_DAC0_OUT_PORT
-#define SL_DAC0_OUT_PORT ULP
+
+// DAC1 OUT on GPIO_30
+#ifndef SL_DAC_OUT_PORT
+#define SL_DAC_OUT_PORT HP
 #endif
-#ifndef SL_DAC0_OUT_PIN
-#define SL_DAC0_OUT_PIN 4
+#ifndef SL_DAC_OUT_PIN
+#define SL_DAC_OUT_PIN 30
 #endif
-#ifndef SL_DAC0_OUT_LOC
-#define SL_DAC0_OUT_LOC 0
+#ifndef SL_DAC_OUT_LOC
+#define SL_DAC_OUT_LOC 0
 #endif
-// [DAC0_SL_DAC0]$
+// [DAC_SL_DAC]$
 // <<< sl:end pin_tool >>>
 
-// Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output
-// is internally redirected to OPAMP pin GPIO_30.
-#ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define SL_DAC_OUTPUT_PORT 0
-#define SL_DAC_OUTPUT_PIN  30
-#else
-#define SL_DAC_OUTPUT_PORT SL_DAC0_OUT_PORT
-#define SL_DAC_OUTPUT_PIN  SL_DAC0_OUT_PIN
-#endif
+#define SL_DAC_OUTPUT_PORT SL_DAC_OUT_PORT
+#define SL_DAC_OUTPUT_PIN  SL_DAC_OUT_PIN
 
 sl_dac_config_t sl_dac_config = { .operating_mode     = SL_DAC_OPERATION_MODE,
                                   .dac_fifo_threshold = SL_DAC_FIFO_THRESHOLD,
@@ -94,7 +87,12 @@ sl_dac_config_t sl_dac_config = { .operating_mode     = SL_DAC_OPERATION_MODE,
                                   .adc_channel        = 0,
                                   .dac_pin            = SL_DAC_OUTPUT_PIN,
                                   .dac_port           = SL_DAC_OUTPUT_PORT };
-#endif
+#else
+
+#warning \
+  "DAC pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif // SL_DAC

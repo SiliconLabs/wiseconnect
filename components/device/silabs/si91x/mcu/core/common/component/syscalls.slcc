@@ -1,5 +1,5 @@
 id: syscalls
-package: wiseconnect3_sdk
+package: platform_siwx91x
 description: >
   Provides system calls support for the Si91x.
 label: System Calls

@@ -31,7 +31,6 @@
 #ifndef SLI_ROUTING_UTILITY_H
 #define SLI_ROUTING_UTILITY_H
 
-#include "sl_wifi_device.h"
 #include "sli_routing_utility_types.h"
 #include <stdint.h>
 /**
@@ -39,16 +38,16 @@
  *
  * @param routing_table Pointer to the routing table to be used for routing.
  * @param packet_type Type of the packet to be routed.
- * @param packet Pointer to the queue node containing the packet to be routed.
- * @param packet_size Size of the packet .
+ * @param queue_node Pointer to the queue node containing the packet to be routed.
+ * @param queue_node_size Size of the queue node.
  * @param context Pointer to the context to be passed to the packet handler.
  *
  * @return Status of the routing operation.
  */
 sl_status_t sli_routing_utility_route_queue_node(sli_routing_table_t *routing_table,
                                                  uint16_t packet_type,
-                                                 sl_slist_node_t *packet,
-                                                 uint16_t packet_size,
+                                                 sli_queue_node_t *queue_node,
+                                                 uint16_t queue_node_size,
                                                  void *context);
 /**
  * @brief Routes a packet through the routing table.

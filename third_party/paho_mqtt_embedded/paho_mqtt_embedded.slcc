@@ -1,5 +1,5 @@
 id: paho_mqtt_embedded
-package: wiseconnect3_sdk
+package: wifi
 description: >
  paho_mqtt_embedded SDK 
 label: paho_mqtt_embedded SDK
@@ -27,6 +27,9 @@ source:
 - path: MQTTPacket/src/MQTTSubscribeClient.c
 - path: MQTTPacket/src/MQTTUnsubscribeClient.c
 - path: MQTTClient-C/src/Si91x/MQTTSi91x.c
+  condition: ["sl_si91x_internal_stack"]
+- path: MQTTClient-C/src/Si91x/MQTTSi91x_lwip.c
+  condition: ["sl_si91x_lwip_stack"]
 
 
 
@@ -41,7 +44,15 @@ include:
 
 - path: MQTTClient-C/src/Si91x
   file_list:
+     - path: MQTTSi91x_lwip.h
+       condition: ["sl_si91x_lwip_stack"]
+     - path: sli_lwip_mqtt_mbedtls_config.h
+       condition: ["sl_si91x_lwip_stack"]
+
+- path: MQTTClient-C/src/Si91x
+  file_list:
      - path: MQTTSi91x.h
+       condition: ["sl_si91x_internal_stack"]
 
 - path: MQTTPacket/src/
   file_list:
@@ -56,6 +67,56 @@ include:
      
 requires:
 - name: bsd_socket
+  condition: ["sl_si91x_internal_stack"]
 - name: sl_websocket_client
+  condition: ["sl_si91x_internal_stack"]
+- name: mbedtls_random
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_tls
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_x509
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_source
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_oid
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_asn1
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_rsa
+  condition: ["sl_si91x_lwip_stack"]
+- name: psa_crypto_tls12_prf
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cipher
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cipher_cbc
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecc
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdsa
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ccm
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_gcm
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_aes
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_hash
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_md5
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cmac
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdh
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha512
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha256
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_debug
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdhe_key_exchange
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_config
+  condition: ["sl_si91x_lwip_stack"]
 
 

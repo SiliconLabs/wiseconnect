@@ -42,7 +42,7 @@ Before running the application, the user will need the following things to setup
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -55,18 +55,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### Application Configuration Parameters
 
- * PERSISTENT_KEY_ID in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file denotes key uid which will be stored in NVM3.
- * KEY_SIZE_BITS macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is size of plain private key in bits.
+ * PERSISTENT_KEY_ID in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file denotes key uid which will be stored in NVM3.
+ * KEY_SIZE_BITS macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is size of plain private key in bits.
  * KEY_MAX_SIZE is the max size of the key buffer used to store the generated public key.
- * Private_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is the private key to be imported.
+ * Private_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) file is the private key to be imported.
  * The public key generated will replace the private key in key_attributes.
- * Public_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) is the public key generated and exported.
+ * Public_key in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) is the public key generated and exported.
  * Default algo for asymmetric key generation is ECDH.
  * Default ecc curve is SEP256R1
  * Default key size is 256 bits - can choose between 192 and 256
- * To change the ecc curve and key size, change the corresponding macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated.
+ * To change the ecc curve and key size, change the corresponding macro in [`psa_asymmetric_key_storage_app.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/crypto/si91x_psa_asymmetric_key_storage/psa_asymmetric_key_storage_app.c) - psa_set_key_type() and change the KEY_MAX_SIZE to the corresponding length of public key generated.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

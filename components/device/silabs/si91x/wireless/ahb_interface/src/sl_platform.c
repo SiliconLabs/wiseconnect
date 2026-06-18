@@ -118,7 +118,10 @@ sl_status_t sli_si91x_bootup_firmware(const uint8_t select_option, uint8_t image
 
   sli_m4_ta_interrupt_init();
   if (!(M4SS_P2P_INTR_SET_REG & RX_BUFFER_VALID)) {
-    sli_si91x_submit_rx_pkt();
+    sl_status_t rx_status = sli_si91x_submit_rx_pkt();
+    if (rx_status != SL_STATUS_OK) {
+      return rx_status;
+    }
   }
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)

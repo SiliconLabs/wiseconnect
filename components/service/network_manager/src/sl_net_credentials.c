@@ -31,7 +31,7 @@
 #include "sl_net_default_values.h"
 #include "sl_wifi_credentials.h"
 #include "sl_common.h"
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #include "sl_net_si91x.h"
 #endif
 #include <string.h>
@@ -114,7 +114,7 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
                                   uint32_t credential_length)
 {
   // Check if the credential is invalid parameter
-  if ((NULL == credential) || (0 == credential_length)) {
+  if ((credential == NULL) || (credential_length == 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
@@ -124,8 +124,8 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
   sl_wifi_credential_type_t cred_type = 0;
 
   if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    return sl_si91x_set_credential(id, type, credential, credential_length);
+#if defined(SLI_SI917)
+    return sli_net_set_credential(id, type, credential, credential_length);
 #else
     return SL_STATUS_FAIL;
 #endif
@@ -138,6 +138,27 @@ sl_status_t sl_net_set_credential(sl_net_credential_id_t id,
   } else {
     group_id = id;
     cred_id  = id;
+  }
+
+  switch (type) {
+    case SL_NET_WIFI_PSK: {
+      // PSK must be between 8 and 63 characters long
+      if ((credential_length < SL_WIFI_MIN_PSK_LENGTH) || (credential_length > (SL_WIFI_MAX_PSK_LENGTH - 1))) {
+        SL_DEBUG_LOG("\n PSK: Invalid credential length: %ld\n", credential_length);
+        return SL_STATUS_SI91X_INVALID_PSK_LENGTH;
+      }
+      break;
+    }
+    case SL_NET_WIFI_PMK: {
+      // PMK must be exactly 32 bytes in hex format
+      if (credential_length != SL_WIFI_MAX_PMK_LENGTH) {
+        SL_DEBUG_LOG("\n PMK: Invalid credential length: %ld\n", credential_length);
+        return SL_STATUS_SI91X_INVALID_PMK_LEN;
+      }
+      break;
+    }
+    default:
+      break;
   }
 
   switch (group_id) {
@@ -232,8 +253,8 @@ sl_status_t sl_net_get_credential(sl_net_credential_id_t id,
 sl_status_t sl_net_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type)
 {
   if (CRED_TYPE_CERT == sli_si91x_check_cred_type(type)) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    return sl_si91x_delete_credential(id, type);
+#if defined(SLI_SI917)
+    return sli_net_delete_credential(id, type);
 #else
     return SL_STATUS_FAIL;
 #endif

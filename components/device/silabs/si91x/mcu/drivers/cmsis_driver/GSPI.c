@@ -33,6 +33,7 @@
 #include "GSPI.h"
 #include "rsi_gspi.h"
 #include "rsi_power_save.h"
+#include "sl_si91x_clock_manager.h"
 #ifdef GSPI_CONFIG
 #include "sl_si91x_gspi_common_config.h"
 #endif
@@ -93,6 +94,13 @@ extern UDMA_RESOURCES UDMA0_Resources ;
 #define RX_DMA_ARB_SIZE ARBSIZE_4
 #endif
 #endif
+
+#define SYSTEM_CLOCK_180MHZ      180000000 // System frequency value at 180 MHz
+#define SYSTEM_CLOCK_90MHZ       90000000  // System frequency value at 90 MHz
+#define DIVISION_FACTOR_180MHZ   4         // Division factor to get accurate ticks at 180 MHz
+#define DIVISION_FACTOR_90MHZ    3         // Division factor to get accurate ticks at 90 MHz
+#define DIVISION_FACTOR_32MHZ    2         // Division factor to get accurate ticks at 32 MHz
+#define CONVERT_TO_MS            10000     // To convert the system frequency into milliseconds, divide it by this value
 
 #define ARM_SPI_DRV_VERSION    ARM_DRIVER_VERSION_MAJOR_MINOR(2, 0) /* driver version */
 extern RSI_UDMA_HANDLE_T udmaHandle0;
@@ -209,6 +217,8 @@ static const GSPI_RESOURCES GSPI_MASTER_Resources = {
 0 };
 #endif /* GSPI_Master */
 
+static uint32_t get_gspi_tick_count(uint32_t time_ms);
+
 ARM_DRIVER_VERSION GSPI_MASTER_GetVersion(void)
 {
 	return DriverVersion;
@@ -289,6 +299,81 @@ static int32_t GSPI_MASTER_Send(const void *data, uint32_t num)
 #endif
 }
 
+int32_t GSPI_MASTER_Send_Blocking(const void *data, uint32_t num, uint32_t timeout)
+{
+	GSPI_RESOURCES *gspi = &GSPI_MASTER_Resources;
+	uint16_t data_bits = 0;
+	uint8_t data_8bit = 0;
+	uint16_t data_16bit = 0;
+	uint8_t data_width_in_bytes = 0;
+	uint32_t gspi_tick_count = get_gspi_tick_count(timeout);
+
+	// Validate GSPI configuration state
+	if (!(gspi->info->state & SPI_CONFIGURED)) {
+		return ARM_DRIVER_ERROR;
+	}
+
+	// Check if GSPI is currently busy
+	if (gspi->info->status.busy) {
+		return ARM_DRIVER_ERROR_BUSY;
+	}
+
+	// Initialize transfer status and buffer pointers
+	gspi->info->status.data_lost  = 0;
+	gspi->info->status.mode_fault = 0;
+	gspi->xfer->tx_cnt            = 0;
+	gspi->xfer->tx_buf            = (uint8_t *)data;
+
+	// Get configured data frame width from register
+	data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+	if (data_bits == 0) {
+		data_bits = 16; // 0 indicates all 16 bits are valid
+	}
+
+	// Configure GSPI for optimized send-only operation
+	gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN = DISABLE;  // Disable full duplex for send-only
+	gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;    // Use previous configured length
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR = ENABLE;       // Enable manual write mode
+
+	// Calculate bytes per transfer based on frame width
+	data_width_in_bytes = (data_bits <= 8) ? 1 : 2;
+	gspi->xfer->num = num * data_width_in_bytes;
+
+	// Enable interrupt mask for transfer monitoring
+	gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
+
+	// Perform blocking data transfer with timeout
+	while (gspi->xfer->tx_cnt < gspi->xfer->num) {
+		// Wait until write FIFO is not full or timeout
+		uint32_t local_tick = gspi_tick_count;
+		while ((gspi->reg->GSPI_STATUS_b.FIFO_FULL_WFIFO_S == 1) && (local_tick-- > 0));
+		if (local_tick == 0) {
+			return ARM_DRIVER_ERROR_TIMEOUT;
+		}
+
+		// Transfer data based on configured width
+		if (data_width_in_bytes == 1) {
+			// 8-bit data transfer
+			data_8bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+			gspi->reg->GSPI_WRITE_FIFO[0] = (uint32_t)data_8bit;
+		} else if (data_width_in_bytes == 2) {
+			// 16-bit data transfer
+			data_16bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+			data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++) << 8);
+			gspi->reg->GSPI_WRITE_FIFO[0] = (uint32_t)data_16bit;
+		}
+	}
+
+	// Wait for GSPI to complete all pending operations or timeout
+	uint32_t busy_tick = gspi_tick_count;
+	while ((gspi->reg->GSPI_STATUS_b.GSPI_BUSY != 0) && (busy_tick-- > 0));
+	if (busy_tick == 0) {
+		return ARM_DRIVER_ERROR_TIMEOUT;
+	}
+
+	return ARM_DRIVER_OK;
+}
+
 static int32_t GSPI_MASTER_Receive (void *data, uint32_t num)
 {
 #if  defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
@@ -298,6 +383,84 @@ static int32_t GSPI_MASTER_Receive (void *data, uint32_t num)
 #endif
 }
 
+int32_t GSPI_MASTER_Receive_Blocking(void *data, uint32_t num, uint32_t timeout)
+{
+	GSPI_RESOURCES *gspi = &GSPI_MASTER_Resources;
+	uint16_t data_bits = 0;
+	uint8_t data_width_in_bytes = 0;
+	uint8_t data_8bit = 0;
+	uint16_t data_16bit = 0;
+	uint32_t gspi_tick_count = get_gspi_tick_count(timeout);
+
+	// Validate input parameters
+	if ((data == NULL) || (num == 0)) {
+		return ARM_DRIVER_ERROR_PARAMETER;
+	}
+	// Check GSPI configuration state
+	if (!(gspi->info->state & SPI_CONFIGURED)) {
+		return ARM_DRIVER_ERROR;
+	}
+	// Check if GSPI is currently busy
+	if (gspi->info->status.busy) {
+		return ARM_DRIVER_ERROR_BUSY;
+	}
+
+	// Initialize transfer status and buffer pointers
+	gspi->info->status.data_lost  = 0;
+	gspi->info->status.mode_fault = 0;
+	gspi->xfer->rx_buf            = (uint8_t *)data;
+	gspi->xfer->rx_cnt            = 0;
+	gspi->xfer->tx_cnt            = 0;
+
+	// Get configured data frame width from register
+	data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+	if (data_bits == 0) {
+		data_bits = 16; // 0 indicates all 16 bits are valid
+	}
+	data_width_in_bytes = (data_bits <= 8) ? 1 : 2;
+
+	// Configure GSPI for optimized receive-only operation
+	gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;
+	gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN  = ENABLE;
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR      = ENABLE; // Write enable
+
+	// Enable interrupt mask for transfer monitoring
+	gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
+
+	// Set manual read count and enable manual read
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD_CNT  = num - 1;
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD      = ENABLE; // Read enable
+
+	// Set number of bytes to receive
+	gspi->xfer->num = num * data_width_in_bytes;
+
+	// Perform blocking data transfer with timeout
+	while (gspi->xfer->rx_cnt < gspi->xfer->num) {
+		uint32_t gspi_tick = gspi_tick_count;
+		gspi->reg->GSPI_WRITE_FIFO[0] = 0; // Dummy write to generate clock
+
+		// Wait until read FIFO is not empty or timeout
+		while ((gspi->reg->GSPI_STATUS_b.FIFO_EMPTY_RFIFO_S == 1) && (gspi_tick-- > 0));
+		if (gspi_tick == 0) {
+			return ARM_DRIVER_ERROR_TIMEOUT;
+		}
+
+		// Read the next data available in the FIFO into rx_buf
+		if (1 == data_width_in_bytes) {
+			// 8-bit data transfer
+			data_8bit = gspi->reg->GSPI_READ_FIFO[0];
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = data_8bit;
+		} else if (2 == data_width_in_bytes) {
+			// 16-bit data transfer
+			data_16bit = gspi->reg->GSPI_READ_FIFO[0];
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)data_16bit;
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)(data_16bit >> 8);
+		}
+	}
+
+	return ARM_DRIVER_OK;
+}
+
 static int32_t GSPI_MASTER_Transfer (const void *data_out, void *data_in, uint32_t num) 
 {
 #if defined(A11_ROM) && defined(GSPI_ROMDRIVER_PRESENT)
@@ -305,6 +468,142 @@ static int32_t GSPI_MASTER_Transfer (const void *data_out, void *data_in, uint32
 #else
 	return GSPI_Transfer (data_out, data_in, num, &GSPI_MASTER_Resources,&UDMA0_Resources,udma0_chnl_info,udmaHandle0); 
 #endif
+}
+
+int32_t GSPI_MASTER_Transfer_Blocking(const void *data_out, void *data_in, uint32_t num, uint32_t timeout)
+{
+	GSPI_RESOURCES *gspi = &GSPI_MASTER_Resources;
+	uint16_t data_bits = 0;
+	uint8_t data_width_in_bytes = 0;
+	uint8_t data_8bit;
+	uint16_t data_16bit;
+	uint32_t gspi_tick_count = get_gspi_tick_count(timeout);
+
+	// Validate input parameters
+	if ((data_out == NULL) || (data_in == NULL) || (num == 0U)) {
+		return ARM_DRIVER_ERROR_PARAMETER;
+	}
+	// Check GSPI configuration state
+	if (!(gspi->info->state & SPI_CONFIGURED)) {
+		return ARM_DRIVER_ERROR;
+	}
+	// Check if GSPI is currently busy
+	if (gspi->info->status.busy) {
+		return ARM_DRIVER_ERROR_BUSY;
+	}
+
+	// Initialize transfer status and buffer pointers
+	gspi->info->status.data_lost  = 0U;
+	gspi->info->status.mode_fault = 0U;
+	gspi->xfer->rx_buf            = (uint8_t *)data_in;
+	gspi->xfer->tx_buf            = (uint8_t *)data_out;
+	gspi->xfer->rx_cnt            = 0U;
+	gspi->xfer->tx_cnt            = 0U;
+
+	// Get configured data frame width from register
+	data_bits = gspi->reg->GSPI_WRITE_DATA2_b.GSPI_MANUAL_WRITE_DATA2;
+	if (data_bits == 0) {
+		data_bits = 16; // 0 indicates all 16 bits are valid
+	}
+	data_width_in_bytes = (data_bits <= 8) ? 1 : 2;
+
+	// Configure GSPI for full-duplex transfer
+	gspi->reg->GSPI_WRITE_DATA2_b.USE_PREV_LENGTH = true;
+	gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN  = DISABLE;
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_WR      = ENABLE; // Write enable
+
+	// Enable full duplex mode
+	gspi->reg->GSPI_CONFIG1_b.SPI_FULL_DUPLEX_EN  = ENABLE;
+	gspi->xfer->num                               = num * data_width_in_bytes;
+
+	// Enable interrupt mask for transfer monitoring
+	gspi->reg->GSPI_INTR_MASK |= (GSPI_INTR_MASK_BIT);
+
+	// Set manual read count and enable manual read
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD_CNT  = num - 1;
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_RD      = ENABLE; // Read enable
+
+	// Perform blocking full-duplex data transfer with timeout
+	while (gspi->xfer->rx_cnt < gspi->xfer->num) {
+		uint32_t local_gspi_tick = gspi_tick_count;
+		// Wait until write FIFO is not full or timeout
+		while ((gspi->reg->GSPI_STATUS_b.FIFO_FULL_WFIFO_S == 1) && (local_gspi_tick-- > 0));
+		if (local_gspi_tick == 0) {
+			// Timeout occurred while waiting to write data
+			return ARM_DRIVER_ERROR_TIMEOUT;
+		}
+
+		// Write next data to FIFO
+		if (data_width_in_bytes == 1) {
+			// 8-bit data transfer
+			data_8bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+			gspi->reg->GSPI_WRITE_FIFO[0] = (uint32_t)data_8bit;
+		} else if (data_width_in_bytes == 2) {
+			// 16-bit data transfer
+			data_16bit = *(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++);
+			data_16bit |= (uint16_t)(*(gspi->xfer->tx_buf + gspi->xfer->tx_cnt++) << 8);
+			gspi->reg->GSPI_WRITE_FIFO[0] = (uint32_t)data_16bit;
+		}
+
+		local_gspi_tick = gspi_tick_count;
+		// Wait until read FIFO is not empty or timeout
+		while ((gspi->reg->GSPI_STATUS_b.FIFO_EMPTY_RFIFO_S == 1) && (local_gspi_tick-- > 0));
+		if (local_gspi_tick == 0) {
+			// Timeout occurred while waiting for data in RX FIFO
+			return ARM_DRIVER_ERROR_TIMEOUT;
+		}
+
+		// Read the next data available in the FIFO into rx_buf
+		if (data_width_in_bytes == 1) {
+			// 8-bit data transfer
+			data_8bit = gspi->reg->GSPI_READ_FIFO[0];
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = data_8bit;
+		} else if (data_width_in_bytes == 2) {
+			// 16-bit data transfer
+			data_16bit = gspi->reg->GSPI_READ_FIFO[0];
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)data_16bit;
+			*(gspi->xfer->rx_buf + gspi->xfer->rx_cnt++) = (uint8_t)(data_16bit >> 8U);
+		}
+	}
+
+	return ARM_DRIVER_OK;
+}
+
+int32_t GSPI_MASTER_SetSlaveSelectGPIOState(boolean_t value)
+{
+	GSPI_RESOURCES *gspi = &GSPI_MASTER_Resources;
+
+	gspi_slavenumber = RSI_GSPI_GetSlaveSelectNumber();
+	/* check slave number is valied or not */
+	if (gspi_slavenumber == 0xA5) {
+		/* Update the slave number by using RSI_GSPI_SetSlaveSelectNumber API */
+		return RSI_MUTLI_SLAVE_SELECT_ERROR;
+	}
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN_SELECT = (uint32_t)(gspi_slavenumber & 0x03);
+
+	gspi->reg->GSPI_CONFIG1_b.GSPI_MANUAL_CSN        = (value == ENABLE) ? 0 : 0x1;
+
+	while ((gspi->reg->GSPI_STATUS & GSPI_MAN_CSN))
+		;
+	return ARM_DRIVER_OK;
+}
+
+static uint32_t get_gspi_tick_count(uint32_t time_ms)
+{
+	uint32_t tick_count      = 0;
+	uint8_t division_factor  = 0;
+	uint32_t clock_frequency = 0;
+	sl_si91x_clock_manager_m4_get_core_clk_src_freq(&clock_frequency);
+	if (clock_frequency >= SYSTEM_CLOCK_180MHZ) {
+		division_factor = DIVISION_FACTOR_180MHZ;
+	} else if (clock_frequency >= SYSTEM_CLOCK_90MHZ) {
+		division_factor = DIVISION_FACTOR_90MHZ;
+	} else {
+		division_factor = DIVISION_FACTOR_32MHZ;
+	}
+	// gspi_tick_count value is updated with the ticks according to the input value and clock freq.
+	tick_count = ((clock_frequency / CONVERT_TO_MS) * time_ms) / division_factor;
+	return tick_count;
 }
 
 static uint32_t GSPI_MASTER_GetDataCount (void)                                              
@@ -330,7 +629,7 @@ static int32_t GSPI_MASTER_Control(uint32_t control, uint32_t arg)
     }
   }
 #if (defined(GSPI_ROMDRIVER_PRESENT))
-#if (defined(A11_ROM) && (defined(SLI_SI917) || defined(SLI_SI915)) && (defined(SLI_SI917B0) || defined(SLI_SI915)))
+#if ((defined(A11_ROM)) && (defined(SLI_SI917)) && (defined(SLI_SI917B0)))
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock, gspi_slavenumber);
 #else
   return ROMAPI_GSPI_API->GSPI_Control(control, arg, &GSPI_MASTER_Resources, gspi_get_clock);

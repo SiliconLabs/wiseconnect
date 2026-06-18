@@ -38,7 +38,7 @@
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 #ifdef SLI_TRNG_DEVICE_SI91X
 /* TRNG key */
 uint32_t trng_key[TRNG_KEY_SIZE] = { 0x16157E2B, 0xA6D2AE28, 0x8815F7AB, 0x3C4FCF09 };
@@ -57,10 +57,10 @@ static sl_status_t sli_si91x_trng_send_command(sli_si91x_trng_request_t *request
 #endif
 
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          sizeof(sli_si91x_trng_request_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          buffer);
   if (status != SL_STATUS_OK) {
@@ -106,7 +106,7 @@ sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *o
   status            = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_trng_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
 #else
   memcpy(request->trng_key, config->trng_key, TRNG_KEY_SIZE * 4);
   memcpy(request->msg, config->trng_test_data, config->input_length * 4);
@@ -116,7 +116,7 @@ sl_status_t sl_si91x_trng_init(const sl_si91x_trng_config_t *config, uint32_t *o
   if (status != SL_STATUS_OK) {
     return status;
   }
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 #endif
 
@@ -151,14 +151,14 @@ sl_status_t sl_si91x_trng_entropy(void)
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_trng_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
 #else
 
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          sizeof(sli_si91x_trng_request_t),
-                                         SL_SI91X_WAIT_FOR(32000),
+                                         SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME,
                                          NULL,
                                          NULL);
 #endif
@@ -196,7 +196,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
   status            = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_trng_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
 #else
   memcpy(request->trng_key, trng_key, TRNG_KEY_SIZE * 4);
 
@@ -205,7 +205,7 @@ sl_status_t sl_si91x_trng_program_key(uint32_t *trng_key, uint16_t key_length)
   if (status != SL_STATUS_OK) {
     return status;
   }
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   memcpy(trng_key, packet->data, packet->length);
 #endif
 
@@ -249,14 +249,14 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
   status          = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_trng_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
 #else
 
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          sizeof(sli_si91x_trng_request_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -269,7 +269,7 @@ sl_status_t sl_si91x_trng_get_random_num(uint32_t *random_number, uint16_t lengt
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   // Verify the response length is converted to bytes since
   // response is in bytes instead of DWORDs as expected in
   // request.

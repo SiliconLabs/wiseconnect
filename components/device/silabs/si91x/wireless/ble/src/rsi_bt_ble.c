@@ -43,6 +43,7 @@
 #include "stdio.h"
 
 #include "sl_si91x_host_interface.h"
+#include "rsi_ble_common_config.h"
 
 sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
                                               void **buffer,
@@ -72,6 +73,8 @@ int32_t rsi_driver_process_bt_resp(
 void rsi_ble_on_chip_memory_status_callbacks_register(chip_ble_buffers_stats_handler_t ble_on_chip_memory_status_event);
 uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_system_packet_t *pkt);
 uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_system_packet_t *pkt);
+static void rsi_ble_allocate_tx_buffer_check(rsi_bt_cb_t *le_cb, uint8_t inx);
+static void rsi_ble_update_buff_for_err_resp(int32_t status);
 
 /*
  Global Variables
@@ -146,7 +149,8 @@ uint16_t rsi_bt_get_proto_type(uint16_t rsp_type, rsi_bt_cb_t **bt_cb)
              || ((rsp_type >= RSI_BLE_CONN_PARAM_RESP_CMD) && (rsp_type <= RSI_BLE_CMD_MTU_EXCHANGE_RESP))
              || ((rsp_type >= RSI_BLE_EVENT_GATT_ERROR_RESPONSE) && (rsp_type <= RSI_BLE_EVENT_SCAN_REQ_RECVD))
              || (rsp_type == RSI_BLE_REQ_CONN_ENHANCE) || (rsp_type == RSI_BLE_EVENT_REMOTE_DEVICE_INFORMATION)
-             || ((rsp_type >= RSI_BLE_CMD_READ_TRANSMIT_POWER) && (rsp_type <= RSI_BLE_CMD_WRITE_RF_PATH_COMP))) {
+             || ((rsp_type >= RSI_BLE_CMD_READ_TRANSMIT_POWER) && (rsp_type <= RSI_BLE_CMD_WRITE_RF_PATH_COMP))
+             || (rsp_type == RSI_BT_EVT_CONTROLLER_LOGS)) {
 
     return_value = RSI_PROTO_BLE;
     *bt_cb       = rsi_driver_cb->ble_cb;
@@ -212,7 +216,7 @@ uint32_t rsi_bt_get_timeout(uint16_t cmd_type, uint16_t protocol_type)
  * @return      void
  */
 
-void rsi_bt_common_tx_done(sl_wifi_system_packet_t *pkt)
+void rsi_bt_common_tx_done(const sl_wifi_system_packet_t *pkt, int32_t status)
 {
 
   SL_PRINTF(SL_RSI_BT_COMMON_TX_DONE, BLUETOOTH, LOG_INFO);
@@ -235,9 +239,9 @@ void rsi_bt_common_tx_done(sl_wifi_system_packet_t *pkt)
   }
 
   // If the command is not a synchronous/blocking one
-  if (!bt_cb->sync_rsp) {
+  if (!bt_cb->sync_rsp || status != RSI_SUCCESS) {
     // Set bt_common status as success
-    rsi_bt_set_status(bt_cb, RSI_SUCCESS);
+    rsi_bt_set_status(bt_cb, status);
 
     // Post the semaphore which is waiting on driver_send API
     osSemaphoreRelease(bt_cb->bt_sem);
@@ -308,11 +312,16 @@ void rsi_ble_update_le_dev_buf(const rsi_ble_event_le_dev_buf_ind_t *rsi_ble_eve
                 RSI_DEV_ADDR_LEN)) {
       if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
         osMutexAcquire(le_cb->remote_ble_info[inx].ble_buff_mutex, 0xFFFFFFFFUL);
+        /*get the available buffer count in TA*/
+        le_cb->remote_ble_info[inx].avail_buf_cnt += rsi_ble_event_le_dev_buf_ind->avail_buf_cnt;
+        osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
       }
 
-      le_cb->remote_ble_info[inx].avail_buf_cnt += rsi_ble_event_le_dev_buf_ind->avail_buf_cnt;
-      if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
-        osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
+      if (le_cb->ble_buff_total_mutex) {
+        osMutexAcquire(le_cb->ble_buff_total_mutex, 0xFFFFFFFFUL);
+        /*get the total available buffer count in TA*/
+        le_cb->ble_buff_total_avail_cnt = rsi_ble_event_le_dev_buf_ind->avail_buff_total_cnt;
+        osMutexRelease(le_cb->ble_buff_total_mutex);
       }
       break;
     }
@@ -342,6 +351,7 @@ void rsi_add_remote_ble_dev_info(const rsi_ble_event_enhance_conn_status_t *remo
       le_cb->remote_ble_info[inx].avail_buf_cnt  = 1;
       le_cb->remote_ble_info[inx].mode           = 1;
       le_cb->remote_ble_info[inx].ble_buff_mutex = osMutexNew(NULL);
+
       break;
     }
   }
@@ -983,6 +993,42 @@ void rsi_ble_l2cap_cbsc_register_callbacks(rsi_ble_on_cbfc_conn_req_event_t ble_
   return;
 }
 
+/**
+ * @fn       uint16_t rsi_bt_debug_logs_register_callbacks(uint16_t callback_id, void (*callback_handler_ptr)(uint16_t status,
+ *                                                uint8_t *buffer))
+ * @brief    Register the BT Debug Logs callback functions.
+ * @param[in]  callback_id                       - This is the ID of the callback function. The following IDs are supported:
+ * @param[in]  void (*callback_handler_ptr)(void - This is the callback handler function.
+ * @param[in]  status                            - Status of the asynchronous response.
+ * @param[in]  buffer                            - Payload of the asynchronous response.
+ * @return      0 - Success \n
+ *              -53 - Failure \n
+ *              If callback_id is greater than the maximum callbacks to register, returns RSI_ERROR_BLE_INVALID_CALLBACK_CNT.
+ * @note        In callbacks, the application should not initiate any TX operation to the module.
+ */
+uint32_t rsi_bt_debug_logs_register_callbacks(uint16_t callback_id,
+                                              void (*callback_handler_ptr)(uint16_t status, uint8_t *buffer))
+{
+  // Get bt cb struct pointer
+  rsi_ble_cb_t *ble_specific_cb = rsi_driver_cb->ble_cb->bt_global_cb->ble_specific_cb;
+
+  if (callback_id > RSI_BT_MAX_NUM_DEBUG_LOGS_CALLBACKS) {
+    /*
+  *Return , if the callback number exceeds the RSI_BT_MAX_NUM_DEBUG_LOGS_CALLBACKS ,or
+  * the callback is already registered
+  */
+    return RSI_ERROR_BLE_INVALID_CALLBACK_CNT;
+  }
+  if (callback_id == RSI_BT_ON_CONTROLLER_LOGS) {
+    /* Register controller logs call back handler */
+    ble_specific_cb->bt_on_controller_logs_event = (rsi_bt_on_controller_logs_t)callback_handler_ptr;
+  } else {
+    return RSI_ERROR_BLE_INVALID_CALLBACK_CNT;
+  }
+
+  return RSI_SUCCESS;
+}
+
 /** @addtogroup DRIVER14
 * @{
 */
@@ -1376,6 +1422,11 @@ void rsi_ble_callbacks_handler(rsi_bt_cb_t *ble_cb, uint16_t rsp_type, uint8_t *
         ble_specific_cb->ble_on_rcp_resp_rcvd_event(status, (rsi_ble_event_rcp_rcvd_info_t *)payload);
       }
     } break;
+    case RSI_BT_EVT_CONTROLLER_LOGS: {
+      if (ble_specific_cb->bt_on_controller_logs_event != NULL) {
+        ble_specific_cb->bt_on_controller_logs_event(status, (void *)payload);
+      }
+    } break;
     default:
       break;
   }
@@ -1506,6 +1557,10 @@ uint16_t rsi_bt_prepare_common_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_
           break;
         case BLE_VENDOR_ACCEPTLIST_USING_ADV_DATA_PAYLOAD:
           payload_size = sizeof(rsi_ble_req_acceptlist_using_payload_t);
+          memcpy(pkt->data, cmd_struct, payload_size);
+          break;
+        case BLE_VENDOR_ACCEPTLIST_ON_TYPE:
+          payload_size = sizeof(rsi_ble_req_acceptlist_on_type_t);
           memcpy(pkt->data, cmd_struct, payload_size);
           break;
         case BLE_VENDOR_SET_COEX_ROLE_PRIORITY:
@@ -2036,10 +2091,11 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_syst
           }
           if ((le_cb->remote_ble_info[inx].avail_buf_cnt) != (le_cb->remote_ble_info[inx].max_buf_cnt)) {
             le_cb->buf_status = 2; //return error based on the status
+
             if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
               osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
             }
-            break;
+            return payload_size;
           }
           if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
             osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
@@ -2050,6 +2106,7 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_syst
           le_cb->remote_ble_index = inx;
           break;
         } else if (le_buf_check) {
+#if 0
           if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
             osMutexAcquire(le_cb->remote_ble_info[inx].ble_buff_mutex, 0xFFFFFFFFUL);
           }
@@ -2067,6 +2124,8 @@ uint16_t rsi_bt_prepare_le_pkt(uint16_t cmd_type, void *cmd_struct, sl_wifi_syst
             }
             break;
           }
+#endif
+          rsi_ble_allocate_tx_buffer_check(le_cb, inx);
         } else if (le_cmd_inuse_check) {
           if (le_cb->remote_ble_info[inx].cmd_in_use) {
             le_cb->cmd_status = RSI_TRUE;
@@ -2231,7 +2290,13 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
     bt_cb->sync_rsp               = 1;
   }
 
-  sli_si91x_driver_send_bt_command(cmd, SLI_SI91X_BT_CMD, buffer, bt_cb->sync_rsp);
+  status = sli_si91x_driver_send_bt_command(cmd, SLI_SI91X_BT_CMD, buffer, bt_cb->sync_rsp);
+  if (status != SL_STATUS_OK && status != SL_STATUS_IN_PROGRESS) {
+    rsi_bt_set_status(bt_cb, status);
+    osSemaphoreRelease(bt_cb->bt_cmd_sem);
+    SL_PRINTF(SL_RSI_ERROR_BT_COMMAND_SEND, BLUETOOTH, LOG_ERROR, "COMMAND: %2x, STATUS: %4x", cmd, status);
+    return status;
+  }
 
   if (bt_cb->bt_sem == NULL || (osSemaphoreAcquire(bt_cb->bt_sem, calculate_timeout_ms) != osOK)) {
     rsi_bt_set_status(bt_cb, RSI_ERROR_RESPONSE_TIMEOUT);
@@ -2245,6 +2310,10 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
   // Get command response status
   status = rsi_bt_get_status(bt_cb);
 
+  if ((cmd == RSI_BLE_CMD_NOTIFY || cmd == RSI_BLE_REQ_WRITE_NO_ACK)) {
+    rsi_ble_update_buff_for_err_resp(status);
+  }
+
   SL_PRINTF(SL_RSI_BT_COMMAND_RESPONSE_STATUS, BLUETOOTH, LOG_INFO, "STATUS: %4x", status);
   // Clear sync rsp variable
   bt_cb->sync_rsp = 0;
@@ -2254,6 +2323,166 @@ int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp)
 
   // Return status
   return status;
+}
+/**
+ * @fn          static void rsi_ble_allocate_tx_buffer_check(rsi_bt_cb_t *le_cb, uint8_t inx)
+ * @brief       Allocates transmit buffers for BLE connections with fair distribution and flow control.
+ *              This function implements a sophisticated buffer allocation mechanism that ensures
+ *              fair distribution of transmit buffers among all active BLE connections while
+ *              preventing buffer starvation and implementing flow control to maintain system stability.
+ *
+ * @param[in]   le_cb - Pointer to the BLE control block containing connection information,
+ *                      buffer counters, and synchronization primitives
+ * @param[in]   inx   - Index of the current BLE connection (0 to RSI_BLE_MAX_NBR_SLAVES + RSI_BLE_MAX_NBR_MASTERS - 1)
+ *
+ * @return      None (void function)
+ *
+ * @note        This function performs the following operations:
+ *              - Calculates buffer requirements for all other active connections
+ *              - Implements fair buffer allocation based on connection usage patterns
+ *              - Supports two buffer modes: small (20 min buffers) and big (2 min buffers)
+ *              - Prevents buffer monopolization by enforcing minimum buffer guarantees
+ *              - Updates global and per-connection buffer counters atomically
+ *              - Sets buf_status flag to indicate buffer availability (0=available, RSI_TRUE=unavailable)
+ *
+ * @warning     This function uses mutex locks for thread safety and must be called in a context
+ *              where mutex operations are allowed. The function modifies global buffer counters
+ *              and connection-specific buffer states.
+ */
+static void rsi_ble_allocate_tx_buffer_check(rsi_bt_cb_t *le_cb, uint8_t inx)
+{
+  // Variable to track how many buffers are required for remaining connections
+  uint8_t buffs_req_for_remaining_conns = 0;
+  // Variable to hold the total available connection event (CE) buffers
+  uint8_t total_buff_cp_avail = 0;
+  // Flag to indicate if the global CE buffer count should be decremented
+  uint8_t ce_dec_flag = 0;
+  // Flag to indicate if memory allocation should be skipped for this connection
+  uint8_t skip_mem_alloc        = 0;
+  uint8_t per_conn_min_buff_cnt = 0;
+  uint8_t min_ce_avail          = 0;
+
+  // Input validation
+  if (!le_cb || inx >= (RSI_BLE_MAX_NBR_PERIPHERALS + RSI_BLE_MAX_NBR_CENTRALS)) {
+    return; // Invalid parameters
+  }
+
+  // Get the total available BLE connection event buffer count (global)
+  if (le_cb->ble_buff_total_mutex) {
+    osMutexAcquire(le_cb->ble_buff_total_mutex, 0xFFFFFFFFUL);
+    total_buff_cp_avail = le_cb->ble_buff_total_avail_cnt;
+    osMutexRelease(le_cb->ble_buff_total_mutex);
+  }
+
+  // Lock the buffer mutex for the current connection to ensure thread safety
+  if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
+    osMutexAcquire(le_cb->remote_ble_info[inx].ble_buff_mutex, 0xFFFFFFFFUL);
+  }
+
+  // Iterate through all connections to count how many still need minimum buffers
+  for (uint8_t ch = 0; ch < (RSI_BLE_MAX_NBR_PERIPHERALS + RSI_BLE_MAX_NBR_CENTRALS); ch++) {
+    // Check if the connection is in use and not the current one
+    if ((le_cb->remote_ble_info[ch].used) && (ch != inx)) {
+      // Determine minimum buffer count based on buffer mode (small or big)
+      if (le_cb->remote_ble_info[ch].mode == SMALL_BUFF_MODE) {
+        per_conn_min_buff_cnt =
+          RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED * RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK; // Small buffer mode
+      } else {
+        per_conn_min_buff_cnt = RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED; // Big buffer mode
+      }
+      per_conn_min_buff_cnt = (le_cb->remote_ble_info[ch].max_buf_cnt < per_conn_min_buff_cnt)
+                                ? le_cb->remote_ble_info[ch].max_buf_cnt
+                                : per_conn_min_buff_cnt;
+
+      // If the connection hasn't used any buffers yet
+      if (le_cb->remote_ble_info[ch].avail_buf_cnt == le_cb->remote_ble_info[ch].max_buf_cnt) {
+        if (le_cb->remote_ble_info[ch].mode == SMALL_BUFF_MODE) {
+          per_conn_min_buff_cnt /= RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK;
+        }
+        buffs_req_for_remaining_conns += per_conn_min_buff_cnt;
+      } else {
+        // If the connection has used less than the minimum required buffers
+        if ((le_cb->remote_ble_info[ch].max_buf_cnt) - (le_cb->remote_ble_info[ch].avail_buf_cnt)
+            < per_conn_min_buff_cnt) {
+          buffs_req_for_remaining_conns++; // Reserve 1 buffer for partially used connections
+        }
+      }
+    }
+  }
+
+  // Determine minimum buffer count for the current connection
+  if (le_cb->remote_ble_info[inx].mode == SMALL_BUFF_MODE) {
+    per_conn_min_buff_cnt = RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED * RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK;
+    min_ce_avail          = RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_SMALL_BUFF_MODE;
+  } else {
+    per_conn_min_buff_cnt = RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED;
+    min_ce_avail          = RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_BIG_BUFF_MODE;
+  }
+
+  // Check if there are not enough global buffers left for all connections
+  if (total_buff_cp_avail <= buffs_req_for_remaining_conns) {
+    // If the current connection has already used enough buffers, skip allocation
+    if (((le_cb->remote_ble_info[inx].max_buf_cnt) - (le_cb->remote_ble_info[inx].avail_buf_cnt)
+         >= per_conn_min_buff_cnt)
+        && ((le_cb->remote_ble_info[inx].max_buf_cnt > per_conn_min_buff_cnt))) {
+      skip_mem_alloc = 1;
+    }
+  }
+  // Check if buffer is available for this connection, globally, and not skipping allocation
+  // Also ensure enough total buffers are available for all connections
+  if ((le_cb->remote_ble_info[inx].avail_buf_cnt == 0) || (total_buff_cp_avail < min_ce_avail) || (skip_mem_alloc)) {
+    // Buffer not available or allocation skipped, set error status and unlock mutex
+    le_cb->buf_status = RSI_TRUE; // Set error status (buffer full)
+    if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
+      osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
+    }
+  } else {
+    le_cb->buf_status = 0; // Buffer allocation is OK
+    // Decrement buffer counters based on buffer mode
+    if (le_cb->remote_ble_info[inx].mode == SMALL_BUFF_MODE) { // Small buffer mode
+      // In small buffer mode, decrement global buffer count every 10 packets
+      // This happens when (max_buf_cnt - avail_buf_cnt) is a multiple of 10
+      if (!((le_cb->remote_ble_info[inx].max_buf_cnt - le_cb->remote_ble_info[inx].avail_buf_cnt)
+            % RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK)) {
+        ce_dec_flag = 1;
+      }
+    } else { // Big buffer mode
+      // In big buffer mode, decrement global buffer count for every packet
+      ce_dec_flag = 1;
+    }
+    // Decrement the available buffer count for this connection
+    le_cb->remote_ble_info[inx].avail_buf_cnt -= 1;
+    if (le_cb->remote_ble_info[inx].ble_buff_mutex) {
+      osMutexRelease(le_cb->remote_ble_info[inx].ble_buff_mutex);
+    }
+    // If required, decrement the global total buffer count
+    if (ce_dec_flag) {
+      if (le_cb->ble_buff_total_mutex) {
+        osMutexAcquire(le_cb->ble_buff_total_mutex, 0xFFFFFFFFUL);
+        le_cb->ble_buff_total_avail_cnt -= 1;
+        osMutexRelease(le_cb->ble_buff_total_mutex);
+      }
+    }
+    le_cb->remote_ble_index = inx;
+  }
+}
+
+static void rsi_ble_update_buff_for_err_resp(int32_t status)
+{
+  rsi_bt_cb_t *le_cb = rsi_driver_cb->ble_cb;
+  if (status == SL_STATUS_SI91X_ERROR_BLE_HW_BUF_OVERFLOW) {
+    if (le_cb->remote_ble_info[le_cb->remote_ble_index].ble_buff_mutex) {
+      osMutexAcquire(le_cb->remote_ble_info[le_cb->remote_ble_index].ble_buff_mutex, 0xFFFFFFFFUL);
+    }
+
+    le_cb->remote_ble_info[le_cb->remote_ble_index].avail_buf_cnt += 1;
+
+    if (le_cb->remote_ble_info[le_cb->remote_ble_index].ble_buff_mutex) {
+      osMutexRelease(le_cb->remote_ble_info[le_cb->remote_ble_index].ble_buff_mutex);
+    }
+
+    le_cb->remote_ble_index = 0;
+  }
 }
 /** @} */
 

@@ -38,13 +38,13 @@ This application is configured with the following configs:
 
 - Windows PC
 - Silicon Labs [Si917 Evaluation Kit WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- SiWx917 AC1 Module Explorer Kit [BRD2708A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-ek2708a-explorer-kit?tab=overview)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console Setup
-  - The Serial Console setup instructions are provided [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - The Serial Console setup instructions are provided [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -55,12 +55,13 @@ This application is configured with the following configs:
 
 ## Getting Started
 
-Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the follwoing tasks:
+Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
-- Connect your device to the computer
-- Upgrade your connectivity firmware
-- Create a Studio project
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -79,12 +80,12 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - Pin configurations for external UART to TTL cable, When VCOM enable is Turned ON.
 
-  |  USART PINS     |     917 GPIO    |    915 GPIO    |  Explorer kit GPIO |
-  | --------------- | --------------- | -------------- | ------------------ |
-  | ULP_GPIO_TX_PIN | ULP_GPIO_11[F6] | ULP_GPIO_7[F6] |      ULP_GPIO_11   |
-  | ULP_GPIO_RX_PIN | ULP_GPIO_9 [F7] | ULP_GPIO_6[F7] |      ULP_GPIO_9    |
+  |  USART PINS     |     917 GPIO    |  Explorer kit GPIO |
+  | --------------- | --------------- | ------------------ |
+  | ULP_GPIO_TX_PIN | ULP_GPIO_11[F6] |   ULP_GPIO_11   |
+  | ULP_GPIO_RX_PIN | ULP_GPIO_9 [F7] |   ULP_GPIO_9    |
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

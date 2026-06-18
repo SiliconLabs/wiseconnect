@@ -46,6 +46,8 @@ extern "C" {
 #ifdef DEBUG_UART_UC
 #include "sl_si91x_debug_uc_config.h"
 #endif
+#include "base_types.h"
+
 /***************************************************************************/ /**
 * @addtogroup USART USART
 * @ingroup SI91X_PERIPHERAL_APIS
@@ -388,8 +390,11 @@ sl_status_t sl_si91x_usart_deinit(sl_usart_handle_t usart_handle);
 *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ * @note
+ *   Moving forward, this API will be deprecated. Instead, use the [sl_si91x_usart_multiple_instance_register_event_callback](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/usart#sl-si91x-usart-multiple-instance-register-event-callback) API. This is retained for backward compatibility.
  ******************************************************************************/
-sl_status_t sl_si91x_usart_register_event_callback(sl_usart_signal_event_t callback_event);
+sl_status_t sl_si91x_usart_register_event_callback(sl_usart_signal_event_t callback_event)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -483,7 +488,37 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length);
-
+/***************************************************************************/
+/**
+ * @brief Internal function to send data in blocking mode byte-by-byte.
+ *
+ * @details This internal function sends data byte-by-byte via USART/UART and waits (blocks)
+ * until each byte transmission is complete before sending the next byte. This ensures
+ * true byte-by-byte transmission with hardware verification for each byte.
+ * The function accesses UART hardware registers directly from the handle and works
+ * with all UART instances: USART0, UART1, and ULP_UART.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_usart_init() must be called first
+ *      - \ref sl_si91x_usart_set_configuration() must be called to configure the UART
+ *
+ * @param[in] usart_handle Pointer to the USART/UART driver (supports USART0, UART1, ULP_UART).
+ * @param[in] data Pointer to the data buffer which contains the data to be transferred.
+ * @param[in] data_length Length of the data to be transferred.
+ *
+ * @return sl_status_t Status code indicating the result:
+*         - SL_STATUS_OK  - Success, data transfer completed.
+*         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+*         - SL_STATUS_INVALID_PARAMETER  - Invalid parameter.
+ *
+ * @note This is an internal blocking function for byte-by-byte transmission.
+ *       - Supports all UART instances: USART_0, UART_1, and ULPUART
+ *       - Each byte is transmitted and verified before sending the next byte
+ *       - Do not call from interrupt context
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sli_si91x_usart_send_data_blocking(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length);
 /***************************************************************************/
 /**
  * @brief To receive data when USART/UART is configured.
@@ -1183,7 +1218,7 @@ sl_status_t sl_si91x_uart_rs485_deinit(usart_peripheral_t uart_instance);
 *
 * 2. @ref sl_si91x_usart_set_configuration
 *
-* 3. @ref sl_si91x_usart_register_event_callback
+* 3. @ref sl_si91x_usart_register_event_callback (deprecated)
 *
 * 4. @ref sl_si91x_usart_multiple_instance_register_event_callback
 *

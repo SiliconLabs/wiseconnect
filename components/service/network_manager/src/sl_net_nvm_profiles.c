@@ -38,6 +38,9 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
                                const sl_net_profile_t *profile)
 {
+  if (profile == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
   if (profile_id == SL_NET_AUTO_JOIN)
     return SL_STATUS_NOT_SUPPORTED;
   sl_status_t status;
@@ -47,19 +50,31 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
 
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE: {
+      if (
+        (((const sl_net_wifi_client_profile_t *)profile)->config.ssid.length == 0)
+        || (((const sl_net_wifi_client_profile_t *)profile)->config.ssid.length
+            > SL_WIFI_MAX_SSID_LENGTH
+                - 2)) { //The maximum length of the SSID is 34 characters with 2 characters reserved for NULL termination and internal alignment. Therefore, used `SL_WIFI_MAX_SSID_LENGTH - 2`
+        return SL_STATUS_INVALID_PARAMETER;
+      }
       status = nvm3_writeData(nvm3_defaultHandle,
                               SL_NET_WIFI_CLIENT_NVM3_KEY + profile_id,
                               (const void *)profile,
                               sizeof(sl_net_wifi_client_profile_t));
       break;
-
-    case SL_NET_WIFI_AP_INTERFACE:
+    }
+    case SL_NET_WIFI_AP_INTERFACE: {
+      if ((((const sl_net_wifi_ap_profile_t *)profile)->config.ssid.length == 0)
+          || (((const sl_net_wifi_ap_profile_t *)profile)->config.ssid.length > SL_WIFI_MAX_SSID_LENGTH - 2)) {
+        return SL_STATUS_INVALID_PARAMETER;
+      }
       status = nvm3_writeData(nvm3_defaultHandle,
                               SL_NET_WIFI_AP_NVM3_KEY + profile_id,
                               (const void *)profile,
                               sizeof(sl_net_wifi_ap_profile_t));
       break;
+    }
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;

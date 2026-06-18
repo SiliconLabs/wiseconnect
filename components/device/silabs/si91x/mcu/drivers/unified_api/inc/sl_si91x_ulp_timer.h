@@ -111,11 +111,11 @@ typedef enum {
  */
 typedef enum {
   ULP_TIMER_REF_CLK_SRC,        ///< Reference clock input source
-  ULP_TIMER_32KHZ_RO_CLK_SRC,   ///< 32 kHz RO clock input source
+  ULP_TIMER_RESERVED_1_CLK_SRC, ///< Reserved
   ULP_TIMER_32KHZ_RC_CLK_SRC,   ///< 32 kHz RC clock input source
   ULP_TIMER_32KHZ_XTAL_CLK_SRC, ///< 32 kHz XTAL clock input source
   ULP_TIMER_MHZ_RC_CLK_SRC,     ///< 32 MHz RC clock input source
-  ULP_TIMER_20MHZ_RO_CLK_SRC,   ///< 20 MHz RO clock input source
+  ULP_TIMER_RESERVED_2_CLK_SRC, ///< Reserved
   ULP_TIMER_ULP_CLK_SRC_LAST,   ///< Last member of the enum for validation
 } ulp_timer_clk_input_source_t;
 

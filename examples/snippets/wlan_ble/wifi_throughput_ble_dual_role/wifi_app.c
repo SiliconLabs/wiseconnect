@@ -110,7 +110,11 @@ uint8_t volatile wlan_tx_throughput_test;
 //!  CALLBACK FUNCTIONS
 /*************************************************************************/
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
@@ -118,7 +122,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     LOG_PRINT("F: Join Event received with %lu bytes payload\n", result_length);
     rsi_wlan_app_cb.state = RSI_WLAN_UNCONNECTED_STATE;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -134,7 +138,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
  * ==================================================*/
 void rsi_wlan_app_callbacks_init(void)
 {
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 #if SSL && LOAD_CERTIFICATE
@@ -186,6 +190,7 @@ static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -196,8 +201,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
 
   if (result_length != 0) {
@@ -252,9 +257,11 @@ void rsi_wlan_app_thread(void *unused)
       case RSI_WLAN_UNCONNECTED_STATE: {
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
         LOG_PRINT("WLAN scan started \r\n");
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
           LOG_PRINT("Scanning...\r\n");

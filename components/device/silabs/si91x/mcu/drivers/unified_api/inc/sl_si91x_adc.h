@@ -37,6 +37,7 @@ extern "C" {
 
 #include "sl_status.h"
 #include "rsi_adc.h"
+#include "base_types.h"
 
 /***************************************************************************/
 /**
@@ -48,17 +49,39 @@ extern "C" {
 // Data Types
 
 /**
- * @brief Renamed ADC channel configuration structure.
+ * @brief Renamed ADC channel configuration.
+ * 
+ * @details This contains channel-specific configuration parameters including
+ * Ping/Pong DMA buffer addresses for FIFO mode operation. Key fields for FIFO + DMA:
+ * - chnl_ping_address[channel] : Ping buffer base address for DMA
+ * - chnl_pong_address[channel] : Pong buffer base address for DMA  
+ * - rx_buf[channel]            : CPU-accessible buffer pointer
+ * - num_of_samples[channel]    : Number of samples per conversion
+ * - sampling_rate[channel]     : Sampling rate for the channel
+ * - input_type[channel]        : Input type (single-ended/differential)
  */
 typedef adc_ch_config_t sl_adc_channel_config_t;
 
 /**
- * @brief Renamed ADC configuration structure.
+ * @brief Renamed ADC configuration.
+ * 
+ * @details This contains global ADC operation parameters:
+ * - operation_mode         : Static mode or FIFO mode
+ * - num_of_channel_enable  : Number of channels to enable
  */
 typedef adc_config_t sl_adc_config_t;
 
 /**
- * @brief Renamed ADC internal configuration structure.
+ * @brief Renamed ADC internal configuration.
+ * 
+ * @details This is used specifically with sl_si91x_adc_configure_ping_pong_memory_address()
+ * for detailed Ping/Pong buffer configuration in FIFO mode. Key fields:
+ * - ping_addr[channel]     : Ping buffer base address
+ * - pong_addr[channel]     : Pong buffer base address
+ * - ping_length[channel]   : Ping buffer length in samples
+ * - pong_length[channel]   : Pong buffer length in samples
+ * - input_type[channel]    : Input type for the channel
+ * - num_of_samples[channel]: Number of samples per conversion
  */
 typedef adc_inter_config_t sl_adc_internal_config_t;
 
@@ -200,7 +223,7 @@ typedef struct {
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configuration);
+sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configuration) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -211,22 +234,31 @@ sl_status_t sl_si91x_adc_configure_clock(sl_adc_clock_config_t *clock_configurat
  *   - Configuring the reference voltage.
  *   - Powering on the ADC block.
  *   - Calibrating the ADC offset and gain.
- *
- * @pre Pre-condition:
- * - \ref sl_si91x_adc_configure_clock - Required only for FIFO mode on PS4 (Power State) state.
  * 
+ * @note For FIFO mode with DMA, Ping/Pong buffer addresses are NOT configured by this function.
+ *       Configure them separately using \ref sl_si91x_adc_configure_ping_pong_memory_address() 
+ *       after initialization, or pre-populate the sl_adc_channel_config_t.chnl_ping_address[] 
+ *       and sl_adc_channel_config_t.chnl_pong_address[] fields before calling 
+ *       \ref sl_si91x_adc_set_channel_configuration().
+ *       
  * @param[in] adc_channel_config ADC channels configuration structure variable, see \ref sl_adc_channel_config_t.
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
  * @param[in] vref_value Reference voltage (range from 1.8 to 3.6 V).
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK                 - Successfully initialized the ADC.
- *         - SL_STATUS_BUSY               - The function is already active.
- *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
- *         - SL_STATUS_NULL_POINTER       - The parameter is a null pointer.
- *         - SL_STATUS_INVALID_RANGE      - Mismatch range.
- *         - SL_STATUS_INVALID_COUNT      - Mismatch count.
+ *         - SL_STATUS_OK                    - Successfully initialized the ADC.
+ *         - SL_STATUS_BUSY                  - The function is already active.
+ *         - SL_STATUS_INVALID_PARAMETER     - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER          - The parameter is a null pointer.
+ *         - SL_STATUS_INVALID_RANGE         - Mismatch range.
+ *         - SL_STATUS_INVALID_COUNT         - Mismatch count.
+ *         - SL_STATUS_INVALID_CONFIGURATION - Invalid configuration.(please refer below note)
+ *         - SL_STATUS_NOT_INITIALIZED       - Module is not initialized. 
  * 
+ * @note - Add UC channels sequentially starting from 1, and ensure that the number of instances added 
+ * matches the number of channels configured in the UC. 
+ * Otherwise, it will return the error code SL_STATUS_INVALID_CONFIGURATION.
+ *
  * For more information on status codes, see [SL STATUS DOCUMENTATION](
  * https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -244,7 +276,6 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
  *  - Sampling rate (1 - 2.5 Msps (megasamples per second))
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock 
  *  - \ref sl_si91x_adc_init
  * 
  * @param[in] adc_channel_config ADC channels configuration structure variable, see \ref sl_adc_channel_config_t.
@@ -271,7 +302,6 @@ sl_status_t sl_si91x_adc_set_channel_configuration(sl_adc_channel_config_t adc_c
  * @details This API registers a user-provided callback function that is invoked when an event occurs.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -310,7 +340,6 @@ void sl_si91x_adc_unregister_event_callback(void);
  * This API ensures that the Nyquist sampling rate criteria are met by setting the channel swallow factor to no less than '3'.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -337,10 +366,27 @@ sl_status_t sl_si91x_adc_configure_channel_sampling_rate(sl_adc_internal_config_
  * channel is full, incoming sampled data is written into the Pong buffer, allowing the 
  * controller to read back samples from the Ping buffer during this period.
  * 
+ * Required fields in sl_adc_internal_config_t structure (for channel index 'channel_num'):
+ *  - ping_addr[channel_num]   : Ping buffer base address (ULP SRAM absolute or offset address)
+ *  - pong_addr[channel_num]   : Pong buffer base address (same addressing scheme as ping_addr)
+ *  - ping_length[channel_num] : Ping buffer length in samples
+ *  - pong_length[channel_num] : Pong buffer length in samples  
+ *  - input_type[channel_num]  : Input type for the channel (single-ended/differential)
+ *  - num_of_samples[channel_num] : Number of samples per conversion
+ *
+ * Address ranges:
+ *  - Absolute ULP SRAM addresses must lie within [0x24060000 .. 0x24061B00]
+ *  - If using relative/offset addressing, offsets must not exceed the valid range limits
+ * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock 
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
+ * 
+ * Typical usage sequence after this function:
+ *  - \ref sl_si91x_adc_enable_ping_pong()
+ *  - \ref sl_si91x_adc_channel_enable()
+ *  - \ref sl_si91x_adc_internal_per_channel_dma_enable()
+ *  - \ref sl_si91x_adc_configure_fifo_mode()
  * 
  * @param[in] adc_internal_config ADC internal trigger configuration @ref sl_adc_internal_config_t structure variable.
  * @param[in] channel_num Channel number.
@@ -363,7 +409,6 @@ sl_status_t sl_si91x_adc_configure_ping_pong_memory_address(sl_adc_internal_conf
  * Ping-pong mode is applicable only for FIFO mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_configure_ping_pong_memory_address
@@ -387,7 +432,6 @@ sl_status_t sl_si91x_adc_enable_ping_pong(uint8_t channel_num);
  * Ping-pong mode is applicable only for FIFO mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_configure_ping_pong_memory_address
@@ -413,7 +457,6 @@ sl_status_t sl_si91x_adc_disable_ping_pong(uint8_t channel_num);
  * This is applicable only for FIFO mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_channel_enable
  * 
@@ -436,7 +479,6 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_enable(uint8_t channel_num);
  * This is applicable only for FIFO mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_channel_enable
@@ -463,7 +505,6 @@ sl_status_t sl_si91x_adc_internal_per_channel_dma_disable(uint8_t channel_num);
  * @note Applicable only for static mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -489,11 +530,14 @@ sl_status_t sl_si91x_adc_configure_static_mode(sl_adc_channel_config_t adc_chann
  * @note Applicable only for FIFO mode of ADC operation.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
- *  - \ref sl_si91x_adc_configure_ping_pong_memory_address
- *  - \ref sl_si91x_adc_enable_ping_pong
+ *  - Configure Ping/Pong DMA buffers using EITHER:
+ *      - Method 1 (Recommended): \ref sl_si91x_adc_configure_ping_pong_memory_address() 
+ *        followed by \ref sl_si91x_adc_enable_ping_pong(), OR
+ *      - Method 2: Pre-populate sl_adc_channel_config_t.chnl_ping_address[] and 
+ *        sl_adc_channel_config_t.chnl_pong_address[] before calling sl_si91x_adc_set_channel_configuration()
+ *        followed by \ref sl_si91x_adc_enable_ping_pong()
  *  - \ref sl_si91x_adc_channel_enable
  *  - \ref sl_si91x_adc_internal_per_channel_dma_enable
  * 
@@ -517,7 +561,6 @@ sl_status_t sl_si91x_adc_configure_fifo_mode(sl_adc_channel_config_t adc_channel
  * @details This API enables the ADC channel. Data will be sampled from the ADC only when the corresponding channel is enabled.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -539,7 +582,6 @@ sl_status_t sl_si91x_adc_channel_enable(uint8_t channel_num);
  * @details This API stops data sampling when the corresponding channel is disabled.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_channel_enable
@@ -563,7 +605,6 @@ sl_status_t sl_si91x_adc_channel_disable(uint8_t channel_num);
  * @details This API powers up or powers down the ADC power gates based on the provided state.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  * 
  * @param[in] state POWER_STATE type indicating whether to power on or off the ADC.
@@ -587,7 +628,6 @@ sl_status_t sl_si91x_adc_set_power_mode(POWER_STATE state);
  * Disabling bypass noise averaging may cause an additional clock cycle latency.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -612,7 +652,6 @@ sl_status_t sl_si91x_adc_set_noise_average_mode(boolean_t state);
  *       If the ADC input sample is obtained from a temperature sensor, the positive input selection value must be '23'.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -634,7 +673,6 @@ sl_status_t sl_si91x_adc_temperature_sensor_enable(void);
  * depending on the specific requirements of ADC configuration.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -660,7 +698,6 @@ sl_status_t sl_si91x_adc_fifo_threshold_configuration(sl_adc_config_t adc_config
  * This API applies when the ADC mode of operation is static.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  * 
@@ -681,7 +718,6 @@ sl_status_t sl_si91x_adc_threshold_configuration(sl_adc_threshold_config_t adc_t
  * @details This API reads the ADC sample data when the ADC is configured in FIFO mode.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_register_event_callback
@@ -707,7 +743,6 @@ sl_status_t sl_si91x_adc_read_data(sl_adc_channel_config_t adcchconfig, uint8_t 
  * @details This API reads the ADC sampled data when the ADC is configured in static mode.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init 
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_register_event_callback
@@ -736,7 +771,6 @@ sl_status_t sl_si91x_adc_read_data_static(sl_adc_channel_config_t adc_channel_co
  * @details This API retrieves the sampling rate value that is configured for the specified ADC channel.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_start
@@ -756,7 +790,6 @@ uint32_t sl_si91x_adc_get_sampling_rate(uint8_t channel_num);
  * if FIFO mode of ADC operation is used.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock 
  *  - \ref sl_si91x_adc_init 
  * 
  * @param[in] adc_config ADC operation configuration structure variable, see \ref sl_adc_config_t.
@@ -777,7 +810,6 @@ sl_status_t sl_si91x_adc_deinit(sl_adc_config_t adc_config);
  * @details This API starts the signal to the ADC controller and enables dynamic mode if FIFO mode of ADC operation is configured.
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_register_event_callback
@@ -801,7 +833,6 @@ sl_status_t sl_si91x_adc_start(sl_adc_config_t adc_config);
  * 
  * 
  * @pre Pre-conditions:
- *  - \ref sl_si91x_adc_configure_clock
  *  - \ref sl_si91x_adc_init
  *  - \ref sl_si91x_adc_set_channel_configuration
  *  - \ref sl_si91x_adc_register_event_callback
@@ -877,17 +908,97 @@ float sl_si91x_adc_get_chip_voltage(void);
  *
  * For more detailed configuration information, see the specific peripheral example README documents.
  *
+ * After defining the ADC configuration structures, use the following functions to initialize and control the ADC module:
+ *
+ * **Static Mode (non-DMA) typical sequence:**
+ * 1. **Initialize ADC**: @ref sl_si91x_adc_init
+ * 2. **Set Channel Configuration**: @ref sl_si91x_adc_set_channel_configuration
+ * 3. **Register Event Callback**: @ref sl_si91x_adc_register_event_callback
+ * 4. **Start ADC**: @ref sl_si91x_adc_start
+ * 5. **Read Data**: @ref sl_si91x_adc_read_data_static
+ * 6. **Deinitialize ADC**: @ref sl_si91x_adc_deinit
+ *
+ * **FIFO Mode with DMA typical sequence:**
+ * 
+ * 1. **Initialize ADC**: @ref sl_si91x_adc_init
+ * 2. **Set Channel Configuration**: @ref sl_si91x_adc_set_channel_configuration
+ * 3. **Configure Ping/Pong Memory**: @ref sl_si91x_adc_configure_ping_pong_memory_address
+ * 4. **Enable Ping/Pong**: @ref sl_si91x_adc_enable_ping_pong
+ * 5. **Enable Channel**: @ref sl_si91x_adc_channel_enable
+ * 6. **Enable Internal DMA**: @ref sl_si91x_adc_internal_per_channel_dma_enable
+ * 7. **Configure FIFO Mode**: @ref sl_si91x_adc_configure_fifo_mode
+ * 8. **Register Event Callback**: @ref sl_si91x_adc_register_event_callback
+ * 9. **Start ADC**: @ref sl_si91x_adc_start
+ * 10. **Read Data**: @ref sl_si91x_adc_read_data
+ * 11. **Deinitialize ADC**: @ref sl_si91x_adc_deinit
+ *
+ * @section ADC_PingPong Ping/Pong Buffer Configuration for FIFO Mode
+ *
+ * When using FIFO mode with internal DMA, you must configure Ping/Pong buffers for dual-buffer cyclic operation:
+ *
+ * **Structure fields for Ping/Pong addresses:**
+ * - **sl_adc_channel_config_t** (used during channel configuration):
+ *   - `chnl_ping_address[channel]` : DMA Ping buffer base address
+ *   - `chnl_pong_address[channel]` : DMA Pong buffer base address  
+ *   - `rx_buf[channel]`            : CPU-accessible buffer for reading samples
+ *
+ * - **sl_adc_internal_config_t** (used with configure_ping_pong_memory_address API):
+ *   - `ping_addr[channel]`   : Ping buffer base address
+ *   - `pong_addr[channel]`   : Pong buffer base address
+ *   - `ping_length[channel]` : Ping buffer length in samples
+ *   - `pong_length[channel]` : Pong buffer length in samples
+ *   - `input_type[channel]`  : Input type (single-ended/differential)
+ *   - `num_of_samples[channel]` : Number of samples per conversion
+ *
+ * **Configuration Methods:**
+ *
+ * *Method 1 (Recommended):* Use the dedicated ping/pong configuration API:
+ * @code
+ * sl_adc_internal_config_t internal_config = {0};
+ * uint8_t channel = 0;
+ * 
+ *  Configure ping/pong parameters
+ * internal_config.ping_addr[channel]   = 0x24060000;
+ * internal_config.pong_addr[channel]   = 0x24060400;
+ * internal_config.ping_length[channel] = 256;
+ * internal_config.pong_length[channel] = 256; 
+ * internal_config.input_type[channel]  = SL_ADC_SINGLE_ENDED;
+ * internal_config.num_of_samples[channel] = 256;
+ * 
+ * sl_si91x_adc_configure_ping_pong_memory_address(internal_config, channel);
+ * sl_si91x_adc_enable_ping_pong(channel);
+ * @endcode
+ *
+ * *Method 2:* Pre-populate channel config before set_channel_configuration:
+ * @code
+ * sl_adc_channel_config_t channel_config = {0};
+ * uint8_t channel = 0;
+ * 
+ *  Pre-populate ping/pong addresses  
+ * channel_config.chnl_ping_address[channel] = 0x24060000;
+ * channel_config.chnl_pong_address[channel] = 0x24060400;
+ * channel_config.rx_buf[channel] = my_cpu_buffer;
+ * 
+ * sl_si91x_adc_set_channel_configuration(channel_config, adc_config);
+ * sl_si91x_adc_enable_ping_pong(channel);  
+ * @endcode
+ *
+ * **Important Notes:**
+ * - Ping/Pong buffers are NOT used in Static mode (non-DMA operation)
+ * - Address ranges must be valid ULP SRAM locations (typically 0x24060000 - 0x24061B00)
+ * - Buffer sizes should accommodate the expected number of samples per channel
+ * - Always enable ping/pong mode after configuring the addresses
+ *
  * @section ADC_Usage Usage
  *
  * After defining the ADC configuration structures, use the following functions to initialize and control the ADC module:
  *
- * 1. **Configure Clock**: @ref sl_si91x_adc_configure_clock
- * 2. **Initialize ADC**: @ref sl_si91x_adc_init
- * 3. **Set Channel Configuration**: @ref sl_si91x_adc_set_channel_configuration
- * 4. **Register Event Callback**: @ref sl_si91x_adc_register_event_callback
- * 5. **Start ADC**: @ref sl_si91x_adc_start
- * 6. **Read Data**: @ref sl_si91x_adc_read_data
- * 7. **Deinitialize ADC**: @ref sl_si91x_adc_deinit
+ * 1. **Initialize ADC**: @ref sl_si91x_adc_init
+ * 2. **Set Channel Configuration**: @ref sl_si91x_adc_set_channel_configuration
+ * 3. **Register Event Callback**: @ref sl_si91x_adc_register_event_callback
+ * 4. **Start ADC**: @ref sl_si91x_adc_start
+ * 5. **Read Data**: @ref sl_si91x_adc_read_data
+ * 6. **Deinitialize ADC**: @ref sl_si91x_adc_deinit
  *
  * @} (end addtogroup ADC)
  */

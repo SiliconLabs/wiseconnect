@@ -1,12 +1,13 @@
 id: sdc_instance
 label: SDC
-package: platform
+package: platform_siwx91x
 description: >
    SDC stands for Sensor Data Collector.
    An SDC is a peripheral or component of a controller that converts analog signals (continuous voltage levels)
    into digital data (discrete binary values) that the controller can handle in PS1 power state.
    
    SDC Supports instances.
+   Instances created must be named as channel_1, channel_2, channel_3, channel_4.
 
 category: Device|Si91x|MCU|Peripheral
 quality: production

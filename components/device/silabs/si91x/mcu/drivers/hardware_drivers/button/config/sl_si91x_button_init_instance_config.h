@@ -9,9 +9,6 @@
 #ifndef SL_SI91X_BUTTON_INIT_INSTANCE_CONFIG_H
 #define SL_SI91X_BUTTON_INIT_INSTANCE_CONFIG_H
 
-#warning \
-  "For an OPN or SoC project, button instance not defined. Installing the [ENABLE USER CONFIGURATION] component or defining USER_CONFIGURATION_ENABLE MACRO to 1 is the first step towards configuring the board macros. Then, define the macros in the header file in accordance with the board connections.."
-
 #if USER_CONFIGURATION_ENABLE
 // <<< Use Configuration Wizard in Context Menu >>>
 
@@ -42,6 +39,11 @@
 #define SL_BUTTON_INSTANCE_PIN    SL_SI91X_BUTTON_INSTANCE_PIN
 #define SL_BUTTON_INSTANCE_PORT   SL_SI91X_BUTTON_INSTANCE_PORT
 #define SL_BUTTON_INSTANCE_NUMBER RTE_INSTANCE_NUMBER
+
+#else
+
+#warning \
+  "Button instance not defined for this OPN/SoC project. To configure board macros, either install the [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE MACRO as 1, then define the required macros in this header file according to your board connections."
 
 #endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_BUTTON_INIT_INSTANCE_CONFIG_H

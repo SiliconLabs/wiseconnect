@@ -64,7 +64,7 @@ extern "C" {
 #ifndef SL_ADC_CH10_PERIPHERAL
 #define SL_ADC_CH10_PERIPHERAL ADC_CH10
 #endif
-#warning "ADC peripheral is not configured. Please configure the ADC pins according to the board connections."
+
 // ADC_CH10 P on ULP_GPIO_9/GPIO_73
 #ifndef SL_ADC_CH10_P_PORT
 #define SL_ADC_CH10_P_PORT ULP
@@ -77,7 +77,12 @@ extern "C" {
 #endif
 // [ADC_CH10_SL_ADC_CH10]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "ADC Channel 10 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef SL_ADC_CH10_P_PIN
 #define SL_ADC_CHANNEL_10_POS_INPUT_CHNL_SEL \
   ((SL_ADC_CH10_P_PIN == 0)    ? 0           \

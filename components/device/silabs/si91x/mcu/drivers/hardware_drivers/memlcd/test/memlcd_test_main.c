@@ -1,9 +1,42 @@
-#include "unity.h"
+/***************************************************************************/
+/**
+ * @file memlcd_test_main.c
+ * @brief MemLCD Unity Test Functions
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of Silicon Labs Master Software License
+ * Agreement (MSLA) available at
+ * www.silabs.com/about-us/legal/master-software-license-agreement. This
+ * software is distributed to you in Source Code format and is governed by the
+ * sections of the MSLA applicable to Source Code.
+ *
+ ******************************************************************************/
 #include "sl_memlcd.h"
+#include "unity.h"
 
-// Mock memory LCD device structure
-struct sl_memlcd_t mock_device;
+#include "sl_memlcd_display.h"
+#include "sl_si91x_peripheral_gpio.h"
 
+/*******************************************************************************
+ ***************************  Local Variables   *******************************
+ ******************************************************************************/
+struct sl_memlcd_t mock_device = {
+  .width         = SL_MEMLCD_DISPLAY_WIDTH,
+  .height        = SL_MEMLCD_DISPLAY_HEIGHT,
+  .bpp           = SL_MEMLCD_DISPLAY_BPP,
+  .color_mode    = SL_MEMLCD_COLOR_MODE_MONOCHROME,
+  .spi_freq      = SL_MEMLCD_SCLK_FREQ,
+  .extcomin_freq = SL_MEMLCD_EXTCOMIN_FREQUENCY,
+  .setup_us      = SL_MEMLCD_SCS_SETUP_US,
+  .hold_us       = SL_MEMLCD_SCS_HOLD_US,
+  .custom_data   = NULL,
+};
+#define SL_BOARD_ENABLE_DISPLAY_PIN  RTE_MEMLCD_ENABLE_DISPLAY_PIN
+#define SL_BOARD_ENABLE_DISPLAY_PORT RTE_MEMLCD_ENABLE_DISPLAY_PORT
 /*******************************************************************************
  ************************  Test Function Prototypes  ****************************
  ******************************************************************************/
@@ -24,15 +57,15 @@ int app_init()
 {
   UnityBeginGroup("MEMLCD");
 
-  RUN_TEST(test_sl_memlcd_configure, __LINE__);
   RUN_TEST(test_sl_memlcd_display_enable, __LINE__);
-  RUN_TEST(test_sl_memlcd_display_disable, __LINE__);
+  RUN_TEST(test_sl_memlcd_configure, __LINE__);
+  RUN_TEST(test_sl_memlcd_get, __LINE__);
+  RUN_TEST(test_sl_memlcd_draw, __LINE__);
   RUN_TEST(test_sl_memlcd_power_on, __LINE__);
   RUN_TEST(test_sl_memlcd_post_wakeup_init, __LINE__);
   RUN_TEST(test_sl_memlcd_clear, __LINE__);
-  RUN_TEST(test_sl_memlcd_draw, __LINE__);
   RUN_TEST(test_sl_memlcd_refresh, __LINE__);
-  RUN_TEST(test_sl_memlcd_get, __LINE__);
+  RUN_TEST(test_sl_memlcd_display_disable, __LINE__);
 
   UnityEnd();
   UnityPrintf("END");
@@ -63,7 +96,7 @@ void test_sl_memlcd_display_enable(void)
   UnityPrintf("Testing MEMLCD Display Enable \n");
 
   sl_memlcd_display_enable();
-  // Assuming there's a way to verify the display enable, add assertions here
+  TEST_ASSERT_EQUAL_INT(1, UULP_GPIO->NPSS_GPIO_CNTRL[SL_BOARD_ENABLE_DISPLAY_PIN].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OUT);
   UnityPrintf("MEMLCD display enabled successfully \n");
 }
 
@@ -76,7 +109,7 @@ void test_sl_memlcd_display_disable(void)
   UnityPrintf("Testing MEMLCD Display Disable \n");
 
   sl_memlcd_display_disable();
-  // Assuming there's a way to verify the display disable, add assertions here
+  TEST_ASSERT_EQUAL_INT(0, UULP_GPIO->NPSS_GPIO_CNTRL[SL_BOARD_ENABLE_DISPLAY_PIN].NPSS_GPIO_CTRLS_b.NPSS_GPIO_OUT);
   UnityPrintf("MEMLCD display disabled successfully \n");
 }
 

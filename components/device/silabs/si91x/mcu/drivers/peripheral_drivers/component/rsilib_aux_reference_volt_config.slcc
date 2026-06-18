@@ -1,6 +1,6 @@
 id: rsilib_aux_reference_volt_config
 label: AUX REFERENCE VOLT
-package: platform
+package: platform_siwx91x
 description: >
   Auxillary Reference Voltage Configuration API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

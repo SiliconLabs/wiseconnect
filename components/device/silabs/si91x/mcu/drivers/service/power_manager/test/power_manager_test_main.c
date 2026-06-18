@@ -35,7 +35,7 @@
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS3 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS3 \
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_ENTERING_PS2 | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_PS2 \
    | SL_SI91X_POWER_MANAGER_EVENT_TRANSITION_LEAVING_SLEEP) // Ored value of event for which callback is subscribed
-
+#define MCU_CLK_OUT_DIV_FACTOR_MAX 0x3F                     // Maximum division factor for MCU clock out
 /*******************************************************************************
  ************************  Local Function prototypes    ************************
  ******************************************************************************/
@@ -92,14 +92,8 @@ void test_power_manager_get_standby_state_status(void);
 void test_power_manager_deinit(void);
 void test_get_lowest_ps(void);
 void test_power_manager_is_ok_to_sleep(void);
-
-//Clock Manager API's
-void test_clock_manager_init(void);
-void test_clock_manager_m4_set_core_clk(void);
-void test_clock_manager_set_pll_freq(void);
-void test_clock_manager_m4_get_core_clk_src_freq(void);
-void test_clock_manager_get_pll_freq(void);
-void test_clock_manager_control_pll(void);
+void test_power_manager_is_tx_command_in_progress(void);
+void test_power_manager_ps2_pre_check(void);
 
 /******************************************************************************
  * Main function in which all the test cases are tested using unity framework
@@ -138,23 +132,13 @@ void app_init()
   RUN_TEST(test_power_manager_request_standby_state, __LINE__);
   RUN_TEST(test_power_manager_remove_standby_state_request, __LINE__);
   RUN_TEST(test_power_manager_get_standby_state_status, __LINE__);
+  RUN_TEST(test_power_manager_ps2_pre_check, __LINE__);
+  RUN_TEST(test_power_manager_is_tx_command_in_progress, __LINE__);
   RUN_TEST(test_power_manager_deinit, __LINE__);
 
   UnityEnd();
   UnityPrintf("END");
-  UnityPrintf("\n\n");
 
-  UnityBeginGroup("Clock Manager");
-
-  RUN_TEST(test_clock_manager_init, __LINE__);
-  RUN_TEST(test_clock_manager_m4_set_core_clk, __LINE__);
-  RUN_TEST(test_clock_manager_set_pll_freq, __LINE__);
-  RUN_TEST(test_clock_manager_m4_get_core_clk_src_freq, __LINE__);
-  RUN_TEST(test_clock_manager_get_pll_freq, __LINE__);
-  RUN_TEST(test_clock_manager_control_pll, __LINE__);
-
-  UnityEnd();
-  UnityPrintf("END");
   while (1) {
   }
 }
@@ -184,7 +168,7 @@ static sl_status_t test_initialize_wireless(void)
                      .tcp_ip_feature_bit_map =
                        (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                         | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                     .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                     .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                      .ext_custom_feature_bit_map = SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0,
                      .bt_feature_bit_map         = 0,
                      .ext_tcp_ip_feature_bit_map =
@@ -215,9 +199,9 @@ static sl_status_t test_initialize_wireless(void)
 static void test_wireless_sleep(boolean_t sleep_with_retention)
 {
   // Wifi Profile (NWP Mode) is set to High Performance.
-  sl_wifi_performance_profile_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
+  sl_wifi_performance_profile_v2_t ta_performance_profile = { .profile = HIGH_PERFORMANCE };
 
-  sl_wifi_set_performance_profile(&ta_performance_profile);
+  sl_wifi_set_performance_profile_v2(&ta_performance_profile);
 
   if (sleep_with_retention) {
     // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
@@ -226,7 +210,7 @@ static void test_wireless_sleep(boolean_t sleep_with_retention)
     ta_performance_profile.profile = DEEP_SLEEP_WITHOUT_RAM_RETENTION;
   }
   // Wifi Profile (NWP Mode) is set to standby power save with RAM retention.
-  sl_wifi_set_performance_profile(&ta_performance_profile);
+  sl_wifi_set_performance_profile_v2(&ta_performance_profile);
 }
 
 /*******************************************************************************
@@ -1018,7 +1002,34 @@ void test_power_manager_is_ok_to_sleep(void)
 
   UnityPrintf("Power Manager is ok to sleep test completed \n");
 }
+/*******************************************************************************
+ * Function to test power manager tx command in progress
+ ******************************************************************************/
+void test_power_manager_is_tx_command_in_progress(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing Power Manager tx command progress \n");
+  bool status = sl_si91x_power_manager_is_tx_command_in_progress();
+  UnityPrintf("tx command status = %d \n", status);
+  UnityPrintf("Tested Power Manager tx command progress successfully \n");
+}
+/*******************************************************************************
+ * Function to test power manager PS2 pre-check
+ ******************************************************************************/
+void test_power_manager_ps2_pre_check(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing Power Manager PS2 pre-check \n");
 
+  bool status = sl_si91x_power_manager_ps2_pre_check();
+  UnityPrintf("PS2 pre-check status = %d \n", status);
+  if (status == true) {
+    UnityPrintf("Safe to enter PS2 state (no pending packets)\n");
+  } else {
+    UnityPrintf("Pending packets detected, PS2 transition blocked\n");
+  }
+  UnityPrintf("Tested Power Manager PS2 pre-check successfully \n");
+}
 /*******************************************************************************
  * Function to test de-initialize power manager.
  ******************************************************************************/
@@ -1031,163 +1042,6 @@ void test_power_manager_deinit(void)
   UnityPrintf("Power Manager deinit successfully \n");
 
   UnityPrintf("Power Manager deinit test completed \n");
-}
-
-/*******************************************************************************
- * Function to test initialization of Clock Manager
- ******************************************************************************/
-void test_clock_manager_init(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager Init \n");
-  sl_status_t status;
-
-  UnityPrintf("Testing initialized clock manager \n");
-  status = sl_si91x_clock_manager_init();
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager initialized successfully \n");
-
-  UnityPrintf("Clock Manager Init test completed \n");
-}
-
-/*******************************************************************************
- * Function to test configure the M4 core clock source
- ******************************************************************************/
-void test_clock_manager_m4_set_core_clk(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager set M4 core clock \n");
-  sl_status_t status;
-
-  UnityPrintf("Testing with invalid parameter \n");
-  status = sl_si91x_clock_manager_m4_set_core_clk(6, PLL_REF_CLK_VAL_XTAL);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_PARAMETER, status);
-  UnityPrintf("Status of API is correct, testing invalid parameter successfully \n");
-
-  UnityPrintf("Testing with invalid parameter \n");
-  status = sl_si91x_clock_manager_m4_set_core_clk(M4_ULPREFCLK, MAX_PLL_FREQUENCY + 1);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_PARAMETER, status);
-  UnityPrintf("Status of API is correct, testing invalid parameter successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_m4_set_core_clk(M4_ULPREFCLK, PLL_REF_CLK_VAL_XTAL);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set M4 core clock successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, MAX_PLL_FREQUENCY);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set M4 core clock successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_m4_set_core_clk(M4_INTFPLLCLK, MAX_PLL_FREQUENCY);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set M4 core clock successfully \n");
-
-  // Setting back to default state.
-  status = sl_si91x_clock_manager_m4_set_core_clk(M4_ULPREFCLK, PLL_REF_CLK_VAL_XTAL);
-
-  UnityPrintf("Clock Manager set M4 core clock test completed \n");
-}
-
-/*******************************************************************************
- * Function to test set pll frequency.
- ******************************************************************************/
-void test_clock_manager_set_pll_freq(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager set pll frequency \n");
-  sl_status_t status;
-  uint32_t pll_ref_clk = XTAL_CLK_FREQ;
-
-  UnityPrintf("Testing with invalid parameter \n");
-  status = sl_si91x_clock_manager_set_pll_freq(I2S_PLL, MAX_PLL_FREQUENCY + 1, pll_ref_clk);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_PARAMETER, status);
-  UnityPrintf("Status of API is correct, testing invalid parameter successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_set_pll_freq(I2S_PLL, MAX_PLL_FREQUENCY, pll_ref_clk);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set M4 core clock successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_set_pll_freq(SOC_PLL, MAX_PLL_FREQUENCY, pll_ref_clk);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set M4 core clock successfully \n");
-
-  UnityPrintf("Testing correct parameter \n");
-  status = sl_si91x_clock_manager_set_pll_freq(INTF_PLL, MAX_PLL_FREQUENCY, pll_ref_clk);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager set pll frequency successfully \n");
-
-  UnityPrintf("Clock Manager set pll frequency test completed \n");
-}
-
-/*******************************************************************************
- * Function to test get core clock.
- ******************************************************************************/
-void test_clock_manager_m4_get_core_clk_src_freq(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager get core clock \n");
-  sl_si91x_m4_soc_clk_src_sel_t get_core_clk;
-  uint32_t get_core_clk_freq;
-
-  get_core_clk = sl_si91x_clock_manager_m4_get_core_clk_src_freq(&get_core_clk_freq);
-  UnityPrintf("Core clock Frequency = %ld \n", get_core_clk_freq);
-  UnityPrintf("Core clock = %ld \n", get_core_clk);
-  UnityPrintf("Status of API is correct, Clock Manager get core clock successfully \n");
-
-  UnityPrintf("Clock Manager get core clock test completed \n");
-}
-
-/*******************************************************************************
- * Function to test get pll frequency.
- ******************************************************************************/
-void test_clock_manager_get_pll_freq(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager get pll frequency \n");
-  uint32_t get_pll_freq;
-
-  get_pll_freq = sl_si91x_clock_manager_get_pll_freq(INTF_PLL);
-  UnityPrintf("PLL Frequency = %ld \n", get_pll_freq);
-  UnityPrintf("Status of API is correct, Clock Manager get pll frequency successfully \n");
-
-  UnityPrintf("Clock Manager get pll frequency test completed \n");
-}
-
-/*******************************************************************************
- * Function to test Controls the selected PLL clock.
- ******************************************************************************/
-void test_clock_manager_control_pll(void)
-{
-  UnityPrintf("\n");
-  UnityPrintf("Testing Clock Manager control PLL \n");
-  sl_status_t status;
-  boolean_t enable = 1;
-
-  UnityPrintf("Testing with invalid parameter \n");
-  status = sl_si91x_clock_manager_control_pll(3, enable);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_PARAMETER, status);
-  UnityPrintf("Testing with invalid parameter successfully \n");
-
-  UnityPrintf("Testing with correct parameter \n");
-  status = sl_si91x_clock_manager_control_pll(I2S_PLL, enable);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager control PLL successfully \n");
-
-  UnityPrintf("Testing with correct parameter \n");
-  status = sl_si91x_clock_manager_control_pll(SOC_PLL, enable);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager control PLL successfully \n");
-
-  UnityPrintf("Testing with correct parameter \n");
-  status = sl_si91x_clock_manager_control_pll(INTF_PLL, enable);
-  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  UnityPrintf("Status of API is correct, Clock Manager control PLL successfully \n");
-
-  UnityPrintf("Clock Manager control PLL test completed \n");
 }
 
 /*******************************************************************************

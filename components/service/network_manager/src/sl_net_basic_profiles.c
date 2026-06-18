@@ -36,15 +36,68 @@
 static sl_net_wifi_client_profile_t wifi_client_profiles[MAX_WIFI_CLIENT_PROFILES] = { 0 };
 static sl_net_wifi_ap_profile_t wifi_ap_profiles[MAX_WIFI_AP_PROFILES]             = { 0 };
 
+static sl_status_t sli_si91x_validate_sl_net_profile(const sl_net_profile_t *profile, sl_net_interface_t interface)
+{
+  switch (interface) {
+#ifdef SL_WIFI_COMPONENT_INCLUDED
+    case SL_NET_WIFI_CLIENT_INTERFACE: {
+      if (
+        (((const sl_net_wifi_client_profile_t *)profile)->config.ssid.length == 0)
+        || (((const sl_net_wifi_client_profile_t *)profile)->config.ssid.length
+            > SL_WIFI_MAX_SSID_LENGTH
+                - 2)) { //The maximum length of the SSID is 34 characters with 2 characters reserved for NULL termination and internal alignment. Therefore, used `SL_WIFI_MAX_SSID_LENGTH - 2`
+        SL_DEBUG_LOG("Invalid SSID length: %d\n", ((const sl_net_wifi_client_profile_t *)profile)->config.ssid.length);
+        return SL_STATUS_INVALID_PARAMETER;
+      }
+      if (((((const sl_net_wifi_client_profile_t *)profile)->config.security == SL_WIFI_OPEN)
+           && (((const sl_net_wifi_client_profile_t *)profile)->config.credential_id != SL_WIFI_NO_CREDENTIAL_ID))
+          || ((((const sl_net_wifi_client_profile_t *)profile)->config.security != SL_WIFI_OPEN)
+              && (((const sl_net_wifi_client_profile_t *)profile)->config.credential_id == SL_WIFI_NO_CREDENTIAL_ID))) {
+        SL_DEBUG_LOG("Mismatch between security and credential_id\n");
+        return SL_STATUS_INVALID_CONFIGURATION;
+      }
+      return SL_STATUS_OK;
+    }
+    case SL_NET_WIFI_AP_INTERFACE: {
+      if ((((const sl_net_wifi_ap_profile_t *)profile)->config.ssid.length == 0)
+          || (((const sl_net_wifi_ap_profile_t *)profile)->config.ssid.length > SL_WIFI_MAX_SSID_LENGTH - 2)) {
+        SL_DEBUG_LOG("Invalid SSID length: %d\n", ((const sl_net_wifi_ap_profile_t *)profile)->config.ssid.length);
+        return SL_STATUS_INVALID_PARAMETER;
+      }
+      if (((((const sl_net_wifi_ap_profile_t *)profile)->config.security == SL_WIFI_OPEN)
+           && (((const sl_net_wifi_ap_profile_t *)profile)->config.credential_id != SL_WIFI_NO_CREDENTIAL_ID))
+          || ((((const sl_net_wifi_ap_profile_t *)profile)->config.security != SL_WIFI_OPEN)
+              && (((const sl_net_wifi_ap_profile_t *)profile)->config.credential_id == SL_WIFI_NO_CREDENTIAL_ID))) {
+        SL_DEBUG_LOG("Mismatch between security and credential_id\n");
+        return SL_STATUS_INVALID_CONFIGURATION;
+      }
+      return SL_STATUS_OK;
+    }
+#endif
+    default:
+      return SL_STATUS_NOT_SUPPORTED;
+  }
+}
+
 sl_status_t sl_net_set_profile(sl_net_interface_t interface,
                                sl_net_profile_id_t profile_id,
                                const sl_net_profile_t *profile)
 {
+  sl_status_t status;
+
+  if (profile == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  status = sli_si91x_validate_sl_net_profile(profile, interface);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
   if (profile_id == SL_NET_AUTO_JOIN)
     return SL_STATUS_NOT_SUPPORTED;
   switch (interface) {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE:
+    case SL_NET_WIFI_CLIENT_INTERFACE: {
       if (profile_id >= MAX_WIFI_CLIENT_PROFILES) {
         return SL_STATUS_INVALID_INDEX;
       }
@@ -52,8 +105,8 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
              (const sl_net_wifi_client_profile_t *)profile,
              sizeof(sl_net_wifi_client_profile_t));
       return SL_STATUS_OK;
-
-    case SL_NET_WIFI_AP_INTERFACE:
+    }
+    case SL_NET_WIFI_AP_INTERFACE: {
       if (profile_id >= MAX_WIFI_AP_PROFILES) {
         return SL_STATUS_INVALID_INDEX;
       }
@@ -61,6 +114,7 @@ sl_status_t sl_net_set_profile(sl_net_interface_t interface,
              (const sl_net_wifi_ap_profile_t *)profile,
              sizeof(sl_net_wifi_ap_profile_t));
       return SL_STATUS_OK;
+    }
 #endif
     default:
       return SL_STATUS_NOT_SUPPORTED;

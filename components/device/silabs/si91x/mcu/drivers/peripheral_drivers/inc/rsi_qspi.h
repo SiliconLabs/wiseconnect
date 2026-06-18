@@ -58,7 +58,7 @@ extern "C" {
 #define TA_BBFF_STORAGE2      *(volatile uint32_t *)(NWP_FSM_BASE_ADDR + 0x584)
 
 // This structure contains qspi registers
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 struct qspi_reg_s {
   volatile uint32_t QSPI_CLK_CONFIG_REG;         // qspi reg
   volatile uint32_t QSPI_BUS_MODE_REG;           // qspi reg
@@ -88,7 +88,7 @@ struct qspi_reg_s {
   volatile uint32_t QSPI_AUTO_BASE_ADDR_UNMASK_CSN0;
   volatile uint32_t RESERVED_7[3];            // qspi reg
   volatile uint32_t OCTA_SPI_BUS_CONTROLLER2; // qspi reg:31
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   volatile uint32_t QSPI_AES_CONFIG;       // qspi reg
   volatile uint32_t QSPI_AES_KEY_IV_VALID; // qspi reg
   volatile uint32_t QSPI_AES_IV1_0_3;      // qspi reg
@@ -113,7 +113,7 @@ struct qspi_reg_s {
   volatile uint32_t QSPI_BUS_MODE2_REG;
   volatile uint32_t QSPI_AES_SEC_KEY_FRM_KH;
   volatile uint32_t QSPI_AUTO_CONITNUE_FETCH_CTRL_REG; // qspi reg
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   volatile uint32_t QSPI_AES_KEY1_0_3;       // qspi reg
   volatile uint32_t QSPI_AES_KEY1_4_7;       // qspi reg
   volatile uint32_t QSPI_AES_KEY1_8_B;       // qspi reg
@@ -631,10 +631,10 @@ struct qspi_reg_s {
 // QSPI AES Decryption Defines
 #define KEY_LEN_128 16
 #define KEY_LEN_256 32
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define CTR_MODE 0x04
 #define XTS_MODE 0x80
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 #define IV_VALID   (0xf << 16)
 #define KEY1_VALID (0xf << 0)
 #define KEY2_VALID (0xf << 8)
@@ -654,7 +654,7 @@ struct qspi_reg_s {
 #define FLIP_IN_LB            BIT(13)
 #define QSPI_AES_DIN_READY    BIT(2)
 #define QSPI_AES_DOUT_VALID   BIT(1)
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define KEY_SIZE_MASK     (0x40000)
 #define KEY_SIZE_256      BIT(16)
 #define QSPI_KEY_SIZE_256 BIT(16)

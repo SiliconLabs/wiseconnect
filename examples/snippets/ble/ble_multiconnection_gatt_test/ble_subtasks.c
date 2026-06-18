@@ -365,7 +365,6 @@ void rsi_ble_task_on_conn(void *parameters)
 
         //! check if connection is from remote central device
         if (rsi_ble_conn_info[l_conn_id].remote_device_role == CENTRAL_ROLE) {
-          num_of_conn_centrals++;
 
           LOG_PRINT("\r\n Number of central devices connected: %d - conn%d\r\n", num_of_conn_centrals, l_conn_id);
 
@@ -389,7 +388,7 @@ void rsi_ble_task_on_conn(void *parameters)
           LOG_PRINT("\r\n Advertising device - conn%d\n", l_conn_id);
         } else {
           //! assuming that connection is from remote peripheral device
-          num_of_conn_peripherals++;
+
           LOG_PRINT("\r\n Number of peripheral devices connected: %d\n", num_of_conn_peripherals);
 
           if (rsi_ble_conn_info[l_conn_id].remote_device_role == PERIPHERAL_ROLE) {
@@ -458,7 +457,6 @@ void rsi_ble_task_on_conn(void *parameters)
 
         //! check if connection is from remote central device
         if (rsi_ble_conn_info[l_conn_id].remote_device_role == CENTRAL_ROLE) {
-          num_of_conn_centrals++;
 
           LOG_PRINT("\r\n Number of central devices connected: %d - conn%d\n", num_of_conn_centrals, l_conn_id);
 
@@ -489,7 +487,7 @@ void rsi_ble_task_on_conn(void *parameters)
           LOG_PRINT("\r\n Advertising device - conn%d\n", l_conn_id);
         } else {
           //! assuming that connection is from remote peripheral device
-          num_of_conn_peripherals++;
+
           LOG_PRINT("\r\n Number of peripheral devices connected: %d\n", num_of_conn_peripherals);
 
           if (rsi_ble_conn_info[l_conn_id].remote_device_role == PERIPHERAL_ROLE) {
@@ -1205,7 +1203,7 @@ void rsi_ble_task_on_conn(void *parameters)
                     l_conn_id);
           //! decrement the task count
           central_task_instances--;
-          num_of_conn_centrals--;
+
           if (num_of_conn_centrals < RSI_BLE_MAX_NBR_CENTRALS) {
             status = rsi_ble_stop_advertising();
             if (status != RSI_SUCCESS) {
@@ -1233,7 +1231,7 @@ void rsi_ble_task_on_conn(void *parameters)
                     rsi_disconnect_reason[l_conn_id],
                     l_conn_id);
           peripheral_task_instances--;
-          num_of_conn_peripherals--;
+
           //rsi_ble_set_event_based_on_conn(l_conn_id, RSI_BLE_SCAN_RESTART_EVENT);
           status = rsi_ble_stop_scanning();
           if (status != RSI_SUCCESS) {
@@ -1912,15 +1910,26 @@ void rsi_ble_task_on_conn(void *parameters)
         //! clear the served event
         rsi_ble_clear_event_based_on_conn(l_conn_id, RSI_BLE_SC_PASSKEY_EVENT);
 
-        LOG_PRINT("\r\n In SMP sc passkey event - conn%d\r\n", l_conn_id);
+        if (((RSI_BLE_SMP_IO_CAPABILITY == 0x04 && rsi_ble_conn_info[l_conn_id].rsi_ble_event_smp_resp.io_cap == 0x00))
+            || (RSI_BLE_SMP_IO_CAPABILITY == 0x02
+                && (rsi_ble_conn_info[l_conn_id].rsi_ble_event_smp_resp.io_cap == 0x00
+                    || rsi_ble_conn_info[l_conn_id].rsi_ble_event_smp_resp.io_cap == 0x01
+                    || rsi_ble_conn_info[l_conn_id].rsi_ble_event_smp_resp.io_cap == 0x02
+                    || rsi_ble_conn_info[l_conn_id].rsi_ble_event_smp_resp.io_cap == 0x04))) {
+          LOG_PRINT("\r\n In SMP sc passkey event - conn%d remote addr: %s \r\n",
+                    l_conn_id,
+                    rsi_ble_conn_info[l_conn_id].remote_dev_addr);
+          rsi_ble_smp_passkey(rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.dev_addr,
+                              rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.passkey);
 
-        LOG_PRINT("\r\n In passkey event, remote addr: %s, passkey: %06ld - conn%d\r\n",
-                  rsi_ble_conn_info[l_conn_id].remote_dev_addr,
-                  rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.passkey,
-                  l_conn_id);
-
-        rsi_ble_smp_passkey(rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.dev_addr,
-                            rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.passkey);
+        } else {
+          LOG_PRINT("\r\n In SMP sc passkey display event, remote addr: %s, passkey: %06ld - conn%d\r\n",
+                    rsi_ble_conn_info[l_conn_id].remote_dev_addr,
+                    rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.passkey,
+                    l_conn_id);
+          rsi_ble_smp_passkey(rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.dev_addr,
+                              rsi_ble_conn_info[l_conn_id].rsi_event_sc_passkey.passkey);
+        }
       } break;
 
       case RSI_BLE_SECURITY_KEYS_EVENT: {

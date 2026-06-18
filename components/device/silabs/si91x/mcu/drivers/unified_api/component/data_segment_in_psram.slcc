@@ -1,6 +1,6 @@
 id: data_segment_in_psram
 label: Data Segment in PSRAM
-package: platform
+package: platform_siwx91x
 description: >
   This component puts Data segment in PSRAM memory region
 category: Device|Si91x|MCU|Peripheral|PSRAM Driver|PSRAM Linker Configurations

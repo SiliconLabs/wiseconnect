@@ -48,7 +48,6 @@
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
-sl_status_t status;
 uint8_t HP_intr[8] = { PIN_INTR_0, PIN_INTR_1, PIN_INTR_2, PIN_INTR_3, PIN_INTR_4, PIN_INTR_5, PIN_INTR_6, PIN_INTR_7 };
 uint8_t ULP_intr[8] = { ULP_PIN_INTR_0, ULP_PIN_INTR_1, ULP_PIN_INTR_2, ULP_PIN_INTR_3,
                         ULP_PIN_INTR_4, ULP_PIN_INTR_5, ULP_PIN_INTR_6, ULP_PIN_INTR_7 };
@@ -114,6 +113,7 @@ int8_t button_get_free_hp_context_index(void)
 
 void sl_si91x_button_init(const sl_button_t *handle)
 {
+  sl_status_t status                              = SL_STATUS_OK;
   sl_si91x_gpio_pin_config_t sl_button_pin_config = { { handle->port, handle->pin }, GPIO_INPUT };
   sl_gpio_t button_port_pin                       = { handle->port, handle->pin };
   uint8_t button_context_index                    = 0;

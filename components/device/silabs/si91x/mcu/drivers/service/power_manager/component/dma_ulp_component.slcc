@@ -1,6 +1,6 @@
 id: dma_ulp_component
 label: PM ULP DMA
-package: platform
+package: platform_siwx91x
 description: >
   ULP DMA component will enable DMA in the low-power mode. 
   It moves all the peripheral dependencies to RAM. 
@@ -23,10 +23,10 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: dma_ps2
-    value: sl_si91x_dma.o
+    value: sl_si91x_dma.*
   - name: dma_ps2
-    value: rsi_udma.o
+    value: rsi_udma.*
   - name: dma_ps2
-    value: rsi_udma_wrapper.o
+    value: rsi_udma_wrapper.*
   - name: dma_ps2
-    value: UDMA.o
+    value: UDMA.*

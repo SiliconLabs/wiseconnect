@@ -96,6 +96,7 @@ static sl_usart_signal_event_t user_callback[] = { NULL, NULL, NULL }; ///< Call
 static uint32_t usart_get_baud_rate(uint8_t usart_module);
 static sl_status_t usart_get_parity(uint8_t usart_module, usart_parity_typedef_t *parity);
 static sl_status_t usart_get_stop_bit(uint8_t usart_module, usart_stopbit_typedef_t *stopbits);
+static uint8_t sli_si91x_usart_get_mode(uint8_t usart_module);
 static sl_status_t convert_arm_to_sl_error_code(int32_t error);
 static sl_status_t validate_control_parameters(sl_si91x_usart_control_config_t *control_configuration,
                                                uint32_t *input_mode);
@@ -496,6 +497,73 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
 
 /*******************************************************************************
  * @brief
+ * Internal function to send data in blocking mode byte-by-byte
+ *
+ * @details
+ * This internal function sends data byte-by-byte via USART/UART and waits (blocks)
+ * until each byte transmission is complete before sending the next byte. This ensures
+ * true byte-by-byte transmission with hardware verification for each byte.
+ * The function accesses UART hardware registers (THR) directly from the handle and
+ * checks the transmitter empty flag (TEMT) for each byte.
+ *
+ * Supports all UART instances:
+ *   - USART_0 (USART0)
+ *   - UART_1  (UART1)
+ *   - ULPUART (ULP_UART)
+ *
+ * It takes three arguments:
+ *   - usart_handle: pointer to the USART/UART driver handle (supports USART0, UART1, ULP_UART)
+ *   - data: pointer to the data buffer which contains the data to be sent
+ *   - data_length: The number of data bytes to send
+ *
+ * @return sl_status_t - Returns SL_STATUS_OK on successful transmission,
+ *                       SL_STATUS_NULL_POINTER if parameters are NULL,
+ *                       SL_STATUS_INVALID_PARAMETER if data_length is 0
+ *
+ * @note
+ *   - Works with all UART instances by extracting register base from handle
+ *   - Each byte is transmitted and verified before sending the next
+ *   - Do not call from interrupt context
+ ******************************************************************************/
+sl_status_t sli_si91x_usart_send_data_blocking(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length)
+{
+  const uint8_t *buffer = (const uint8_t *)data;
+  USART0_Type *uart_reg;
+  usart_peripheral_t uart_instance;
+
+  // Check for NULL pointers
+  if ((usart_handle == NULL) || (data == NULL)) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  // Check for data length
+  if (data_length == 0) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  uart_instance = get_usart_instance(usart_handle);
+  // Get the register base address from resources
+  // if uart_instance is  ULPUART, send data to ulp_uart
+  if (uart_instance == ULPUART) {
+    uart_reg = ULP_UART;
+  }
+  // ifuart_instance is  USART_0, send data to uart0
+  else if (uart_instance == USART_0) {
+    uart_reg = UART0;
+
+  }
+  // if uart_instance is  UART_1, send data to uart1
+  else if (uart_instance == UART_1) {
+    uart_reg = UART1;
+  }
+  // Send data byte-by-byte
+  for (uint32_t index = 0; index < data_length; index++) {
+    uart_reg->THR = buffer[index];    // Write byte to Transmit Holding Register
+    while (uart_reg->LSR_b.TEMT == 0) // Wait for Transmitter Empty
+      ;
+  }
+  return SL_STATUS_OK;
+}
+/*******************************************************************************
+ * @brief
  * To Send the data in async mode when USART/UART is configured
  *
  * @details
@@ -510,8 +578,24 @@ sl_status_t sl_si91x_usart_send_data(sl_usart_handle_t usart_handle, const void 
 sl_status_t sl_si91x_usart_async_send_data(sl_usart_handle_t usart_handle, const void *data, uint32_t data_length)
 {
   sl_status_t status = SL_STATUS_FAIL;
-  status             = sl_si91x_usart_send_data(usart_handle, data, data_length);
-  return status;
+  sl_si91x_usart_control_config_t get_config;
+
+  // Validate input parameters
+  if (usart_handle == NULL || data == NULL || data_length == 0) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  status = sl_si91x_usart_get_configurations(get_usart_instance(usart_handle), &get_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Only allow async receive in async mode
+  if (get_config.mode != ARM_USART_MODE_ASYNCHRONOUS) {
+    return SL_STATUS_INVALID_STATE;
+  }
+
+  return sl_si91x_usart_send_data(usart_handle, data, data_length);
 }
 
 /*******************************************************************************
@@ -558,19 +642,35 @@ sl_status_t sl_si91x_usart_receive_data(sl_usart_handle_t usart_handle, void *da
  * To receive the data in async mode when USART/UART is configured
  *
  * @details
- * This function returns immediately and data reception happens asyncronously. Once the data reception compeletes ,
+ * This function returns immediately and data reception happens asynchronously. Once the data reception completes ,
  * registered user callback get invoked
  * It takes two arguments,
  *   - data: pointer to the data buffer which stores the data received
- *   - data_legth: The number of data length to receive
+ *   - data_length: The number of data length to receive
  *
  * Stores the data received in data pointer
  ******************************************************************************/
 sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, void *data, uint32_t data_length)
 {
   sl_status_t status = SL_STATUS_FAIL;
-  status             = sl_si91x_usart_receive_data(usart_handle, data, data_length);
-  return status;
+  sl_si91x_usart_control_config_t get_config;
+
+  // Validate input parameters
+  if (usart_handle == NULL || data == NULL || data_length == 0) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  status = sl_si91x_usart_get_configurations(get_usart_instance(usart_handle), &get_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Only allow async receive in async mode
+  if (get_config.mode != ARM_USART_MODE_ASYNCHRONOUS) {
+    return SL_STATUS_INVALID_STATE;
+  }
+
+  return sl_si91x_usart_receive_data(usart_handle, data, data_length);
 }
 
 /*******************************************************************************
@@ -584,12 +684,12 @@ sl_status_t sl_si91x_usart_async_receive_data(sl_usart_handle_t usart_handle, vo
  *   - data_in: pointer to the data buffer which will store the received data
  *   - data_out: pointer to the data buffer which will store the data that needs to
  *               be sent
- *   - data_legth: The number of data items to be transferred
+ *   - data_length: The number of data items to be transferred
  *
  * It will store the received data in the data_in buffer
  *
  * @note
- * This function use only in syncronpus mode
+ * This function use only in synchronous mode
  ******************************************************************************/
 sl_status_t sl_si91x_usart_transfer_data(sl_usart_handle_t usart_handle,
                                          const void *data_out,
@@ -960,8 +1060,8 @@ sl_usart_version_t sl_si91x_usart_get_version(void)
  * Get the usart configurations set
  *
  * @details
- * Get the USART configurations set in the module such as baudrate ,parity bit
- * stop bits etc
+ * Get the USART configurations set in the module such as mode, baudrate, parity bit
+ * stop bits
  *
  * @note
  * This function should call after USART Initliazation ,configuration
@@ -974,6 +1074,8 @@ sl_status_t sl_si91x_usart_get_configurations(uint8_t usart_module, sl_si91x_usa
       status = SL_STATUS_NULL_POINTER;
       break;
     }
+    //Get the usart operating mode
+    usart_config->mode = sli_si91x_usart_get_mode(usart_module);
     // Get the usart buadate
     usart_config->baudrate = usart_get_baud_rate(usart_module);
     // Get the USART parity bit set
@@ -1071,6 +1173,21 @@ static sl_status_t usart_get_stop_bit(uint8_t usart_module, usart_stopbit_typede
   } while (false);
   // Return status
   return status;
+}
+
+/*******************************************************************************
+ * @brief
+ * Get the UART/USART mode programmed
+ *
+ * @details
+ * This function return the mode set in the module
+ *
+ * @note
+ * This function should call after USART Initliazation ,configuration
+ ******************************************************************************/
+static uint8_t sli_si91x_usart_get_mode(uint8_t usart_module)
+{
+  return USART_GetMode(usart_module);
 }
 
 /*******************************************************************************
@@ -1190,7 +1307,10 @@ static void callback_event_handler(uint32_t event)
     case SL_USART_EVENT_TRANSFER_COMPLETE:
       break;
   }
-  user_callback[usart_instance](event);
+  // Call user callback if registered for this USART instance
+  if (user_callback[usart_instance] != NULL) {
+    user_callback[usart_instance](event);
+  }
 }
 
 #if (SLI_SI91X_MCU_RS485_MODE == 1)

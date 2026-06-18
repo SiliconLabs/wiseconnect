@@ -30,6 +30,7 @@
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
 #include "sl_si91x_power_manager_wakeup_handler.h"
 #endif
+
 #if (SL_SI91X_TICKLESS_MODE == 1)
 /*******************************************************************************
  **************************** Local variables  *********************************
@@ -255,7 +256,6 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 
     sl_sleeptimer_stop_timer(&schedule_wakeup_timer_handle);
     sli_os_schedule_wakeup(1);
-
     //Checking for PS2 state status
     if (!(M4_ULP_SLP_STATUS_REG & ULP_MODE_SWITCHED_NPSS)) {
       if (frontend_switch_control != 0) {

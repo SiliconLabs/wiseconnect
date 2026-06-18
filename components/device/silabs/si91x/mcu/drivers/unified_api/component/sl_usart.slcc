@@ -1,6 +1,6 @@
 id: sl_usart
 label: USART
-package: platform
+package: platform_siwx91x
 description: >
   USART stands for Universal Synchronous Asynchronous Receiver/Transmitter. It is a communication protocol 
   used for serial communication between devices. It is used to exchange data between microcontrollers,
@@ -31,6 +31,7 @@ provides:
 define:
   - name: SL_SI91X_USART_DMA
   - name: USART_MODULE
+  - name: SL_SI91X_REQUIRES_INTF_PLL
 requires:
   - name: udma_linker_config
   - name: sl_dma

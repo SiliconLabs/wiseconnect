@@ -1,6 +1,6 @@
 id: sl_i2s
 label: I2S
-package: platform
+package: platform_siwx91x
 description: >
   I2S, which stands for Inter-IC Sound or Integrated Interchip Sound, is a 
   serial bus interface standard used for connecting digital audio devices. 

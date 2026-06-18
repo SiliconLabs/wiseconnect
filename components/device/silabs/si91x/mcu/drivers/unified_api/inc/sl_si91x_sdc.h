@@ -89,7 +89,7 @@ extern "C" {
 #define SDC_MIN_VALUE 0    ///< Minimum value of the SDC
 #define SDC_MID_VALUE 2048 ///< Mid value of the SDC
 
-#define SDC_ONE_CH_MAX_FIFO_TH 16 ///< Maximum FIFO threshold per channel when only using one channel
+#define SDC_ONE_CH_MAX_FIFO_TH 15 ///< Maximum FIFO threshold per channel when only using one channel
 
 #define SDC_TWO_CH_MAX_FIFO_TH 8 ///< Maximum FIFO threshold per channel for SDC with two channels
 

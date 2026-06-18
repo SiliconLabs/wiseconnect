@@ -1,10 +1,11 @@
 project_name: wlan_ble_unified_ae_coex_app
-package: ble
-quality: alpha
+package: multi_protocol_siwx91x_app
+quality: production
 label: Unified AE app for Bluetooth and Wifi
 category: Example|BLE
-description: >
-  Bluetooth Low energy Extended Advertising features(Central/Peripheral) with Coex.
+description: 'Bluetooth Low energy Extended Advertising features(Central/Peripheral) with Coex.
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -12,12 +13,6 @@ filter:
 - name: Project Difficulty
   value:
   - Advanced
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: app.c
 - path: root_auto_gen.c
@@ -60,32 +55,25 @@ component:
 - id: freertos
 - id: freertos_heap_4
 - id: syscalls
-  from: wiseconnect3_sdk
 - id: si91x_memory_default_config
-  from: wiseconnect3_sdk
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: ble
-  from: wiseconnect3_sdk
 - id: sl_si91x_asynchronous_socket
-  from: wiseconnect3_sdk
 - id: bsd_socket
-  from: wiseconnect3_sdk
 - id: sl_si91x_mem_pool_buffers_with_quota
-  from: wiseconnect3_sdk
+- id: sl_power_manager
+requires:
+- name: device_needs_ram_execution
+  condition:
+  - si91x_common_flash
 toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+- option: gcc_compiler_option
+  value: -Wall -Werror
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'
@@ -118,4 +106,12 @@ ui_hints:
   - path: readme.md
     focus: true
 post_build:
-  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

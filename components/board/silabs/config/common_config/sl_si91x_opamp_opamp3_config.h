@@ -32,25 +32,31 @@
 #define SL_SI91X_OPAMP_OPAMP3_CONFIG_H
 
 #include "sl_si91x_opamp.h"
+// <<< Use Configuration Wizard in Context Menu >>>
+#ifdef __cplusplus
+extern "C" {
+#endif
 /******************** OPAMP Configuration ******************************/
 
 #define SL_OPAMP_OPAMP3 SL_OPAMP_3
 
-// <<< sl:start pin_tool >>>
-// <opamp3 signal=(P),(N),(RES),(OUT)> SL_OPAMP3
-// $[OPAMP3_SL_OPAMP3]
-#ifndef SL_OPAMP3_PERIPHERAL
-#define SL_OPAMP3_PERIPHERAL OPAMP3
-#endif
-#ifndef SL_OPAMP3_PERIPHERAL_NO
-#define SL_OPAMP3_PERIPHERAL_NO 3
-#endif
+//  <e> OPAMP3 Input/Output Configuration Selection
+#define OPAMP3_UC 1
 
-// [OPAMP3_SL_OPAMP3]$
-// <<< sl:end pin_tool >>>
+// <o SL_OPAMP_OPAMP3_CONFIGURATION_SELECTION> OPAMP Feature Selection
+//   <SL_OPAMP_UNITY_GAIN=> Unity Gain
+//   <SL_OPAMP_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Inverting PGA
+//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Non-Inverting PGA
+//   <SL_OPAMP_INVERTING_PROGRAMMABLE_HYST_COMP=> Inverting Hysteresis Comparator
+//   <SL_OPAMP_NON_INVERTING_PROGRAMMABLE_HYST_COMP=> Non-Inverting Hysteresis Comparator
+//   <SL_OPAMP_CASCADED_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=>  Cascaded Inverting PGA
+//   <SL_OPAMP_CASCADED_NON_INVERTING_PROGRAMMABLE_GAIN_AMPLIFIER=> Cascaded Non-inverting PGA
+//   <SL_OPAMP_TWO_OPAMPS_DIFFERENTIAL_AMPLIFIER=> Two OPAMPs Differential Amplifier
+//   <SL_OPAMP_TRANS_IMPEDANCE_AMPLIFIER=> Trans-Impedance Amplifier
+//   <SL_OPAMP_INSTRUMENTATION_AMPLIFIER=> Instrumentation Amplifier
+// <i> Selection of OPAMP Feature
 
-// <<< Use Configuration Wizard in Context Menu >>>
-// <h>OPAMP3 Input/Output Configuration Selection
+#define SL_OPAMP_OPAMP3_CONFIGURATION_SELECTION SL_OPAMP_UNITY_GAIN
 
 // OPAMP3 VinP
 // <o SL_OPAMP3_VINP_SEL> VinP Mux Selection
@@ -111,7 +117,25 @@
 // <i> Selection of OPAMP3 R2
 #define SL_OPAMP3_R2_SELECT 8
 
-// </h>OPAMP
+// </e> OPAMP3
+/******************************************************************************/
 // <<< end of configuration section >>>
+
+// <<< sl:start pin_tool >>>
+// <opamp3 signal=(P),(N),(RES),(OUT)> SL_OPAMP3
+// $[OPAMP3_SL_OPAMP3]
+#ifndef SL_OPAMP3_PERIPHERAL
+#define SL_OPAMP3_PERIPHERAL OPAMP3
+#endif
+#ifndef SL_OPAMP3_PERIPHERAL_NO
+#define SL_OPAMP3_PERIPHERAL_NO 3
+#endif
+
+// [OPAMP3_SL_OPAMP3]$
+// <<< sl:end pin_tool >>>
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SL_SI91X_OPAMP_OPAMP3_CONFIG_H

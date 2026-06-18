@@ -27,273 +27,429 @@
  *
  ******************************************************************************/
 
-
- MEMORY
- {
-   rom   (rx)  : ORIGIN = 0x8202000, LENGTH = 0x1fe000
-   ram   (rwx) : ORIGIN = 0x400, LENGTH = 0x37000
- }
- MEMORY
- {
-   udma0   (rwx)  : ORIGIN = 0x37400, LENGTH = 0x400
-   udma1   (rwx)  : ORIGIN = 0x24061c00, LENGTH = 0x400
- }
+MEMORY
+{
+  rom   (rx)  : ORIGIN = 0x8202000, LENGTH = 0x1fe000
+  ram   (rwx) : ORIGIN = 0x400, LENGTH = 0x37000
+}
+MEMORY
+{
+  udma0 (rwx) : ORIGIN = 0x37400,    LENGTH = 0x400
+  udma1 (rwx) : ORIGIN = 0x24061c00, LENGTH = 0x400
+}
 
 ENTRY(Reset_Handler)
- 
+
 SECTIONS
-{	
+{
+  .text :
+  {
+    KEEP(*(.isr_vector))
 
-	.text :
-	{
-		KEEP(*(.isr_vector))
-    
-		  *(EXCLUDE_FILE(*sl_si91x_dma.o *sl_core_cortexm.o *sl_platform_wireless.o *sl_si91x_power_manager_wakeup_handler.o *sl_wifi.o *sl_si91x_m4_ps.o *rsi_sysrtc.o *sl_sleeptimer_hal_si91x_sysrtc.o *em_core.o *sl_sleeptimer.o *sl_si91x_low_power_tickless_mode.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o  *cmsis_gcc.o *sbrk*.o *libm_a*.o *libc_a*.o *_arm_*.o *libm_a-s_ceil.o *snprintf*.o *sensorhub_aws_app.o *rsi_hal_mcu_m4_rom.o *memcpy*.o *sensorhub.o  *sensorhub_app.o *sl_si91x_bus.o *sl_si91x_driver.o *sli_wifi_command_engine.o *sli_si91x_wifi_event_handler.o *rsi_hal_mcu_m4_ram.o *croutine.o *event_groups.o *list.o *stream_buffer.o *tasks.o *timers.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o *rsi_ps_ram_func.o *I2C.o *SPI.o *UDMA.o *aux_reference_volt_config.o *rsi_adc.o *rsi_crc.o *rsi_dac.o *rsi_gpdma.o *rsi_i2c.o *rsi_qspi.o *rsi_spi.o *rsi_udma.o *rsi_udma_wrapper.o *sensor_hub.o *rsi_bod.o *rsi_temp_sensor.o *rsi_wwdt *sl_si91x_adc.o *sl_si91x_ssi.o *hub_hal_intf.o *accelerometerSensor_hal.o *adxl345.o *adc_sensor_driver.o *adc_sensor_hal.o *apds9960.o *apds9960Sensor_hal.o *bh1750fvi.o *lightsensor_hal.o *lm75.o *tempSensor_hal.o *cmsis_os2.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *power_manager_m4_wireless_example.o *sl_si91x_button.o *sl_si91x_button_instances.o *app.o *main.o *stdio.o *puts.o *wbuf.o *writer.o *memchr.o *memset.o *nano-vfprintf.o *nano-vfprintf_i.o *printf.o *lock.o *fflush.o *rsi_debug.o *rsi_usart.o *syscalls.o *USART.o *sl_si91x_calendar.o *rsi_rtc.o *sl_si91x_ulp_timer.o *rsi_timers.o *sl_si91x_peripheral_gpio.o *sl_si91x_sdc.o *sl_si91x_driver_gpio.o ) .text*)
+    /* Combined + de-duplicated EXCLUDE_FILE list (union of both originals) */
+    *(EXCLUDE_FILE(
+        *sl_si91x_dma*
+        *sl_core_cortexm*
+        *sl_platform_wireless*
+        *sl_si91x_power_manager_wakeup_handler*
+        *sl_wifi*
+        *sli_wifi_power_profile*
+        *sl_si91x_m4_ps*
+        *rsi_sysrtc*
+        *sl_si91x_clock_manager*
+        *sli_si91x_clock_manager*
+        *sl_sleeptimer_hal_si91x_sysrtc*
+        *em_core*
+        *sl_sleeptimer*
+        *sl_si91x_low_power_tickless_mode*
+        *sl_si91x_power_manager*
+        *sli_si91x_power_manager*
+        *sl_si91x_power_manager_handler*
+        *sl_si91x_power_manager_debug*
+        *sli_si91x_power_manager_wakeup_init*
+        *sl_si91x_power_manager_wakeup_init*
+        *sl_platform_wireless*
+        *sl_si91x_bus*
+        *sl_si91x_driver*
+        *sli_wifi_command_engine*
+        *sli_si91x_wifi_event_handler*
+        *sl_rsi_utility*
+        *sl_slist*
+        *sl_main_process_action*
+        *sl_event_handler*
+        *cmsis_gcc*
+        *cmsis_os2*
+        *UDMA*
+        *I2C*
+        *SPI*
+        *USART*
+        *stdio*
+        *puts*
+        *wbuf*
+        *writer*
+        *memchr*
+        *memset*
+        *memcpy*
+        *strcmp*
+        *snprintf*
+        *nano-vfprintf*
+        *nano-vfprintf_i*
+        *printf*
+        *lock*
+        *fflush*
+        *syscalls*
+        *sbrk*
+        *libc_a*
+        *libm_a*
+        *libm_a-s_ceil*
+        *_arm_*
+        *heap_4*
+        *heap_*
+        *port*
+        *queue*
+        *list*
+        *tasks*
+        *timers*
+        *croutine*
+        *event_groups*
+        *stream_buffer*
+        *freertos_umm_malloc_host*
+        *malloc_buffers*
+        *clock_update*
+        *system_si91x*
+        *rsi_hal_mcu_m4_rom*
+        *rsi_hal_mcu_m4_ram*
+        *rsi_deepsleep_soc*
+        *rsi_ps_ram_func*
+        *rsi_egpio*
+        *rsi_ipmu*
+        *ipmu_apis*
+        *rsi_pll*
+        *rsi_power_save*
+        *rsi_system_config*
+        *rsi_time_period*
+        *rsi_ulpss_clk*
+        *rsi_debug*
+        *rsi_usart*
+        *rsi_rtc*
+        *rsi_timers*
+        *sl_si91x_calendar*
+        *sl_si91x_ulp_timer*
+        *sl_si91x_peripheral_gpio*
+        *sl_si91x_driver_gpio*
+        *sl_si91x_sdc*
+        *aux_reference_volt_config*
+        *rsi_adc*
+        *rsi_crc*
+        *rsi_dac*
+        *rsi_gpdma*
+        *rsi_i2c*
+        *rsi_qspi*
+        *rsi_spi*
+        *rsi_udma*
+        *rsi_udma_wrapper*
+        *sensor_hub*
+        *sensorhub*
+        *sensorhub_app*
+        *sensorhub_aws_app*
+        *hub_hal_intf*
+        *accelerometerSensor_hal*
+        *adxl345*
+        *adc_sensor_driver*
+        *adc_sensor_hal*
+        *apds9960*
+        *apds9960Sensor_hal*
+        *bh1750fvi*
+        *lightsensor_hal*
+        *lm75*
+        *tempSensor_hal*
+        *rsi_bod*
+        *rsi_temp_sensor*
+        *rsi_wwdt*
+        *sl_si91x_adc*
+        *sl_si91x_ssi*
+        *rsi_deepsleep_soc*
+        *power_manager_m4_wireless_example*
+        *sl_si91x_button*
+        *sl_si91x_button_instances*
+        *app*
+        *main*
+        *ps2_state*
+      ) .text*)
 
+    /* .ctors */
+    *crtbegin*(.ctors)
+    *crtbegin?*(.ctors)
+    *(EXCLUDE_FILE(*crtend?* *crtend*) .ctors)
+    *(SORT(.ctors.*))
+    *(.ctors)
 
-		/* .ctors */
-		*crtbegin.o(.ctors)
-		*crtbegin?.o(.ctors)
-		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-		*(SORT(.ctors.*))
-		*(.ctors)
-		
-		/* .dtors */
-		*crtbegin.o(.dtors)
-		*crtbegin?.o(.dtors)
-		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-		*(SORT(.dtors.*))
-		*(.dtors)
-		
-		KEEP(*(.eh_fram e*))			
-	} > rom 
-		
-	
-	.ARM.extab : 
-	{
-		*(.ARM.extab* .gnu.linkonce.armextab.*)			
-	} > rom 
-	
-	
-	__exidx_start = .;
-	.ARM.exidx :
-	{
-		*(.ARM.exidx* .gnu.linkonce.armexidx.*)			
-	} > rom 
-	 
-	__exidx_end = .;
-	__etext = .;
-	
-	
+    /* .dtors */
+    *crtbegin*(.dtors)
+    *crtbegin?*(.dtors)
+    *(EXCLUDE_FILE(*crtend?* *crtend*) .dtors)
+    *(SORT(.dtors.*))
+    *(.dtors)
 
+    KEEP(*(.eh_frame*))
+  } > rom
 
-	
-	/* _sidata is used in code startup code */
-	_sidata = __etext;
-	
-	.data :
-	
-	{
-		__data_start__ = .;
-		
-		/* _sdata is used in startup code */
-		_sdata = __data_start__;
-		KEEP(*(.ramVector))
-		*(.data*)
-		*(.rodata*)
-		KEEP(*(.init))
-		KEEP(*(.fini))
-		*cmsis_gcc.o(.text*)
-		*_arm_*.o(.text*)
-		*libc_a*.o(.text*)
-		*libm_a*.o(.text*)
-		*sbrk*.o(.text*)
-		*libm_a-s_ceil.o(.text*)
-		*cmsis_os2.o(.text*)
-		*port.o(.text*)
-		*queue.o(.text*)
-		*sl_rsi_utility.o(.text*)
-		*tasks.o(.text*)
-		*clock_update.o(.text*)
-		*rsi_deepsleep_soc.o(.text*)
-		*rsi_egpio.o(.text*)
-		*rsi_ipmu.o(.text*)
-		*ipmu_apis.o(.text*)
-		*rsi_pll.o(.text*)
-		*rsi_power_save.o(.text*)
-		*rsi_system_config.o(.text*)
-		*rsi_time_period.o(.text*)
-		*rsi_ulpss_clk.o(.text*)
-		*system_si91x.o(.text*)
-		*app.o(.text*)
-		*main.o(.text*)
-		*stdio.o(.text*)
-		*puts.o(.text*)
-		*wbuf.o(.text*)
-		*writer.o(.text*)
-		*memchr.o(.text*)
-		*memset.o(.text*)
-		*memcpy*.o(.text*)
-		*nano-vfprintf.o(.text*)
-		*nano-vfprintf_i.o(.text*)
-		*printf.o(.text*)
-		*lock.o(.text*)
-		*fflush.o(.text*)
-		*rsi_debug.o(.text*)
-		*rsi_usart.o(.text*)
-		*syscalls.o(.text*)
-		*USART.o(.text*)
-		*sl_si91x_calendar.o(.text*)
-		*rsi_rtc.o(.text*)
-		*sl_si91x_ulp_timer.o(.text*)
-		*rsi_timers.o(.text*)
-		*sl_si91x_peripheral_gpio.o(.text*)
-		*sl_si91x_driver_gpio.o(.text*)
-		*rsi_ps_ram_func.o(.text*)
-		*I2C.o(.text*)
-		*SPI.o(.text*)
-		*aux_reference_volt_config.o(.text*)
-		*rsi_adc.o(.text*)
-		*rsi_crc.o(.text*)
-		*rsi_dac.o(.text*)
-		*rsi_gpdma.o(.text*)
-		*rsi_i2c.o(.text*)
-		*rsi_qspi.o(.text*)
-		*rsi_spi.o(.text*)
-		*rsi_udma.o(.text*)
-		*rsi_udma_wrapper.o(.text*)
-		*sensor_hub.o(.text*)
-		*rsi_bod.o(.text*)
-		*rsi_temp_sensor.o(.text*)
-		*rsi_wwdt.o(.text*)
-		*sl_si91x_adc.o(.text*)
-		*sl_si91x_ssi.o(.text*)
-		*hub_hal_intf.o(.text*)
-		*accelerometerSensor_hal.o(.text*)
-		*adxl345.o(.text*)
-		*adc_sensor_driver.o(.text*)
-		*adc_sensor_hal.o(.text*)
-		*apds9960.o(.text*)
-		*apds9960Sensor_hal.o(.text*)
-		*bh1750fvi.o(.text*)
-		*lightsensor_hal.o(.text*)
-		*lm75.o(.text*)
-		*tempSensor_hal.o(.text*)
-		*rsi_hal_mcu_m4_ram.o(.text*)
-		*rsi_hal_mcu_m4_rom.o(.text*)
-		*sl_si91x_driver.o(.text*)
-		*sl_si91x_bus.o(.text*)
-		*sli_wifi_command_engine.o(text*)
-		*sli_si91x_wifi_event_handler.o(text*)
-		*croutine.o(.text*)
-		*event_groups.o(.text*)
-		*list.o(.text*)
-		*stream_buffer.o(.text*)
-		*timers.o(.text*)
-		*freertos_umm_malloc_host.o(.text*)
-		*malloc_buffers.o(.text*)
-		*sl_rsi_utility.o(.text*)
-		*heap_*.o(.text*)
-		*sensorhub_app.o(.text*)
-		*sensor_hub.o(.text*)
-		*sensorhub_aws_app.o(.text*)
-		*sl_si91x_sdc.o(.text*)
-		*snprintf*.o(.text*)
-        *sl_si91x_power_manager.o(.text*)
-		*sli_si91x_power_manager.o(.text*)
-		*sl_si91x_power_manager_handler.o(.text*)
-		*sl_si91x_power_manager_debug.o(.text*)
-		*sl_si91x_low_power_tickless_mode.o(.text*)
-		*sl_si91x_power_manager_wakeup_handler.o(.text*)
-		*sl_platform_wireless.o(.text*)
-		*UDMA.o(.text*)
-		*sl_sleeptimer.o(.text*)
-		*em_core.o(.text*)
-		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*)
-		*rsi_sysrtc.o(.text*)
-		*sl_si91x_m4_ps.o(.text*)
-		*sl_wifi.o(.text*)
-		*sl_core_cortexm.o(.text*)
-		*sl_si91x_dma.o(.text*)
-		
- 		/* ipmu calibration data */
-		*(.common_ipmu_ram*)
+  .ARM.extab :
+  {
+    *(.ARM.extab* .gnu.linkonce.armextab.*)
+  } > rom
 
-		. = ALIGN(4);
-		/* preinit data */
-		PROVIDE_HIDDEN (__preinit_array_start = .);
-		KEEP(*(.preinit_array))
-		PROVIDE_HIDDEN (__preinit_array_end = .);
-		
-		. = ALIGN(4);
-		/* init data */
-		
-		PROVIDE_HIDDEN (__init_array_start = .);
-		KEEP(*(SORT(.init_array.*)))
-		KEEP(*(.init_array))
-		PROVIDE_HIDDEN (__init_array_end = .);
-		
-		. = ALIGN(4);
-		/* finit data */
-		PROVIDE_HIDDEN (__fini_array_start = .);
-		KEEP(*(SORT(.fini_array.*)))
-		KEEP(*(.fini_array))
-		PROVIDE_HIDDEN (__fini_array_end = .);
-		
-		KEEP(*(.jcr*))
-		. = ALIGN(4);
-		/* All data end */
-		__data_end__ = .;
-		
-		/* _edata is used in startup code */
-		_edata = __data_end__; 
-	} > ram AT> rom
-		
-	
-	.bss (NOLOAD) :
-	{
-		. = ALIGN(4);
-		__bss_start__ = .;
-		*(.bss*)
-		*(COMMON)
-		. = ALIGN(4);
-		__bss_end__ = .; 
-	} > ram 
-	
+  __exidx_start = .;
+  .ARM.exidx :
+  {
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+  } > rom
+  __exidx_end = .;
+  __etext = .;
 
-	/* Modify the below value to change the stack size */
-	StackSize = 0x3000;
-	.stack (NOLOAD):
-	{
-		__StackLimit = .;
-		KEEP(*(.stack*))
-		. = ALIGN(4);
-		. += StackSize;
-		__StackTop = .;
-		PROVIDE(__stack = __StackTop);			
-	} > ram
-			
-  	.heap (COPY):
-  	{
-		__HeapBase = .;
-		__end__ = .;
-		end = __end__;
-		_end = __end__;
-		KEEP(*(.heap*))	
-		. = ORIGIN(ram) + LENGTH(ram);
-  		
-		__HeapLimit = .;			
-  	} > ram
-  
-	__heap_size = __HeapLimit - __HeapBase;
-	.udma_addr0 :
-	{
-		*(.udma_addr0*)
-	} > udma0 AT> rom
-	
+  __rom_start  = ORIGIN(rom);
+  __rom_length = LENGTH(rom);
 
-	.udma_addr1 :
-	{
-		*(.udma_addr1*)		
-	} > udma1 AT> rom   
+  /* _sidata is used in code startup code */
+  _sidata = __etext;
+
+  .data :
+  {
+    __data_start__ = .;
+
+    /* _sdata is used in startup code */
+    _sdata = __data_start__;
+
+    KEEP(*(.ramVector))
+    *(.data*)
+    *(.rodata*)
+    KEEP(*(.init))
+    KEEP(*(.fini))
+
+    /* De-duplicated “pin-to-RAM” text list (kept first occurrence only) */
+    *cmsis_gcc*(.text*)
+    *_arm_*(.text*)
+    *libc_a*(.text*)
+    *libm_a*(.text*)
+    *sbrk*(.text*)
+    *libm_a-s_ceil*(.text*)
+    *cmsis_os2*(.text*)
+    *port*(.text*)
+    *queue*(.text*)
+    *sl_rsi_utility*(.text*)
+    *tasks*(.text*)
+    *clock_update*(.text*)
+    *rsi_deepsleep_soc*(.text*)
+    *rsi_hal_mcu_m4_rom*(.text*)
+    *rsi_hal_mcu_m4_ram*(.text*)
+    *rsi_egpio*(.text*)
+    *rsi_ipmu*(.text*)
+    *ipmu_apis*(.text*)
+    *rsi_pll*(.text*)
+    *rsi_power_save*(.text*)
+    *rsi_ps_ram_func*(.text*)
+    *rsi_system_config*(.text*)
+    *rsi_time_period*(.text*)
+    *rsi_ulpss_clk*(.text*)
+    *sl_si91x_clock_manager*(.text*)
+    *sli_si91x_clock_manager*(.text*)
+    *system_si91x*(.text*)
+    *sl_slist*(.text*)
+    *strcmp*(.text*)
+    *sl_wifi*(.text*)
+    *sli_wifi_power_profile*(.text*)
+    *timers*(.text*)
+    *heap_4*(.text*)
+    *list*(.text*)
+    *sl_si91x_m4_ps*(.text*)
+    *sl_si91x_power_manager*(.text*)
+    *sli_si91x_power_manager*(.text*)
+    *sl_si91x_power_manager_handler*(.text*)
+    *sl_si91x_power_manager_debug*(.text*)
+    *sli_si91x_power_manager_wakeup_init*(.text*)
+    *sl_si91x_power_manager_wakeup_handler*(.text*)
+    *sl_sleeptimer*(.text*)
+    *sl_sleeptimer_hal_si91x_sysrtc*(.text*)
+    *rsi_sysrtc*(.text*)
+    *sl_si91x_low_power_tickless_mode*(.text*)
+    *sl_core_cortexm*(.text*)
+    *UDMA*(.text*)
+    *sl_platform_wireless*(.text*)
+    *stdio*(.text*)
+    *puts*(.text*)
+    *wbuf*(.text*)
+    *writer*(.text*)
+    *memchr*(.text*)
+    *memset*(.text*)
+    *memcpy*(.text*)
+    *nano-vfprintf*(.text*)
+    *nano-vfprintf_i*(.text*)
+    *printf*(.text*)
+    *lock*(.text*)
+    *fflush*(.text*)
+    *rsi_debug*(.text*)
+    *rsi_usart*(.text*)
+    *syscalls*(.text*)
+    *USART*(.text*)
+    *sl_si91x_calendar*(.text*)
+    *rsi_rtc*(.text*)
+    *sl_si91x_ulp_timer*(.text*)
+    *rsi_timers*(.text*)
+    *sl_si91x_peripheral_gpio*(.text*)
+    *sl_si91x_driver_gpio*(.text*)
+    *sl_si91x_sdc*(.text*)
+    *I2C*(.text*)
+    *SPI*(.text*)
+    *aux_reference_volt_config*(.text*)
+    *rsi_adc*(.text*)
+    *rsi_crc*(.text*)
+    *rsi_dac*(.text*)
+    *rsi_gpdma*(.text*)
+    *rsi_i2c*(.text*)
+    *rsi_qspi*(.text*)
+    *rsi_spi*(.text*)
+    *rsi_udma*(.text*)
+    *rsi_udma_wrapper*(.text*)
+    *sensor_hub*(.text*)
+    *rsi_bod*(.text*)
+    *rsi_temp_sensor*(.text*)
+    *rsi_wwdt*(.text*)
+    *sl_si91x_adc*(.text*)
+    *sl_si91x_ssi*(.text*)
+    *hub_hal_intf*(.text*)
+    *accelerometerSensor_hal*(.text*)
+    *adxl345*(.text*)
+    *adc_sensor_driver*(.text*)
+    *adc_sensor_hal*(.text*)
+    *apds9960*(.text*)
+    *apds9960Sensor_hal*(.text*)
+    *bh1750fvi*(.text*)
+    *lightsensor_hal*(.text*)
+    *lm75*(.text*)
+    *tempSensor_hal*(.text*)
+    *sl_main_process_action*(.text*)
+    *ps2_state*(.text*)
+    *app*(.text*)
+    *main*(.text*)
+    *sl_event_handler*(.text*)
+    *sl_si91x_driver*(.text*)
+    *sl_si91x_bus*(.text*)
+    *sli_wifi_command_engine*(.text*)
+    *sli_si91x_wifi_event_handler*(.text*)
+    *croutine*(.text*)
+    *event_groups*(.text*)
+    *stream_buffer*(.text*)
+    *freertos_umm_malloc_host*(.text*)
+    *malloc_buffers*(.text*)
+    *sensorhub_app*(.text*)
+    *sensorhub_aws_app*(.text*)
+    *snprintf*(.text*)
+    *sl_si91x_dma*(.text*)
+
+    /* ipmu calibration data */
+    *(.common_ipmu_ram*)
+
+    . = ALIGN(4);
+    /* preinit data */
+    PROVIDE_HIDDEN(__preinit_array_start = .);
+    KEEP(*(.preinit_array))
+    PROVIDE_HIDDEN(__preinit_array_end = .);
+
+    . = ALIGN(4);
+    /* init data */
+    PROVIDE_HIDDEN(__init_array_start = .);
+    KEEP(*(SORT(.init_array.*)))
+    KEEP(*(.init_array))
+    PROVIDE_HIDDEN(__init_array_end = .);
+
+    . = ALIGN(4);
+    /* finit data */
+    PROVIDE_HIDDEN(__fini_array_start = .);
+    KEEP(*(SORT(.fini_array.*)))
+    KEEP(*(.fini_array))
+    PROVIDE_HIDDEN(__fini_array_end = .);
+
+    KEEP(*(.jcr*))
+    . = ALIGN(4);
+    /* All data end */
+    __data_end__ = .;
+
+    /* _edata is used in startup code */
+    _edata = __data_end__;
+  } > ram AT> rom
+
+  .bss (NOLOAD) :
+  {
+    . = ALIGN(4);
+    __bss_start__ = .;
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(4);
+    __bss_end__ = .;
+  } > ram
+
+  /* Modify the below value to change the stack size */
+  StackSize = 0x3000;
+  .stack (NOLOAD):
+  {
+    __StackLimit = .;
+    KEEP(*(.stack*))
+    . = ALIGN(4);
+    . += StackSize;
+    __StackTop = .;
+    PROVIDE(__stack = __StackTop);
+  } > ram
+
+  /* RAM overflow detection */
+  __current_ram_used = . - ORIGIN(ram);
+  __ram_total = LENGTH(ram);
+  __ram_remaining = __ram_total - __current_ram_used;
+
+  /* Check for RAM overflow */
+  ASSERT((. <= (ORIGIN(ram) + LENGTH(ram))),
+         "RAM OVERFLOW: RAM usage exceeds available memory region")
+
+  /* Check minimum heap space */
+  ASSERT((__ram_remaining >= 1024),
+         "WARNING: Less than 1KB RAM left for heap - application may run out of dynamic memory")
+
+  /* Check stack overlap */
+  ASSERT((__StackLimit >= __bss_end__),
+         "CRITICAL: Stack overlaps with BSS section - increase RAM or reduce static allocation")
+
+  /* End of RAM overflow detection section */
+  /* Overflow guard symbols derived from MEMORY (no hard-coding) */
+  __ram_start__ = ORIGIN(ram);
+  __ram_end__   = ORIGIN(ram) + LENGTH(ram);
+
+  .heap (COPY):
+  {
+    __HeapBase = .;
+    __end__ = .;
+    end = __end__;
+    _end = __end__;
+    KEEP(*(.heap*))
+    __HeapLimit = ORIGIN(ram) + LENGTH(ram);   /* end of RAM */
+  } > ram
+
+  __heap_size = __HeapLimit - __HeapBase;
+
+  /* Final heap validation */
+  ASSERT((__heap_size >= 0),
+         "CRITICAL: Heap region is invalid (negative size) - stack and heap are overlapping")
+
+  .udma_addr0 :
+  {
+    *(.udma_addr0*)
+  } > udma0 AT> rom
+
+  .udma_addr1 :
+  {
+    *(.udma_addr1*)
+  } > udma1 AT> rom
+
+  /* nvm3 enable*/  /* Flash Present*/  /* littlefs_enable */  /* Flash Present */
+
+  ASSERT(__etext <= (ORIGIN(rom) + LENGTH(rom)),
+         "ERROR: Flash overflow code/data exceed ROM region - code and constants will not fit in flash")
 }

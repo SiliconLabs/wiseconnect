@@ -82,10 +82,6 @@
 #endif
 #endif // LF_FSM_CLOCK_UC
 
-#if defined(SLI_SI915)
-#define BG_LDO_REG1        0x129 //IPMU Bandgap Top register
-#define LDO_0P6_BYPASS_BIT 21    //Retention LDO bypass
-#endif
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
@@ -199,9 +195,6 @@ void SystemCoreClockUpdate(void) /* Get Core Clock Frequency      */
           tass_ref_clk_mux_ctrl, AON domain power supply controls from NWP to M4 */
   RSI_Set_Cntrls_To_M4();
 
-#endif
-#if defined(SLI_SI915)
-  ULP_SPI_MEM_MAP(BG_LDO_REG1) |= BIT(LDO_0P6_BYPASS_BIT); //bypassing the retention LDO
 #endif
   /*Update the system clock sources with source generating frequency*/
   system_clocks.m4ss_ref_clk     = DEFAULT_40MHZ_CLOCK;

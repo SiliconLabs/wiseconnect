@@ -39,7 +39,8 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_sysrtc_headers.h"
 #include "rsi_sysrtc.h"
-
+#include "sl_gpio_board.h"
+#include "sl_si91x_driver_gpio.h"
 /***************************************************************************/
 /**
  * @addtogroup SYSRTC System RTC
@@ -59,6 +60,46 @@ typedef rsi_sysrtc_group_channel_compare_config_t
   sl_sysrtc_group_compare_channel_action_config_t; ///< renaming group compare channel config structure
 typedef rsi_sysrtc_group_channel_capture_config_t
   sl_sysrtc_group_capture_channel_input_edge_config_t; ///< renaming group capture channel config structure
+/// Rising edge value for capture channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_RISE_EDGE \
+  {                                                   \
+    RSI_SYSRTC_CAPTURE_EDGE_RISING                    \
+  }
+///  Falling edge value for capture channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_FALL_EDGE \
+  {                                                   \
+    RSI_SYSRTC_CAPTURE_EDGE_FALLING                   \
+  }
+/// both rise and fall edge for capture channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_BOTH_EDGE \
+  {                                                   \
+    RSI_SYSRTC_CAPTURE_EDGE_BOTH                      \
+  }
+/// clear value for compare channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_CLEAR \
+  {                                               \
+    RSI_SYSRTC_COMPARE_MATCH_OUT_ACTION_CLEAR     \
+  }
+/// Set value for compare channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_SET \
+  {                                             \
+    RSI_SYSRTC_COMPARE_MATCH_OUT_ACTION_SET     \
+  }
+/// pulse value  for compare channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_PULSE \
+  {                                               \
+    RSI_SYSRTC_COMPARE_MATCH_OUT_ACTION_PULSE     \
+  }
+/// toggle value for compare channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_TOGGLE \
+  {                                                \
+    RSI_SYSRTC_COMPARE_MATCH_OUT_ACTION_TOGGLE     \
+  }
+/// Export CMPIF value for compare channel configuration structure.
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_CMPIF \
+  {                                               \
+    RSI_SYSRTC_COMPARE_MATCH_OUT_ACTION_CMPIF     \
+  }
 
 /***************************************************************************/
 /**
@@ -365,6 +406,55 @@ sl_status_t sl_si91x_sysrtc_set_gpio_as_capture_input(sl_sysrtc_group_number_t g
 sl_status_t sl_si91x_sysrtc_set_compare_output_gpio(sl_sysrtc_group_number_t group_number,
                                                     sl_sysrtc_channel_number_t channel);
 
+/***************************************************************************/
+/**
+ * @brief To configure the PRS input pins for the SYSRTC capture channel of the selected group.
+ * 
+ * @details Configures GPIO-0 and GPIO-1 as input pins for the capture channel of group 0 and group 1, respectively.
+ *          Sets pin mode, mux, and direction, and enables the input buffer for the pins.
+ * 
+ * @pre Pre-conditions:
+ *      - Enable and configure the capture channel of the respective group through
+ *        \ref sl_si91x_sysrtc_configure_group.
+ *      - Enable GPIO IO through \ref sl_si91x_sysrtc_enable_input_output_gpio by
+ *        passing true.
+ * 
+ * @param[in] group_number SYSRTC group number to use.
+ * @param[in] sysrtc_prs_gpio - Structure containing the pin configuration information.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number parameter has an invalid value.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_sysrtc_set_capture_input_prs_gpio(sl_sysrtc_group_number_t group_number,
+                                                       sl_si91x_gpio_pin_config_t sysrtc_prs_gpio);
+/***************************************************************************/
+/**
+ * @brief To configure the PRS output pins of the selected compare channel of the given group.
+ * 
+ * @details Configures GPIO-3 and GPIO-0 as output pins for compare channels 0 and 1 of group 0, respectively.
+ *          Configures GPIO-1 and GPIO-2 as output pins for compare channels 0 and 1 of group 1, respectively.
+ *          Sets pin mode, mux, and direction.
+ * 
+ * @pre Pre-conditions:
+ *      -  Enable and configure the output action of the compare channel of the respective group through
+ *        \ref sl_si91x_sysrtc_configure_group.
+ * 
+ * @param[in] group_number SYSRTC group number to use.
+ * @param[in] channel Channel number to use.
+ * @param[in] sysrtc_prs_gpio - Structure containing the pin configuration information.
+ * 
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Success, parameters configured properly.
+ *         - SL_STATUS_INVALID_PARAMETER  - The group_number or channel parameter has an invalid value.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_sysrtc_set_compare_output_prs_gpio(sl_sysrtc_group_number_t group_number,
+                                                        sl_sysrtc_channel_number_t channel,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio);
 /***************************************************************************/
 /**
  * @brief To get the SYSRTC current counter register value.

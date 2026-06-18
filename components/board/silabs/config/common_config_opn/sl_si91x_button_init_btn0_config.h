@@ -48,7 +48,7 @@
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_BUTTON_0
 // $[GPIO_SL_SI91X_BUTTON_0]
-#warning "Button is not configured. Please configure the Button pins according to the board connections."
+
 #ifndef SL_SI91X_BUTTON_0_PORT
 #define SL_SI91X_BUTTON_0_PORT UULP_VBAT
 #endif
@@ -61,11 +61,10 @@
 #define SL_BUTTON_BTN0_PIN    SL_SI91X_BUTTON_0_PIN
 #define SL_BUTTON_BTN0_PORT   SL_SI91X_BUTTON_0_PORT
 #define SL_BUTTON_BTN0_NUMBER RTE_BUTTON0_NUMBER
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-#define SL_SI91X_BUTTON_0_PORT UULP_VBAT
-#define SL_BUTTON_BTN0_PIN     2
-#define SL_BUTTON_BTN0_PORT    RTE_BUTTON0_PORT
-#define SL_BUTTON_BTN0_NUMBER  RTE_BUTTON0_NUMBER
-#endif
+
+#warning \
+  "Button0 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_BUTTON_INIT_BTN0_CONFIG_H

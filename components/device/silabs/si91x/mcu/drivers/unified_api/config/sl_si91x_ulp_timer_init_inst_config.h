@@ -37,8 +37,8 @@ extern "C" {
 
 /* NOTE: User should configure all macros defined below, while creating an
  * instance other than pre-defined one */
-#warning \
-  "sl_si91x_ulp_timer_init_INSTANCE_config.h will have the INSTANCE specified for the user-defined ULP-timer instance. Installing the [ENABLE USER CONFIGURATION] component or setting USER_CONFIGURATION_ENABLE to 1 is the first step for configuration, and the second thing is, MACROS must be defined in sl_si91x_ulp_timer_init_INSTANCE_config.h in accordance with the board."
+
+#if USER_CONFIGURATION_ENABLE
 
 #include "sl_si91x_ulp_timer.h"
 #define SL_ULP_TIMER_TIMER0 0
@@ -72,6 +72,14 @@ extern "C" {
 // </h>
 /******************************************************************************/
 // <<< end of configuration section >>>
+
+#else
+
+#warning \
+  "The sl_si91x_ulp_timer_init_INSTANCE_config.h file requires specifying the INSTANCE name for custom ULP-timer configurations. To properly configure ULP-timer either enable user configuration by installing the [ENABLE USER CONFIGURATION] component or set USER_CONFIGURATION_ENABLE to 1, and then define all required MACROS in sl_si91x_ulp_timer_init_INSTANCE_config.h according to your board specifications."
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif

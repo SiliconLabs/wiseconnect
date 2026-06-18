@@ -324,7 +324,7 @@ void RSI_Default_Reset_Handler(void)
  *       As they are weak aliases, any function with the same name will override
  *       this definition.
  */
-#pragma weak Reset_Handler      = Default_Reset_Handler
+#pragma weak Reset_Handler      = RSI_Default_Reset_Handler
 #pragma weak NMI_Handler        = Default_Handler
 #pragma weak HardFault_Handler  = Default_Handler
 #pragma weak MemManage_Handler  = Default_Handler

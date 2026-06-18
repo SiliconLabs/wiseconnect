@@ -162,3 +162,69 @@ int si91x_block_device_unlock(const struct lfs_config *c)
   }
   return status;
 }
+
+/******************************************************************************
+ * List Files in the Directory
+ ******************************************************************************/
+sl_status_t sl_si91x_littefs_dir_list(lfs_t *lfs,
+                                      const char *path,
+                                      sl_si91x_littefs_dir_entry *entries,
+                                      int *entries_count,
+                                      int entries_buffer_array_size)
+{
+  lfs_dir_t dir;
+  struct lfs_info info;
+  int i = 0;
+
+  if (entries == NULL || entries_count == NULL || path == NULL)
+    return SL_STATUS_NULL_POINTER;
+
+  *entries_count = 0;
+
+  // Open the directory
+  int err = lfs_dir_open(lfs, &dir, path);
+  if (err) {
+    return SL_STATUS_NOT_AVAILABLE;
+  }
+
+  // Read directory entries
+  while (true) {
+    err = lfs_dir_read(lfs, &dir, &info);
+    if (err < 0) {
+      lfs_dir_close(lfs, &dir);
+      return SL_STATUS_FAIL;
+    }
+
+    if (err == 0) {
+      //End of directory
+      break;
+    }
+
+    if (*entries_count >= entries_buffer_array_size) {
+      lfs_dir_close(lfs, &dir);
+      return SL_STATUS_FAIL;
+    }
+
+    if (info.type == LFS_TYPE_REG) {
+      *entries_count    = *entries_count + 1;
+      entries[i].is_dir = 0;
+      strncpy(entries[i].filename, info.name, SL_MAX_FILENAME_LENGTH - 1);
+      entries[i].filename[SL_MAX_FILENAME_LENGTH - 1] = '\0';
+      i++;
+    }
+    if (info.type == LFS_TYPE_DIR) {
+      if (info.name[0] != '.') {
+        *entries_count    = *entries_count + 1;
+        entries[i].is_dir = 1;
+        strncpy(entries[i].filename, info.name, SL_MAX_FILENAME_LENGTH - 1);
+        entries[i].filename[SL_MAX_FILENAME_LENGTH - 1] = '\0';
+        i++;
+      }
+    }
+  }
+
+  // Close the directory
+  lfs_dir_close(lfs, &dir);
+
+  return SL_STATUS_OK;
+}

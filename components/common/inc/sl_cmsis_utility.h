@@ -9,6 +9,29 @@
 #include "cmsis_os2.h"
 #include "sl_status.h"
 
+/* Converts a time in milliseconds to a time in ticks.
+ */
+#ifndef SLI_SYSTEM_MS_TO_TICKS
+#define SLI_SYSTEM_MS_TO_TICKS(ms)                                                       \
+  ({                                                                                     \
+    uint64_t _t = ((uint64_t)(ms) * (uint64_t)osKernelGetTickFreq() + 999ULL) / 1000ULL; \
+    if (_t > UINT32_MAX)                                                                 \
+      _t = UINT32_MAX;                                                                   \
+    (uint32_t) _t;                                                                       \
+  })
+#endif
+
+#ifndef SLI_SYSTEM_TICKS_TO_MS
+#define SLI_SYSTEM_TICKS_TO_MS(ticks)                              \
+  ({                                                               \
+    uint64_t _f  = (uint64_t)osKernelGetTickFreq();                \
+    uint64_t _ms = ((uint64_t)(ticks)*1000ULL + (_f - 1ULL)) / _f; \
+    if (_ms > UINT32_MAX)                                          \
+      _ms = UINT32_MAX;                                            \
+    (uint32_t) _ms;                                                \
+  })
+#endif
+
 /******************************************************************************
  * @brief
  *   A utility function that converts osStatus_t to sl_status_t

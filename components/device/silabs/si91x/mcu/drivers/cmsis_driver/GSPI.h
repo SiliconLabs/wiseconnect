@@ -169,6 +169,10 @@ ARM_DRIVER_VERSION GSPI_MASTER_GetVersion(void);
 uint8_t RSI_GSPI_GetSlaveSelectNumber(void);
 ARM_SPI_CAPABILITIES GSPI_MASTER_GetCapabilities(void);
 void GSPI_WriteDummyByte(void);
+int32_t GSPI_MASTER_Send_Blocking(const void *data, uint32_t num, uint32_t timeout);
+int32_t GSPI_MASTER_Receive_Blocking(void *data, uint32_t num, uint32_t timeout);
+int32_t GSPI_MASTER_Transfer_Blocking(const void *data_out, void *data_in, uint32_t num, uint32_t timeout);
+int32_t GSPI_MASTER_SetSlaveSelectGPIOState(boolean_t value);
 #ifdef __cplusplus
 }
 #endif

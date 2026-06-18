@@ -1,6 +1,6 @@
 id: sl_si70xx
 label: Si70xx Humidity and Temperature Sensor
-package: platform
+package: platform_siwx91x
 description: >
   Provides a driver implementation to control the Si70XX humidity and temperature sensor. To use this component, make sure to install the required I2C instance.
 category: Device|Si91x|MCU|Hardware

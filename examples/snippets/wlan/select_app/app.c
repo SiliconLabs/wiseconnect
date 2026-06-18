@@ -76,9 +76,8 @@ void socket_select();
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -202,7 +201,7 @@ void socket_select()
   if (total_set_fds_count == -1) {
     if (errno == 0) {
       // get the error code returned by the firmware
-      sl_status_t status = sl_si91x_get_saved_firmware_status();
+      sl_status_t status = sl_wifi_get_saved_firmware_status();
       printf("\r\nSocket select failed with bsd error: %d and status = 0x%lx\r\n", errno, status);
     } else {
       printf("\r\nSocket select failed with bsd error: %d\r\n", errno);

@@ -35,6 +35,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* NOTE: User should configure all macros defined below, while creating an
+ * instance other than pre-defined one */
+
+#if USER_CONFIGURATION_ENABLE
+
 /******************************************************************************/
 /******************************* PWM Configuration **************************/
 // <h> PWM INSTANCE Configuration
@@ -98,12 +104,8 @@ extern "C" {
 // <<< end of configuration section >>>
 
 // PWM channel number is passed to this macro
-#warning \
-  "PWM INSTANCE not configured, Please Configure by installing the [ENABLE USER CONFIGURATION] Component / define USER_CONFIGURATION_ENABLE to 1 and define SL_PWM_INSTANCE_OUTPUT_CHANNEL."
 
-#if USER_CONFIGURATION_ENABLE
 #define SL_PWM_INSTANCE_OUTPUT_CHANNEL 0
-#endif // USER_CONFIGURATION_ENABLE
 
 #define SL_PWM_INSTANCE_PIN_L SL_SI91X_PWM_1L_PIN
 #define SL_PWM_INSTANCE_PIN_H SL_SI91X_PWM_1H_PIN
@@ -151,6 +153,13 @@ extern "C" {
 #define SL_PWM_INSTANCE_MUX  SL_SI91X_PWM_TMR_EXT_TRIG_2_MUX
 #define SL_PWM_INSTANCE_PAD  SL_SI91X_PWM_TMR_EXT_TRIG_2_PAD
 #endif
+
+#else
+
+#warning \
+  "PWM instance configuration is missing. Please configure by either installing the [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE to 1 and specify SL_PWM_INSTANCE_OUTPUT_CHANNEL."
+
+#endif // USER_CONFIGURATION_ENABLE
 
 #ifdef __cplusplus
 }

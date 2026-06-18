@@ -18,6 +18,8 @@
 #include "sl_si91x_pcm_config.h"
 #include "pcm_primary_example.h"
 #include "rsi_debug.h"
+#include "sl_si91x_clock_manager.h"
+#include "sl_si91x_driver_gpio.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
@@ -33,6 +35,8 @@
 #else
 #define PCM_INSTANCE_CONFIG_(config) SL_ULP_PCM##_##config
 #endif
+
+#define PRIMARY_SECONDARY_SYNC_PIN RTE_UULP_GPIO_2_PIN
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
@@ -49,17 +53,18 @@ static uint16_t mode;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static int32_t clock_configuration_pll(void);
+
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
 static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_PRIMARY_BUFFER_SIZE + FRAME_OFFSET]);
+static sl_status_t primary_sync_wait();
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 /*******************************************************************************
  * I2S example initialization function
  ******************************************************************************/
-void pcm_example_init(void)
+void pcm_primary_example_init(void)
 {
   sl_status_t status;
   pcm_sampling_frequency = PCM_INSTANCE_CONFIG_(SAMPLING_RATE);
@@ -71,13 +76,7 @@ void pcm_example_init(void)
     pcm_primary_data_out[i] = i;
   }
   do {
-    // Configure PLL and switch M4 clock to PLL clock for speed operations
-    if (clock_configuration_pll()) {
-      DEBUGOUT("PLL configuration fail\r\n");
-      break;
-    } else {
-      DEBUGOUT("PLL configuration success\r\n");
-    }
+
     //Initialize I2S peripheral and store driver handle in i2s_driver_handle
     status = sl_si91x_pcm_init(PCM_INSTANCE, &pcm_handle);
     if (status != SL_STATUS_OK) {
@@ -103,11 +102,20 @@ void pcm_example_init(void)
     }
 
   } while (false);
+
+  // Synchronize primary device with secondary device using button press
+  // This ensures both devices start PCM operations at the same time
+  status = primary_sync_wait();
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("Primary device synchronization failed with error code: 0x%lx\r\n", status);
+  } else {
+    DEBUGOUT("Primary device synchronized successfully with secondary device\r\n");
+  }
 }
 /*******************************************************************************
  * Function will run continuously in while loop
  ******************************************************************************/
-void pcm_example_process_action(void)
+void pcm_primary_example_process_action(void)
 {
   static transfer_state_t state = RECEIVE_DATA;
   switch (state) {
@@ -159,21 +167,6 @@ void pcm_example_process_action(void)
     default:
       break;
   }
-}
-
-/*******************************************************************************
- * Function to configure PLL for high speed operations
- *
- * @param none
- * @return none
- ******************************************************************************/
-static int32_t clock_configuration_pll(void)
-{
-  int32 status = 0;
-  do {
-
-  } while (false);
-  return status;
 }
 
 /*******************************************************************************
@@ -240,4 +233,68 @@ static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_PRIMARY_BUFF
   for (int i = 0; i < PCM_PRIMARY_BUFFER_SIZE; i++) {
     data_buffer[i] = data_buffer[i + FRAME_OFFSET];
   }
+}
+
+/*******************************************************************************
+ * Synchronizes primary and secondary devices using UULP NPSS GPIO 2 pin (button 0).
+ * 
+ * This function configures GPIO pin as input to detect button press for synchronization
+ * between primary and secondary PCM devices. It waits for button 0 to be pressed on
+ * the primary device before proceeding with PCM operations.
+ *
+ * @note Ensure secondary device is reset before pressing button 0 on primary device.
+ * 
+ * @return sl_status_t Status code indicating success or failure:
+ *         - SL_STATUS_OK: Synchronization completed successfully
+ *         - Error code: GPIO configuration or operation failed
+ ******************************************************************************/
+static sl_status_t primary_sync_wait()
+{
+  uint8_t pin_value  = 0;
+  sl_status_t status = SL_STATUS_OK;
+
+  // Enable GPIO ULP clock for UULP NPSS GPIO operation
+  status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)ULPCLK_GPIO);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Enable receiver for UULP NPSS GPIO pin to read input state
+  status = sl_si91x_gpio_driver_select_uulp_npss_receiver(PRIMARY_SECONDARY_SYNC_PIN, GPIO_RECEIVER_EN);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Configure pin mux mode for UULP NPSS GPIO functionality
+  status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(PRIMARY_SECONDARY_SYNC_PIN, NPSS_GPIO_PIN_MUX_MODE0);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Set GPIO pin direction as input to detect button press
+  status =
+    sl_si91x_gpio_driver_set_uulp_npss_direction(PRIMARY_SECONDARY_SYNC_PIN, (sl_si91x_gpio_direction_t)GPIO_INPUT);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Wait for button 0 press to synchronize primary and secondary devices
+  DEBUGOUT("Reset Secondary and Press button 0 on primary to sync.\r\n");
+  while (1) {
+    // Read the GPIO pin state
+    pin_value = sl_si91x_gpio_driver_get_uulp_npss_pin(PRIMARY_SECONDARY_SYNC_PIN);
+
+    // Check if button is pressed (active low)
+    if (pin_value == 0) {
+      DEBUGOUT("Button press detected, synchronization completed\r\n");
+      break;
+    }
+
+    // Small delay to avoid excessive GPIO polling
+    sl_si91x_delay_ms(10);
+  }
+
+  // Additional delay to allow secondary device to start sending data first
+  sl_si91x_delay_ms(50);
+  return status;
 }

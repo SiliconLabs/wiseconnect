@@ -34,19 +34,19 @@ using the send raw data API, and does not use an external host as part of this d
 - **SoC Mode**:
   - Standalone
     - BRD4002A Wireless pro kit mainboard [SI-MB4002A]
-    - Radio Boards 
-  	  - BRD4338A [SiWx917-RB4338A]
+    - Radio Boards
+      - BRD4338A [SiWx917-RB4338A]
       - BRD4342A [SiWx917-RB4342A]
-  	  - BRD4343A [SiWx917-RB4343A]
+      - BRD4343A [SiWx917-RB4343A]
   - Kits
-  	- SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
-  	- SiWx917 Pro Kit [Si917-PK6032A]
+    - SiWx917 Pro Kit [Si917-PK6031A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-pro-kit?tab=overview)
+    - SiWx917 Pro Kit [Si917-PK6032A]
     - SiWx917 AC1 Module Explorer Kit (BRD2708A)
 
 ### Software Requirements
 
 - Simplicity Studio
--  Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
+- Serial Terminal - [Docklight](https://docklight.de/)/[Tera Term](https://ttssh2.osdn.jp/index.html.en)
 
 ### Setup Diagram
 
@@ -57,7 +57,7 @@ using the send raw data API, and does not use an external host as part of this d
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -81,7 +81,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
   - DEFAULT_WIFI_CLIENT_CREDENTIAL refers to the secret key if the Access point is configured in WPA-PSK/WPA2-PSK security modes.
 
      ```c
-     #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE" 
+     #define DEFAULT_WIFI_CLIENT_CREDENTIAL                 "YOUR_AP_PASSPHRASE"
      ```
 
   - DEFAULT_WIFI_CLIENT_SECURITY_TYPE refers to the security type if the Access point is configured in WPA/WPA2 or mixed security modes.
@@ -89,7 +89,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     ```c
     #define DEFAULT_WIFI_CLIENT_SECURITY_TYPE                 SL_WIFI_WPA2
     ```
-  
+
   - Other STA instance configurations can be modified if required in `client_configuration` configuration structure defined in app.c.
 
 - Configure the following parameters in ``app.c`` to test Station Ping application.
@@ -101,8 +101,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
       #define PING_PACKET_SIZE    64           // Size of ping request packet
       ```
 
+  - **IPv6 Configuration**
+    - To enable IPv6, set the following macro in `app.c`:
+      ```c
+      #define CONFIGURE_IPV6 1
+      ```
+    - Ensure the preprocessor macro `SLI_SI91X_ENABLE_IPV6` is defined in the build settings.
+    - Update the raw data buffer in `send_ping_raw_data_frame()` to include IPv6 headers and payload.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 
@@ -114,21 +121,28 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 - After successful connection with the Access Point, the device starts sending ping requests to the given REMOTE_IP_ADDRESS with configured PING_PACKET_SIZE to check availability of target device.
 
-- When ping response comes from the remote node, the status of the response known from parameter of the callback function (network_event_handler) registered.
+- When ping response comes from the remote node, the status of the response is known from the parameter of the callback function (`network_event_handler`) registered.
 
-- Ping responses received for external host request will be processed by **sl_si91x_host_process_data_frame()** API.
+- Ping responses received for external host requests will be processed by **sl_si91x_host_process_data_frame()** API.
 
-  ![Station_Ping_Output](resources/readme/station_ping_output.png)
+## Application Output
+
+*IPv4 Ping Output:*
+![Station_Ping_Output](resources/readme/station_ping_output.png)
+
+*IPv6 Ping Output:*
+![Station_Ping_Output](resources/readme/station_ping_ipv6_output.png)
+
 
 ## Application Execution Flow
 
   **1. Initialize DUT in Wi-Fi Client Mode and Enable Dual Network Stack Mode**
 
-  - Configure the SiWx917 module in SL_SI91X_CLIENT_MODE opermode.
+  - Configure the SiWx917 module in `SL_SI91X_CLIENT_MODE` opermode.
 
-  - Configure **SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE** bit of ext_tcp_ip_feature_bit_map in client_configuration to enable dual network stack feature.
+  - Configure **SL_SI91X_EXT_TCP_IP_DUAL_MODE_ENABLE** bit of `ext_tcp_ip_feature_bit_map` in `client_configuration` to enable dual network stack feature.
 
-   - Register network event callback handler to recieve network events from internal stack.
+  - Register network event callback handler to receive network events from the internal stack.
 
   ```c
   //! Silabs module initialization
@@ -142,14 +156,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
   ```
 
   - Ping from external host (simulating a ping packet)
-    - The application prepares an ICMP packet (simulating a network ping packet from external host) and sends it firmware using raw data frame API every 2 seconds and receives the response through **sl_si91x_host_process_data_frame()** API.
+    - The application prepares an ICMP packet (simulating a network ping packet from an external host) and sends it to the firmware using the raw data frame API every 2 seconds and receives the response through **sl_si91x_host_process_data_frame()** API.
 
     ```c
     send_ping_raw_data_frame();
     ```
 
   - Ping from offload network stack.
-    - The application sends ping request to offload network stack every 2 secresponseonds and receives ping success or failure  through **network_event_handler**.
+    - The application sends a ping request to the offload network stack every 2 seconds and receives ping success or failure through **network_event_handler**.
 
     ```c
     sl_si91x_send_ping(remote_ip_address, PING_PACKET_SIZE);

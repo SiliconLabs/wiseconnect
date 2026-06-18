@@ -1,6 +1,6 @@
 id: rsilib_chip
 label: Core
-package: platform
+package: platform_siwx91x
 description: >
   Provides the Si91x SoC MCU core functionalities.
 category: Device|Si91x|MCU|Core

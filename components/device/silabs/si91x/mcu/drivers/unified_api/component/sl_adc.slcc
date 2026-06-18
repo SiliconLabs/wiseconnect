@@ -1,6 +1,6 @@
 id: sl_adc
 label: ADC
-package: platform
+package: platform_siwx91x
 description: >
   The ADC Drivers can read at up to 2.5 Msps with a 12-Bit resolution. 
   It supports 16 channel instances. 

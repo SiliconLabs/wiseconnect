@@ -1,5 +1,5 @@
 id: sl_si91x_mic
-package: platform
+package: platform_siwx91x
 label: Mic
 description: >
   The Simple MIC Driver provides an implementation of the ICS 43434 mic APIs.

@@ -35,6 +35,7 @@
 #include "cmsis_os2.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_socket_utility.h"
+#include "sl_slist.h"
 #include <stdbool.h>
 
 /******************************************************
@@ -238,12 +239,12 @@ typedef struct {
  *   Structure representing an HTTP client extended header node.
  * 
  * @details
- *   This structure is used to represent a single HTTP header in a linked list of headers. Each node contains a key-value pair for the header, and a pointer to the next header in the list.
+ *   This structure is used to represent a single HTTP header in a linked list of headers. Each node contains a key-value pair for the header, and an sl_slist node for list management. Access the next header via node.node.
  */
 typedef struct sl_http_client_header_s {
-  struct sl_http_client_header_s *next; ///< Pointer to the next header node in the linked list.
-  char *key;                            ///< Key name of the HTTP header.
-  char *value;                          ///< Value of the HTTP header.
+  sl_slist_node_t node; ///< Linked list node for chaining headers. Access next header via node.node.
+  char *key;            ///< Key name of the HTTP header.
+  char *value;          ///< Value of the HTTP header.
 } sl_http_client_header_t;
 
 /**
@@ -300,7 +301,19 @@ typedef struct {
   uint32_t status;      ///< Status of the HTTP request.
   uint8_t *data_buffer; ///< Pointer to the buffer containing the response data.
   uint16_t data_length; ///< Length of the received data in bytes.
-  uint32_t end_of_data; ///< Indicator for the end of data (0: more data, 1: end of data).
+  uint32_t end_of_data; ///< Indicates the completion status of a data chunk or communication phase.
+    ///<
+    ///< GET/POST (indications from server):
+    ///<   0: More response data is expected.
+    ///<   1: This is the final chunk of the response.
+    ///<
+    ///< PUT:
+    ///<   Acknowledgment for transmitted data (notification from NWP):
+    ///<     0: Further data transmission is expected.
+    ///<     1: Data transmission is complete.
+    ///<   Server response (data received from server after transmission):
+    ///<     8: More response data is expected.
+    ///<     9: This is the final chunk of the response.
   uint16_t
     http_response_code; ///< HTTP response code from the server. (Si91x chipsets do not support this feature for SL_HTTP_PUT).
   uint8_t version; ///< HTTP version used in the response. (Si91x chipsets do not support this feature).
@@ -395,6 +408,13 @@ sl_status_t sl_http_client_deinit(const sl_http_client_t *client);
  *   - SL_STATUS_OK: Operation successful.
  *   - SL_STATUS_INVALID_PARAMETER: One or more input parameters are NULL or invalid.
  *   - SL_STATUS_FAIL: Failed to initialize the HTTP client request.
+ * 
+ * @note
+ *   SNI Limitation:
+ *   - Only one SNI command can be active at a time, irrespective of protocol (MQTT or HTTP).
+ *   - You must wait for the connection to be fully established before initiating another connection with SNI.
+ *   - If multiple SNI commands are sent simultaneously, SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE returns.
+ *   - For reconnection scenarios, set SNI before calling reconnect.
  ******************************************************************************/
 sl_status_t sl_http_client_request_init(sl_http_client_request_t *request,
                                         sl_http_client_event_handler_t event_handler,
@@ -512,6 +532,13 @@ sl_status_t sl_http_client_delete_all_headers(sl_http_client_request_t *request)
  *   - HTTP PUT does not support sending the body through this API; it is mandatory to call @ref sl_http_client_write_chunked_data on Si91x specific chipsets.
  *   - HTTP response status and response codes (e.g., 200, 201, 404) would be returned in the corresponding event handler registered during @ref sl_http_client_request_init.
  *   - If the `sni_extension` field in the `sl_http_client_request_t` structure is NULL, the `host_name` field will be used as the SNI, provided that `host_name` is not equal to `ip_address`.
+ * 
+ * @note
+ *   SNI Limitation:
+ *   - Only one SNI command can be active at a time, irrespective of protocol (MQTT or HTTP).
+ *   - You must wait for the connection to be fully established before initiating another connection with SNI.
+ *   - If multiple SNI commands are sent simultaneously, the device returns SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE.
+ *   - For reconnection scenarios, set SNI before calling reconnect.
  ******************************************************************************/
 sl_status_t sl_http_client_send_request(const sl_http_client_t *client, const sl_http_client_request_t *request);
 

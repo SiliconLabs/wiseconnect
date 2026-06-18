@@ -32,6 +32,7 @@
 #include "sl_wifi_host_interface.h"
 #include "sl_constants.h"
 #include "cmsis_os2.h"
+#include "sl_cmsis_utility.h"
 //#include <stdlib.h>
 //#include <stddef.h>
 
@@ -84,7 +85,7 @@ sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
     if (*buffer != NULL) {
       break;
     } else {
-      osDelay(1);
+      osDelay(SLI_SYSTEM_MS_TO_TICKS(1));
     }
   } while ((osKernelGetTickCount() - start) < wait_duration_ms);
 

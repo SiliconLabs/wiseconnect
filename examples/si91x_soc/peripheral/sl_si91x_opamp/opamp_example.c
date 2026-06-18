@@ -30,6 +30,18 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
+#define OPAMP_VIN_P_SEL   0  // Positive input pin selection
+#define OPAMP_VREF_SEL    10 // Reference voltage selection
+#define OPAMP_ENABLE      1  // Enable OPAMP
+#define OPAMP_LP_MODE     0  // Low power mode disabled
+#define OPAMP_R1_SEL      0  // R1 resistor selection
+#define OPAMP_R2_SEL      8  // R2 resistor selection
+#define OPAMP_OUT_MUX_EN  1  // Output mux enabled
+#define OPAMP_OUT_MUX_SEL 1  // Output mux selection
+// Macros for OPAMP negative input selection
+#define OPAMP1_VINN_SEL 4 // For OPAMP1
+#define OPAMP2_VINN_SEL 3 // For OPAMP2
+#define OPAMP3_VINN_SEL 3 // For OPAMP3
 
 // Enable or disable DAC output with external voltage from UC
 #if INPUT_DAC_NEG_INPUT_EXTERNAL == ENABLE
@@ -113,7 +125,8 @@ void opamp_example_init(void)
       break;
     }
     DEBUGOUT("SL_DAC start is successful \n");
-#else
+
+#endif
     // Initialize the OPAMP
     status = sl_si91x_opamp_init();
     if (status != SL_STATUS_OK) {
@@ -124,9 +137,23 @@ void opamp_example_init(void)
 
     // Configure the OPAMP instance from UC
 #ifdef SL_OPAMP_OPAMP1
+    sl_opamp_config_t opamp1_config = { .opamp_number = SL_OPAMP_1, // Select OPAMP 1 instance
 
+                                        .features = SL_OPAMP_UNITY_GAIN, // Unity Gain Mode
+
+                                        .opamp_config = {
+                                          .vin_p_sel   = OPAMP_VIN_P_SEL,  // Positive input pin selection
+                                          .vin_n_sel   = OPAMP1_VINN_SEL,  // Negative input pin selection
+                                          .vref_sel    = OPAMP_VREF_SEL,   // Reference voltage selection
+                                          .enable      = OPAMP_ENABLE,     // Enable OPAMP
+                                          .lp_mode     = OPAMP_LP_MODE,    // Low power mode disabled
+                                          .r1_sel      = OPAMP_R1_SEL,     // R1 resistor selection
+                                          .r2_sel      = OPAMP_R2_SEL,     // R2 resistor selection
+                                          .out_mux_en  = OPAMP_OUT_MUX_EN, // Output mux enabled
+                                          .out_mux_sel = OPAMP_OUT_MUX_SEL // Output mux selection
+                                        } };
     // Configure the OPAMP1 instance from UC
-    status = sl_si91x_opamp_set_configuration(&sl_opamp1_feature);
+    status = sl_si91x_opamp_set_configuration(&opamp1_config);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
@@ -135,8 +162,23 @@ void opamp_example_init(void)
     }
 #endif
 #ifdef SL_OPAMP_OPAMP2
+    sl_opamp_config_t opamp2_config = { .opamp_number = SL_OPAMP_2, // Select OPAMP 2 instance
+
+                                        .features = SL_OPAMP_UNITY_GAIN, // Unity Gain Mode
+
+                                        .opamp_config = {
+                                          .vin_p_sel   = OPAMP_VIN_P_SEL,  // Positive input pin selection
+                                          .vin_n_sel   = OPAMP2_VINN_SEL,  // Negative input pin selection
+                                          .vref_sel    = OPAMP_VREF_SEL,   // Reference voltage selection
+                                          .enable      = OPAMP_ENABLE,     // Enable OPAMP
+                                          .lp_mode     = OPAMP_LP_MODE,    // Low power mode disabled
+                                          .r1_sel      = OPAMP_R1_SEL,     // R1 resistor selection
+                                          .r2_sel      = OPAMP_R2_SEL,     // R2 resistor selection
+                                          .out_mux_en  = OPAMP_OUT_MUX_EN, // Output mux enabled
+                                          .out_mux_sel = OPAMP_OUT_MUX_SEL // Output mux selection
+                                        } };
     // Configure the OPAMP2 instance from UC
-    status = sl_si91x_opamp_set_configuration(&sl_opamp2_feature);
+    status = sl_si91x_opamp_set_configuration(&opamp2_config);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
@@ -145,8 +187,23 @@ void opamp_example_init(void)
     }
 #endif
 #ifdef SL_OPAMP_OPAMP3
+    sl_opamp_config_t opamp3_config = { .opamp_number = SL_OPAMP_3, // Select OPAMP 3 instance
+
+                                        .features = SL_OPAMP_UNITY_GAIN, // Unity Gain Mode
+
+                                        .opamp_config = {
+                                          .vin_p_sel   = OPAMP_VIN_P_SEL,  // Positive input pin selection
+                                          .vin_n_sel   = OPAMP3_VINN_SEL,  // Negative input pin selection
+                                          .vref_sel    = OPAMP_VREF_SEL,   // Reference voltage selection
+                                          .enable      = OPAMP_ENABLE,     // Enable OPAMP
+                                          .lp_mode     = OPAMP_LP_MODE,    // Low power mode disabled
+                                          .r1_sel      = OPAMP_R1_SEL,     // R1 resistor selection
+                                          .r2_sel      = OPAMP_R2_SEL,     // R2 resistor selection
+                                          .out_mux_en  = OPAMP_OUT_MUX_EN, // Output mux enabled
+                                          .out_mux_sel = OPAMP_OUT_MUX_SEL // Output mux selection
+                                        } };
     // Configure the OPAMP3 instance from UC
-    status = sl_si91x_opamp_set_configuration(&sl_opamp3_feature);
+    status = sl_si91x_opamp_set_configuration(&opamp3_config);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_opamp_set_configuration: Error code: %lu \n", status);
       break;
@@ -154,7 +211,7 @@ void opamp_example_init(void)
       DEBUGOUT("\r\n SL OPAMP3 configuration are set successfully  \n");
     }
 #endif
-#endif
+
   } while (false);
 }
 

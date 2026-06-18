@@ -249,8 +249,10 @@ typedef enum {
  *         - SL_STATUS_OK                 - Success.
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+  * @note
+ *   Moving forward, this API will be deprecated. This is retained for backward compatibility.
  ******************************************************************************/
-sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config);
+sl_status_t sl_si91x_ssi_configure_clock(sl_ssi_clock_config_t *clock_config) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**

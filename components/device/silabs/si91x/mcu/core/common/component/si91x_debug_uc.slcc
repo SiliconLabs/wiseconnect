@@ -1,5 +1,5 @@
 id: si91x_debug_uc
-package: wiseconnect3_sdk
+package: platform_siwx91x
 metadata:
   sbom:
     license: MIT

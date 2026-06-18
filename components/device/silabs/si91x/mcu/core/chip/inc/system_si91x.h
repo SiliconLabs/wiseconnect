@@ -101,7 +101,7 @@ typedef enum SLEEP_TYPE {
 #define M4SS_P2P_INTR_CLR_REG      *(volatile uint32_t *)(M4SS_P2P_INT_BASE_ADDRESS + 0x170)
 #define M4SS_REF_CLK_MUX_CTRL      BIT(24)
 #define TASS_REF_CLK_MUX_CTRL      BIT(25)
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define MCU_TASS_REF_CLK_SEL_MUX_CTRL BIT(8)
 #endif
 #define M4SS_CTRL_TASS_AON_PWR_DMN_RST_BYPASS_BIT BIT(2)
@@ -127,7 +127,7 @@ typedef enum SLEEP_TYPE {
 #define PACKAGE_TYPE_WMCU (*(volatile uint32_t *)(TA_FLASH_BASE + 992 + 86))
 #endif
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
 #define SILICON_REV_WMCU  (*(volatile uint32_t *)(SILICON_REV_VALUES_OFFSET_COMMON_FLASH))
 #define PACKAGE_TYPE_WMCU (*(volatile uint32_t *)(PACKAGE_TYPE_VALUES_OFFSET_COMMON_FLASH))

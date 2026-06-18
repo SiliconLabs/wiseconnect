@@ -47,7 +47,7 @@ static void on_timeout_timer1(sl_sleeptimer_timer_handle_t *handle,
 void sleeptimer_init(void)
 {
   bool is_running = false;
-#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
+#if defined(SL_SI91X_ACX_MODULE)
   //  Toggles the current state of a board '0' number LED.
   sl_si91x_led_toggle(SL_LED_LED0_PIN);
 #else
@@ -82,7 +82,7 @@ void sleeptimer_process_action(void)
 {
   if (toggle_timeout == true) {
     // Toggles the current state of the LED.
-#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
+#if defined(SL_SI91X_ACX_MODULE)
     sl_si91x_led_toggle(SL_LED_LED0_PIN);
 #else
     sl_si91x_led_toggle(SL_LED_LED1_PIN);

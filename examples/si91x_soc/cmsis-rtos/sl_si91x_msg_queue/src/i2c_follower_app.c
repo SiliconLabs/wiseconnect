@@ -21,19 +21,11 @@
 #include "cmsis_os2.h"
 #include "sl_si91x_i2c.h"
 #include "sl_i2c_instances.h"
+#include "sl_component_catalog.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define INSTANCE_ZERO 0 // For instance 0
-#define INSTANCE_ONE  1 // For instance 1
-#define INSTANCE_TWO  2 // For ulp instance (instance 2)
-#ifdef SLI_SI915
-#define I2C_INSTANCE_USED \
-  INSTANCE_ZERO // Update this macro with i2c instance number used for application, INSTANCE_ZERO for instance 0, INSTANCE_ONE for instance 1 and INSTANCE_TWO for ulp instance (instance 2).
-#else
-#define I2C_INSTANCE_USED INSTANCE_TWO
-#endif
 #define OWN_I2C_ADDR           0x50    // Own I2C address
 #define DUMMY_FOLLOWER_ADDRESS 0x00    // In Follower mode, the I2C follower address is ignored, so kept the value as 0
 #define FIFO_THRESHOLD         0x0     // FIFO threshold
@@ -63,12 +55,12 @@ typedef enum {
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-static sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
-static i2c_mode_enum_t current_mode   = RECEIVE_DATA;
-boolean_t i2c_send_complete           = false;
-boolean_t i2c_receive_complete        = false;
-boolean_t send_data_flag              = false;
-boolean_t receive_data_flag           = false;
+static sl_i2c_instance_t i2c_instance;
+static i2c_mode_enum_t current_mode = RECEIVE_DATA;
+boolean_t i2c_send_complete         = false;
+boolean_t i2c_receive_complete      = false;
+boolean_t send_data_flag            = false;
+boolean_t receive_data_flag         = false;
 static uint8_t i2c_write_buffer[BUFFER_SIZE];
 static uint8_t i2c_read_buffer[BUFFER_SIZE];
 static sl_i2c_config_t sl_i2c_config;
@@ -92,11 +84,14 @@ void i2c_follower_example_init(void)
 {
   sl_i2c_status_t i2c_status;
 
-#if (I2C_INSTANCE_USED == INSTANCE_ZERO)
+#if defined(SL_CATALOG_I2C_I2C0_PRESENT)
+  i2c_instance  = SL_I2C0;
   sl_i2c_config = sl_i2c_i2c0_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_ONE)
+#elif defined(SL_CATALOG_I2C_I2C1_PRESENT)
+  i2c_instance  = SL_I2C1;
   sl_i2c_config = sl_i2c_i2c1_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+#elif defined(SL_CATALOG_I2C_I2C2_PRESENT)
+  i2c_instance  = SL_ULP_I2C;
   sl_i2c_config = sl_i2c_i2c2_config;
 #endif
 

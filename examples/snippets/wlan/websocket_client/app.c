@@ -38,6 +38,7 @@
 #include "sl_net_default_values.h"
 #include "sl_websocket_client_types.h"
 #include "sl_websocket_client.h"
+#include "cacert.pem.h"
 #include <string.h>
 
 /******************************************************
@@ -49,8 +50,9 @@
 #define SERVER_IP_ADDR "192.168.29.160"
 #endif
 
-#define HOST_NAME     "example.com"
-#define RESOURCE_NAME "/myresource"
+#define HOST_NAME         "example.com"
+#define RESOURCE_NAME     "/myresource"
+#define CERTIFICATE_INDEX 0
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -77,7 +79,7 @@ static const sl_wifi_device_configuration_t websocket_client_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_WIFI_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
 #ifdef SLI_SI91X_ENABLE_IPV6
@@ -85,7 +87,7 @@ static const sl_wifi_device_configuration_t websocket_client_configuration = {
 #endif
                                               ),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
 #ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
@@ -108,9 +110,8 @@ sl_websocket_error_t create_and_send_websocket_data(void);
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -256,6 +257,19 @@ sl_websocket_error_t create_and_send_websocket_data(void)
     .remote_terminate_cb = remote_terminate_callback,
     .enable_ssl          = false,
   };
+
+  // Load SSL CA certificate only when SSL is enabled
+  if (ws_config.enable_ssl) {
+    sl_status_t status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
+                                               SL_NET_SIGNING_CERTIFICATE,
+                                               cacert,
+                                               sizeof(cacert) - 1);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nLoading TLS CA certificate into FLASH Failed, Error Code : 0x%lX\r\n", status);
+      return SL_WEBSOCKET_ERR_SSL_SETSOCKOPT;
+    }
+    printf("\r\nLoad SSL CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
+  }
 
   sl_websocket_error_t ws_error = sl_websocket_init(&ws_handle, &ws_config);
   if (ws_error != SL_WEBSOCKET_SUCCESS) {

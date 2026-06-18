@@ -1,6 +1,6 @@
 id: sl_clock_manager
 label: Clock Manager
-package: platform
+package: platform_siwx91x
 description: >
   Initiates the Clock Manager (CM) component to manage the MCU's clock usage,
   provides API support for configuring clocks in the application.

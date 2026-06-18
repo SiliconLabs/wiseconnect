@@ -1,6 +1,6 @@
 id: wiseconnect_toolchain_psram_linker
 label: Toolchain support for PSRAM Linker
-package: platform
+package: platform_siwx91x
 description: >
   Selecting this will include the PSRAM Linker component.
 category: Device|Si91x|MCU|Toolchain

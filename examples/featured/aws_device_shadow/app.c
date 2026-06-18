@@ -91,21 +91,21 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_PSK
 #if ENABLE_NWP_POWER_SAVE
                                        | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_RSA_KEY_WITH_4096_SUPPORT | SL_SI91X_EXT_FEAT_SSL_CERT_WITH_4096_KEY_SUPPORT
                       | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #if ENABLE_NWP_POWER_SAVE
-                      | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+                      | SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -115,7 +115,7 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .ble_ext_feature_bit_map    = 0,
                    .config_feature_bit_map     = (
 #if ENABLE_NWP_POWER_SAVE
-                     (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
+                     (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP)
 #else
                      0
 #endif

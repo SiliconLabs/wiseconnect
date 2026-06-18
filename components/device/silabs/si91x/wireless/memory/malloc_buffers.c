@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "cmsis_os2.h"
+#include "sl_cmsis_utility.h"
 #include <string.h>
 extern osMutexId_t malloc_free_mutex;
 sl_status_t sli_si91x_host_init_buffer_manager(void);
@@ -74,7 +75,7 @@ sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
     if (temp != NULL) {
       break;
     } else {
-      osDelay(1);
+      osDelay(SLI_SYSTEM_MS_TO_TICKS(1));
     }
   } while ((osKernelGetTickCount() - start) < wait_duration_ms);
 

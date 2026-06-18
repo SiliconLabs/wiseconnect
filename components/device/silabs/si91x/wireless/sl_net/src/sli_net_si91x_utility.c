@@ -34,6 +34,7 @@
 #include "sl_si91x_constants.h"
 #include "sl_si91x_driver.h"
 #include "sl_net_si91x.h"
+#include "sli_wifi.h"
 
 /******************************************************
  *                      Macros

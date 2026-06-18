@@ -1,6 +1,6 @@
 id: sli_si91x_wifi_event_handler
 label:  si91x WiFi handler
-package: wiseconnect3_sdk
+package: wifi
 description: >
     This package provides si91x specific TX and RX handler
 category: si91x WiFi handler
@@ -16,3 +16,5 @@ source:
 provides:
     - name: sli_si91x_wifi_event_handler
     - name: wifi_event_handler
+requires:
+- name: si91x_log_none

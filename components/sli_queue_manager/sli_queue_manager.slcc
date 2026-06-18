@@ -1,6 +1,6 @@
 id: sli_queue_manager
 label:  SLI Queue Manager
-package: wiseconnect3_sdk
+package: wifi
 description: >
     This package provides common queue manager
 category: SLI Queue Manager
@@ -20,3 +20,5 @@ source:
 - path: src/sli_queue_manager.c
 provides:
     - name: sli_queue_manager
+requires:
+    - name: sli_buffer_manager

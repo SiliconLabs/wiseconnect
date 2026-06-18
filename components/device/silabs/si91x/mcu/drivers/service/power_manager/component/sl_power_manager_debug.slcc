@@ -1,6 +1,6 @@
 id: sl_power_manager_debug
 label: Power Manager Debug (Si91x)
-package: platform
+package: platform_siwx91x
 description: >
   Provides the debugging mechanism in the power manager service.
   It maintains the requirement for all the power states and provides

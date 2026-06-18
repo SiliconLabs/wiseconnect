@@ -34,6 +34,30 @@
 #include "sl_ieee802_types.h"
 #include "sl_wifi_types.h"
 
+typedef struct {
+  uint8_t common_log_level;
+  uint8_t cm_pm_log_level;
+  uint8_t wlan_lmac_log_level;
+  uint8_t wlan_umac_log_level;
+  uint8_t wlan_netstack_log_level;
+  uint8_t bt_ble_ctrl_log_level;
+  uint8_t bt_ble_stack_log_level;
+  uint8_t reserved;
+} sli_nwp_log_level_t;
+
+typedef struct {
+  uint8_t logging_enable;
+  uint8_t tsf_granularity;
+  uint16_t reserved_1;
+  sli_nwp_log_level_t component_log_level; // log levels for the 7 firmware components and 1 byte reserved
+  uint32_t reserved_2;
+  uint32_t log_buffer_size;
+} sli_nwp_log_t;
+
+typedef struct {
+  uint8_t log_config_level;
+} sli_nwp_log_config_t;
+
 /***************************************************************************/ /**
  * @brief 
  *   Convert a character string into a sl_ipv4_address_t
@@ -78,9 +102,11 @@ void print_sl_ipv6_address(const sl_ipv6_address_t *ip_address);
 void print_mac_address(const sl_mac_address_t *mac_address);
 void sli_convert_uint32_to_bytestream(uint16_t data, uint8_t *buffer);
 void sli_little_to_big_endian(const unsigned int *source, unsigned char *result, unsigned int length);
+void sli_big_to_little_endian(const unsigned int *source, unsigned char *result, unsigned int length);
 int sl_inet_pton6(const char *src, const char *src_endp, unsigned char *dst, unsigned int *ptr_result);
 void sli_reverse_digits(unsigned char *xx, int no_digits);
-void print_firmware_version(const sl_wifi_firmware_version_t *firmware_version);
+sl_status_t sli_nwp_log_configure(const sli_nwp_log_config_t *config);
+void sli_handle_nwp_log_packet(const uint8_t *data, uint16_t length);
 
 /***************************************************************************/ /**
  * @brief Print 802.11 packet

@@ -68,6 +68,11 @@ void fpuInit(void);
 #define EXTERNAL_LDO_HANDLE
 #endif
 
+#define COPY_CONFIG_REGS(dest, src, max_regs) \
+  for (var = 0; var < (max_regs); ++var) {    \
+    (dest)[var] = (src)[var];                 \
+  }
+
 extern void set_scdc(uint32_t Deepsleep);
 
 #ifdef SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
@@ -301,7 +306,7 @@ void RSI_PS_RestoreCpuContext(void)
  */
 void RSI_Set_Cntrls_To_M4(void)
 {
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
   //!take TASS ref clock control to M4
   MCUAON_CONTROL_REG4 &= ~(MCU_TASS_REF_CLK_SEL_MUX_CTRL);
 #else
@@ -397,18 +402,15 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   uint32_t ulp_proc_clk          = 0;
   sl_p2p_intr_status_bkp_t p2p_intr_status_bkp;
 
-  /*Save the NVIC registers */
-  for (var = 0; var < MAX_NVIC_REGS; ++var) {
-    nvic_enable[var] = NVIC->ISER[var];
-  }
+  /* Save the NVIC registers */
+  COPY_CONFIG_REGS(nvic_enable, NVIC->ISER, MAX_NVIC_REGS);
+
   /* Save the Interrupt Priority Register */
-  for (var = 0; var < MAX_IPS; ++var) {
-    nvic_ip_reg[var] = NVIC->IP[var];
-  }
+  COPY_CONFIG_REGS(nvic_ip_reg, NVIC->IP, MAX_IPS);
+
   /* Save the System Handlers Priority Registers */
-  for (var = 0; var < MAX_SHP; ++var) {
-    scs_shp_reg[var] = SCB->SHP[var];
-  }
+  COPY_CONFIG_REGS(scs_shp_reg, SCB->SHP, MAX_SHP);
+
   /*store the NPSS interrupt mask clear status*/
   npssIntrState = NPSS_INTR_MASK_CLR_REG;
   // Stores the NPSS GPIO interrupt configurations
@@ -553,7 +555,7 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   /* Reset M4_USING_FLASH bit before going to sleep */
   M4SS_P2P_INTR_CLR_REG = M4_USING_FLASH;
 /*Before M4 is going to deep sleep , set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
   MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
   MCUAON_CONTROL_REG4;
 #else
@@ -712,16 +714,13 @@ rsi_error_t RSI_PS_EnterDeepSleep(SLEEP_TYPE_T sleepType, uint8_t lf_clk_mode)
   M4SS_P2P_INTR_SET_REG  = p2p_intr_status_bkp.m4ss_p2p_intr_set_reg_bkp;
 
   /* Restore the Interrupt Priority Register  */
-  for (var = 0; var < MAX_IPS; ++var) {
-    NVIC->IP[var] = nvic_ip_reg[var];
-  }
+  COPY_CONFIG_REGS(NVIC->IP, nvic_ip_reg, MAX_IPS);
+
   /* Restore the System Handlers Priority Registers */
-  for (var = 0; var < MAX_SHP; ++var) {
-    SCB->SHP[var] = scs_shp_reg[var];
-  }
+  COPY_CONFIG_REGS(SCB->SHP, scs_shp_reg, MAX_SHP);
+
   /* Restore the NVIC registers */
-  for (var = 0; var < MAX_NVIC_REGS; ++var) {
-    NVIC->ISER[var] = nvic_enable[var];
-  }
+  COPY_CONFIG_REGS(NVIC->ISER, nvic_enable, MAX_NVIC_REGS);
+
   return RSI_OK;
 }

@@ -24,7 +24,6 @@
  ******************************************************************************/
 #define WRITE_ADD_1 0x00001 // efuse address 1
 #define WRITE_ADD_2 0x00002 // efuse address 2
-#define HOLD        40      // Hold Time
 #define CLOCK       100     // Clock
 #define BIT_POS_0   0       // Bit position 0
 #define BIT_POS_1   1       // Bit position 1
@@ -97,26 +96,26 @@ void efuse_example_init(void)
     /*Writing 0X2A Data at address 0x00001*/
     /*Address :0x00001 -> Data : 0010 1010  */
     /* Write WRITE_ADD_1 , bit position 1*/
-    status = sl_si91x_efuse_write_bit(WRITE_ADD_1, BIT_POS_1, HOLD);
+    status = sl_si91x_efuse_write_bit_v2(WRITE_ADD_1, BIT_POS_1);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_efuse_write_bit: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_efuse_write_bit_v2: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Writing on bit position 1 of address WRITE_ADD_1 is "
              "successful \n");
     /* Write WRITE_ADD_1 , bit position 3*/
-    status = sl_si91x_efuse_write_bit(WRITE_ADD_1, BIT_POS_3, HOLD);
+    status = sl_si91x_efuse_write_bit_v2(WRITE_ADD_1, BIT_POS_3);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_efuse_write_bit: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_efuse_write_bit_v2: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Writing on bit position 3 of address WRITE_ADD_1 is "
              "successful \n");
 
     /* Write WRITE_ADD_1 , bit position 5*/
-    status = sl_si91x_efuse_write_bit(WRITE_ADD_1, BIT_POS_5, HOLD);
+    status = sl_si91x_efuse_write_bit_v2(WRITE_ADD_1, BIT_POS_5);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_efuse_write_bit: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_efuse_write_bit_v2: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Writing on bit position 5 of address WRITE_ADD_1 is "
@@ -149,18 +148,18 @@ void efuse_example_init(void)
     /*Writing 0X02 Data at address 0x00002*/
     /*Address :0x00002 -> Data : 0000 0011  */
     /* Write WRITE_ADD_2 , bit position 0*/
-    status = sl_si91x_efuse_write_bit(WRITE_ADD_2, BIT_POS_0, HOLD);
+    status = sl_si91x_efuse_write_bit_v2(WRITE_ADD_2, BIT_POS_0);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_efuse_write_bit: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_efuse_write_bit_v2: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Writing on bit position 0 of address WRITE_ADD_2 is "
              "successful \n");
 
     /* Write WRITE_ADD_2 , bit position 1*/
-    status = sl_si91x_efuse_write_bit(WRITE_ADD_2, BIT_POS_1, HOLD);
+    status = sl_si91x_efuse_write_bit_v2(WRITE_ADD_2, BIT_POS_1);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_efuse_write_bit: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_efuse_write_bit_v2: Error Code : %lu \n", status);
       break;
     }
     DEBUGOUT("Writing on bit position 1 of address WRITE_ADD_2 is "

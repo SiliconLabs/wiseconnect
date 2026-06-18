@@ -1,6 +1,6 @@
 id: sl_sdc
 label: SDC
-package: platform
+package: platform_siwx91x
 description: >
   The SDC Drivers can read data at 12-Bit resolution upto 16 samples. 
   It supports 4 channel instances. 

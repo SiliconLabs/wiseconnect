@@ -31,7 +31,29 @@
 #ifndef AT_UTILITY_H
 #define AT_UTILITY_H
 
-#define PRINT_AT_CMD_SUCCESS printf("OK ");
+#include "sl_status.h"
+#include "sl_net.h"
+#include "cmsis_os2.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern osMutexId_t print_mutex;
+
+#ifndef AT_PRINTF
+#define AT_PRINTF(...)                         \
+  {                                            \
+    osMutexAcquire(print_mutex, 0xFFFFFFFFUL); \
+    printf(__VA_ARGS__);                       \
+    osMutexRelease(print_mutex);               \
+  }
+#endif
+
+#define PRINT_AT_CMD_SUCCESS AT_PRINTF("OK ");
+#define PRINT_OK_WITH_CRLF   AT_PRINTF("OK\r\n");
 
 /**
  * @brief Checks if all mandatory arguments are passed for a specific AT command.
@@ -51,5 +73,13 @@
       return SL_STATUS_INVALID_PARAMETER;    \
     }                                        \
   } while (0)
+
+void at_print_char_buffer(char *buffer, uint32_t buffer_length);
+
+sl_status_t sl_net_inet_addr_auto(const char *addr, sl_ip_address_t *ip_address);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // AT_UTILITY_H

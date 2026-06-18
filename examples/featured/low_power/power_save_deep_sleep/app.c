@@ -77,16 +77,16 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #ifdef SLI_SI91X_MCU_INTERFACE
-                                       | SL_SI91X_FEAT_WPS_DISABLE
+                                       | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+                   .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
+                   .ext_custom_feature_bit_map = (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -101,9 +101,8 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -154,7 +153,14 @@ static void application_start(void *argument)
     printf("\r\nNWP comes out of power save mode\r\n");
 
   } else if (POWER_SAVE_PROFILE == DEEP_SLEEP_WITHOUT_RAM_RETENTION) {
-
+    // Deinitialize the Wi-Fi client interface
+    status = sl_net_deinit(SL_NET_WIFI_CLIENT_INTERFACE);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nError while wifi deinit: 0x%lX \r\n", status);
+      return;
+    } else {
+      printf("\r\nWi-Fi client Deinit success\r\n");
+    }
     // Initialize the Wi-Fi client interface
     status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
     if (status != SL_STATUS_OK) {

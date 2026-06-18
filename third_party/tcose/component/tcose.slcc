@@ -1,6 +1,6 @@
 id: tcose
 label: t_cose
-package: third_party
+package: wifi
 description: >
   t_cose is a CBOR Object Signing and Encryption (COSE) library
 category: Third Party

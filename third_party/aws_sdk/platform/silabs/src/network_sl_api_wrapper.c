@@ -31,9 +31,10 @@
 #include "sl_si91x_protocol_types.h"
 #include "errno.h"
 #include "aws_iot_error.h"
+#include "aws_iot_config.h"
 #include "cmsis_os2.h"
 #include "sl_string.h"
-
+#include "sl_wifi_callback_framework.h"
 //Application level variables for QOS1. Extern these variables in the application for QOS1.
 volatile uint8_t pub_state;
 volatile uint8_t qos1_publish_handle;
@@ -51,7 +52,10 @@ osSemaphoreId_t select_sem;
 #define SL_CERT_INDEX_0   0
 #define MQTT_TLS_PORT 443
 #define ALPN_AMZN_MQTT_CA "x-amzn-mqtt-ca"
-#define SEMAPHORE_TIMEOUT_MS 10000
+#define SEMAPHORE_TIMEOUT_MS 640000 // Timeout in milliseconds (640 seconds) for QoS1 PUBACK semaphore acquisition.
+                                    // This accounts for maximum TCP retransmission timeout (AWS_IOT_MAX_RETRANSMISSION_TIMEOUT = 128s)
+                                    // with default maximum retries (SL_SO_MAXRETRY = 10), allowing sufficient time for
+                                    // PUBACK reception before timing out.
 
 /******************************************************
 *               Variable Declarations
@@ -168,6 +172,12 @@ static int32_t sli_si91x_connect_to_network(Network *n, uint8_t flags, const sl_
       return sli_si91x_get_aws_error(errno);
     }
 
+    // Configure max retransmission timeout using configurable macro.
+    int max_retry = AWS_IOT_MAX_RETRANSMISSION_TIMEOUT;
+    if ( setsockopt(n->socket_id, SOL_TCP, SO_MAX_RETRANSMISSION_TIMEOUT_VALUE, &max_retry, sizeof(max_retry))){
+                return sli_si91x_get_aws_error(errno);
+    }
+
     if(dst_port == MQTT_TLS_PORT) {
       int socket_return_value = 0;
 
@@ -273,12 +283,12 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   do {
 #ifdef SLI_SI91X_ENABLE_IPV6
 	  status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
-	                                        SLI_SI91X_WAIT_FOR_DNS_RESOLUTION,
+	                                        SLI_WIFI_WAIT_FOR_DNS_RESOLUTION,
 	  									                    SL_NET_DNS_TYPE_IPV6, 
 	                                        &dns_query_response);
 #else
     status = sl_net_dns_resolve_hostname(pNetwork->tlsConnectParams.pDestinationURL,
-                                       SLI_SI91X_WAIT_FOR_DNS_RESOLUTION,
+                                       SLI_WIFI_WAIT_FOR_DNS_RESOLUTION,
                                        SL_NET_DNS_TYPE_IPV4, 
                                        &dns_query_response);
 #endif
@@ -358,6 +368,10 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
       SL_DEBUG_LOG("Error: Semaphore acquisition timed out. Puback not received.\n");
       return MQTT_REQUEST_TIMEOUT_ERROR; // Return an error code indicating that the MQTT request timed out.
   }
+  if (select_status == osErrorParameter) {
+    SL_DEBUG_LOG("Error: Invalid parameter in semaphore acquisition.\n");
+    return NETWORK_SSL_READ_ERROR; // Return a generic failure code for parameter error.
+  }
   qos1_publish_handle = 1;
   pub_state = 0;
   select_given        = 0;
@@ -379,7 +393,7 @@ IoT_Error_t iot_tls_read(Network *pNetwork, unsigned char *pMsg, size_t len, Tim
         *read_len = total_bytes_read;
         return SUCCESS;
       }
-      return sli_si91x_get_aws_error(sl_si91x_get_saved_firmware_status());
+      return sli_si91x_get_aws_error(sl_wifi_get_saved_firmware_status());
     }
 
     total_bytes_read += bytes_read;

@@ -1,6 +1,6 @@
 id: cmsis_spi_driver
 label: CMSIS SPI DRIVER
-package: platform
+package: platform_siwx91x
 description: >
   CMSIS SPI Driver include path
 category: Device|Si91x|MCU|Internal|CMSIS Drivers

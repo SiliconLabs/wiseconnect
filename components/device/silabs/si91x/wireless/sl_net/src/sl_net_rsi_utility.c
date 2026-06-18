@@ -36,6 +36,12 @@
 #include "sl_wifi_types.h"
 #include "sli_net_utility.h"
 #include <string.h>
+#include <sl_string.h>
+#include "sl_utility.h"
+#ifdef SLI_SI91X_INTERNAL_MDNS
+#include "sl_mdns.h"
+#define SLI_MDNS_MAX_PARAM_LENGTH 255
+#endif
 
 sl_status_t sli_convert_rsi_ipv4_address_to_sl_ip_address(sl_ip_address_t *ip_address_buffer,
                                                           const sli_si91x_rsp_ipv4_params_t *ip_params)
@@ -83,7 +89,9 @@ sl_status_t sli_convert_si91x_dns_response(sl_ip_address_t *ip_address,
   return SL_STATUS_OK;
 }
 
-sl_status_t sli_convert_si91x_event_to_sl_net_event(const uint16_t *event, sl_net_event_t *sl_net_event)
+sl_status_t sli_convert_si91x_event_to_sl_net_event(const uint16_t *event,
+                                                    sl_net_event_t *sl_net_event,
+                                                    const sl_wifi_system_packet_t *packet)
 {
   // Verify input pointers
   SL_WIFI_ARGS_CHECK_NULL_POINTER(event);
@@ -110,6 +118,15 @@ sl_status_t sli_convert_si91x_event_to_sl_net_event(const uint16_t *event, sl_ne
     case SLI_WLAN_RSP_IPV4_CHANGE:
     case SLI_WLAN_RSP_IPCONFV6: {
       *sl_net_event = SL_NET_IP_ADDRESS_CHANGE_EVENT;
+      return SL_STATUS_OK;
+    }
+    case SLI_WLAN_RSP_DISCOVER_SERVICE: {
+      // Check packet length to differentiate between MDNS STOP and MDNS QUERY
+      if (packet->length == 1) {
+        *sl_net_event = SL_NET_MDNS_STOP_EVENT;
+      } else {
+        *sl_net_event = SL_NET_MDNS_EVENT;
+      }
       return SL_STATUS_OK;
     }
     default:
@@ -139,6 +156,80 @@ bool sli_wifi_is_ip_address_zero(const sl_ip_address_t *ip_addr)
 
   return false; // Invalid or unsupported type
 }
+
+#ifdef SLI_SI91X_INTERNAL_MDNS
+sl_status_t sli_convert_si91x_mdns_response(sl_mdns_response_t *mdns_result, const sli_net_mdns_response_t *raw_result)
+{
+  SL_VERIFY_POINTER_OR_RETURN(mdns_result, SL_STATUS_WIFI_NULL_PTR_ARG);
+  SL_VERIFY_POINTER_OR_RETURN(raw_result, SL_STATUS_WIFI_NULL_PTR_ARG);
+
+  const uint8_t *ptr = raw_result->data;
+
+  mdns_result->query_type      = raw_result->query_type;
+  mdns_result->port            = raw_result->port;
+  mdns_result->ttl             = raw_result->ttl;
+  mdns_result->txt.txt_count   = raw_result->txt_count;
+  mdns_result->addr.addr_count = raw_result->addr_count;
+
+  // Assign all string fields in fixed order
+  mdns_result->instance_name = (const char *)ptr;
+  ptr += sl_strnlen((const char *)ptr, SLI_MDNS_MAX_PARAM_LENGTH) + 1;
+
+  mdns_result->service_type = (const char *)ptr;
+  ptr += sl_strnlen((const char *)ptr, SLI_MDNS_MAX_PARAM_LENGTH) + 1;
+
+  mdns_result->proto = (const char *)ptr;
+  ptr += sl_strnlen((const char *)ptr, SLI_MDNS_MAX_PARAM_LENGTH) + 1;
+
+  mdns_result->hostname = (const char *)ptr;
+  ptr += sl_strnlen((const char *)ptr, SLI_MDNS_MAX_PARAM_LENGTH) + 1;
+
+  // TXT records
+  mdns_result->txt.txt = NULL;
+  if (mdns_result->txt.txt_count > 0) {
+    mdns_result->txt.txt = malloc(mdns_result->txt.txt_count * sizeof(const char *));
+    if (mdns_result->txt.txt == NULL) {
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+
+    for (size_t i = 0; i < mdns_result->txt.txt_count; i++) {
+      mdns_result->txt.txt[i] = (const char *)ptr;
+      ptr += sl_strnlen((const char *)ptr, SLI_MDNS_MAX_PARAM_LENGTH) + 1;
+    }
+  }
+
+  if (mdns_result->addr.addr_count > 0) {
+    mdns_result->addr.addr = malloc(mdns_result->addr.addr_count * sizeof(sl_ip_address_t));
+    if (mdns_result->addr.addr == NULL) {
+      // Free previously allocated txt.txt
+      if (mdns_result->txt.txt != NULL) {
+        free(mdns_result->txt.txt);
+        mdns_result->txt.txt = NULL;
+      }
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+
+    for (size_t i = 0; i < mdns_result->addr.addr_count; i++) {
+      uint8_t addr_type = *ptr++; // Read type byte
+
+      if (addr_type == SL_IPV4_VERSION) {
+        mdns_result->addr.addr[i].type = SL_IPV4;
+        memcpy(mdns_result->addr.addr[i].ip.v4.bytes, ptr, SL_IPV4_ADDRESS_LENGTH);
+        ptr += SL_IPV4_ADDRESS_LENGTH;
+      } else if (addr_type == SL_IPV6_VERSION) {
+        mdns_result->addr.addr[i].type = SL_IPV6;
+        sli_big_to_little_endian((const unsigned int *)ptr,
+                                 mdns_result->addr.addr[i].ip.v6.bytes,
+                                 SL_IPV6_ADDRESS_LENGTH);
+        ptr += SL_IPV6_ADDRESS_LENGTH;
+      } else {
+        return SL_STATUS_INVALID_PARAMETER;
+      }
+    }
+  }
+  return SL_STATUS_OK;
+}
+#endif
 
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 // Convert integer to string

@@ -32,21 +32,23 @@
 #include "rsi_m4.h"
 #include "sl_constants.h"
 #include "cmsis_os2.h"
+#include "sl_cmsis_utility.h"
 #include "rsi_power_save.h"
 #include "sl_si91x_host_interface.h"
+#include "sl_si91x_driver.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include "sl_rsi_utility.h"
-
+#include "sli_wifi_utility.h"
 rsi_m4ta_desc_t tx_desc[2];
 rsi_m4ta_desc_t rx_desc[2];
-sli_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
+sli_wifi_buffer_queue_t sli_ahb_bus_rx_queue;
 
 /******************************************************
  * *               Function Declarations
  * ******************************************************/
 sl_status_t sli_si91x_submit_rx_pkt(void);
-void sli_submit_rx_buffer(void);
+sl_status_t sli_submit_rx_buffer(void);
 void sli_si91x_raise_pkt_pending_interrupt_to_ta(void);
 
 sl_status_t sl_si91x_bus_init(void)
@@ -80,10 +82,10 @@ sl_status_t sli_si91x_submit_rx_pkt(void)
   status = sli_si91x_host_allocate_buffer(&rx_pkt_buffer, SL_WIFI_RX_FRAME_BUFFER, 1616, 1000);
   if (status != SL_STATUS_OK) {
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-    BREAKPOINT();
+    return SL_STATUS_ALLOCATION_FAILED;
   }
 
-  packet     = sl_si91x_host_get_buffer_data(rx_pkt_buffer, 0, &data_length);
+  packet     = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(rx_pkt_buffer, 0, &data_length);
   pkt_buffer = (int8_t *)&packet->desc[0];
 
   // Fill source address in the TX descriptors
@@ -141,14 +143,19 @@ sl_status_t sli_si91x_bus_write_frame(sl_wifi_system_packet_t *packet, const uin
   return SL_STATUS_OK;
 }
 
-void sli_submit_rx_buffer(void)
+sl_status_t sli_submit_rx_buffer(void)
 {
+  sl_status_t status = SL_STATUS_OK;
   mask_ta_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
 
   //! submit to NWP submit packet
-  sli_si91x_submit_rx_pkt();
+  status = sli_si91x_submit_rx_pkt();
+  if (status != SL_STATUS_OK) {
+    SL_DEBUG_LOG("\r\n RX Buffer submission failed with status: %d \r\n", status);
+  }
 
   unmask_ta_interrupt(RX_PKT_TRANSFER_DONE_INTERRUPT);
+  return status;
 }
 
 /**
@@ -201,7 +208,7 @@ void sli_si91x_config_m4_dma_desc_on_reset(void)
     ;
   SL_DEBUG_LOG("\r\nTA is in active state\r\n");
   //! TBD Need to address why soft reset expecting delay
-  osDelay(100);
+  osDelay(SLI_SYSTEM_MS_TO_TICKS(100));
   //! Update M4 Tx and Rx DMA descriptors
   M4_TX_DMA_DESC_REG = (uint32_t)&tx_desc;
   M4_RX_DMA_DESC_REG = (uint32_t)&rx_desc;

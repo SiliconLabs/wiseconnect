@@ -564,7 +564,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint32_t *key, uin
 }
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 /**
  *  @fn      STATIC INLINE void  RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint8_t mode, uint32_t *key, uint32_t kh_enable)
  *  @brief   This function is used to load the AES key to QSPI Controller.
@@ -575,7 +575,7 @@ STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg, uint32_t *key, uin
  *            \n 1 : Enables 
  *  @return  none
  */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 STATIC INLINE void RSI_QSPI_QspiLoadKey(qspi_reg_t *qspi_reg,
                                         uint8_t mode,
                                         uint32_t *key,

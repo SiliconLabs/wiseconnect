@@ -25,7 +25,7 @@
  *
  */
 #include "rsi_common_app.h"
-
+#if (WIFI_APP == MQTT_APP)
 #if WLAN_TASK_ENABLE
 #ifndef WIFI_CONFIG_H
 #define WIFI_CONFIG_H
@@ -41,15 +41,16 @@
 
 #define CERTIFICATE_INDEX 0
 
-#define SUBSCRIBE_TO_TOPIC   "aws_status"      //! Subscribe Topic to receive the message from cloud
-#define PUBLISH_ON_TOPIC     "siwx91x_status"  //! Publish Topic to send the status from application to cloud
-#define MQTT_PUBLISH_PAYLOAD "Hi from SiWx91x" //! Publish message
-#define SUBSCRIBE_QOS        QOS1              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
-#define PUBLISH_QOS          QOS1              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
-#define PUBLISH_PERIODICITY  30000             //! Publish periodicity in milliseconds
-#define MQTT_USERNAME        "username"
-#define MQTT_PASSWORD        "password"
-#define LOW                  0
+#define SUBSCRIBE_TO_TOPIC "aws_status"     //! Subscribe to topic to receive the message from the cloud.
+#define PUBLISH_ON_TOPIC   "siwx91x_status" //! Publish topic to send the status from application to cloud.
+#define MQTT_PUBLISH_PAYLOAD \
+  "Hi from SiWx91x" //! Publish message. Increase the AWS_IOT_MQTT_TX_BUF_LEN value in aws_iot_config.h for larger payloads.
+#define SUBSCRIBE_QOS       QOS1  //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC".
+#define PUBLISH_QOS         QOS1  //! Quality of Service for publish topic "PUBLISH_ON_TOPIC".
+#define PUBLISH_PERIODICITY 30000 //! Publish periodicity in milliseconds.
+#define MQTT_USERNAME       "username"
+#define MQTT_PASSWORD       "password"
+#define LOW                 0
 
 // If this macro is enabled, the WiFi thread continuously scans for the APs and prints the scan results.
 #define WIFI_CONTINUOUS_SCAN_MODE_ONLY 0 //! 0 - Disable, 1 - Enable
@@ -84,4 +85,5 @@ typedef enum wifi_app_state_e {
 } wifi_app_state_t;
 
 #endif /* WIFI_CONFIG_H */
+#endif
 #endif

@@ -25,7 +25,7 @@
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define PadSelectionEnable_CLK  16
 #define PadSelectionEnable_D0   17
 #define PadSelectionEnable_D1   18
@@ -75,7 +75,7 @@ static void rsi_qspi_pin_mux_init(void)
   RSI_EGPIO_PadSelectionEnable(15);
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /*Pad selection enable */
   RSI_EGPIO_PadSelectionEnable(PadSelectionEnable_CLK);
   RSI_EGPIO_PadSelectionEnable(PadSelectionEnable_D0);

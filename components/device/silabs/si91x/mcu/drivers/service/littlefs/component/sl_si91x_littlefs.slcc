@@ -1,6 +1,6 @@
 id: sl_si91x_littlefs
 label: Little FS for Dual Flash
-package: platform
+package: platform_nwp_siwx91x
 description: >
   A little fail-safe filesystem. This component is used for performing file operations on external flash MX25R6435F. 
   Basically on dual flash parts.

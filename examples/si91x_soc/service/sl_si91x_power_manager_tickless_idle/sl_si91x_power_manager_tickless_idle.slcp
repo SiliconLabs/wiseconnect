@@ -1,99 +1,85 @@
 project_name: sl_si91x_power_manager_tickless_idle
-package: platform
-description: |
-  This application demonstrates how to use the Power Manager on the SI91x SoC device.
+package: platform_nwp_siwx91x_app
+description: 'This application demonstrates how to use the Power Manager on the SI91x SoC device.
+
+  '
 category: example|service
 quality: production
 label: SI91x - SL_POWER_MANAGER_TICKLESS_IDLE
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-  - id: wiseconnect3_sdk
-    version: 3.5.2
 component:
-  - id: sl_main
-  - id: freertos
-  - id: freertos_heap_4
-  - id: syscalls
-    from: wiseconnect3_sdk
-  - id: si91x_memory_default_config
-    from: wiseconnect3_sdk
-  - id: wiseconnect3_common
-    from: wiseconnect3_sdk
-  - id: sl_power_manager
-    from: wiseconnect3_sdk
-  - id: ulp_timers_instance
-    instance:
-      - timer0
-    from: wiseconnect3_sdk
-  - id: sl_si91x_button_917
-    instance:
-      - btn0
-    from: wiseconnect3_sdk
-  - id: calendar_ulp_component
-    from: wiseconnect3_sdk
-  - id: timer_ulp_component
-    from: wiseconnect3_sdk
-  - id: gpio_ulp_component
-    from: wiseconnect3_sdk
-  - id: debug_ulp_component
-    from: wiseconnect3_sdk
-  - id: wifi
-    from: wiseconnect3_sdk
-  - id: sl_si91x_internal_stack
-    from: wiseconnect3_sdk
-  - id: network_manager
-    from: wiseconnect3_sdk
-  - id: basic_network_config_manager
-    from: wiseconnect3_sdk
-  - id: wifi_resources
-    from: wiseconnect3_sdk
-  - id: sl_si91x_basic_buffers
-    from: wiseconnect3_sdk
-  - id: pm_ps2_component
-    from: wiseconnect3_sdk
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+- id: si91x_mem_config_3
+- id: wiseconnect_common
+- id: sl_power_manager
+- id: ulp_timers_instance
+  instance:
+  - timer0
+- id: sl_si91x_button_917
+  instance:
+  - btn0
+- id: calendar_ulp_component
+- id: timer_ulp_component
+- id: gpio_ulp_component
+- id: debug_ulp_component
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: network_manager
+- id: basic_network_config_manager
+- id: wifi_resources
+- id: sl_si91x_basic_buffers
+- id: pm_ps2_component
 source:
-  - path: app.c
-  - path: power_manager_tickless_idle_example.c
+- path: app.c
+- path: power_manager_tickless_idle_example.c
 include:
-  - path: .
-    file_list:
-      - path: app.h
-      - path: power_manager_tickless_idle_example.h
+- path: .
+  file_list:
+  - path: app.h
+  - path: power_manager_tickless_idle_example.h
 define:
-  - name: SL_SI91X_ENABLE_LOWPWR_RET_LDO
-    value: "1"
-  - name: SL_SI91X_ULP_STATE_ENABLE
+- name: SL_SI91X_ENABLE_LOWPWR_RET_LDO
+  value: '1'
+- name: SL_SI91X_ULP_STATE_ENABLE
 template_contribution:
-  - name: user_files_ps2
-    value: power_manager_tickless_idle_example.o
-  - name: user_files_ps2
-    value: sl_si91x_button.o
-  - name: user_files_ps2
-    value: sl_si91x_button_instances.o
-  - name: user_files_ps2
-    value: app.o
-  - name: user_files_ps2
-    value: main.o
+- name: user_files_ps2
+  value: power_manager_tickless_idle_example.*
+- name: user_files_ps2
+  value: sl_si91x_button.*
+- name: user_files_ps2
+  value: sl_si91x_button_instances.*
+- name: user_files_ps2
+  value: app.*
+- name: user_files_ps2
+  value: main.*
 toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+- option: gcc_compiler_option
+  value: -Wall -Werror
 requires:
-  - name: device_needs_ram_execution
+- name: device_needs_ram_execution
 configuration:
-  - name: SL_BUTTON_CONFIG_BTN0_INTR
-    value: "RISE_EDGE_INTERRUPT"
+- name: SL_BUTTON_CONFIG_BTN0_INTR
+  value: RISE_EDGE_INTERRUPT
 other_file:
-  - path: resources/readme/setupdiagram.png
-  - path: resources/readme/output1.png
-  - path: resources/readme/output2.png
-  - path: resources/power_manager_integration_guide/power_manager_integration.pdf
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/output1.png
+- path: resources/readme/output2.png
+- path: resources/power_manager_integration_guide/power_manager_integration.pdf
 ui_hints:
   highlight:
   - path: readme.md
     focus: true
 readme:
-  - path: readme.md
+- path: readme.md
 post_build:
-  path: ../../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

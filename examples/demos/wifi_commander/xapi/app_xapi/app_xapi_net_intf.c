@@ -63,7 +63,7 @@ static sl_status_t app_network_event_handler(sl_net_event_t event, sl_status_t s
     case SL_NET_PING_RESPONSE_EVENT: {
 
       // Cast the data to the ping response structure
-      sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+      sl_net_ping_response_t *response = (sl_net_ping_response_t *)data;
 
       // Initialize an IPv4 address structure
       ipv4_addr ipv4_address = { 0 };
@@ -252,19 +252,19 @@ void app_wifi_cmd_net_intf_set_si91x_boot_config(app_wifi_cmd_net_intf_set_si91x
 {
   sl_status_t status = SL_STATUS_FAIL;
 
-  sl_si91x_boot_configuration_t *boot_config_client = get_default_device_boot_configuration();
-  boot_config_client->oper_mode                     = cmd_input->oper_mode;
-  boot_config_client->coex_mode                     = cmd_input->coex_mode;
-  boot_config_client->ble_ext_feature_bit_map       = cmd_input->ble_ext_feature_bit_map;
-  boot_config_client->ble_feature_bit_map           = cmd_input->ble_feature_bit_map;
-  boot_config_client->bt_feature_bit_map            = cmd_input->bt_feature_bit_map;
-  boot_config_client->config_feature_bit_map        = cmd_input->config_feature_bit_map;
-  boot_config_client->custom_feature_bit_map        = cmd_input->custom_feature_bit_map;
-  boot_config_client->ext_custom_feature_bit_map    = cmd_input->ext_custom_feature_bit_map;
-  boot_config_client->ext_tcp_ip_feature_bit_map    = cmd_input->ext_tcp_ip_feature_bit_map;
-  boot_config_client->feature_bit_map               = cmd_input->feature_bit_map;
-  boot_config_client->tcp_ip_feature_bit_map        = cmd_input->tcp_ip_feature_bit_map;
-  status                                            = SL_STATUS_OK;
+  sl_wifi_system_boot_configuration_t *boot_config_client = get_default_device_boot_configuration();
+  boot_config_client->oper_mode                           = cmd_input->oper_mode;
+  boot_config_client->coex_mode                           = cmd_input->coex_mode;
+  boot_config_client->ble_ext_feature_bit_map             = cmd_input->ble_ext_feature_bit_map;
+  boot_config_client->ble_feature_bit_map                 = cmd_input->ble_feature_bit_map;
+  boot_config_client->bt_feature_bit_map                  = cmd_input->bt_feature_bit_map;
+  boot_config_client->config_feature_bit_map              = cmd_input->config_feature_bit_map;
+  boot_config_client->custom_feature_bit_map              = cmd_input->custom_feature_bit_map;
+  boot_config_client->ext_custom_feature_bit_map          = cmd_input->ext_custom_feature_bit_map;
+  boot_config_client->ext_tcp_ip_feature_bit_map          = cmd_input->ext_tcp_ip_feature_bit_map;
+  boot_config_client->feature_bit_map                     = cmd_input->feature_bit_map;
+  boot_config_client->tcp_ip_feature_bit_map              = cmd_input->tcp_ip_feature_bit_map;
+  status                                                  = SL_STATUS_OK;
 
   app_wifi_rsp_net_intf_set_si91x_boot_config(status);
   return;
@@ -298,7 +298,7 @@ void app_wifi_cmd_net_intf_get_si91x_boot_config(const void *nil)
 
   (void)nil;
 
-  sl_si91x_boot_configuration_t *boot_config_client = get_default_device_boot_configuration();
+  sl_wifi_system_boot_configuration_t *boot_config_client = get_default_device_boot_configuration();
   app_wifi_rsp_net_intf_get_si91x_boot_config(SL_STATUS_OK,
                                               boot_config_client->oper_mode,
                                               boot_config_client->coex_mode,

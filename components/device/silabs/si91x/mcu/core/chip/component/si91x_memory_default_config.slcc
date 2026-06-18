@@ -1,6 +1,6 @@
 id: si91x_memory_default_config
 label: 'Default RAM Memory Configuration'
-package: wiseconnect
+package: platform_siwx91x
 metadata:
   sbom:
     license: Zlib

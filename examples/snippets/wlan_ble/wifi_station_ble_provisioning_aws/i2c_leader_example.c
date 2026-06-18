@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
- * @file i2c_example.c
- * @brief I2C examples functions
+ * @file i2c_leader_example.c
+ * @brief I2C Leader example using i2c_instance component for LM75 temperature sensor
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -14,395 +14,415 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "sl_si91x_peripheral_i2c.h"
 #include "i2c_leader_example.h"
 #include "rsi_debug.h"
-#include "rsi_rom_egpio.h"
-#include "rsi_power_save.h"
-#include "rsi_rom_clks.h"
-#include "rsi_rom_ulpss_clk.h"
+#include "sl_i2c_instances.h"
+#include "sl_si91x_i2c.h"
+#include "sl_si91x_power_manager.h"
+#include "sl_status.h"
+#include "sl_component_catalog.h"
 #include "cmsis_os2.h"
-#include "app.h"
-#include "sl_si91x_peripheral_i2c.h"
 
 /*******************************************************************************
- ***************************  Defines / Macros  ********************************
- ******************************************************************************/
-#define SIZE_BUFFERS      2    // Size of buffer
-#define FOLLOWER_I2C_ADDR 0x48 // LM75 Temperature sensor I2C address
-#define RX_LENGTH         16   // Number of bytes to receive
-#define TX_LENGTH         16   // Number of bytes to send
-#define OFFSET_LENGTH     1    // Offset length
-#define FIFO_THRESHOLD    0x0  // FIFO threshold
-#define ZERO_FLAG         0    // Zero flag, No argument
-#define PORT_ZERO         0    // Port zero
-#define HP_MAX_GPIO       64   // High Power GPIO Maximum number
-#define LAST_DATA_COUNT   0    // Last read-write count
-#define DATA_COUNT        1    // Last second data count for verification
-#define BIT_SET           1    // Set bit
-#define STOP_BIT          9    // Bit to send stop command
-#define RW_MASK_BIT       8    // Bit to mask read and write
-#define MAX_7BIT_ADDRESS  127  // Maximum 7-bit address
+  ***************************  Defines / Macros  ********************************
+  ******************************************************************************/
+#define LM75_POINTER_REG_SIZE          1    // Size of LM75 pointer register (1 byte)
+#define LM75_DATA_SIZE                 2    // Size of LM75 temperature data (2 bytes)
+#define FOLLOWER_I2C_ADDR              0x48 // LM75 Temperature sensor I2C address
+#define I2C_TX_FIFO_THRESHOLD          0    // FIFO threshold for TX
+#define I2C_RX_FIFO_THRESHOLD          0    // FIFO threshold for RX
+#define MS_DELAY_COUNTER               4600 // Delay count for 1ms
+#define I2C_INTER_TRANSACTION_DELAY_MS 10   // Delay between I2C send and receive operations
 
 /*******************************************************************************
- ******************************  Data Types  ***********************************
- ******************************************************************************/
-// Structure to hold the pin configuration
-typedef const struct {
-  uint8_t port;    // GPIO port
-  uint8_t pin;     // GPIO pin
-  uint8_t mode;    // GPIO mode
-  uint8_t pad_sel; // GPIO pad selection
-} I2C_PIN_;
+   ******************************  Data Types  ***********************************
+   ******************************************************************************/
+// Enum for different transmission scenarios
+typedef enum {
+  SL_I2C_SEND_DATA,    // Send mode
+  SL_I2C_RECEIVE_DATA, // Receive mode
+} i2c_action_enum_t;
 
 /*******************************************************************************
- *************************** LOCAL VARIABLES   *******************************
- ******************************************************************************/
-static I2C_PIN scl = { RTE_I2C2_SCL_PORT, RTE_I2C2_SCL_PIN, RTE_I2C2_SCL_MUX, 0 };
-static I2C_PIN sda = { RTE_I2C2_SDA_PORT, RTE_I2C2_SDA_PIN, RTE_I2C2_SDA_MUX, 0 };
-//static i2c_mode_enum_t current_mode = SEND_DATA;
-volatile uint8_t i2c_send_complete    = 0;
-volatile uint8_t i2c_receive_complete = 0;
-volatile uint8_t send_data_flag       = 0;
-volatile uint8_t receive_data_flag    = 0;
+   *************************** LOCAL VARIABLES   *******************************
+   ******************************************************************************/
+static sl_i2c_instance_t i2c_instance;
+static uint8_t i2c_read_buffer[LM75_DATA_SIZE];
+static uint8_t i2c_write_buffer[LM75_POINTER_REG_SIZE];
+static i2c_action_enum_t current_mode  = SL_I2C_SEND_DATA;
+static boolean_t i2c_send_data_flag    = false;
+static boolean_t i2c_receive_data_flag = false;
+static sl_i2c_config_t sl_i2c_config;
+static boolean_t i2c_initialized = false;
 
-static uint32_t write_number = 0;
-static uint32_t write_count  = 0;
-static uint32_t read_number  = 0;
-static uint32_t read_count   = 0;
-static uint8_t *write_data;
-static uint8_t *read_data;
+// Encapsulated sensor data
+static float sensor_data = 0.0f;
 
-float sensor_data = 0.0;
-float info        = 0;
+/*******************************************************************************
+  **********************  Local Function prototypes   ***************************
+  ******************************************************************************/
+static sl_i2c_status_t i2c_leader_example_init(void);
+static float lm75_convert_temperature(uint8_t *raw_data);
+static void delay(uint32_t idelay);
+static void handle_i2c_send_error(sl_i2c_status_t status);
+static void handle_i2c_receive_error(sl_i2c_status_t status);
+static void reset_i2c_state_machine(void);
 
-volatile uint8_t read_buffer[SIZE_BUFFERS];
-static uint8_t write_buffer[SIZE_BUFFERS];
+/*******************************************************************************
+  **************************   GLOBAL FUNCTIONS   *******************************
+  ******************************************************************************/
 
-extern osSemaphoreId_t i2c_sem;
-extern osSemaphoreId_t rsi_mqtt_sem;
-static uint8_t *write_data;
-static uint8_t *read_data;
+/*******************************************************************************
+  * Get current sensor temperature reading
+  *
+  * @param None
+  * @return Current temperature in Celsius (0.0 if no valid reading)
+  ******************************************************************************/
+float get_sensor_temperature(void)
+{
+  return sensor_data;
+}
 
-extern uint8_t I2C0_TRANSFER;
+/*******************************************************************************
+  * Set sensor temperature value
+  *
+  * @param[in] temperature Temperature value in Celsius
+  * @return None
+  ******************************************************************************/
+static void set_sensor_temperature(float temperature)
+{
+  sensor_data = temperature;
+}
 
+/*******************************************************************************
+  * Initialize I2C with PS4 power requirement
+  *
+  * Adds PS4 requirement, waits for power stabilization, then performs
+  * full I2C driver initialization. Call before each I2C transaction cycle.
+  *
+  * @param None
+  * @return None
+  ******************************************************************************/
 void i2c_init(void)
 {
-  /*I2C Initialization */
-  i2c_leader_example_init();
-}
-
-/*******************************************************************************
- **********************  Local Function prototypes   ***************************
- ******************************************************************************/
-static void pin_configurations(void);
-static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t follower_address);
-static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follower_address);
-static void i2c_clock_init(I2C_TypeDef *i2c);
-static void handle_leader_transmit_irq(void);
-static void handle_leader_receive_irq(void);
-
-/*******************************************************************************
- **************************   GLOBAL FUNCTIONS   *******************************
- ******************************************************************************/
-/*******************************************************************************
- * I2C example initialization function
- ******************************************************************************/
-void i2c_leader_example_init(void)
-{
-  i2c_clock_init(ULP_I2C);
-  // For aborting, I2C instance should be enabled.
-  sl_si91x_i2c_enable(ULP_I2C);
-  // It aborts if any existing activity is there.
-  sl_si91x_i2c_abort_transfer(ULP_I2C);
-  sl_si91x_i2c_disable(ULP_I2C);
-  NVIC_SetPriority(I2C2_IRQn, 15);
-  sl_i2c_init_params_t config;
-  // Filling the structure with default values.
-  config.clhr = SL_I2C_STANDARD_BUS_SPEED;
-  config.freq = sl_si91x_i2c_get_frequency(ULP_I2C);
-  config.mode = SL_I2C_LEADER_MODE;
-  // Passing the structure and i2c instance for the initialization.
-  sl_si91x_i2c_init(ULP_I2C, &config);
-  // Pin is configured here.
-  pin_configurations();
-  // Generating a buffer with values that needs to be sent.
-  for (uint8_t loop = 0; loop < SIZE_BUFFERS; loop++) {
-    write_buffer[loop] = (loop + 0x1);
-    read_buffer[loop]  = 0;
+  // Skip if already initialized (prevents double init and PS4 reference leak)
+  if (i2c_initialized) {
+    return;
   }
-  send_data_flag = true;
+
+  // Add PS4 requirement to prevent M4 deep sleep during I2C operations
+  sl_status_t status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n Failed to add PS4 requirement, Error Code: 0x%lX\r\n", (unsigned long)status);
+    return;
+  }
+  DEBUGOUT("\r\n Successfully added PS4 requirement\r\n");
+
+  // Full I2C driver initialization from clean state
+  sl_i2c_status_t i2c_status = i2c_leader_example_init();
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("\r\n I2C init failed, removing PS4 requirement\r\n");
+    status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("\r\n Failed to remove PS4 requirement, Error Code: 0x%lX\r\n", (unsigned long)status);
+    }
+    return;
+  }
+  i2c_initialized = true;
+
+  // Initialize state machine for new transaction
+  current_mode          = SL_I2C_SEND_DATA;
+  i2c_send_data_flag    = true;
+  i2c_receive_data_flag = false;
 }
+
 /*******************************************************************************
-
-* Function to provide 1 ms Delay
-
-*******************************************************************************/
-
-void Delay(uint32_t idelay)
+  * Deinitialize I2C and remove PS4 power requirement
+  *
+  * Properly shuts down I2C driver while PS4 is still active (clean shutdown),
+  * then removes PS4 to allow M4 deep sleep between transactions.
+  *
+  * @param None
+  * @return None
+  ******************************************************************************/
+void i2c_deinit(void)
 {
+  // Skip if already deinitialized (prevents double deinit and PS4 underflow)
+  if (!i2c_initialized) {
+    return;
+  }
 
-  for (uint32_t x = 0; x < 4600 * idelay; x++) //1.002ms delay
+  // Deinit I2C driver while PS4 is still active (clean shutdown)
+  sl_i2c_status_t i2c_status = sl_i2c_driver_deinit(i2c_instance);
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("\r\n I2C driver deinit failed, Error Code: %u\r\n", i2c_status);
+  }
+  i2c_initialized = false;
 
-  {
+  // Remove PS4 requirement after clean I2C shutdown
+  sl_status_t status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+  if (status != SL_STATUS_OK) {
+    DEBUGOUT("\r\n Failed to remove PS4 requirement, Error Code: 0x%lX\r\n", (unsigned long)status);
+    return;
+  }
+  DEBUGOUT("\r\n Successfully removed PS4 requirement\r\n");
+}
+
+/*******************************************************************************
+  * Initialize I2C driver for LM75 sensor
+  *
+  * Configures I2C instance from UC, sets FIFO thresholds, enables repeated
+  * start, and initializes buffers. Re-initializes GPIO pins and performs
+  * hardware soft reset to recover from M4 deep sleep state corruption.
+  *
+  * @param None
+  * @return SL_I2C_SUCCESS on success, error code on failure
+  *
+  * @note Called internally by i2c_init()
+  ******************************************************************************/
+static sl_i2c_status_t i2c_leader_example_init(void)
+{
+  sl_i2c_status_t i2c_status;
+
+  // Select I2C instance based on UC configuration
+#if defined(SL_CATALOG_I2C_I2C0_PRESENT)
+  sl_i2c_config = sl_i2c_i2c0_config;
+  i2c_instance  = SL_I2C0;
+#elif defined(SL_CATALOG_I2C_I2C1_PRESENT)
+  sl_i2c_config = sl_i2c_i2c1_config;
+  i2c_instance  = SL_I2C1;
+#elif defined(SL_CATALOG_I2C_I2C2_PRESENT)
+  sl_i2c_config = sl_i2c_i2c2_config;
+  i2c_instance  = SL_I2C2;
+#else
+  DEBUGOUT("\r\n No I2C instance configured in UC\r\n");
+  return SL_I2C_INVALID_PARAMETER;
+#endif
+
+  // Re-initialize GPIO pin muxing for I2C SDA/SCL lines.
+  // GPIO configurations are lost after M4 deep sleep, so pins must be
+  // reconfigured on every init cycle (per Silicon Labs sleep-wakeup documentation).
+  sl_i2c_init_instances();
+
+  // Assert module-level hardware soft reset to clear any corrupted I2C FSM
+  // state caused by ULP domain power transitions during M4 deep sleep.
+  ULPCLK->ULP_TA_PERI_RESET_REG_b.I2C_SOFT_RESET_CNTRL_b = 0;
+  delay(1);
+  ULPCLK->ULP_TA_PERI_RESET_REG_b.I2C_SOFT_RESET_CNTRL_b = 1;
+
+  // Initialize I2C using unified driver with UC-generated config
+  i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_config);
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("\r\n sl_i2c_driver_init Failed, Error Code: %u\r\n", i2c_status);
+    return i2c_status;
+  }
+
+  // Configure RX and TX FIFO thresholds
+  i2c_status = sl_i2c_driver_configure_fifo_threshold(i2c_instance, I2C_TX_FIFO_THRESHOLD, I2C_RX_FIFO_THRESHOLD);
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("\r\n FIFO threshold config FAILED, Error Code: %u\r\n", i2c_status);
+    return i2c_status;
+  }
+
+  // Enable repeated start for LM75 sensor communication (write pointer then read data)
+  i2c_status = sl_i2c_driver_enable_repeated_start(i2c_instance, true);
+  if (i2c_status != SL_I2C_SUCCESS) {
+    DEBUGOUT("\r\n Repeated start enable FAILED, Error Code: %u\r\n", i2c_status);
+    return i2c_status;
+  }
+
+  // Initialize buffers
+  i2c_write_buffer[0] = 0x00; // LM75 temperature register pointer
+  i2c_read_buffer[0]  = 0;
+  i2c_read_buffer[1]  = 0;
+
+  i2c_send_data_flag = true;
+  current_mode       = SL_I2C_SEND_DATA;
+
+  return SL_I2C_SUCCESS;
+}
+
+/*******************************************************************************
+   * Blocking delay function
+   *
+   * @param[in] idelay Delay duration in milliseconds
+   * @return None
+   ******************************************************************************/
+static void delay(uint32_t idelay)
+{
+  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
     __NOP();
   }
 }
+
 /*******************************************************************************
- * Function will run continuously in while loop
- ******************************************************************************/
+  * Convert raw LM75 sensor data to temperature in Celsius
+  *
+  * @param[in] raw_data Pointer to 2-byte LM75 data [MSB, LSB]
+  * @return Temperature in Celsius (0.0 if raw_data is NULL)
+  * 
+  *******************************************************************************/
+static float lm75_convert_temperature(uint8_t *raw_data)
+{
+  float temperature = 0.0f;
+  int16_t temp_raw;
+
+  // Validate input
+  if (raw_data == NULL) {
+    return 0.0f; // Return safe default on NULL pointer
+  }
+
+  // LM75 temperature format:
+  // Byte 0: MSB - D10 to D3 (integer part + sign)
+  // Byte 1: LSB - D2 to D-4 (fractional part, only top 3 bits D2, D1, D0 are used)
+
+  // Combine the two bytes using unsigned arithmetic to avoid undefined behavior
+  temp_raw = (int16_t)(((uint16_t)raw_data[0] << 8) | raw_data[1]);
+
+  // Shift to get 11-bit signed value (D10-D0)
+  temp_raw >>= 5;
+
+  // Check if negative (bit 10 is sign bit)
+  if (temp_raw & 0x0400) {
+    // Extend sign for 11-bit to 16-bit
+    temp_raw |= 0xF800;
+  }
+
+  // Convert to temperature (each LSB = 0.125°C)
+  temperature = temp_raw * 0.125f;
+
+  return temperature;
+}
+
+/*******************************************************************************
+  * Reset I2C state machine after error
+  *
+  * @param None
+  * @return None
+  ******************************************************************************/
+static void reset_i2c_state_machine(void)
+{
+  i2c_send_data_flag    = true;
+  i2c_receive_data_flag = false;
+  current_mode          = SL_I2C_SEND_DATA;
+  set_sensor_temperature(0.0f);
+}
+
+/*******************************************************************************
+  * Handle I2C send errors
+  * 
+  * @param[in] status I2C error status code
+  * @return None
+  ******************************************************************************/
+static void handle_i2c_send_error(sl_i2c_status_t status)
+{
+  DEBUGOUT("\r\n Send FAILED, Error Code: %u\r\n", status);
+
+  if (status == SL_I2C_TIMEOUT) {
+    DEBUGOUT("\r\n TIMEOUT: No response from LM75 sensor\r\n");
+  } else if (status == SL_I2C_NACK) {
+    DEBUGOUT("\r\n NACK: LM75 not acknowledging at address 0x%02X\r\n", FOLLOWER_I2C_ADDR);
+  }
+  reset_i2c_state_machine();
+}
+
+/*******************************************************************************
+  * Handle I2C receive errors
+  * 
+  * @param[in] status I2C error status code
+  * @return None
+  ******************************************************************************/
+static void handle_i2c_receive_error(sl_i2c_status_t status)
+{
+  DEBUGOUT("\r\n Receive FAILED, Error Code: %u\r\n", status);
+
+  if (status == SL_I2C_TIMEOUT) {
+    DEBUGOUT("\r\n TIMEOUT: No data received from LM75\r\n");
+  } else if (status == SL_I2C_NACK) {
+    DEBUGOUT("\r\n NACK: Device not responding to read request\r\n");
+  }
+
+  reset_i2c_state_machine();
+}
+
+/*******************************************************************************
+  * Execute one I2C temperature read cycle
+  *
+  * Reads temperature from LM75 sensor using state machine (write pointer,
+  * read data). Call periodically to refresh temperature readings.
+  *
+  * PS4 power requirement must be active before calling this function.
+  *
+  * @param None
+  * @return None
+  *
+  * @note Blocking operation (~10-20ms)
+  * @note Temperature available via get_sensor_temperature() after successful read
+  ******************************************************************************/
 void i2c_leader_example_process_action(void)
 {
-  if (send_data_flag) {
-    uint8_t a[5] = "\0";
-    sl_si91x_i2c_set_follower_address(ULP_I2C, 0x48, 0);
-    // Validation for executing the API only once.
-    a[0] = (uint8_t)(0x00 & 0xFF);
-    a[1] = (uint8_t)(0x01 & 0xFF);
-    i2c_send_data(a, 2, FOLLOWER_I2C_ADDR);
-    while (!i2c_send_complete)
-      ;
-    // It waits till i2c_send_complete is true in IRQ handler.
-    DEBUGOUT("Data is transferred to Follower successfully \n");
+  sl_i2c_status_t i2c_status;
 
-    // Validation for executing the API only once.
-    i2c_receive_data((uint8_t *)read_buffer, 2, FOLLOWER_I2C_ADDR);
-    Delay(10);
-    while (!i2c_receive_complete)
-      ;
-    // To convert into negative value and converting into floating points
-    if ((read_buffer[0] >= 128) && (read_buffer[1] < 128)) {
-      read_buffer[0] = ~(read_buffer[0]);
-      sensor_data    = (read_buffer[0] + 1);
-      info           = sensor_data;
-      info           = -(info);
-      DEBUGOUT(" Temperature in Celsius %f \t \n", info);
-    } else if ((read_buffer[0] >= 128) && (read_buffer[1] >= 128)) {
-      read_buffer[0] = ~(read_buffer[0]);
-      sensor_data    = read_buffer[0];
-      info           = sensor_data + 0.5;
-      info           = -(info);
-      DEBUGOUT(" Temperature in Celsius %f \t \n", info);
-      // Convert into floating value
-    } else if ((read_buffer[0] < 128) && (read_buffer[1] >= 128)) {
-      sensor_data = read_buffer[0];
-      info        = sensor_data + 0.5;
-      DEBUGOUT(" Temperature in Celsius %f \t \n", info);
-    } else if ((read_buffer[0] < 128) && (read_buffer[1] < 128)) {
-      sensor_data = read_buffer[0];
-      info        = sensor_data;
-      DEBUGOUT(" Temperature in Celsius  %f \t \n", info);
-    }
+  // State machine for I2C data transfer
+  switch (current_mode) {
+    case SL_I2C_SEND_DATA:
+      if (i2c_send_data_flag) {
+        // LM75 protocol: Send 1 byte (pointer register 0x00 for temperature)
+        i2c_write_buffer[0] = 0x00; // Point to temperature register
 
-    receive_data_flag = 0;
-    sensor_data       = info;
-    info              = 0;
-    read_buffer[0]    = 0;
-    read_buffer[1]    = 0;
-    if (i2c_receive_complete) {
-      // It waits till i2c_receive_complete is true in IRQ handler.
-      DEBUGOUT("Data is received from Follower successfully \n");
-      i2c_receive_complete = 0;
-      send_data_flag       = 1;
-    }
-  }
-}
+        // Use unified driver blocking send API
+        i2c_status =
+          sl_i2c_driver_send_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_write_buffer, LM75_POINTER_REG_SIZE);
+        if (i2c_status != SL_I2C_SUCCESS) {
+          handle_i2c_send_error(i2c_status);
+          return;
+        }
 
-/*******************************************************************************
- * Function to send the data using I2C.
- * Here the FIFO threshold, direction and interrupts are configured.
- * 
- * @param[in] data (uint8_t) Constant pointer to the data which needs to be transferred.
- * @param[in] data_length (uint32_t) Length of the data that needs to be received.
- * @return none
- ******************************************************************************/
-static void i2c_send_data(const uint8_t *data, uint32_t data_length, uint16_t follower_address)
-{
-  bool is_10bit_addr = false;
-  // Disables the interrupts.
-  sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
-  // Updates the variables which are required for trasmission.
-  write_data   = (uint8_t *)data;
-  write_count  = 0;
-  write_number = data_length;
-  // Disables the I2C peripheral.
-  sl_si91x_i2c_disable(ULP_I2C);
-  // Checking is address is 7-bit or 10bit
-  if (follower_address > MAX_7BIT_ADDRESS) {
-    is_10bit_addr = true;
-  }
-  // Setting the follower address recevied in parameter structure.
-  sl_si91x_i2c_set_follower_address(ULP_I2C, follower_address, is_10bit_addr);
-  // Configures the FIFO threshold.
-  sl_si91x_i2c_set_tx_threshold(ULP_I2C, FIFO_THRESHOLD);
-  // Enables the I2C peripheral.
-  sl_si91x_i2c_enable(ULP_I2C);
-  // Sets the direction to write.
-  // Configures the transmit empty interrupt.
-  sl_si91x_i2c_set_interrupts(ULP_I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
-  // Enables the interrupt.
-  sl_si91x_i2c_enable_interrupts(ULP_I2C, ZERO_FLAG);
-}
+        DEBUGOUT("\r\n Data is transferred to Follower successfully\r\n");
+        i2c_send_data_flag = false;
+      }
 
-/*******************************************************************************
- * Function to receive the data using I2C.
- * Here the FIFO threshold, direction and interrupts are configured.
- * 
- * @param[in] data (uint8_t) Constant pointer to the data which needs to be transferred.
- * @param[in] data_length (uint32_t) Length of the data that needs to be received.
- * @return none
- ******************************************************************************/
-static void i2c_receive_data(uint8_t *data, uint32_t data_length, uint16_t follower_address)
-{
-  bool is_10bit_addr = false;
-  // Disables the interrupts.
-  sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
-  // Updates the variables which are required for trasmission.
-  read_data   = (uint8_t *)data;
-  read_count  = 0;
-  read_number = data_length;
-  // Disables the I2C peripheral.
-  sl_si91x_i2c_disable(ULP_I2C);
-  // Configures the FIFO threshold.
-  // Checking is address is 7-bit or 10bit
-  if (follower_address > MAX_7BIT_ADDRESS) {
-    is_10bit_addr = true;
-  }
-  // Setting the follower address recevied in parameter structure.
-  sl_si91x_i2c_set_follower_address(ULP_I2C, follower_address, is_10bit_addr);
-  sl_si91x_i2c_set_rx_threshold(ULP_I2C, FIFO_THRESHOLD);
-  // Enables the I2C peripheral.
-  sl_si91x_i2c_enable(ULP_I2C);
-  // Sets the direction to read.
-  sl_si91x_i2c_control_direction(ULP_I2C, SL_I2C_READ_MASK);
-  // Configures the receive full interrupt.
-  sl_si91x_i2c_set_interrupts(ULP_I2C, SL_I2C_EVENT_RECEIVE_FULL);
-  // Enables the interrupt.
-  sl_si91x_i2c_enable_interrupts(ULP_I2C, ZERO_FLAG);
-}
+      // Move to receive state
+      i2c_receive_data_flag = true;
+      current_mode          = SL_I2C_RECEIVE_DATA;
 
-/*******************************************************************************
- * To configure the clock and power up the peripheral according to the 
- * I2C instance.
- * 
- * @param none
- * @return none
- ******************************************************************************/
-static void i2c_clock_init(I2C_TypeDef *i2c)
-{
-  if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    // Powering up the peripheral.
-    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
-#else
-    // Powering up the peripheral.
-    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
-#endif
-    // Initialize the I2C clock.
-    RSI_CLK_I2CClkConfig(M4CLK, 1, I2C1_INSTAN);
-  }
-  if ((uint32_t)i2c == I2C2_BASE) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
-    // Powering up the peripheral.
-    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
-#else
-    // Powering up the peripheral.
-    RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI3);
-#endif
-    // Initialize the I2C clock.
-    RSI_CLK_I2CClkConfig(M4CLK, 1, I2C2_INSTAN);
-  }
-  if ((uint32_t)i2c == I2C2_BASE) {
-    // Powering up the peripheral.
-    RSI_PS_UlpssPeriPowerUp(ULPSS_PWRGATE_ULP_I2C);
-    // Initialize the I2C clock.
-    RSI_ULPSS_PeripheralEnable(ULPCLK, ULP_I2C_CLK, ENABLE_STATIC_CLK);
-  }
-}
+      // CRITICAL: Delay after send before receive
+      // Allows LM75 sensor time to prepare temperature data
+      delay(I2C_INTER_TRANSACTION_DELAY_MS);
 
-/*******************************************************************************
- * Function to set the Pin configuration for I2C.
- * It configures the SDA and SCL pins.
- * 
- * @param none
- * @return none
- ******************************************************************************/
-static void pin_configurations(void)
-{
-  // SCL
-  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(scl.pin - HP_MAX_GPIO));
-  RSI_EGPIO_SetPinMux(EGPIO1, scl.port, (uint8_t)(scl.pin - HP_MAX_GPIO), scl.mode);
-  // SDA
-  RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(sda.pin - HP_MAX_GPIO));
-  RSI_EGPIO_SetPinMux(EGPIO1, sda.port, (uint8_t)(sda.pin - HP_MAX_GPIO), scl.mode);
-}
+      __attribute__((fallthrough));
 
-/*******************************************************************************
- * Function to handle the transmit IRQ.
- * Transmit empty interrupt is monitored and byte by byte data is transmitted.
- * If the data transmission is completed, it clears and disables the interrupt.
- * 
- * @param none
- * @return none
- ******************************************************************************/
-static void handle_leader_transmit_irq(void)
-{
-  if (write_number > LAST_DATA_COUNT) {
-    if (write_number == DATA_COUNT) {
-      ULP_I2C->IC_DATA_CMD = (uint32_t)write_data[write_count] | (BIT_SET << STOP_BIT);
-    } else {
-      sl_si91x_i2c_tx(ULP_I2C, write_data[write_count]);
-    }
-    write_count++;
-    write_number--;
-  } else {
-    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_TRANSMIT_EMPTY);
-    sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
-    i2c_send_complete = 1;
-  }
-}
+    case SL_I2C_RECEIVE_DATA:
+      if (i2c_receive_data_flag) {
+        // Use unified driver blocking receive API (with repeated start enabled)
+        i2c_status =
+          sl_i2c_driver_receive_data_blocking(i2c_instance, FOLLOWER_I2C_ADDR, i2c_read_buffer, LM75_DATA_SIZE);
 
-/*******************************************************************************
- * Function to handle the receive IRQ.
- * Receive full interrupt is monitored and byte by byte data is received.
- * If the data receive is completed, it clears and disables the interrupt.
- * 
- * @param none
- * @return none
- ******************************************************************************/
-static void handle_leader_receive_irq(void)
-{
-  if (read_number > LAST_DATA_COUNT) {
-    read_data[read_count] = ULP_I2C->IC_DATA_CMD_b.DAT;
-    read_count++;
-    read_number--;
-    if (read_number == DATA_COUNT) {
-      // If the last byte is there to receive, and in leader mode, it needs to send
-      // the stop byte.
-      ULP_I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT) | (BIT_SET << STOP_BIT);
-    }
-    if (read_number > DATA_COUNT) {
-      ULP_I2C->IC_DATA_CMD = (BIT_SET << RW_MASK_BIT);
-    }
-  }
-  if (read_number == LAST_DATA_COUNT) {
-    sl_si91x_i2c_clear_interrupts(ULP_I2C, SL_I2C_EVENT_RECEIVE_FULL);
-    sl_si91x_i2c_disable_interrupts(ULP_I2C, ZERO_FLAG);
-    i2c_receive_complete = 1;
-  }
-}
+        if (i2c_status != SL_I2C_SUCCESS) {
+          handle_i2c_receive_error(i2c_status);
+          return;
+        }
 
-/*******************************************************************************
- * IRQ handler for I2C2 (ULP_I2C).
- ******************************************************************************/
-void I2C2_IRQHandler(void)
-{
-  uint32_t status = 0;
-  status          = ULP_I2C->IC_INTR_STAT;
-  if (status & SL_I2C_EVENT_TRANSMIT_EMPTY) {
-    handle_leader_transmit_irq();
-  }
-  if (status & SL_I2C_EVENT_RECEIVE_FULL) {
-    handle_leader_receive_irq();
+        // Convert and display temperature
+        set_sensor_temperature(lm75_convert_temperature(i2c_read_buffer));
+
+        DEBUGOUT("\r\n Temperature in Celsius %f \t \r\n", get_sensor_temperature());
+
+        DEBUGOUT("\r\n Data is received from Follower successfully\r\n");
+        i2c_receive_data_flag = false;
+      }
+
+      // Clear read buffer
+      i2c_read_buffer[0] = 0;
+      i2c_read_buffer[1] = 0;
+
+      // Transaction complete - ready for next cycle
+      i2c_send_data_flag = true;
+      current_mode       = SL_I2C_SEND_DATA;
+      break;
+
+    default:
+      DEBUGOUT("\r\n Unknown mode: %d\r\n", current_mode);
+      break;
   }
 }

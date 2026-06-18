@@ -330,7 +330,7 @@ rsi_error_t RSI_ADC_Stop(AUX_ADC_DAC_COMP_Type *pstcADC);
 rsi_error_t RSI_ADC_ChnlIntrUnMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 rsi_error_t RSI_ADC_ChnlIntrMask(AUX_ADC_DAC_COMP_Type *pstcADC, uint32_t channel);
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 rsi_error_t ADC_Start(adc_config_t adcConfig);
 rsi_error_t ADC_Deinit(adc_config_t adcConfig);
 rsi_error_t ADC_Stop(adc_config_t adcConfig);

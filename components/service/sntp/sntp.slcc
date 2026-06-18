@@ -1,5 +1,5 @@
 id: sntp
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The SNTP Client provides a simple, easy-to-use API to start a service that retrieves time from an SNTP server
 label: SNTP Client

@@ -1,6 +1,6 @@
 !!omap
 - id: SIWN917M100LGTBA
-- package: platform-internal-cmsis-headers
+- package: platform_siwx91x
 - description: Silicon Labs CMSIS-Device part headers for SIWN917M100LGTBA.
 - category: Device|Si91x|MCU|Device Part|SIWG917
 - quality: production

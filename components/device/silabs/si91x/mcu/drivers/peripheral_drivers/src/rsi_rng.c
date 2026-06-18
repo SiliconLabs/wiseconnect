@@ -60,6 +60,28 @@ void rng_config_lfsr(HWRNG_Type *pRNG, rng_lfsr_config_t lfsr_config_param)
   pRNG->HWRNG_CTRL_REG_b.TAP_LFSR_INPUT = lfsr_config_param;
 }
 
+/***************************************************************************/
+/**
+ * @brief   This API sets the soft reset bit of the HRNG peripheral.
+ * @param[in]  pRNG  : Pointer to the control register of the hardware random number generator.
+ * @return      none
+ ******************************************************************************/
+void rng_soft_reset_set(HWRNG_Type *pRNG)
+{
+  pRNG->HWRNG_CTRL_REG_b.SOFT_RESET = 1;
+}
+
+/***************************************************************************/
+/**
+ * @brief   This API clears the soft reset bit of the HRNG peripheral.
+ * @param[in]  pRNG  : Pointer to the control register of the hardware random number generator.
+ * @return      none
+ ******************************************************************************/
+void rng_soft_reset_clear(HWRNG_Type *pRNG)
+{
+  pRNG->HWRNG_CTRL_REG_b.SOFT_RESET = 0;
+}
+
 /*==============================================*/
 /**
  * @fn           void rng_stop(HWRNG_Type *pRNG)    

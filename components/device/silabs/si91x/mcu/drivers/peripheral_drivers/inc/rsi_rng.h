@@ -52,6 +52,8 @@ void rng_stop(HWRNG_Type *pRNG);
 void rng_get_bytes(HWRNG_Type *pRNG, uint32_t *random_bytes, uint32_t number_of_bytes);
 uint32_t rng_read_lfsr_input(HWRNG_Type *pRNG, uint32_t *randomBytes, uint32_t numberOfBytes);
 void rng_config_lfsr(HWRNG_Type *pRNG, rng_lfsr_config_t lfsr_config_param);
+void rng_soft_reset_set(HWRNG_Type *pRNG);
+void rng_soft_reset_clear(HWRNG_Type *pRNG);
 
 #ifdef __cplusplus
 }

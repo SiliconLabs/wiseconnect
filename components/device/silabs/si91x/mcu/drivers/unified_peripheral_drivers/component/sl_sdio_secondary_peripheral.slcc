@@ -1,6 +1,6 @@
 id: sl_sdio_secondary_peripheral
 label: SL SDIO Secondary Peripheral
-package: platform
+package: platform_siwx91x
 description: >
   The SDIO Secondary application shows how to read and write data in SDIO Secondary
   and demonstrates about soc clock setting, sdio secondary  initialization, 

@@ -1,6 +1,6 @@
 id: rsilib_comparator
 label: COMPARATOR
-package: platform
+package: platform_siwx91x
 description: >
   Comparator Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

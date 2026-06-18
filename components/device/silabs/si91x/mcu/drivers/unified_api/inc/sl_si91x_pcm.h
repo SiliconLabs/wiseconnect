@@ -104,7 +104,7 @@ sl_status_t sl_si91x_pcm_init(uint32_t pcm_instance, sl_i2s_handle_t *pcm_handle
 
 /***************************************************************************/
 /**
- * @brief To uninitialize the PCM peripheral.
+ * @brief To uninitialize the PCM peripheral.This API is deprecated; please use sl_si91x_pcm_deinit_v2() instead.
  * 
  * @details This API disables the DMA instance used for PCM transfer and powers down the PCM peripheral
  *          by disabling the clock supply to PCM.
@@ -135,7 +135,42 @@ sl_status_t sl_si91x_pcm_init(uint32_t pcm_instance, sl_i2s_handle_t *pcm_handle
  *    The ULP_UART has a separate power domain, ULPSS_PWRGATE_ULP_UART, which can be powered down independently. 
  *    See the rsi_power_save.h file for all power gate definitions.
  ******************************************************************************/
-sl_status_t sl_si91x_pcm_deinit(sl_i2s_handle_t *pcm_handle);
+sl_status_t sl_si91x_pcm_deinit(sl_i2s_handle_t *pcm_handle) SL_DEPRECATED_API_WISECONNECT_4_0;
+
+/***************************************************************************/
+/**
+ * @brief To uninitialize the PCM peripheral,new version v2
+ * 
+ * @details This API disables the DMA instance used for PCM transfer and powers down the PCM peripheral
+ *          by disabling the clock supply to PCM.
+ * 
+ * @pre Pre-condition:
+ *      - \ref sl_si91x_pcm_init must be called before this function.
+ * 
+ * @param[in] pcm_handle pointer to the I2S/PCM driver handle \ref sl_i2s_handle_t.
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Operation successful.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
+ * 
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ * 
+ * @note
+ * When the PCM module is used in combination with other peripherals, see the notes below while deinitializing in the application:
+ * 1. Whenever sl_si91x_pcm_deinit() is called, it will disable the clock for the peripheral. To power off the peripheral, 
+ *    you have to power down the power domain (PERI_EFUSE) which contains the following peripherals:
+ *    USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, PCM Master, PCM Slave, Micro-DMA Controller, Config Timer,
+ *    Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM, and EFUSE.
+ *    Use the following API to power down the particular power domain if other peripherals are not being used:
+ *    sl_si91x_peri_efuse_power_down()
+ * 
+ * 2. Some peripherals (ULP Peripherals, UULP Peripherals, GPDMA, and SDIO-SPI) have separate domains and can be powered down independently. 
+ *    For additional details, see the Power Architecture section in the Hardware Reference Manual.
+ *    The ULP_UART has a separate power domain, ULPSS_PWRGATE_ULP_UART, which can be powered down independently. 
+ *    See the rsi_power_save.h file for all power gate definitions.
+ ******************************************************************************/
+sl_status_t sl_si91x_pcm_deinit_v2(sl_i2s_handle_t pcm_handle);
 
 /***************************************************************************/
 /**

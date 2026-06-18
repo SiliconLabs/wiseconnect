@@ -48,7 +48,7 @@
 #endif
 #include "cacert.pem.h"
 #include "app.h"
-
+#include "sl_wifi_callback_framework.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -139,13 +139,13 @@ static const sl_wifi_device_configuration_t wifi_throughput_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_WIFI_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -580,7 +580,7 @@ void receive_data_from_tcp_server(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -771,7 +771,7 @@ void receive_data_from_tcp_client(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -950,7 +950,7 @@ void receive_data_from_udp_client(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -1118,7 +1118,7 @@ void receive_data_from_tls_server(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {

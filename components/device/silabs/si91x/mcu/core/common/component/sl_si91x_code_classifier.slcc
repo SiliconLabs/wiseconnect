@@ -1,6 +1,6 @@
 id: sl_si91x_code_classifier
 label: Code Classifer
-package: platform
+package: platform_siwx91x
 description: >
   Provides the Si91x SoC code classifier functionalities.
 category: Device|Si91x|MCU|Core
@@ -16,8 +16,11 @@ include:
 provides:
   - name: sl_si91x_code_classifier
 requires:
-  - name: text_segment_in_psram
-  - name: data_segment_in_psram
+  - name: wiseconnect_toolchain_psram_linker
+  - name: psram_core
 define:
 - name: SL_SI91X_CODE_CLASSIFIER_ENABLE
   value: "1"
+template_contribution:
+  - name: psram_linker_config_enabled
+    value: 1

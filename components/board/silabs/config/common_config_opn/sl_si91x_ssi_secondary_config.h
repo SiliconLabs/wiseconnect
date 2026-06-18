@@ -77,7 +77,7 @@ extern "C" {
 #ifndef SL_SSI_SLAVE_PERIPHERAL
 #define SL_SSI_SLAVE_PERIPHERAL SSI_SLAVE
 #endif
-#warning "SSI peripheral is not configured. Please configure the SSI pins according to the board connections."
+
 // SSI_SLAVE MOSI_ on GPIO_27
 #ifndef SL_SSI_SLAVE_MOSI__PORT
 #define SL_SSI_SLAVE_MOSI__PORT HP
@@ -123,7 +123,12 @@ extern "C" {
 #endif
 // [SSI_SLAVE_SL_SSI_SLAVE]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "SSI Secondary peripheral pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

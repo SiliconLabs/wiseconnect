@@ -1,6 +1,6 @@
 id: sl_si91x_littlefs_ext_flash
 label: Little FS for Common Flash parts with external flash
-package: platform
+package: platform_nwp_siwx91x
 description: >
   A little fail-safe filesystem. This component is used for performing file operations on common flash parts with external flash connected on GPIO_46 to GPIO_51 for common flash parts. 
   Configure SL_LITTLEFS_BASE_EXT in sl_si91x_littlefs_ext_flash_config.h file to indicate start address for littlefs region in external connected flash.

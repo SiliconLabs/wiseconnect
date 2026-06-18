@@ -32,16 +32,29 @@
 #define SL_SI91X_USART_COMMON_CONFIG_H
 
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>DMA Configuration
+
+// <h>USART0 Configuration
 
 // <q SL_USART0_DMA_CONFIG_ENABLE> USART0 DMA
 // <i> Default: 1
 #define SL_USART0_DMA_CONFIG_ENABLE 1
 
+// <q SL_USART0_SYNC_MODE_EN> USART0 SYNC Mode
+// <i> Default: 0
+#define SL_USART0_SYNC_MODE_EN 0
+
+// <o SL_USART0_CLOCK_SRC> USART0 Clock Source
+// <USART_ULPREFCLK=> ULP REF CLK
+// <USART_SOCPLLCLK=> SOC PLL CLK
+// <USART_INTFPLLCLK=> INTF PLL CLK
+// <i> Default: USART_ULPREFCLK
+#define SL_USART0_CLOCK_SRC USART_ULPREFCLK
+
 // </h>
 // <<< end of configuration section >>>
+
 // <<< sl:start pin_tool >>>
-// <usart0 signal=TX,RX,(CTS),(RTS)> SL_USART0
+// <usart0 signal=(CLK),TX,RX,(CTS),(RTS)> SL_USART0
 // $[USART0_SL_USART0]
 #ifndef SL_USART0_PERIPHERAL
 #define SL_USART0_PERIPHERAL USART0

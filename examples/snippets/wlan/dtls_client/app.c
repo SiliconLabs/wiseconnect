@@ -40,6 +40,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_socket_utility.h"
+#include "sl_wifi_callback_framework.h"
 #include "sl_si91x_socket_support.h"
 #include "sl_si91x_socket.h"
 
@@ -53,15 +54,16 @@
  *                    Constants
  ******************************************************/
 
-#define SERVER_IP             "192.168.0.206"
-#define SERVER_PORT1          5002
-#define SERVER_PORT2          5003
-#define DATA                  "Hello from DTLS Client\n"
-#define NUMBER_OF_PACKETS     10
-#define DTLS_EXTENSION_ENABLE 1
-#define TLS_ALPN_EXTENSION    "http/1.1"
-#define TLS_SNI_EXTENSION     "example.com"
-#define RECV_BUFFER_SIZE      500
+#define SERVER_IP              "192.168.0.206"
+#define SERVER_PORT1           5002
+#define SERVER_PORT2           5003
+#define DATA                   "Hello from DTLS Client\n"
+#define NUMBER_OF_PACKETS      10
+#define DTLS_EXTENSION_ENABLE  1
+#define TLS_ALPN_EXTENSION     "http/1.1"
+#define TLS_SNI_EXTENSION      "example.com"
+#define RECV_BUFFER_SIZE       500
+#define MAX_SOCKET_RETRY_COUNT 3
 
 /******************************************************
  *               Variable Definitions
@@ -86,16 +88,16 @@ static const sl_wifi_device_configuration_t dtls_init_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_WIFI_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
 
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_DTLS_THREE_SOCKETS
 
                                               ),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -122,9 +124,8 @@ sl_status_t set_dtls_extensions(int client_socket);
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -169,6 +170,8 @@ sl_status_t send_data_from_dtls_socket()
   sl_status_t status   = SL_STATUS_OK;
   int32_t return_value = 0;
   int32_t packet_count = 0;
+  bool need_retry      = false;
+  int32_t retry_count  = 0;
 
   socklen_t socket_length            = sizeof(struct sockaddr_in);
   struct sockaddr_in server_address1 = { 0 };
@@ -181,86 +184,127 @@ sl_status_t send_data_from_dtls_socket()
   server_address2.sin_port           = SERVER_PORT2;
   sl_net_inet_addr(SERVER_IP, &server_address2.sin_addr.s_addr);
 
-  client_socket1 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (client_socket1 < 0) {
-    printf("\r\nSocket1 creation failed with bsd error: %d\r\n", errno);
-    return SL_STATUS_FAIL;
-  }
-  printf("\r\nSocket1 ID: %d\r\n", client_socket1);
+  while (retry_count < MAX_SOCKET_RETRY_COUNT) {
+    need_retry     = false;
+    client_socket1 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (client_socket1 < 0) {
+      printf("\r\nSocket1 creation failed with bsd error: %d\r\n", errno);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\nSocket1 ID: %d\r\n", client_socket1);
 
-  uint16_t enable_dtls = SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2;
-  return_value =
-    sl_si91x_setsockopt(client_socket1, SOL_SOCKET, SL_SI91X_SO_DTLS_V_1_2_ENABLE, &enable_dtls, sizeof(enable_dtls));
-  if (return_value < 0) {
-    printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    sl_si91x_shutdown(client_socket1, 0);
-    return SL_STATUS_FAIL;
-  }
-
-#if DTLS_EXTENSION_ENABLE
-  status = set_dtls_extensions(client_socket1);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nFailed to set DTLS extension: 0x%lx\r\n", status);
-    close(client_socket1);
-    return SL_STATUS_FAIL;
-  }
-  printf("\r\nDTLS extension set successfully\r\n");
-#endif
-
-  client_socket2 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (client_socket2 < 0) {
-    printf("\r\nSocket2 creation failed with bsd error: %d\r\n", errno);
-    close(client_socket1);
-    return SL_STATUS_FAIL;
-  }
-  printf("\r\nSocket2 ID: %d\r\n", client_socket2);
-
-  uint16_t enable_dtls2 = SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2;
-  return_value =
-    sl_si91x_setsockopt(client_socket2, SOL_SOCKET, SL_SI91X_SO_DTLS_V_1_2_ENABLE, &enable_dtls2, sizeof(enable_dtls2));
-  if (return_value < 0) {
-    printf("\r\nSet socket2 option failed with bsd error: %d\r\n", errno);
-    close(client_socket1);
-    close(client_socket2);
-    return SL_STATUS_FAIL;
-  }
-
-#if DTLS_EXTENSION_ENABLE
-  status = set_dtls_extensions(client_socket2);
-  if (status != SL_STATUS_OK) {
-    printf("\r\nFailed to set DTLS extension: 0x%lx\r\n", status);
-    close(client_socket1);
-    close(client_socket2);
-    return SL_STATUS_FAIL;
-  }
-  printf("\r\nDTLS extension set successfully\r\n");
-#endif
-
-  while (packet_count < NUMBER_OF_PACKETS) {
-    return_value = sendto(client_socket1, DATA, strlen(DATA), 0, (struct sockaddr *)&server_address1, socket_length);
+    uint16_t enable_dtls = SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2;
+    return_value =
+      sl_si91x_setsockopt(client_socket1, SOL_SOCKET, SL_SI91X_SO_DTLS_V_1_2_ENABLE, &enable_dtls, sizeof(enable_dtls));
     if (return_value < 0) {
-      if (errno == ENOBUFS)
-        continue;
-      printf("\r\nSocket1 send failed with bsd error: %d\r\n", errno);
+      printf("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
+      sl_si91x_shutdown(client_socket1, 0);
+      return SL_STATUS_FAIL;
+    }
+
+#if DTLS_EXTENSION_ENABLE
+    status = set_dtls_extensions(client_socket1);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nFailed to set DTLS extension: 0x%lx\r\n", status);
+      close(client_socket1);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\nDTLS extension set successfully\r\n");
+#endif
+
+    client_socket2 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (client_socket2 < 0) {
+      printf("\r\nSocket2 creation failed with bsd error: %d\r\n", errno);
+      close(client_socket1);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\nSocket2 ID: %d\r\n", client_socket2);
+
+    uint16_t enable_dtls2 = SL_SI91X_ENABLE_DTLS | SL_SI91X_DTLS_V_1_2;
+    return_value          = sl_si91x_setsockopt(client_socket2,
+                                       SOL_SOCKET,
+                                       SL_SI91X_SO_DTLS_V_1_2_ENABLE,
+                                       &enable_dtls2,
+                                       sizeof(enable_dtls2));
+    if (return_value < 0) {
+      printf("\r\nSet socket2 option failed with bsd error: %d\r\n", errno);
       close(client_socket1);
       close(client_socket2);
       return SL_STATUS_FAIL;
     }
 
-    while (1) {
-      return_value = sendto(client_socket2, DATA, strlen(DATA), 0, (struct sockaddr *)&server_address2, socket_length);
+#if DTLS_EXTENSION_ENABLE
+    status = set_dtls_extensions(client_socket2);
+    if (status != SL_STATUS_OK) {
+      printf("\r\nFailed to set DTLS extension: 0x%lx\r\n", status);
+      close(client_socket1);
+      close(client_socket2);
+      return SL_STATUS_FAIL;
+    }
+    printf("\r\nDTLS extension set successfully\r\n");
+#endif
+
+    while (packet_count <= NUMBER_OF_PACKETS) {
+      return_value = sendto(client_socket1, DATA, strlen(DATA), 0, (struct sockaddr *)&server_address1, socket_length);
       if (return_value < 0) {
         if (errno == ENOBUFS)
           continue;
-        printf("\r\nSocket2 send failed with bsd error: %d\r\n", errno);
+        sl_status_t fw_status = sl_wifi_get_saved_firmware_status();
+
+        if (fw_status == SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAIL) {
+          printf("\r\nSocket1 send failed error = %d and status = 0x%lx \r\n", errno, fw_status);
+          close(client_socket1);
+          close(client_socket2);
+          need_retry = true;
+          break;
+        }
+        printf("\r\nSocket1 send failed with bsd error: %d\r\n", errno);
         close(client_socket1);
         close(client_socket2);
         return SL_STATUS_FAIL;
       }
-      break;
+
+      while (1) {
+        return_value =
+          sendto(client_socket2, DATA, strlen(DATA), 0, (struct sockaddr *)&server_address2, socket_length);
+        if (return_value < 0) {
+          if (errno == ENOBUFS)
+            continue;
+          sl_status_t fw_status = sl_wifi_get_saved_firmware_status();
+
+          if (fw_status == SL_STATUS_SI91X_SSL_TLS_HANDSHAKE_FAIL) {
+            printf("\r\nSocket2 send failed error = %d and status = 0x%lx \r\n", errno, fw_status);
+            close(client_socket1);
+            close(client_socket2);
+            need_retry = true;
+            break;
+          }
+          printf("\r\nSocket2 send failed with bsd error: %d\r\n", errno);
+          close(client_socket1);
+          close(client_socket2);
+          return SL_STATUS_FAIL;
+        }
+        break;
+      }
+      if (!need_retry)
+        packet_count++;
     }
-    packet_count++;
+
+    if (need_retry) {
+      printf("\r\n Retrying due to TLS Handshake failure\r\n");
+      packet_count = 0;
+      retry_count++;
+      continue;
+    }
+
+    break; // Transfer complete, break out of retry loop
   }
+
+  if (retry_count >= MAX_SOCKET_RETRY_COUNT) {
+    printf("\r\nFailed after max retries\r\n");
+    return SL_STATUS_FAIL;
+  }
+
   printf("\r\nData sent successfully\r\n");
 
   fd_set read_fds;

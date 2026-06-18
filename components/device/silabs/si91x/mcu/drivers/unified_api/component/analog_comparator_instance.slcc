@@ -1,8 +1,11 @@
 id: analog_comparator_instance
 label: Analog Comparator Instance
-package: platform
+package: platform_siwx91x
 description: >
-  Add a Analog Comparator instance.
+  Analog Comparator peripheral for the SiWx917 SoC device.
+  
+  Analog Comparator Supports instances.
+  Instances created must be named as comparator1, comparator2.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

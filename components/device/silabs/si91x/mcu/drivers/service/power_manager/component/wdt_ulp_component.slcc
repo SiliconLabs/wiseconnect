@@ -1,6 +1,6 @@
 id: wdt_ulp_component
 label: PM UULP Watchdog Timer
-package: platform
+package: platform_siwx91x
 description: >
   ULP Watchdog Timer component will enable WDT in the low-power mode. It moves all the peripheral dependencies to RAM. 
   It also installs the peripheral component if already not installed. 
@@ -25,9 +25,9 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: wdt_ps2
-    value: sl_si91x_watchdog_timer.o
+    value: sl_si91x_watchdog_timer.*
   - name: wdt_ps2
-    value: rsi_wwdt.o
+    value: rsi_wwdt.*
   - name: wakeup
     value: 
       event: wakeup_init

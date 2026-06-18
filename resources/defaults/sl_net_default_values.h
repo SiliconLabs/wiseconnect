@@ -85,6 +85,7 @@
 #define DEFAULT_WIFI_GATEWAY_ADDRESS 0x0A0AA8C0
 #endif
 
+//For open security networks (SL_WIFI_OPEN), use SL_WIFI_NO_CREDENTIAL_ID.
 #define DEFAULT_WIFI_CLIENT_PROFILE \
   (sl_net_wifi_client_profile_t)    \
   {                                 \
@@ -100,7 +101,9 @@
         .security = DEFAULT_WIFI_CLIENT_SECURITY_TYPE, \
         .encryption = DEFAULT_WIFI_CLIENT_ENCRYPTION_TYPE, \
         .client_options = 0, \
-        .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID, \
+        .credential_id = (DEFAULT_WIFI_CLIENT_SECURITY_TYPE == SL_WIFI_OPEN) ? \
+                         SL_WIFI_NO_CREDENTIAL_ID : \
+                         SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID, \
     }, \
     .ip = { \
         .mode = SL_IP_MANAGEMENT_DHCP, \
@@ -110,6 +113,7 @@
     }                  \
   }
 
+//For open security networks (SL_WIFI_OPEN), use SL_WIFI_NO_CREDENTIAL_ID.
 #define DEFAULT_WIFI_ACCESS_POINT_PROFILE \
   (sl_net_wifi_ap_profile_t)              \
   {                                       \

@@ -407,8 +407,7 @@ sl_status_t sl_si91x_gpdma_allocate_channel(uint32_t *channel_no, uint32_t prior
   sl_status_t status                    = SL_STATUS_OK;
   sl_si91x_gpdma_resources_Data_t *pRes = sl_si91x_get_gpdma_resources();
   sl_si91x_gpdma_data_context_t *pDrv   = sl_si91x_get_gpdma_handle();
-
-  uint32_t channel_alloc = 0;
+  uint32_t channel_alloc                = 0;
   if ((channel_no == NULL) || (priority > SL_GPDMA_MAX_CHANNEL_PRIORITY)) {
     // Invalid channel number
     return SL_STATUS_INVALID_PARAMETER;
@@ -420,13 +419,13 @@ sl_status_t sl_si91x_gpdma_allocate_channel(uint32_t *channel_no, uint32_t prior
     // DMA not initialized
     return SL_STATUS_NOT_INITIALIZED;
   }
-
   if (*channel_no == 0xFF) {
     // Scan for available channels
     channel_alloc = sli_si91x_resource_position(&pRes->channel_allocation_bitmap);
     if (channel_alloc == 0xFFFF) {
       // No DMA channel is available
       status = SL_STATUS_GPDMA_NO_CHANNEL_AVAILABLE;
+      return status;
     }
     *channel_no = channel_alloc;
     // Allocate the channel using channel allocator
@@ -445,7 +444,6 @@ sl_status_t sl_si91x_gpdma_allocate_channel(uint32_t *channel_no, uint32_t prior
       sl_gpdma_channel_allocation_data_t[*channel_no].gpdma_callback[SL_GPDMA_DESCRIPTOR_FETCH_DONE_CB] = NULL;
       sl_gpdma_channel_allocation_data_t[*channel_no].gpdma_callback[SL_GPDMA_TRANSFER_DONE_CB]         = NULL;
       sl_gpdma_channel_allocation_data_t[*channel_no].gpdma_callback[SL_GPDMA_GPDMAC_ERROR_CB]          = NULL;
-
     } else {
       // Desired DMA channel is already allocated
       status = SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED;
@@ -482,16 +480,13 @@ sl_status_t sl_si91x_gpdma_deallocate_channel(uint32_t channel_no)
   if (status != SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED) {
     return status;
   }
-  if (pRes->channel_allocation_bitmap & (1 << channel_no)) {
-    pRes->channel_allocation_bitmap |= (1 << channel_no);
-    sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_HRESP_ERROR_CB]           = NULL;
-    sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_DESCRIPTOR_FETCH_DONE_CB] = NULL;
-    sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_TRANSFER_DONE_CB]         = NULL;
-    sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_GPDMAC_ERROR_CB]          = NULL;
-  } else {
-    // DMA channel is already unallocated
-    return SL_STATUS_GPDMA_CHANNEL_ALREADY_UNALLOCATED;
-  }
+
+  pRes->channel_allocation_bitmap |= (1 << channel_no);
+  sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_HRESP_ERROR_CB]           = NULL;
+  sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_DESCRIPTOR_FETCH_DONE_CB] = NULL;
+  sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_TRANSFER_DONE_CB]         = NULL;
+  sl_gpdma_channel_allocation_data_t[channel_no].gpdma_callback[SL_GPDMA_GPDMAC_ERROR_CB]          = NULL;
+
   RSI_GPDMA_SET_CHANNEL_PRIORITY((sl_si91x_gpdma_handle_t)pDrv, channel_no, 0);
   sl_gpdma_channel_allocation_data_t[channel_no].max_transfer_Size = 0;
 
@@ -611,13 +606,14 @@ sl_status_t sl_si91x_gpdma_allocate_descriptor(sl_si91x_gpdma_descriptor_t *pDes
   if (pDescriptor_memory == NULL || transfer_size == 0) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if (no_of_descripotrs > sl_gpdma_channel_allocation_data_t[channel_number].max_transfer_Size) {
-    return SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_NOT_SUFFICIENT;
-  }
   status = sl_si91x_gpdma_get_channel_status(channel_number);
   if (status != SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED) {
     return status;
   }
+  if (no_of_descripotrs > sl_gpdma_channel_allocation_data_t[channel_number].max_transfer_Size) {
+    return SL_STATUS_GPDMA_DESCRIPTOR_MEMORY_BUFFER_NOT_SUFFICIENT;
+  }
+
   if (sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory == NULL) {
     sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory = pDescriptor_memory;
   } else if (sl_gpdma_channel_allocation_data_t[channel_number].descriptor_memory != pDescriptor_memory) {
@@ -707,7 +703,7 @@ sl_status_t sl_si91x_gpdma_stop_transfer(uint32_t channel_no)
     return SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED;
   }
   status = sl_si91x_gpdma_get_channel_status(channel_no);
-  if (status == SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED) {
+  if (status != SL_STATUS_GPDMA_CHANNEL_ALREADY_ALLOCATED) {
     return SL_STATUS_IDLE;
   }
   RSI_GPDMA_AbortChannel((sl_si91x_gpdma_handle_t)pDrv, channel_no);

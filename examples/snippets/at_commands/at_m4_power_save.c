@@ -101,6 +101,7 @@ sl_status_t m4_powersave_command_handler(void)
   return SL_STATUS_OK;
 }
 
+// at+xtal-enable=<enable-xtal-flag>
 sl_status_t m4_ta_secure_handshake_command_handler(const console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
@@ -152,6 +153,7 @@ sl_status_t m4_power_manager_deep_sleep_handler(console_args_t *arguments)
   return status;
 }
 
+// at+cal-stop
 sl_status_t power_manager_calender_stop_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
@@ -172,6 +174,7 @@ sl_status_t power_manager_calender_stop_handler(console_args_t *arguments)
   return status;
 }
 
+// at+cal-start=<time_ms>
 sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
@@ -194,6 +197,10 @@ sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
   // Periodic alarm setting API is called.
   set_periodic_alarm_pm(time_ms);
 
+  // Clear any existing alarm callback
+  status = sl_si91x_calendar_unregister_alarm_trigger_callback();
+  VERIFY_STATUS_AND_RETURN(status);
+
   // Alarm callback is registered
   status = sl_si91x_calendar_register_alarm_trigger_callback(calendar_callback_function_pm);
   VERIFY_STATUS_AND_RETURN(status);
@@ -202,6 +209,7 @@ sl_status_t power_manager_calender_start_handler(console_args_t *arguments)
   return status;
 }
 
+// at+wifisys-wake-src=<source>,<add>
 sl_status_t power_manager_set_wakeup_source_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
@@ -224,6 +232,7 @@ sl_status_t power_manager_set_wakeup_source_handler(console_args_t *arguments)
   return status;
 }
 
+// at+wifisys-psreq?
 sl_status_t power_manager_get_ps_requirement_table_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
@@ -237,6 +246,7 @@ sl_status_t power_manager_get_ps_requirement_table_handler(console_args_t *argum
   return SL_STATUS_OK;
 }
 
+// at+wifisys-psreq=<state>,<add>
 sl_status_t power_manager_config_ps_requirement_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
@@ -368,6 +378,7 @@ void calendar_callback_function_pm(void)
   set_periodic_alarm_pm(time_ms);
 }
 
+// at+wifisys-ps?
 sl_status_t power_manager_get_current_state_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
@@ -377,6 +388,7 @@ sl_status_t power_manager_get_current_state_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+wifisys-sleep
 sl_status_t set_power_manager_sleep_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
@@ -406,6 +418,7 @@ sl_status_t set_power_manager_sleep_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+at+wifisys-standby
 sl_status_t set_power_manager_standby_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);

@@ -42,7 +42,7 @@ This application demonstrates how to configure SiWx91x device as a WebSocket cli
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -127,39 +127,24 @@ To run the WebSocket server, follow these steps:
 
 ## Configuring the WebSocket Client for SSL
 
-1. Update the `sl_websocket_config_t` structure in your client application to set the `enable_ssl` field to `true`:
+**SSL is disabled by default** in this application.
 
-   ```c
-   sl_websocket_config_t ws_config = {
-     .host                = HOST_NAME,
-     .resource            = RESOURCE_NAME,
-     .server_port         = 8080,
-     .client_port         = 5001,
-     .ip_address          = SERVER_IP_ADDR,
-     .data_cb             = data_callback,
-     .remote_terminate_cb = remote_terminate_callback,
-     .enable_ssl          = true, // Enable SSL
-   };
-   ```
+To enable SSL and use secure WebSocket (WSS), set `enable_ssl` to `true` in `app.c`:
 
-2. Load the SSL CA certificate in the `app.c` file as shown below.
+```c
+sl_websocket_config_t ws_config = {
+  .enable_ssl = true,  // Enable SSL to use WSS instead of WS
+  // ... other config
+};
+```
 
-   ```c
-   #include "cacert.pem.h"
-   
-   // Load SSL CA certificate
-   status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(CERTIFICATE_INDEX),
-                                  SL_NET_SIGNING_CERTIFICATE,
-                                  cacert,
-                                  sizeof(cacert) - 1);
-   if (status != SL_STATUS_OK) {
-     printf("\r\nLoading TLS CA certificate into FLASH Failed, Error Code : 0x%lX\r\n", status);
-     return;
-   }
-   printf("\r\nLoad SSL CA certificate at index %d Success\r\n", CERTIFICATE_INDEX);
-   ```
+When SSL is enabled, the CA certificate is automatically loaded from `cacert.pem.h`.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+To test WebSocket over SSL (WSS):
+1. Set `.enable_ssl = true` in `app.c`.
+2. Ensure the WebSocket server is started with SSL enabled (set `USE_SSL = true` in `index.js`).
+
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -169,3 +154,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 - Flash, run and debug the application.
 
    ![Application prints](resources/readme/output_soc.png)
+

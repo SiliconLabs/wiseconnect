@@ -1,6 +1,6 @@
 id: sl_uart0_rs485
 label: UART0_RS485
-package: platform
+package: platform_siwx91x
 description: >
   It is used to exchange data between micro controllers,
   sensors, and other peripherals. It supports half duplex communication with TX(transmitter) and 

@@ -1,5 +1,5 @@
 id: iostream_vuart_si91x
-package: platform
+package: platform_siwx91x
 label: "IO Stream: SI91X VUART"
 description: >
   Instantiate the driver for using IO Stream over the Virtual UART (VUART) 

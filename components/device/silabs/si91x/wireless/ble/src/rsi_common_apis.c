@@ -32,6 +32,7 @@
 #include "rsi_ble.h"
 
 #include "sl_si91x_status.h"
+#include "rsi_ble_common_config.h"
 
 /*
   Global Variables
@@ -151,6 +152,9 @@ int32_t rsi_ble_driver_init(uint8_t *buffer, uint32_t length)
   // Update state
   rsi_driver_cb->device_state = RSI_DRIVER_INIT_DONE;
 
+  rsi_driver_cb->ble_cb->ble_buff_total_avail_cnt = RSI_BLE_NUM_CONN_EVENTS;
+  rsi_driver_cb->ble_cb->ble_buff_total_mutex     = osMutexNew(NULL);
+
   SL_PRINTF(SL_DRIVER_INIT_EXIT, COMMON, LOG_INFO, "actual_length=%4x", actual_length);
   return actual_length;
 }
@@ -202,6 +206,9 @@ int32_t rsi_ble_driver_deinit(void)
 
   if (rsi_driver_cb->ble_cb->bt_sem) {
     osSemaphoreDelete(rsi_driver_cb->ble_cb->bt_sem);
+  }
+  if (rsi_driver_cb->ble_cb->ble_buff_total_mutex) {
+    osMutexDelete(rsi_driver_cb->ble_cb->ble_buff_total_mutex);
   }
 
   rsi_driver_cb->device_state = RSI_DEVICE_STATE_NONE;

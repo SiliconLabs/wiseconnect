@@ -38,8 +38,6 @@ extern "C" {
 /******************************* ADC Configuration **************************/
 
 /* NOTE: User should configure all macros defined below, while creating an instance other than pre-defined one */
-#warning \
-  "user defined ADC instance, INSTANCE needs to be configured in sl_si91x_adc_init_INSTANCE_config.h, For Configuring Install ENABLE USER CONFIGURATION MACRO / define USER_CONFIGURATION_ENABLE to 1 and define the MACROS in sl_si91x_adc_init_INSTANCE_config.h accordingly w.r.t board."
 
 #if USER_CONFIGURATION_ENABLE
 
@@ -66,9 +64,15 @@ extern "C" {
 #define SL_ADC_INSTANCE_POS_INPUT_CHNL_SEL 4
 #define SL_ADC_INSTANCE_NEG_INPUT_CHNL_SEL 0
 
+#else
+
+#warning \
+  "The sl_si91x_adc_init_INSTANCE_config.h file requires specifying the INSTANCE name for custom ADC configurations. To properly configure ADC either enable user configuration by installing the [ENABLE USER CONFIGURATION] component or set USER_CONFIGURATION_ENABLE to 1, and then define all required MACROS in sl_si91x_adc_init_INSTANCE_config.h according to your board specifications."
+
 #endif // USER_CONFIGURATION_ENABLE
 
 #ifdef __cplusplus
 }
-#endif // SL_ADC
+#endif
+
 #endif /* SL_SI91X_ADC_INSTANCE_CONFIG_H */

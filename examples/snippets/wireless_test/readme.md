@@ -53,7 +53,7 @@ The Wireless Test application is a Command-Line Interface (CLI) application desi
 - Simplicity Studio IDE - [Simplicity Studio IDE](https://www.silabs.com/developer-tools/simplicity-studio)
 - A Serial terminal software such as [Serial Debug Assistant](https://apps.microsoft.com/detail/9NBLGGH43HDM?rtc=1&hl=en-in&gl=in)
 
-> **Note**: The user can also use the Simplicity studio’s console window for sending and receiving the CLI command but it is recommended to use Serial Debug Assistant for ease of the command usage.
+Note : The user can also use the Simplicity studio’s console window for sending and receiving the CLI command but it is recommended to use Serial Debug Assistant for ease of the command usage.
 
 
 ### Setup Diagram
@@ -91,29 +91,33 @@ The Wireless Test application is a Command-Line Interface (CLI) application desi
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
 
 For project folder structure details, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
+
+
 ## Application Build Environment
 
 The application can be configured to suit your requirements and development environment.
 
-The application uses the default configurations as provided in the `wifi_commands.c` and you can choose to configure these parameters as needed.
+- The application uses the default configurations as provided in the **wifi_commands.c** and you can choose to configure these parameters as needed.
  
-The default SSID is `MY_AP_SSID` and passphrase is `MY_AP_PASSPHRASE` in `wifi_commands.c` file. You may either use these or modify them.
+> **Note** :
+
+> - The default SSID is `MY_AP_SSID` and passphrase is `MY_AP_PASSPHRASE` in **wifi_commands.c** file. You may either use these or modify them.
 
 ```c
     #define SOFT_AP_SSID         "MY_AP_SSID"
     #define SOFT_AP_PSK          "MY_AP_PASSPHRASE"   
 ```
 
- The included cloud connectivity certificates are provided for reference only. The default certificates in the release will not establish a cloud connection. You must replace them with valid certificates when connecting to the appropriate Cloud/OpenSSL server.
+> - The included cloud connectivity certificates are for reference only. If using default certificates in the release, the cloud connection will not work. You must replace the default certificates with valid certificates while connecting to the appropriate Cloud/OpenSSL Server.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -126,11 +130,10 @@ See the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconne
 
 
 
-## Common Commands
-
-1. `set_region_configuration`
-2. `wifi_radio_deinit`
-3. `reset`
+## **Common Commands**
+1. set_region_configuration
+2. wifi_radio_deinit
+3. reset
 
 ## **set_region_configuration:**
 Set a particular region.
@@ -143,20 +146,17 @@ set_region_configuration [-a operating_mode] <region>
 |Parameter       |Description                                                                                |
 |----------------|-------------------------------------------------------------------------------------------|
 |*Operating_mode*        |Optional, (ap, apsta, ble_coex, client, client_ipv6, eap, transmit_test, ble) |
-|*region*        |us → United states, eu → Europen Union, jp → Japan, world →  World wide domain, kr → Korean, sg → Singapore (not currently supported), cn → China  |
+|*region*        |us → United states, eu → Europen Union, jp → Japan, world →  World wide domain, kr → Korean, sg → Singapore(not currently supported), cn → China  |
 
-### wifi_radio_deinit:
-
+### **wifi_radio_deinit:**
 Deinitlize the Wi-Fi radio.
 
 **Syntax:**
-
 ```perl
 wifi_radio_deinit
 ```
 
-### reset:
-
+### **reset:**
 Reset the device.
 
 **Syntax:**
@@ -172,6 +172,7 @@ reset
 
 1. help
 2. wifi_init
+  > **Note:** By default, the `wifi_init` command selects both Station and Access Point modes.
 3. wifi_init -i client
 4. wifi_init -i ap
 5. wifi_init -i apsta
@@ -324,7 +325,7 @@ For example, for 2412 MHz, the output will be seen at 2417 MHz.
 
 - Configure the following parameter in **wifi_commands.c** to enable AGGREGATION support: 
 
-  .feature_bit_map = SL_SI91X_FEAT_AGGREGATION
+  .feature_bit_map = SL_WIFI_FEAT_AGGREGATION
 
 **Additional sample commands for Wi-Fi 6 RF Test**
 
@@ -854,6 +855,10 @@ ble_user_gain_table_lp_chain_8dBm_offset
 >```perl
 >ble_user_gain_table_lp_chain_8dBm_offset
 >```
+
+> **Note**: 
+> - The Worldwide table is available for BLE only, and must not be modified. 
+> - The values in the worldwide table comply with Bluetooth SIG specifications.
 
 
 ## **Commands**

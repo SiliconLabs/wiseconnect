@@ -1,6 +1,6 @@
 id: cmsis_driver_headers
 label: CMSIS Driver Header Files
-package: platform
+package: platform_siwx91x
 description: >
   CMSIS Driver Header Files
 category: Device|Si91x|MCU|Internal|CMSIS Drivers

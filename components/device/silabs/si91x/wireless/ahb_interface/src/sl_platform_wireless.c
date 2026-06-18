@@ -42,11 +42,11 @@
 #include "sl_rsi_utility.h"
 #include "sl_si91x_os.h"
 
-extern osEventFlagsId_t si91x_events;
+extern osEventFlagsId_t sli_wifi_events;
 extern osEventFlagsId_t si91x_async_events;
 extern uint32_t frontend_switch_control;
 extern osMutexId_t side_band_crypto_mutex;
-extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
+extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
 
 /** @addtogroup SOC2
 * @{
@@ -68,7 +68,7 @@ void sl_si91x_hardware_setup(void)
   RSI_ULPSS_TimerClkDisable(ULPCLK);
 #endif
 
-#if !(defined(SLI_SI917) || defined(SLI_SI915))
+#if !(defined(SLI_SI917))
   /* Disable 40MHz Clocks*/
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
 #endif
@@ -133,7 +133,7 @@ void sl_si91x_hardware_setup(void)
                                     | ULPSS_2K_BANK_4 | ULPSS_2K_BANK_5 | ULPSS_2K_BANK_6 | ULPSS_2K_BANK_7);
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   /* Power-Down Unused M4SS Domains */
   RSI_PS_M4ssPeriPowerDown(
 #ifndef SLI_SI91X_MCU_ENABLE_FLASH_BASED_EXECUTION
@@ -161,9 +161,9 @@ void sl_si91x_hardware_setup(void)
   /* Power-Down QSPI-DLL Domain */
   RSI_PS_QspiDllDomainDisable();
   /* Configure PMU Start-up Time to be used on Wake-up*/
-  RSI_PS_PmuGoodTimeDurationConfig(PMU_GOOD_TIME);
+  RSI_PS_PmuGoodTimeDurationConfig(PMU_GOOD_TIME_VALUE);
   /* Configure XTAL Start-up Time to be used on Wake-up*/
-  RSI_PS_XtalGoodTimeDurationConfig(XTAL_GOOD_TIME);
+  RSI_PS_XtalGoodTimeDurationConfig(XTAL_GOOD_TIME_VALUE);
   /*Enable first boot up*/
   RSI_PS_EnableFirstBootUp(1);
 }
@@ -180,7 +180,7 @@ void sli_si91x_configure_wireless_frontend_controls(uint32_t switch_sel)
       //!GPIO 46,47,48
       break;
     case FRONT_END_SWITCH_SEL1:
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
     {
       //!Program GPIO mode6 in ULP for ULP4,ULP5,ULP0 GPIOS
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO4, 6);
@@ -194,7 +194,7 @@ void sli_si91x_configure_wireless_frontend_controls(uint32_t switch_sel)
 #endif
     break;
     case FRONT_END_SWITCH_SEL2:
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#ifndef SLI_SI917B0
       //!Program GPIO mode6 in ULP for ULP4,ULP5,ULP0 GPIOS
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO4, 6);
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO5, 6);
@@ -202,7 +202,7 @@ void sli_si91x_configure_wireless_frontend_controls(uint32_t switch_sel)
 #endif
       break;
     case FRONT_END_SWITCH_SEL3:
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#ifndef SLI_SI917B0
       //!Program GPIO mode6 in ULP for ULP4,ULP5,ULP7 GPIOS
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO4, 6);
       RSI_EGPIO_SetPinMux(EGPIO1, 0, GPIO5, 6);
@@ -258,7 +258,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     RSI_PS_UlpssRamBanksPeriPowerUp(ULPSS_2K_BANK_0 | ULPSS_2K_BANK_1 | ULPSS_2K_BANK_2 | ULPSS_2K_BANK_3);
 
     if ((mode == RSI_WAKEUP_FROM_FLASH_MODE) || (mode == RSI_WAKEUP_WITH_RETENTION)
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined SLI_SI917B0
         || (mode == SL_SI91X_MCU_WAKEUP_PSRAM_MODE)
 #endif // SLI_SI917B0
     ) {
@@ -275,12 +275,12 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
 
 #if (SL_SI91X_TICKLESS_MODE == 0)
 
-  if ((osEventFlagsGet(si91x_events) | osEventFlagsGet(si91x_async_events))
+  if ((osEventFlagsGet(sli_wifi_events) | osEventFlagsGet(si91x_async_events))
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
       || (osMutexGetOwner(side_band_crypto_mutex) != NULL)
 #endif
-      || (sli_si91x_host_queue_status(&cmd_queues[SI91X_COMMON_CMD].tx_queue)
-          | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_WLAN_CMD].tx_queue)
+      || (sli_si91x_host_queue_status(&cmd_queues[SLI_WIFI_COMMON_CMD].tx_queue)
+          | sli_si91x_host_queue_status(&cmd_queues[SLI_WIFI_WLAN_CMD].tx_queue)
           | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_NETWORK_CMD].tx_queue)
           | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_SOCKET_CMD].tx_queue)
           | sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_BT_CMD].tx_queue))) {
@@ -348,7 +348,7 @@ void sl_si91x_trigger_sleep(SLEEP_TYPE_T sleepType,
     sli_si91x_raise_xtal_interrupt_to_ta(TURN_ON_XTAL_REQUEST);
   }
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   // Upon wake up program wireless GPIO frontend switch controls
   if (frontend_switch_control != 0) {
     sli_si91x_configure_wireless_frontend_controls(frontend_switch_control);

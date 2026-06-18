@@ -83,6 +83,7 @@ extern "C" {
 #define SL_HSPI_MCSS_MISC_CFG_HOST_CTRL (*(volatile uint32_t *)(0x46008000 + 0x0C))
 
 #define SL_HSPI_NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR (0x41300000 + 0x004)
+#define SL_HSPI_NWPAON_MEM_HOST_ACCESS_CTRL_SET   (0x41300000)
 
 #define SL_HSPI_READY_FROM_RCORE          BIT(0)
 #define SL_HSPI_LOAD_HOST_MODE            BIT(10)
@@ -131,6 +132,14 @@ uint32_t hspi_secondary_write_fifo(const void *data, uint32_t num);
  * @details Initializes the HSPI secondary, grants pin access to M4, selects the HSPI mode, and enables HSPI primary interrupts.
  ******************************************************************************/
 void hspi_secondary_peripheral_init(void);
+
+/***************************************************************************/
+/**
+ * @brief De-Initializes the HSPI Secondary at the peripheral layer.
+ *
+ * @details De-Initializes the HSPI secondary
+ ******************************************************************************/
+void hspi_secondary_peripheral_deinit(void);
 
 /***************************************************************************/
 /**

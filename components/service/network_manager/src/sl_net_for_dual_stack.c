@@ -56,6 +56,8 @@
 #include "lwip/ethip6.h"
 #include "lwip/ip6_addr.h"
 #include "lwip/timeouts.h"
+#include "sli_wifi_utility.h"
+#include "sl_cmsis_utility.h"
 
 #define NETIF_IPV4_ADDRESS(X, Y) (uint8_t)(((X) >> (8 * Y)) & 0xFF)
 #define MAC_48_BIT_SET           (1)
@@ -364,7 +366,7 @@ static sl_status_t sli_configure_host_dhcp(sl_net_wifi_client_profile_t *profile
   dhcp_start(&(wifi_client_context->netif));
   //! Wait for DHCP to acquire IP Address
   while (!dhcp_supplied_address(&(wifi_client_context->netif))) {
-    osDelay(100);
+    osDelay(SLI_SYSTEM_MS_TO_TICKS(100));
   }
   SL_DEBUG_LOG("DHCP IP: %s\n", ip4addr_ntoa((const ip4_addr_t *)&wifi_client_context->netif.ip_addr));
 #endif /* LWIP_IPV4 && LWIP_DHCP */
@@ -382,7 +384,7 @@ static sl_status_t sli_configure_host_dhcp(sl_net_wifi_client_profile_t *profile
 
   // Wait for the link-local address to up
   while (!ip6_addr_ispreferred(netif_ip6_addr_state(&(wifi_client_context->netif), 0))) {
-    osDelay(200);
+    osDelay(SLI_SYSTEM_MS_TO_TICKS(200));
   }
 #endif /* LWIP_IPV6 && LWIP_IPV6_AUTOCONFIG */
 
@@ -515,7 +517,7 @@ sl_status_t sl_net_wifi_client_init(sl_net_interface_t interface,
   }
 
   // Set the user-defined event handler for client mode
-  sl_si91x_register_event_handler(event_handler);
+  sli_net_register_event_handler(event_handler);
 
   status = sl_wifi_init(configuration, NULL, sl_wifi_default_event_handler);
   if (status != SL_STATUS_OK) {
@@ -566,7 +568,7 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
 
   // Connect to the Wi-Fi network
   if (profile_id == SL_NET_AUTO_JOIN) {
-    return sli_handle_auto_join(interface, &profile);
+    return sli_network_manager_auto_join_request(interface, profile_id);
   }
 
   // Get the client profile using the provided profile_id
@@ -579,7 +581,11 @@ sl_status_t sl_net_wifi_client_up(sl_net_interface_t interface, sl_net_profile_i
 
   // Configure IP based on the management type
   status = sli_set_sta_link_up_by_profile_mode(&profile);
-  VERIFY_STATUS_AND_RETURN(status);
+  if (status != SL_STATUS_OK) {
+    // Disconnect WiFi on IP configuration failure
+    sl_wifi_disconnect(SL_WIFI_CLIENT_INTERFACE);
+    return status;
+  }
 
   dhcp_type[SLI_SI91X_CLIENT] = profile.ip.mode;
 
@@ -617,7 +623,7 @@ sl_status_t sl_net_wifi_ap_init(sl_net_interface_t interface,
   }
 
   // Set the user-defined event handler for AP mode
-  sl_si91x_register_event_handler(event_handler);
+  sli_net_register_event_handler(event_handler);
 
   status = sl_wifi_init(configuration, NULL, sl_wifi_default_event_handler);
   VERIFY_STATUS_AND_RETURN(status);
@@ -724,7 +730,7 @@ static sl_status_t sli_si91x_send_multicast_request(sl_wifi_interface_t interfac
                                          SLI_SI91X_NETWORK_CMD,
                                          &multicast,
                                          sizeof(multicast),
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_MULTICAST_WAIT_TIME,
                                          NULL,
                                          NULL);
 
@@ -747,14 +753,13 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
   SL_WIFI_ARGS_CHECK_NULL_POINTER(sl_ip_address);
 
   sl_status_t status;
-  sl_si91x_packet_t *packet;
+  sl_wifi_system_packet_t *packet;
   sl_wifi_buffer_t *buffer                        = NULL;
   const sli_si91x_dns_response_t *dns_response    = { 0 };
   sli_si91x_dns_query_request_t dns_query_request = { 0 };
 
   // Determine the wait period based on the timeout value
-  sli_si91x_wait_period_t wait_period = timeout == 0 ? SLI_SI91X_RETURN_IMMEDIATELY
-                                                     : SL_SI91X_WAIT_FOR_RESPONSE(timeout);
+  sli_wifi_wait_period_t wait_period = timeout == 0 ? SLI_WIFI_RETURN_IMMEDIATELY : SLI_WIFI_WAIT_FOR_RESPONSE(timeout);
   // Determine the IP version to be used (IPv4 or IPv6)
   dns_query_request.ip_version[0] = (dns_resolution_ip == SL_NET_DNS_TYPE_IPV4) ? 4 : 6;
   memcpy(dns_query_request.url_name, host_name, sizeof(dns_query_request.url_name));
@@ -774,7 +779,7 @@ sl_status_t sl_net_dns_resolve_hostname(const char *host_name,
   VERIFY_STATUS_AND_RETURN(status);
 
   // Extract the DNS response from the SI91X packet buffer
-  packet       = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet       = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   dns_response = (sli_si91x_dns_response_t *)packet->data;
 
   // Convert the SI91X DNS response to the sl_ip_address format
@@ -843,7 +848,7 @@ sl_status_t sl_net_set_dns_server(sl_net_interface_t interface, const sl_net_dns
                                          SLI_SI91X_NETWORK_CMD,
                                          &dns_server_add_request,
                                          sizeof(dns_server_add_request),
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_DNS_SERVER_ADD_WAIT_TIME,
                                          NULL,
                                          NULL);
 
@@ -856,6 +861,10 @@ sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
 {
   uint8_t vap_id                   = 0;
   sl_net_ip_configuration_t config = { 0 };
+
+  if (timeout == 0 || timeout & (1 << 30)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 
   if (bypass_mode_enabled) {
     return SL_STATUS_WIFI_UNSUPPORTED;
@@ -872,7 +881,7 @@ sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
   }
 
   memcpy(&config, ip_config, sizeof(sl_net_ip_configuration_t));
-  return sli_si91x_configure_ip_address(&config, vap_id, timeout);
+  return sli_net_configure_ip_address(&config, vap_id, timeout);
 }
 
 sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_address_t *ip_address, uint32_t timeout)
@@ -902,7 +911,7 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
 #else
   ip_config.type = SL_IPV4;
 #endif
-  status = sli_si91x_configure_ip_address(&ip_config, vap_id, timeout);
+  status = sli_net_configure_ip_address(&ip_config, vap_id, timeout);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -929,9 +938,9 @@ sl_status_t sl_si91x_host_process_data_frame(sl_wifi_interface_t interface, sl_w
 {
   void *packet;
   struct netif *ifp;
-  sl_si91x_packet_t *rsi_pkt;
-  packet  = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  rsi_pkt = (sl_si91x_packet_t *)packet;
+  sl_wifi_system_packet_t *rsi_pkt;
+  packet  = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  rsi_pkt = (sl_wifi_system_packet_t *)packet;
   SL_DEBUG_LOG("\nRX len : %d\n", rsi_pkt->length);
 
   /* get the network interface for STATION interface,

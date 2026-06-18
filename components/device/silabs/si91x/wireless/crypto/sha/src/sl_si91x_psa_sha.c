@@ -91,6 +91,15 @@ psa_status_t sli_si91x_crypto_hash_compute(psa_algorithm_t alg,
     *hash_length = SL_SI91X_SHA_LEN_INVALID;
   }
 
+#else
+  // Suppress unused parameter warnings when no SHA algorithms are enabled
+  (void)alg;
+  (void)input;
+  (void)input_length;
+  (void)hash;
+  (void)hash_size;
+  (void)hash_length;
+  (void)sha_algo;
 #endif
   return status;
 }

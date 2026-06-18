@@ -399,6 +399,9 @@ STATIC __INLINE sl_status_t sl_gpio_validation(sl_gpio_t *gpio)
   //  Checks if the port is Port A. If true, checks if the pin value exceeds
   //  the maximum allowable value for Port A. Returns an invalid parameter status code if true
   if (gpio->port == SL_GPIO_PORT_A) {
+    if (gpio->pin < GPIO_PA_PIN_0_5_VALIDATE) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
     if (gpio->pin > PORTA_PIN_MAX_VALUE) {
       // If the pin value exceeds the maximum allowable value, it checks if the pin is configured as
       // SOC peripheral on ULP GPIO.

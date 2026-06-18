@@ -38,7 +38,7 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-
+#define SYSRTC_PRS 0 // enable this macro to configure the SYSRTC PRS_IN, PRS_OUT through GPIO Pins
 #if (SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1)
 #define COMPARE_CHANNEL SL_SYSRTC_CHANNEL_0 // Channel Number
 #endif
@@ -71,6 +71,13 @@ static uint32_t counter_value1 = COUNTER_VALUE1;
      && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 0))
 static uint32_t counter_value2 = COUNTER_VALUE2;
 #endif
+#if ((SYSRTC_PRS == 1) && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 1))
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = {
+  { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN },
+  GPIO_OUTPUT
+}; // To provide the clock edges for SYSRTC PRS_IN GPIO Pin
+#endif
+
 /*******************************************************************************
  **********************  Local variables   *************************************
  ******************************************************************************/
@@ -78,6 +85,7 @@ static bool state = false;
 static sl_status_t status;
 static void *callback_flag_data;
 static sl_sysrtc_interrupt_enables_t interrupt_enabled;
+uint32_t capture_val;
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -138,7 +146,10 @@ void sysrtc_example_init(void)
   interrupt_enabled.group1_overflow_interrupt_is_enabled = false;
 #endif
   do {
-
+#if (SYSRTC_PRS == 1)
+    // Enabling PRS_IN/PRS_OUT through GPIO
+    sl_si91x_sysrtc_enable_input_output_gpio(true);
+#endif
     // Configuring SYSRTC clock source
     status = sl_si91x_sysrtc_configure_clock(&sl_sysrtc_clk_config_handle);
     if (status != SL_STATUS_OK) {
@@ -155,6 +166,16 @@ void sysrtc_example_init(void)
     DEBUGOUT("SYSRTC initialization is done successfully \n");
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1) || (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1))
     uint32_t compare_value = SYSRTC_COMPARE_VALUE;
+#if (SYSRTC_PRS == 1)
+    sl_sysrtc_group_compare_channel_action_config_t SYSRTC_CMOA =
+      SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_TOGGLE; // toggle the PRS_OUT pin on compare match
+#if (SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 1)
+    sysrtc_group_config_handle.p_compare_channel0_config = &SYSRTC_CMOA;
+#endif
+#if (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 1)
+    sysrtc_group_config_handle.p_compare_channel1_config = &SYSRTC_CMOA;
+#endif
+#endif
     // Configuring sysrtc group0, enabling its compare channel
     status = sl_si91x_sysrtc_configure_group(SL_SYSRTC_GROUP, &sysrtc_group_config_handle);
     if (status != SL_STATUS_OK) {
@@ -162,11 +183,19 @@ void sysrtc_example_init(void)
       break;
     }
     DEBUGOUT("SYSRTC group configuration is done successfully \n");
+#if (SYSRTC_PRS == 1)
+    status = sl_si91x_sysrtc_set_compare_output_prs_gpio(SL_SYSRTC_GROUP, COMPARE_CHANNEL, sysrtc_prs_pin);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_sysrtc_set_compare_output_gpio, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("SYSRTC PRS_OUT GPIO pin configuration is done successfully \n");
+#endif
     // Registering SYSRTC callback and enabling interrupts
     status =
       sl_si91x_sysrtc_register_callback(sysrtc_callback, &callback_flag_data, SL_SYSRTC_GROUP, &interrupt_enabled);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_config_timer_register_callback, Error code: %lu", status);
+      DEBUGOUT("sl_si91x_sysrtc_register_callback, Error code: %lu", status);
       break;
     }
     DEBUGOUT("SYSRTC callback registered successfully\n");
@@ -180,6 +209,29 @@ void sysrtc_example_init(void)
     DEBUGOUT("\nStarted SYSRTC successfully\n");
 #endif
 #if (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 1)
+#if (SYSRTC_PRS == 1)
+    sl_sysrtc_group_capture_channel_input_edge_config_t group_capture_channel_config =
+      SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_RISE_EDGE; // to trigger the capture at the rising edge
+    // configuring input edge for capture channel
+    sysrtc_group_config_handle.p_capture_channel0_config = &group_capture_channel_config;
+    // enabling GPIO input for capture channel
+    sl_si91x_sysrtc_enable_input_output_gpio(true);
+    // Configuring sysrtc group0, enabling its compare channel
+    status = sl_si91x_sysrtc_set_capture_input_prs_gpio(SL_SYSRTC_GROUP, sysrtc_prs_pin);
+    if (status != SL_STATUS_OK) {
+      DEBUGOUT("sl_si91x_sysrtc_set_gpio_as_capture_input, Error code: %lu", status);
+      break;
+    }
+    DEBUGOUT("SYSRTC PRS_IN gpio pin configuration is done successfully \n");
+
+    status = sl_gpio_set_configuration(sl_gpio_pin_config);
+    if (status != SL_STATUS_OK) {
+      // Prints if pin configuration fails
+      DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
+      break; // breaks if error occurs
+    }
+    DEBUGOUT("GPIO set pin configuration is successful for ULP_GPIO %d \r\n", sl_gpio_pin_config.port_pin.pin);
+#else
     uint32_t current_count = 0;
     uint32_t compare_value = SYSRTC_COMPARE_VALUE;
     const sl_sysrtc_group_capture_channel_input_edge_config_t group_capture_channel_config =
@@ -188,6 +240,7 @@ void sysrtc_example_init(void)
     sysrtc_group_config_handle.p_capture_channel0_config = &group_capture_channel_config;
     // Disabling GPIO input for capture channel
     sl_si91x_sysrtc_enable_input_output_gpio(false);
+#endif
     // Configuring sysrtc group0, enabling its compare channel
     status = sl_si91x_sysrtc_configure_group(SL_SYSRTC_GROUP, &sysrtc_group_config_handle);
     if (status != SL_STATUS_OK) {
@@ -208,6 +261,9 @@ void sysrtc_example_init(void)
     // Starting Sysrtc
     sl_si91x_sysrtc_start();
     DEBUGOUT("\nStarted SYSRTC successfully\n");
+#if (SYSRTC_PRS == 1)
+    sl_gpio_driver_set_pin(&sl_gpio_pin_config.port_pin);
+#else
     /* Wait until counter is >= 32000 */
     while (current_count < compare_value) {
       sl_si91x_sysrtc_get_count(&current_count);
@@ -215,6 +271,7 @@ void sysrtc_example_init(void)
     /* Trigger bit in MCU_REG1 and wait. */
     status = sl_si91x_sysrtc_sets_register_capture_input(SL_SYSRTC_GROUP);
     //rsi_sysrtc_set_capture_reg(0u);
+#endif
 #endif
 #if ((SL_SYSRTC_COMPARE_CHANNEL0_ENABLE == 0) && (SL_SYSRTC_COMPARE_CHANNEL1_ENABLE == 0) \
      && (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE == 0))
@@ -254,7 +311,7 @@ void sysrtc_callback(void *callback_flags)
   // to avoid unused variable warning
   (void)callback_flags;
   state = !state;
-#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
+#if defined(SL_SI91X_ACX_MODULE)
   // To toggle LED0
   sl_si91x_led_toggle(SL_LED_LED0_PIN);
 #else
@@ -281,6 +338,8 @@ void sysrtc_callback(void *callback_flags)
 #endif
 #if (SL_SYSRTC_CAPTURE_CHANNEL0_ENABLE)
   //Stopping the timer instance, after capture interrupt.
+  sl_si91x_sysrtc_get_capture_value(SL_SYSRTC_GROUP, &capture_val);
+  DEBUGOUT("capture value :%ld \n", capture_val);
   sl_si91x_sysrtc_stop();
   // Deinit sysrtc and unregistering callback
   sl_si91x_sysrtc_deinit();

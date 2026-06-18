@@ -1,5 +1,5 @@
 id: iot_socket
-package: wiseconnect3_sdk
+package: wifi
 description: >
   ARM IoT Socket provides a simple, BSD-like IP socket API
 label: IoT Socket

@@ -1,6 +1,6 @@
 id: text_segment_in_psram
 label: Text Segment in PSRAM
-package: platform
+package: platform_siwx91x
 description: >
   This component puts Text segment in PSRAM memory region and enables execution from PSRAM.
 category: Device|Si91x|MCU|Peripheral|PSRAM Driver|PSRAM Linker Configurations

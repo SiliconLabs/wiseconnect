@@ -1,6 +1,6 @@
 id: romdriver_gpdma
 label: ROM DRIVER GPDMA
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver General Purpose Direct Memory Access Peripheral
 category: Device|Si91x|MCU|Internal|ROM Drivers

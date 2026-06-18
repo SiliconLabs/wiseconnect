@@ -1,6 +1,6 @@
 id: sl_analog_comparator
 label: Analog Comparator
-package: platform
+package: platform_siwx91x
 description: >
   An analog comparator in a microcontroller is a peripheral that compares two analog input voltages
   and generates interrupt if non-inverting input is higher then inverting input.

@@ -15,10 +15,10 @@
  *
  ******************************************************************************/
 /**===========================================================================
- * @brief : This file contains application code for SDIO slave device
+ * @brief : This file contains application code for SDIO secondary device
  * @section Description :
  * This example demonstrates data transfer through SDIO. The device acts as a
- * slave which interfaces with an external sdio host/master.
+ * secondary which interfaces with an external sdio host/master.
 ============================================================================**/
 #include "sdio_secondary_example.h"
 #include "UDMA.h"
@@ -77,21 +77,33 @@ boolean_t receive_data_flag      = true;
 /*******************************************************************************
  ******************************   FUNCTIONS   **********************************
  ******************************************************************************/
-void gdpma_callbak(uint8_t dma_ch);
+void gpdma_callbak(uint8_t dma_ch);
 void application_callback(uint8_t events);
 
 /***************************************************************************/ /**
  * @brief
  *   This is an application callback function for host interrupt events raised
- *   within the IRQ handler in the sdio slave peripheral driver
+ *   within the IRQ handler in the sdio secondary peripheral driver
  *
  * @param[in] events
  *   Each bit has an event linked to it
  ******************************************************************************/
 void application_callback(uint8_t events)
 {
-  if ((events & HOST_INTR_RECEIVE_EVENT) == 1) {
+  // Host sent data to secondary (RECEIVE)
+  if (events & HOST_INTR_RECEIVE_EVENT) {
     host_intr_event = 1;
+  }
+
+  // Host requested data from secondary (SEND)
+  if (events & HOST_INTR_SEND_EVENT) {
+    host_intr_event = 1;
+  }
+
+  // Host performed CMD52 register read/write
+  if (events & HOST_INTR_CMD52_EVENT) {
+    // Re-enable CMD52 interrupts to allow future events
+    sl_si91x_sdio_secondary_set_interrupts(SL_SDIO_WR_INT_UNMSK | SL_SDIO_RD_INT_UNMSK | SL_SDIO_CMD52_INT_UNMSK);
   }
 }
 
@@ -101,7 +113,7 @@ void application_callback(uint8_t events)
  *   within the IRQ handler in the sdio secondary peripheral driver
  *
  ******************************************************************************/
-void gdpma_callbak(uint8_t dma_ch)
+void gpdma_callbak(uint8_t dma_ch)
 {
   UNUSED_PARAMETER(dma_ch);
   dmaDone = 1;
@@ -123,13 +135,15 @@ void sdio_secondary_example_init(void)
 
   SysTick_Config(SystemCoreClock / 1000);
 
-  status = sl_si91x_sdio_secondary_register_event_callback(application_callback, SL_SDIO_WR_INT_EN);
+  status =
+    sl_si91x_sdio_secondary_register_event_callback(application_callback,
+                                                    SL_SDIO_WR_INT_EN | SL_SDIO_RD_INT_EN | SL_SDIO_CMD52_INT_EN);
   if (status != SL_STATUS_OK) {
     DEBUGOUT("\r\nSDIO Secondary callback function registration failed\r\n");
   }
   DEBUGOUT("\r\nSDIO Secondary callback function registration success\r\n");
 
-  sl_si91x_sdio_secondary_gpdma_register_event_callback(gdpma_callbak);
+  sl_si91x_sdio_secondary_gpdma_register_event_callback(gpdma_callbak);
 
   tt_start    = GetTickCount();
   packet_size = XFER_BUFFER_SIZE;
@@ -158,13 +172,13 @@ void sdio_secondary_example_process_action(void)
         if ((GetTickCount() - tt_start) >= 2000) {
 
           tt_end = GetTickCount();
-          DEBUGOUT("Data is received from Host->slave successfully \n");
+          DEBUGOUT("Data is received from host->Secondary successfully \n");
           DEBUGOUT("\r\nPackets received: %ld\r\n", packet_count);
           DEBUGOUT("Total bits received: %ld \r\n", (packet_count * packet_size * 8));
           DEBUGOUT("Time diff: %ld ms\r\n", (tt_end - tt_start));
 
           throughput = (packet_count * packet_size * 8) / ((tt_end - tt_start) / 1000);
-          DEBUGOUT("Throughput master->slave = %ld bps \r\n", throughput);
+          DEBUGOUT("Throughput host->secondary = %ld bps \r\n", throughput);
 
           packet_count = 0;
           tt_start     = GetTickCount();
@@ -188,7 +202,7 @@ void sdio_secondary_example_process_action(void)
       }
       if (dmaDone) {
         // It waits till i2c_send_complete is true in IRQ handler.
-        DEBUGOUT("Data is transferred from slave to master successfull \n");
+        DEBUGOUT("Data is transferred from secondary to host successfull \n");
         current_mode   = SEND_DATA;
         send_data_flag = true;
         dmaDone        = false;
@@ -201,7 +215,7 @@ void sdio_secondary_example_process_action(void)
           DEBUGOUT("Time diff :%ld ms \r\n", (tt_end - tt_start));
 
           throughput = (packet_count * packet_size * 8) / ((tt_end - tt_start) / 1000);
-          DEBUGOUT("Throughput for slave->master= %ld bps \r\n", throughput);
+          DEBUGOUT("Throughput for secondary->host= %ld bps \r\n", throughput);
 
           packet_count = 0;
         }

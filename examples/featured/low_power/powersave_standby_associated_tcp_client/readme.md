@@ -69,7 +69,7 @@ The application also demonstrates SiWx91x to connect to a remote server to send 
 ### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  - Install Studio and WiSeConnect 3 extension
+  - Install Studio and WiSeConnect extension
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
@@ -107,7 +107,7 @@ Configure the following parameters to enable your Silicon Labs Wi-Fi device to c
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 - Configure the following parameters in **app.c** to test throughput app as per requirements:
   - `SERVER_PORT` is the remote TCP server port number on the PC running iPerf.

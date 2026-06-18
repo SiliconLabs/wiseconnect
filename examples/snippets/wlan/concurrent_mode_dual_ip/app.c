@@ -45,6 +45,7 @@
 #include "sl_si91x_socket.h"
 #include "sl_si91x_socket_utility.h"
 #include "sl_net_si91x.h"
+#include "sl_si91x_core_utilities.h"
 
 /******************************************************
  *                      Macros
@@ -215,16 +216,23 @@ sl_net_wifi_psk_credential_entry_t wifi_ap_credential = { .type        = SL_NET_
 void receive_data_from_tcp_client(void);
 void send_data_to_udp_server(void);
 static void application_start(void *argument);
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -257,8 +265,8 @@ static void application_start(void *argument)
         }
         printf("\r\nWi-Fi Client interface init\r\n");
 
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
 
         //  Client profile set
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile);
@@ -475,11 +483,18 @@ EXIT:
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -488,11 +503,18 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -567,13 +589,21 @@ void receive_data_from_tcp_client(void)
 
   printf("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -587,6 +617,7 @@ void receive_data_from_tcp_client(void)
   printf("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
 
   close(client_socket);
+  close(server_socket);
 }
 
 void send_data_to_udp_server(void)

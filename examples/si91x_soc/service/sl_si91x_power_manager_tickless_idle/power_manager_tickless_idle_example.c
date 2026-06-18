@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
- * @file power_manager_tickless_idle_example.h
+ * @file power_manager_tickless_idle_example.c
  * @brief Power Manager example functions
  *******************************************************************************
  * # License
@@ -155,48 +155,66 @@ static void application_start(void *argument)
 static sl_status_t initialize_wireless(void)
 {
   // For M4-sleep wakeup, and to achieve minimum current in powersave application,
-  // wifi is initialized, handshake is performed between M4 and NWP, then
+  // wifi is initialized, then
+  // get the mac address and firmware version.
   // NWP powersave profile is updated sleep with/without retention as per
   // requirements.
   // Wifi device configuration
-  const sl_wifi_device_configuration_t client_init_configuration = {
+  static const sl_wifi_device_configuration_t station_init_configuration = {
     .boot_option = LOAD_NWP_FW,
     .mac_address = NULL,
     .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
-    .region_code = US,
-    .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                     .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                     .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE
-                                         | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+    .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+                     .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
+                     .feature_bit_map =
+                       (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+#ifdef SLI_SI91X_MCU_INTERFACE
+                        | SL_WIFI_FEAT_WPS_DISABLE
+#endif
+                        ),
                      .tcp_ip_feature_bit_map =
-                       (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
-                        | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                     .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                     .ext_custom_feature_bit_map = SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0,
+                       (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
+                     .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
+                     .ext_custom_feature_bit_map = (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
+                                                    | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
+#ifdef SLI_SI917
+                                                    | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
+                                                    ),
                      .bt_feature_bit_map         = 0,
-                     .ext_tcp_ip_feature_bit_map =
-                       (SL_SI91X_EXT_TCP_IP_WINDOW_SCALING | SL_SI91X_EXT_TCP_IP_TOTAL_SELECTS(10)
-                        | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
-                     .ble_feature_bit_map     = 0,
-                     .ble_ext_feature_bit_map = 0,
-                     .config_feature_bit_map  = SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP }
+                     .ext_tcp_ip_feature_bit_map = SL_SI91X_CONFIG_FEAT_EXTENTION_VALID,
+                     .ble_feature_bit_map        = 0,
+                     .ble_ext_feature_bit_map    = 0,
+                     .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP) }
   };
   sl_status_t status;
+  sl_wifi_firmware_version_t version = { 0 };
+  sl_mac_address_t mac_addr          = { 0 };
   // Initialize the wifi interface.
-  status = sl_wifi_init(&client_init_configuration, NULL, NULL);
-  DEBUGINIT();
+  status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with the error code.
-    DEBUGOUT("sl_wifi_init failed, Error Code: 0x%lX \n", status);
+    DEBUGOUT("Failed to start Wi-Fi Client interface: 0x%lx\r\n", status);
     return status;
   }
-  uint8_t xtal_enable = 1;
-  // M4-NWP handshake is required for NWP communication.
-  status = sl_si91x_m4_ta_secure_handshake(SL_SI91X_ENABLE_XTAL, 1, &xtal_enable, 0, NULL);
+  // Get the mac address.
+  status = sl_wifi_get_mac_address(SL_WIFI_CLIENT_INTERFACE, &mac_addr);
+  if (status == SL_STATUS_OK) {
+    DEBUGOUT("Device MAC address: %x:%x:%x:%x:%x:%x\r\n",
+             mac_addr.octet[0],
+             mac_addr.octet[1],
+             mac_addr.octet[2],
+             mac_addr.octet[3],
+             mac_addr.octet[4],
+             mac_addr.octet[5]);
+  } else {
+    DEBUGOUT("Failed to get mac address: 0x%lx\r\n", status);
+  }
+  // Get the firmware version.
+  status = sl_wifi_get_firmware_version(&version);
   if (status != SL_STATUS_OK) {
-    // If status is not OK, return with error code.
-    DEBUGOUT("sl_si91x_m4_ta_secure_handshake failed, Error Code: 0x%lX \n", status);
-    return status;
+    DEBUGOUT("\r\nFailed to fetch firmware version: 0x%lx\r\n", status);
+  } else {
+    print_firmware_version(&version);
   }
   // Wireless Sleep with ram retention
   wireless_sleep(true);
@@ -218,7 +236,7 @@ static void wireless_sleep(boolean_t sleep_with_retention)
   status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, display the error info.
-    DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
+    DEBUGOUT("sl_wifi_set_performance_profile_v2 failed, Error Code: 0x%lX \n", status);
     return;
   }
   if (sleep_with_retention) {
@@ -231,7 +249,7 @@ static void wireless_sleep(boolean_t sleep_with_retention)
   status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, display the error info.
-    DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
+    DEBUGOUT("sl_wifi_set_performance_profile_v2 failed, Error Code: 0x%lX \n", status);
     return;
   }
 }
@@ -287,6 +305,10 @@ void power_manager_example_process_action(void)
             DEBUGOUT("Error Code: 0x%lX, Power State Transition Failed \n", status);
           }
         } else if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS3) {
+          while (!sl_si91x_power_manager_ps2_pre_check()) {
+            // Wait for the PS2 state to be safe to enter.
+            osDelay(5);
+          }
           status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
           if (status != SL_STATUS_OK) {
             // If status is not OK, display the error info.

@@ -9,8 +9,6 @@
 #ifndef SL_SI91X_RGB_LED_INIT_INST_CONFIG_H
 #define SL_SI91X_RGB_LED_INIT_INST_CONFIG_H
 
-#warning "RGB LED Driver GPIO pins not configured-Appropriate pins should be selected for OPN"
-
 #if USER_CONFIGURATION_ENABLE
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_LED_LED0_RED
@@ -58,5 +56,11 @@
 #define SL_LED_LED0_BLUE_PORT   RTE_LED0_LEDB_PORT
 #define SL_LED_LED0_BLUE_NUMBER RTE_LED0_LEDB_NUMBER
 #define SL_LED_LED0_BLUE_PAD    RTE_LED0_LEDB_PAD
-#endif //USER_CONFIGURATION_ENABLE
+
+#else
+
+#warning \
+  "RGB LED Driver GPIO pins not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the RGB LED GPIO then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_RGB_LED_INIT_INST_CONFIG_H

@@ -1,6 +1,6 @@
 id: sl_ulp_uart
 label: ULP_UART
-package: platform
+package: platform_siwx91x
 description: >
   ULP UART stands for Ultra Low Power Universal Asynchronous Receiver/Transmitter. It is a communication protocol 
   used for serial communication between devices. It is used to exchange data between microcontrollers,

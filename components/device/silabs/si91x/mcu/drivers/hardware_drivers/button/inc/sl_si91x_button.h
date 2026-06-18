@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include "sl_si91x_peripheral_gpio.h"
 #include "sl_status.h"
+#include "base_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -212,7 +213,7 @@ void sl_si91x_button_set_state(uint8_t button_number, int8_t state);
  *
  * @note This function is deprecated and should be replaced with `sl_si91x_button_get_state`.
  *****************************************************************************/
-int8_t sl_si91x_button_state_get(uint8_t pin);
+int8_t sl_si91x_button_state_get(uint8_t pin) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -229,7 +230,7 @@ int8_t sl_si91x_button_state_get(uint8_t pin);
  *
  * @note This function is deprecated and should be replaced with `sl_si91x_button_state`.
  *****************************************************************************/
-int8_t sl_si91x_button_pin_state(uint8_t pin);
+int8_t sl_si91x_button_pin_state(uint8_t pin) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -245,7 +246,7 @@ int8_t sl_si91x_button_pin_state(uint8_t pin);
  *
  * @note This function is deprecated and should be replaced with `sl_si91x_button_toggle_state`.
  *****************************************************************************/
-void sl_si91x_button_state_toggle(uint8_t pin);
+void sl_si91x_button_state_toggle(uint8_t pin) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -264,7 +265,7 @@ void sl_si91x_button_state_toggle(uint8_t pin);
  *
  * @note This function is deprecated and should be replaced with `sl_si91x_button_set_state`.
  *****************************************************************************/
-void sl_si91x_button_state_set(uint8_t pin, int8_t state);
+void sl_si91x_button_state_set(uint8_t pin, int8_t state) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /** @} end group BUTTON */
 

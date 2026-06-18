@@ -42,7 +42,7 @@ void set_default_net_interface(sl_net_interface_t net_interface);
 
 sl_net_interface_t get_default_net_interface(void);
 
-sl_si91x_boot_configuration_t *get_default_device_boot_configuration(void);
+sl_wifi_system_boot_configuration_t *get_default_device_boot_configuration(void);
 
 app_wifi_cmd_client_set_roam_configuration_t *get_default_roam_configuration(
   void); //Get the Wi-Fi roaming configuration.

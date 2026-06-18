@@ -92,7 +92,7 @@ typedef enum {
   ULP_EGPIO_GROUP_IRQn       = 19, /*!< 19 ULP_EGPIO_GROUP       */
   NPSS_TO_MCU_WDT_INTR_IRQn  = 20, /*!< 20 NPSS_TO_MCU_WDT_INTR  */
   NPSS_TO_MCU_GPIO_INTR_IRQn = 21, /*!< 21 NPSS_TO_MCU_GPIO_INTR */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   NPSS_TO_MCU_SYRTC_INTR_IRQn = 22, /*!< 22 NPSS_TO_MCU_SYSRTC_INTR */
 #else
   NPSS_TO_MCU_CMP_RF_WKP_INTR_IRQn = 22,               /*!< 22 NPSS_TO_MCU_CMP_RF_WKP_INTR                           */
@@ -131,7 +131,7 @@ typedef enum {
   EGPIO_PIN_7_IRQn               = 59, /*!< 59 EGPIO_PIN_7   */
   QSPI_IRQn                      = 60, /*!< 60 QSPI          */
   I2C1_IRQn                      = 61, /*!< 61 I2C1          */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   MVP_IRQn        = 62, /*!< 62  MVP        */
   MVP_WAKEUP_IRQn = 63, /*!< 63  MVP_WAKEUP */
 #endif
@@ -12569,7 +12569,7 @@ typedef struct { /*!< (@ 0x24048100) MCU_FSM Structure */
       __IOM unsigned int COMPR_BASED_WAKEUP_b : 1;           /*!< [21..21] compartor based
                                                    wakeup enable, either of any 6
                                                    comparator interrupts */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
       __IOM unsigned int SYSRTC_BASED_WAKEUP_b : 1; /*!< [22..22] SYSRTC Based Wakeup */
 #else
       __IOM unsigned int Reserved3 : 1;                /*!< [22..22] It is recommended to write
@@ -12813,7 +12813,7 @@ typedef struct { /*!< (@ 0x24048100) MCU_FSM Structure */
                                                   MCU Data Storage 1 domain is
                                                   ON. 1 - Domain is ON. 0 -
                                                   Domain is OFF.. */
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
       __IOM unsigned int Reserved1 : 10; /*!< [14..5] It is recommended to write
                                          these bits to 0. */
 #else
@@ -13002,7 +13002,7 @@ typedef struct { /*!< (@ 0x24048100) MCU_FSM Structure */
       __IOM unsigned int COMP6_BASED_WAKEUP_STATUS_CLEAR_b : 1; /*!< [9..9] To Clear
                                                      Button-wake status
                                                      indication. */
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
       __IOM unsigned int RF_WAKEUP_CLEAR_b : 1; /*!< [10..10] To Clear WuRX status
                                                 indication. */
 #else
@@ -13555,7 +13555,7 @@ typedef struct { /*!< (@ 0x24048000) MCU_AON Structure */
                                                   this bit and wait  till it
                                                   becomes one. */
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
       __IOM unsigned int AON_KHZ_CLK_SEL_WWD : 4;                  /* [4 .. 7] NPSS AON KHz clock
                                                   selection for WWD */
       __IM unsigned int AON_KHZ_CLK_SEL_CLOCK_SWITCHED_WWD : 1;    /*!< [8..8] If Khz clock mux
@@ -13584,7 +13584,7 @@ typedef struct { /*!< (@ 0x24048000) MCU_AON Structure */
                                              upon power_up,It will be clear
                                                         when reset pin is pulled
                                              low. */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
       __IOM unsigned int SYSRTC_32KHZ_RC_CLK_DIV_FACTOR : 6; /* [18..23] Clock division factor
                                                   for 32Khz_rc_clk (Used in
                                                   SYSRTC and MCU WWD) */
@@ -14651,7 +14651,7 @@ typedef struct { /*!< (@ 0x24043800) AUX_ADC_DAC_COMP Structure */
                                     when buffer is wake up time (number
                                            of clock cycles) , dependant upon AUX
                                     ADC latency.                        */
-      __IOM unsigned int EN_ADC_TRUN_OFF : 1;  /*!< [26..26] Enable power save mode to turn off
+      __IOM unsigned int EN_ADC_TURN_OFF : 1;  /*!< [26..26] Enable power save mode to turn off
                                    AUX ADC when sampling clock is idle and enable
                                    it before sampling event, programmed by
                                    adc_wake_up_time */
@@ -15403,7 +15403,7 @@ typedef struct { /*!< (@ 0x46008000) MISC_CONFIG Structure */
   };
 } MISC_CONFIG_Type; /*!< Size = 4 (0x4) */
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 /**************************************************************************/ /**
                                                                                * @defgroup RSI_DEVICE_SYSRTC SYSRTC
                                                                                * @{
@@ -15878,7 +15878,7 @@ typedef struct { /*!< (@ 0x24042400) SDC Structure                              
 #define ULPCLK_BASE            0x24041400UL
 #define SDC_BASE               0x24042400UL
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define SYSRTC_BASE 0x24048C00UL
 
 #define MVP_S_BASE  (0x24000000UL) /* MVP_S base address */
@@ -15974,7 +15974,7 @@ typedef struct { /*!< (@ 0x24042400) SDC Structure                              
 #define MISC_CONFIG       ((MISC_CONFIG_Type *)MISC_CONFIG_BASE)
 #define SDC               ((SDC_Type *)SDC_BASE)
 #define ULP_I2C           I2C2 // Renaming I2C2 base address as ULP_I2C
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define SYSRTC0 ((SYSRTC_TypeDef *)SYSRTC_BASE)
 #define MVP     ((MVP_TypeDef *)MVP_BASE) /**< MVP base pointer */
 #endif

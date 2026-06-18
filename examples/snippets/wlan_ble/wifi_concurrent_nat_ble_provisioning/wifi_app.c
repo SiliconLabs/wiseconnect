@@ -70,8 +70,16 @@
 // Wi-Fi Configuration includes
 #include "wifi_config.h"
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 typedef void socket_handler(void *);
 void create_tcp_server(void);
 void create_udp_server(void);
@@ -255,12 +263,19 @@ int32_t wifi_app_get_event(void)
 }
 
 // rejoin failure call back handler in station mode
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // update wlan application state
   disconnected = 1;
@@ -273,14 +288,14 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 void wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 static sl_status_t show_scan_results()
 {
   SL_WIFI_ARGS_CHECK_NULL_POINTER(scan_result);
   uint8_t *bssid;
-  LOG_PRINT("%lu Scan results:\r\n", scan_result->scan_count);
+  LOG_PRINT("\r\n%lu WLAN scan results:\r\n", scan_result->scan_count);
 
   if (scan_result->scan_count) {
     LOG_PRINT("\r\n   %s %24s %s", "SSID", "SECURITY", "NETWORK");
@@ -308,6 +323,7 @@ static sl_status_t show_scan_results()
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -319,7 +335,7 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   SL_VERIFY_POINTER_OR_RETURN(scan_result, SL_STATUS_NULL_POINTER);
   memset(scan_result, 0, scanbuf_size);
@@ -353,7 +369,7 @@ void wifi_app_task(void)
   // Allocate memory for scan buffer
   scan_result = (sl_wifi_scan_result_t *)malloc(scanbuf_size);
   if (scan_result == NULL) {
-    LOG_PRINT("Failed to allocate memory for scan result\r\n");
+    LOG_PRINT("\r\n[Wi-Fi STA]: Failed to allocate memory for scan result\r\n");
     return;
   }
   wlan_app_callbacks_init();
@@ -372,8 +388,8 @@ void wifi_app_task(void)
     switch (event_id) {
       case WIFI_APP_INITIAL_STATE: {
         wifi_app_clear_event(WIFI_APP_INITIAL_STATE);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
 #if AP_ONLY_MODE
         wifi_app_set_event(WIFI_AP_BRING_UP_STATE);
 #endif
@@ -390,8 +406,10 @@ void wifi_app_task(void)
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
         scan_complete   = 0;
         callback_status = 0;
         status          = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
@@ -404,7 +422,7 @@ void wifi_app_task(void)
           status = scan_complete ? callback_status : SL_STATUS_TIMEOUT;
         }
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nWLAN Scan Wait Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi STA]: WLAN Scan Failed, Error Code : 0x%lX\r\n", status);
           wifi_app_set_event(WIFI_APP_SCAN_STATE);
           osDelay(1000);
         }
@@ -423,10 +441,10 @@ void wifi_app_task(void)
         if (sec_type != SL_WIFI_OPEN) {
           status = sl_net_set_credential(id, SL_NET_WIFI_PSK, pwd, strlen((char *)pwd));
           if (SL_STATUS_OK == status) {
-            LOG_PRINT("Credentials set, id : %lu\r\n", id);
+            LOG_PRINT("\r\n[Wi-Fi STA]: Credentials set, id : %lu\r\n", id);
           }
           if (status != SL_STATUS_OK) {
-            printf("Credentials set failed, id : %lu\r\n", id);
+            LOG_PRINT("\r\n[Wi-Fi STA]: Failed to set credentials, id : %lu\r\n", id);
             continue;
           }
         }
@@ -436,19 +454,19 @@ void wifi_app_task(void)
         access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
         access_point.credential_id = id;
 
-        LOG_PRINT("SSID %s\r\n", access_point.ssid.value);
+        LOG_PRINT("\r\n[Wi-Fi STA]: SSID %s\r\n", access_point.ssid.value);
         status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, TIMEOUT_MS);
 
         if (status != SL_STATUS_OK) {
           timeout = 1;
           wifi_app_send_to_ble(WIFI_APP_TIMEOUT_NOTIFY, (uint8_t *)&timeout, 1);
-          LOG_PRINT("\r\nWLAN Connect Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi STA]: WLAN Connect Failed, Error Code : 0x%lX\r\n", status);
 
           // update wlan application state
           disconnected = 1;
           connected    = 0;
         } else {
-          LOG_PRINT("\n WLAN Connection Success\r\n");
+          LOG_PRINT("\r\n[Wi-Fi STA]: WLAN Connection Success\r\n");
           // update wlan application state
           wifi_app_set_event(WIFI_APP_CONNECTED_STATE);
         }
@@ -476,7 +494,7 @@ void wifi_app_task(void)
               wifi_app_set_event(WIFI_AP_INIT_STATE);
             }
           }
-          LOG_PRINT("\r\nIP Config Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi STA]: IP Config Failed, Error Code : 0x%lX\r\n", status);
           break;
         } else {
           a                  = 0;
@@ -486,8 +504,9 @@ void wifi_app_task(void)
           sl_ip_address_t ip = { 0 };
           ip.type            = ip_address.type;
           ip.ip.v4.value     = ip_address.ip.v4.ip_address.value;
+          LOG_PRINT("\r\n[Wi-Fi STA]: STA IPv4 : ");
           print_sl_ip_address(&ip);
-          printf("\r\n");
+          LOG_PRINT("\r\n");
 
           // update wlan application state
           wifi_app_set_event(WIFI_APP_IPCONFIG_DONE_STATE);
@@ -497,14 +516,14 @@ void wifi_app_task(void)
 
       case WIFI_APP_IPCONFIG_DONE_STATE: {
         wifi_app_clear_event(WIFI_APP_IPCONFIG_DONE_STATE);
-        LOG_PRINT("WIFI App IPCONFIG Done State\r\n");
+        LOG_PRINT("\r\n[Wi-Fi STA]: Wi-Fi App IPCONFIG Done State\r\n");
         wifi_app_send_to_ble(WIFI_APP_REQ_BLE_DISCONNECT, NULL, 0);
       } break;
 
       case WIFI_APP_DISCONNECTED_STATE: {
         disconnected = 1;
         wifi_app_clear_event(WIFI_APP_DISCONNECTED_STATE);
-        LOG_PRINT("WIFI App Disconnected State\r\n");
+        LOG_PRINT("\r\n[Wi-Fi STA]: Wi-Fi App Disconnected State\r\n");
 #if !AP_ONLY_MODE
         wifi_app_set_event(WIFI_DISABLE_NAT);
 #endif
@@ -517,11 +536,11 @@ void wifi_app_task(void)
         if (status == SL_STATUS_OK) {
           disassosiated = 1;
           connected     = 0;
-          LOG_PRINT("\r\nWLAN Disconnected\r\n");
+          LOG_PRINT("\r\n[Wi-Fi STA]: WLAN Disconnected\r\n");
           wifi_app_send_to_ble(WIFI_APP_DISCONNECTION_NOTIFY, (uint8_t *)&disassosiated, 1);
           wifi_app_set_event(WIFI_APP_UNCONNECTED_STATE);
         } else {
-          LOG_PRINT("\r\nWIFI Disconnect Failed, Error Code : 0x%lX\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi STA]: WIFI Disconnect Failed, Error Code : 0x%lX\r\n", status);
         }
       } break;
 
@@ -532,7 +551,7 @@ void wifi_app_task(void)
         sl_wifi_channel_t client_channel = { 0 };
         status                           = sl_wifi_get_channel(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &client_channel);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nFailed to get client channel: 0x%lx\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi AP]: Failed to get client channel: 0x%lx\r\n", status);
           break;
         }
 
@@ -543,21 +562,21 @@ void wifi_app_task(void)
         if (wifi_ap_profile.security != SL_WIFI_OPEN) {
           status = sl_net_set_credential(id, SL_NET_WIFI_PSK, WIFI_AP_CREDENTIAL, strlen((char *)WIFI_AP_CREDENTIAL));
           if (status != SL_STATUS_OK) {
-            printf("Credentials set failed, id : %lu\r\n", id);
+            LOG_PRINT("\r\n[Wi-Fi AP]: Failed to set credentials, id : %lu\r\n", id);
             continue;
           }
         }
 
         status = sl_si91x_configure_ip_address(&ip_add, SL_SI91X_WIFI_AP_VAP_ID);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nIPv4 address configuration is failed : 0x%lx\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi AP]: Failed to configure IPv4 address : 0x%lx\r\n", status);
           break;
         }
 
         if (ip_add.type == SL_IPV4) {
           sl_ip_address_t ip_address = { 0 };
           ip_address.type            = SL_IPV4;
-          LOG_PRINT("\r\nAP IPv4 : ");
+          LOG_PRINT("\r\n[Wi-Fi AP]: AP's default gateway: ");
           memcpy(&ip_address.ip.v4.bytes, &ip_add.ip.v4.ip_address.bytes, sizeof(sl_ipv4_address_t));
           print_sl_ip_address(&ip_address);
           LOG_PRINT("\r\n");
@@ -565,24 +584,24 @@ void wifi_app_task(void)
 
         status = sl_net_set_profile(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID, &wifi_ap_profile);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nFailed to set profile: 0x%lx\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi AP]: Failed to set profile: 0x%lx\r\n", status);
           break;
         }
 
         status = sl_wifi_start_ap(SL_WIFI_AP_2_4GHZ_INTERFACE, &wifi_ap_profile);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nFailed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi AP]: Failed to bring Wi-Fi AP interface up: 0x%lx\r\n", status);
           break;
         }
-        LOG_PRINT("\r\nAP started\r\n");
+        LOG_PRINT("\r\n[Wi-Fi AP]: AP started\r\n");
 
 #if (THROUGHPUT_TYPE == TCP_TX)
         if (osThreadNew((osThreadFunc_t)create_tcp_server, NULL, &server_thread_attr) == NULL) {
-          LOG_PRINT("Failed to create TCP server thread\r\n");
+          LOG_PRINT("\r\nFailed to create TCP server thread\r\n");
         }
 #elif (THROUGHPUT_TYPE == UDP_TX)
         if (osThreadNew((osThreadFunc_t)create_udp_server, NULL, &server_thread_attr) == NULL) {
-          LOG_PRINT("Failed to create UDP server thread\r\n");
+          LOG_PRINT("\r\nFailed to create UDP server thread\r\n");
         }
 #endif
 
@@ -595,10 +614,10 @@ void wifi_app_task(void)
         wifi_app_clear_event(WIFI_AP_BRING_DOWN_STATE);
         status = sl_wifi_stop_ap(SL_WIFI_AP_2_4GHZ_INTERFACE);
         if (status != SL_STATUS_OK) {
-          LOG_PRINT("\r\nAp stop fail: 0x%lx\r\n", status);
+          LOG_PRINT("\r\n[Wi-Fi AP]: AP stop failed: 0x%lx\r\n", status);
           break;
         }
-        LOG_PRINT("\r\nAP Stop Success\r\n");
+        LOG_PRINT("\r\n[Wi-Fi AP]: AP Stop Success\r\n");
         wifi_app_send_to_ble(WIFI_APP_REQ_BLE_START_ADVERTISING, NULL, 0);
       } break;
 
@@ -633,29 +652,43 @@ void wifi_app_task(void)
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
 
-  LOG_PRINT("Remote Client connected: ");
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  LOG_PRINT("\r\nRemote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
-  LOG_PRINT("\n");
+  LOG_PRINT("\r\n");
 
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
 
-  LOG_PRINT("Remote Client disconnected: ");
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  LOG_PRINT("\r\nRemote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
 
-  LOG_PRINT("\n");
+  LOG_PRINT("\r\n");
 
   return SL_STATUS_OK;
 }
@@ -678,7 +711,7 @@ void tcp_client_handler(void *arg)
     if (sent_bytes < 0) {
       if (errno == ENOBUFS)
         continue;
-      printf("\r\nSocket send failed with bsd error: %d\r\n", errno);
+      LOG_PRINT("\r\nSocket send failed with bsd error: %d\r\n", errno);
       break;
     }
     total_bytes_sent += sent_bytes;
@@ -690,13 +723,13 @@ void tcp_client_handler(void *arg)
     }
   }
 
-  LOG_PRINT("tcp data transfer completed on: socket %d\n", client_sock);
+  LOG_PRINT("\r\nTCP data transfer completed on: socket %d\r\n", client_sock);
   LOG_PRINT("\r\nTotal bytes sent : %d\r\n", total_bytes_sent);
 
   measure_and_print_throughput(total_bytes_sent, (now - start));
 
   close(client_sock);
-  LOG_PRINT("exiting from client handler\n");
+  LOG_PRINT("\r\nExiting from client handler\r\n");
   osThreadTerminate(osThreadGetId());
 }
 
@@ -708,7 +741,7 @@ void create_tcp_server(void)
   int ap_vap                     = 1;
   sl_status_t status             = sl_si91x_config_socket(socket_config);
   if (status != SL_STATUS_OK) {
-    LOG_PRINT("Socket config failed: %ld\r\n", status);
+    LOG_PRINT("\r\nSocket config failed: %ld\r\n", status);
   } else {
     LOG_PRINT("\r\nSocket config Done\r\n");
   }
@@ -721,6 +754,13 @@ void create_tcp_server(void)
   LOG_PRINT("\r\nServer Socket ID : %d\r\n", server_sock);
 
   socket_return_value = sl_si91x_setsockopt(server_sock, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+  if (socket_return_value < 0) {
+    LOG_PRINT("\r\nSocket set sock opt failed with bsd error: %d\r\n", errno);
+    close(server_sock);
+    return;
+  } else {
+    LOG_PRINT("\r\nServer socket bound to Wi-Fi AP VAP\r\n");
+  }
 
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
@@ -803,7 +843,7 @@ void udp_client_handler(void *arg)
   measure_and_print_throughput(total_bytes_sent, (now - start));
 
   free(client_data);
-  LOG_PRINT("Exiting from client handler\n");
+  LOG_PRINT("\r\nExiting from client handler\r\n");
   osThreadTerminate(osThreadGetId());
 }
 
@@ -835,7 +875,7 @@ void create_udp_server(void)
   while (1) {
     client_data_t *client_data = malloc(sizeof(client_data_t));
     if (!client_data) {
-      printf("Failed to allocate memory for client data\n");
+      LOG_PRINT("\r\nFailed to allocate memory for client data\r\n");
       continue;
     }
 
@@ -851,7 +891,7 @@ void create_udp_server(void)
                                       (struct sockaddr *)&client_data->client_addr,
                                       &client_data->client_addr_len);
     if (received_bytes < 0) {
-      printf("Socket receive failed with error: %d\n", errno);
+      LOG_PRINT("\r\nSocket receive failed with error: %d\n", errno);
       free(client_data);
       continue;
     }

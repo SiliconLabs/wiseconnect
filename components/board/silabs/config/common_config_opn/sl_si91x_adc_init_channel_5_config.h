@@ -63,7 +63,7 @@ extern "C" {
 #ifndef SL_ADC_CH5_PERIPHERAL
 #define SL_ADC_CH5_PERIPHERAL ADC_CH5
 #endif
-#warning "ADC peripheral is not configured. Please configure the ADC pins according to the board connections."
+
 // ADC_CH5 P on ULP_GPIO_8/GPIO_72
 #ifndef SL_ADC_CH5_P_PORT
 #define SL_ADC_CH5_P_PORT ULP
@@ -81,7 +81,12 @@ extern "C" {
 #if (!defined(SL_ADC_CH5_N_PORT) && (SL_ADC_CHANNEL_5_INPUT_TYPE == ADC_DIFFERENTIAL_INPUT))
 #warning "Channel_5's ADC_N pin is not set up for a differential input type"
 #endif
-#endif
+#else
+
+#warning \
+  "ADC Channel 5 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 // Positive Input Channel Selection
 #ifdef SL_ADC_CH5_P_PIN
 #define SL_ADC_CHANNEL_5_POS_INPUT_CHNL_SEL \

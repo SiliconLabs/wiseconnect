@@ -62,7 +62,7 @@ Note : The user can also use the Simplicity studio’s console window for sendin
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -76,7 +76,7 @@ The application can be configured to suit your requirements and development envi
 
 - The application uses the default configurations as provided in the **wifi_commands.c** and you can choose to configure these parameters as needed.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -92,7 +92,7 @@ See the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconne
 To use the powersave commands, follow the steps below to install the at_power_manager component:
 
 1. Open the `.slcp` file in Simplicity Studio and navigate to the `SOFTWARE COMPONENTS` section.
-2. Search for `at_power_manager`. In the WiseConnect3 SDK, click on `Expand All`.
+2. Search for `at_power_manager`. In the WiSeConnect SDK, click on `Expand All`.
 3. Select the `at_power_manager` component. In the right-side pane, click on `Install`.
 
 ![at_power_save](resources/readme/at_power_save_comp.png)

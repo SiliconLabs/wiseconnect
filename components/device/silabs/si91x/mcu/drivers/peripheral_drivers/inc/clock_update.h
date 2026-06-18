@@ -43,7 +43,7 @@ typedef enum PERI_CLKS {
   M4_UART1,   // Enables or Disables USART2 Master Peripheral clock when it is passed
   M4_SSI_MST, // Enables or Disables SSI Master Peripheral clock when it is passed
   M4_CT,      // Enables or Disables CT Peripheral clock when it is passed
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   M4_SD_MEM, // Enables or Disables SD_MEM Peripheral clock when it is passed
   M4_CCI,    // Enables or Disables CCI Peripheral clock when it is passed
 #endif

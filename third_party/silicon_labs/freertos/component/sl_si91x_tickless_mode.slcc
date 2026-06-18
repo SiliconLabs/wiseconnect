@@ -1,6 +1,6 @@
 id: si91x_tickless_mode
 label: SI91X TICK-LESS MODE
-package: platform
+package: platform_siwx91x
 description: Free RTOS low power tickless mode with sleep timer. 
 category: Device|Si91x|MCU|Service
 quality: production

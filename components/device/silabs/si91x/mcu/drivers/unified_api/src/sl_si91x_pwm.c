@@ -41,7 +41,7 @@
 #define MAX_FLAG              15    // PWM maximum flag
 #define HOST_MIN              24    // GPIO host pad minimum pin number
 #define HOST_MAX              31    // GPIO host pad maximum pin number
-#define MAX_DEAD_TIME         32    // dead time A/B max value
+#define MAX_DEAD_TIME         63    // dead time A/B max value
 #define PWM_RELEASE_VERSION   0     // PWM Release version
 #define PWM_SQA_VERSION       0     // PWM SQA version
 #define PWM_DEV_VERSION       2     // PWM Developer version
@@ -987,11 +987,13 @@ sl_status_t sl_si91x_pwm_select_dead_time(sl_pwm_dead_time_t dead_time, uint32_t
     }
     if (dead_time == SL_DEAD_TIME_ENABLE) {
       RSI_MCPWM_DeadTimeControlSet(MCPWM, value);
-      status = SL_STATUS_OK;
+      MCPWM->PWM_FLT_OVERRIDE_CTRL_SET_REG_b.COMPLEMENTARY_MODE = true; // Set complementary mode for dead time control
+      status                                                    = SL_STATUS_OK;
       break;
     }
     RSI_MCPWM_DeadTimeControlReSet(MCPWM, value);
-    status = SL_STATUS_OK; // Returns status OK if no error occurs
+    MCPWM->PWM_FLT_OVERRIDE_CTRL_SET_REG_b.COMPLEMENTARY_MODE = false; // Reset complementary mode for dead time control
+    status                                                    = SL_STATUS_OK; // Returns status OK if no error occurs
   } while (false);
   return status;
 }

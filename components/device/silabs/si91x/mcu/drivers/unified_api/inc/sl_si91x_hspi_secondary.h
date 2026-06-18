@@ -125,6 +125,17 @@ sl_status_t sl_si91x_hspi_secondary_init(void);
 
 /***************************************************************************/
 /**
+ * @brief De-Initializes the HSPI secondary.
+ *
+ * @pre Pre-condition:
+ *      - The system clock must be configured.
+ *      - The HSPI peripheral clock must be enabled.
+ *
+ ******************************************************************************/
+sl_status_t sl_si91x_hspi_secondary_deinit(void);
+
+/***************************************************************************/
+/**
  * @brief Sends data from the HSPI secondary to the host/primary device in non-blocking mode.
  *
  * @pre Pre-condition:
@@ -199,9 +210,8 @@ sl_status_t sl_si91x_hspi_secondary_register_event_callback(sl_hspi_secondary_ca
  *      - \ref sl_si91x_hspi_secondary_init must be called prior.
  *      - \ref sl_si91x_hspi_secondary_register_event_callback must be called prior.
  * 
- * @param[in] flag Interrupt flag to be unregistered.
  ******************************************************************************/
-void sl_si91x_hspi_secondary_unregister_event_callback(uint32_t flag);
+void sl_si91x_hspi_secondary_unregister_event_callback(void);
 
 /***************************************************************************/
 /**

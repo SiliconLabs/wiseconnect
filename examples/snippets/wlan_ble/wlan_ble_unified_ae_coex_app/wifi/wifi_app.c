@@ -56,10 +56,6 @@
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_socket.h"
 
-#if SSL
-#include "cacert.pem.h" //! Include SSL CA certificate
-#endif
-
 /*=======================================================================*/
 //   ! MACROS
 /*=======================================================================*/
@@ -133,7 +129,11 @@ int32_t initiate_wifi_and_ble_power_save(void);
 //!  CALLBACK FUNCTIONS
 /*************************************************************************/
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
@@ -144,7 +144,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
     if (osThreadGetState(wifi_app_thread_id) == osThreadBlocked) {
       osThreadResume(wifi_app_thread_id);
     }
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -161,7 +161,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
  * ==================================================*/
 void wlan_app_callbacks_init(void)
 {
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 #if SSL && LOAD_CERTIFICATE
@@ -213,6 +213,7 @@ static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -223,8 +224,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
 
   if (result_length != 0) {
@@ -236,15 +237,15 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
 
 /*====================================================*/
 /**
- * @fn         int32_t  wlan_app_thread(void *unuseds)
+ * @fn         void  wlan_app_thread(void *unused)
  * @brief      Function to work with application task
- * @param[in]  void
+ * @param[in]  void *
  * @return     void
  *=====================================================*/
 
 void wlan_app_thread(void *unused)
 {
-  int32_t status = SL_STATUS_FAIL;
+  sl_status_t status = SL_STATUS_FAIL;
   UNUSED_PARAMETER(unused);
 
   while (1) {
@@ -258,7 +259,7 @@ void wlan_app_thread(void *unused)
         wifi_scan_configuration                              = default_wifi_scan_configuration;
 
         printf("WLAN scan started \r\n");
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
         scan_complete   = false;
         callback_status = SL_STATUS_FAIL;
         status          = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
@@ -334,8 +335,8 @@ void wlan_app_thread(void *unused)
         osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
         if (!powersave_cmd_given) {
           //! initiating power save in wlan mode
-          sl_wifi_performance_profile_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
-          status                                     = sl_wifi_set_performance_profile(&wifi_profile);
+          sl_wifi_performance_profile_v2_t wifi_profile = { .profile = ASSOCIATED_POWER_SAVE };
+          status                                        = sl_wifi_set_performance_profile_v2(&wifi_profile);
           if (status != SL_STATUS_OK) {
             printf("\r\n Failed to initiate power save in Wi-Fi mode :%ld\r\n", status);
           }
@@ -369,7 +370,7 @@ void wlan_throughput_task()
 
 #if ((THROUGHPUT_TYPE == TLS_RX) || (THROUGHPUT_TYPE == TLS_TX))
   // Load SSL CA certificate
-  status =
+  sl_status_t status =
     sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, cacert, sizeof(cacert) - 1);
   if (status != SL_STATUS_OK) {
     printf("\r\nLoading TLS CA certificate in to FLASH Failed, Error Code : 0x%lX\r\n", status);
@@ -640,13 +641,21 @@ void receive_data_from_tcp_client(void)
 
   printf("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -714,8 +723,8 @@ void send_data_to_udp_server(void)
 
 void receive_data_from_udp_client(void)
 {
-  int client_socket = -1;
 
+  int client_socket                 = -1;
   int socket_return_value           = 0;
   struct sockaddr_in server_address = { 0 };
   socklen_t socket_length           = sizeof(struct sockaddr_in);
@@ -751,6 +760,7 @@ void receive_data_from_udp_client(void)
 
   sl_si91x_shutdown(client_socket, 0);
 #else
+  sl_status_t status            = SL_STATUS_OK;
   int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
   client_socket                 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -776,9 +786,18 @@ void receive_data_from_udp_client(void)
   while (total_bytes_received < BYTES_TO_RECEIVE) {
     read_bytes = recvfrom(client_socket, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error: %d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -906,27 +925,37 @@ void receive_data_from_tls_server(void)
   start          = osKernelGetTickCount();
   now            = start;
   int read_bytes = 1;
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      return;
-    }
-    total_bytes_received = total_bytes_received + read_bytes;
-    now                  = osKernelGetTickCount();
-
-    if ((now - start) > TEST_TIMEOUT) {
-      printf("\r\nTest Time Out: %ld ms\r\n", (now - start));
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
       break;
+
+      total_bytes_received = total_bytes_received + read_bytes;
+      now                  = osKernelGetTickCount();
+
+      if ((now - start) > TEST_TIMEOUT) {
+        printf("\r\nTest Time Out: %ld ms\r\n", (now - start));
+        break;
+      }
     }
+    printf("\r\nTLS_RX Throughput test finished\r\n");
+    printf("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
+
+    measure_and_print_throughput(total_bytes_received, (now - start));
+
+    close(client_socket);
   }
-  printf("\r\nTLS_RX Throughput test finished\r\n");
-  printf("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
-
-  measure_and_print_throughput(total_bytes_received, (now - start));
-
-  close(client_socket);
 #endif
 }
 

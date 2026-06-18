@@ -32,7 +32,6 @@
 #include "sl_status.h"
 #include <stdbool.h>
 #include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,7 +50,7 @@ extern "C" {
 #define SLI_SI91X_RPS_MAGIC_NO 0x900D900D ///< Magic number in RPS header
 
 /** @brief Firmware header size in bytes. */
-#define SLI_SI91X_RPS_HEADER_SIZE sizeof(sl_si91x_firmware_header_t) ///< Firmware RPS header size
+#define SLI_SI91X_RPS_HEADER_SIZE sizeof(sl_wifi_firmware_header_t) ///< Firmware RPS header size
 
 /** @brief Flash memory chunk size for erase operations. */
 #define SL_SI91X_CHUNK_LENGTH 4096 ///< Flash erase chunk length (4KB)
@@ -229,11 +228,13 @@ sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32
 
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_config_t *config, const uint8_t *data_buffer)
- *  @pre         None
- *  @brief       Unified flash write function for OTA firmware updates.
- *               This function handles all flash write operations for OTA firmware updates
- *               using the provided configuration structure and data buffer.
- *               This function will work for A/B firmware only.
+ *  @pre         1. Flash region must be erased before writing.
+ *               2. Data chunk size must not exceed 1024 bytes.
+ *  @brief       Writes firmware data to flash during OTA updates.
+ *               Call this function when receiving each chunk of OTA firmware data.
+ *               Must be called after erasing flash and before verifying the image.
+ *               Works only with A/B firmware configuration.
+ *
  *  @param[in]   config             Pointer to the firmware fallback configuration structure.
  *  @param[in]   data_buffer        Pointer to the data buffer to write.
  *  @return      sl_status_t        SL_STATUS_OK on success, error code otherwise.
@@ -381,12 +382,14 @@ int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number);
 
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
- *  @pre         None
- *  @brief       Burns the NWP security version to OTP memory.
- *               This function reads the security version from the NWP firmware at the specified
- *               flash address and burns it into the One-Time Programmable (OTP) memory.
- *               This function will work for A/B fallback feature only and only for NWP Firmware.
- *  @param[in]   flash_address        Flash address of the NWP firmware to extract security version.
+ *  @pre         1. Valid NWP firmware must be present at the specified flash address.
+ *               2. OTP memory must not be programmed with a higher security version.
+ *  @brief       Burns the NWP security version to OTP memory to prevent firmware rollback.
+ *               Call this function after validating a new NWP firmware version and before
+ *               using it. This operation is irreversible - once burned, only firmware
+ *               with equal or higher security versions can be loaded.
+ *
+ *  @param[in]   flash_address        Base address of NWP firmware in flash memory.
  *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
  ******************************************************************************/
@@ -394,11 +397,15 @@ sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address);
 
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
- *  @pre         None
- *  @brief       Requests to load QSPI keys.
- *               This function requests to load QSPI keys for to enable the inline decryption for M4 slot firmware for fallback.
- *               This function will work for A/B firmware only.
- *  @param[in]   image_offset         Offset of the image to load the QSPI keys to enable inline decryption for M4 slot firmware for fallback.
+ *  @pre         1. Firmware encryption must be enabled.
+ *               2. Valid firmware must exist at the specified offset.
+ *  @brief       Loads QSPI keys for encrypted firmware execution.
+ *               Call this function:
+ *               - After system reset when using encrypted firmware
+ *               - Before switching to a different encrypted firmware slot
+ *               - Before performing NWP soft reset with encrypted firmware
+ *
+ *  @param[in]   image_offset         Base address of encrypted firmware in flash.
  *  @return      sl_status_t          SL_STATUS_OK on success, error code otherwise.
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).  
  ******************************************************************************/
@@ -406,12 +413,31 @@ sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset);
 
 /***************************************************************************/ /**
  *  @fn          void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
- *  @brief       Performs a soft reset of the NWP firmware.
- *               This function sends a soft reset command to the NWP firmware for fallback and keep the NWP
- *               firmware in the boot mode.
- *               This function will work for A/B firmware only.
- *  @param[in]   m4_slot_image_offset  Offset of the M4 slot image for fallback
+ *  @pre         1. Device must be configured with A/B firmware slots.
+ *               2. M4 updater firmware must be running.
+ *               3. Active slot information must be retrieved.
+ *               4. Image verification must be successful.
+ *               5. QSPI keys must be loaded.
+ *  @brief       Performs a soft reset of the NWP firmware during A/B firmware fallback operations.
+ *               This function is a critical part of the firmware update process that:
+ *               - Ensures safe transition between firmware versions
+ *               - Maintains system stability during updates
+ *               - Prepares NWP for firmware switch
+ *               - Enables fallback to previous version if needed
+ *               
+ *               The function operates in a dual-bank system where two firmware slots
+ *               (A and B) are maintained. This design allows one slot to remain as a
+ *               backup while the other is being updated, ensuring system recovery
+ *               capability if an update fails.
+ *
+ *  @param[in]   m4_slot_image_offset  Base address of M4 firmware in active slot (A or B).
+ *                                     This address points to the firmware image that will
+ *                                     be used after the reset.
+ *  @post        1. After this API call, the updater application must branch to the active slot application.
+ *                  No other operations should not be performed after this API call.
+ *               2. No NWP operations allowed between reset and M4 updater
  ******************************************************************************/
+
 void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset);
 
 /// @} (end addtogroup Firmware_Fallback) */

@@ -1,5 +1,5 @@
 id: sl_si91x_fwup
-package: wiseconnect3_sdk
+package: wifi
 description: >
     The Firmware Upgrade component provides APIs for firmware upgrade from Host or Module on Si91x device.
 label: Firmware Upgrade (Si91x)

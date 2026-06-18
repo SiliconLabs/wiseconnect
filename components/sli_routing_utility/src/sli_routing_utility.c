@@ -39,8 +39,8 @@
 
 sl_status_t sli_routing_utility_route_queue_node(sli_routing_table_t *routing_table,
                                                  uint16_t packet_type,
-                                                 sl_slist_node_t *packet,
-                                                 uint16_t packet_size,
+                                                 sli_queue_node_t *queue_node,
+                                                 uint16_t queue_node_size,
                                                  void *context)
 {
   sl_status_t status = SL_STATUS_FAIL;
@@ -53,18 +53,18 @@ sl_status_t sli_routing_utility_route_queue_node(sli_routing_table_t *routing_ta
   // Get the routing entry for the given packet type
   sli_routing_entry_t *entry = &routing_table->routing_table[packet_type];
 
-  // Increment the pointer to get the packet data
-  void *packet_data = (void *)(packet->node + sizeof(sl_slist_node_t));
+  // Get the packet data from the queue node
+  void *packet_data = queue_node->data;
 
   // Call the destination packet handler if it is not NULL
   if (entry->destination_packet_handler != NULL) {
-    status = entry->destination_packet_handler(packet_data, packet_size, entry->packet_status_handler, context);
+    status = entry->destination_packet_handler(packet_data, queue_node_size, entry->packet_status_handler, context);
     VERIFY_STATUS_AND_RETURN(status);
   }
 
-  // Enqueue the packet if the queue handle is not NULL
+  // Enqueue the queue node if the queue handle is not NULL
   if (entry->queue_handle != NULL) {
-    status = sli_queue_manager_enqueue(entry->queue_handle, packet);
+    status = sli_queue_manager_enqueue_node(entry->queue_handle, queue_node);
     VERIFY_STATUS_AND_RETURN(status);
 
     // Set the event flags
@@ -89,14 +89,19 @@ sl_status_t sli_routing_utility_route_packet(sli_routing_table_t *routing_table,
 
   sli_routing_entry_t *entry = &routing_table->routing_table[packet_type];
 
-  // Check if both destination_packet_handler and queue_handle are NULL
-  if (entry->destination_packet_handler == NULL && entry->queue_handle != NULL) {
-    return SL_STATUS_INVALID_CONFIGURATION;
-  }
   // Call the destination packet handler if it is not NULL
   if (entry->destination_packet_handler != NULL) {
     status = entry->destination_packet_handler(packet, packet_size, entry->packet_status_handler, context);
     VERIFY_STATUS_AND_RETURN(status);
+  }
+
+  // Enqueue the packet if the queue handle is not NULL
+  if (entry->queue_handle != NULL) {
+    status = sli_queue_manager_enqueue(entry->queue_handle, packet);
+    VERIFY_STATUS_AND_RETURN(status);
+
+    // Set the event flags
+    osEventFlagsSet(entry->event_group, entry->event_flag);
   }
 
   return SL_STATUS_OK;

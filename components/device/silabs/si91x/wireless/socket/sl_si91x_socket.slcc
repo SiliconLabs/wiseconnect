@@ -1,5 +1,5 @@
 id: sl_si91x_socket
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The Si91x Socket provides an API to manage Si91x internal sockets
 label: Si91x Socket

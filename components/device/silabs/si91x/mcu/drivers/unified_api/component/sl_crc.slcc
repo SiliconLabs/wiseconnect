@@ -1,6 +1,6 @@
 id: sl_crc
 label: CRC
-package: platform
+package: platform_siwx91x
 description: This application contains an example code to demonstrate CRC Generation on DMA transferred data.
 category: Device|Si91x|MCU|Peripheral
 quality: production

@@ -188,16 +188,18 @@ sl_status_t sl_si91x_bjt_temperature_sensor_bg_set_channel_configuration(
 
 /******************************************************************************/
 /**
- * @brief To convert the sensor reading to temperature in Celsius, Fahrenheit, or Kelvin.
+ * @brief Converts temperature from degrees Celsius to Fahrenheit or Kelvin.
  * 
- * @details This API converts the sensor reading to temperature in Celsius, Fahrenheit, or Kelvin.
+ * @details This API takes a temperature measurement in degrees Celsius and converts it
+ * to the temperature scale specified by current_temperature_mode parameter.
  * 
  * @pre Pre-conditions:
  *      - \ref sl_si91x_bjt_temperature_sensor_init() must be called before using this API.
- *      - \ref sl_si91x_bjt_temperature_sensor_read_data() must be called to get the sensor reading.
+ *      - \ref sl_si91x_bjt_temperature_sensor_read_data() must be called to get the temperature in Celsius.
  * 
- * @param[out] temp_data Pointer to the variable where the converted temperature data will be stored.
- * @param[in] current_temperature_mode Current temperature mode @ref sl_bjt_temperature_sensor_enum_t
+ * @param[in,out] temp_data Pointer to the variable containing the temperature in Celsius;
+ *                         will store the converted temperature after function execution.
+ * @param[in] current_temperature_mode Desired temperature scale for conversion @ref sl_bjt_temperature_sensor_enum_t
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK  - Success.

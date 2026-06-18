@@ -19,9 +19,6 @@
 
 #include "sl_si91x_psram_handle.h"
 
-#warning \
-  "PSRAM GPIO pinset not configured, For Configuring Install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE MACRO to 1, And define PSRAM_GPIO_PIN_SET_SEL MACRO."
-
 #if USER_CONFIGURATION_ENABLE
 
 // <<< Use Configuration Wizard in Context Menu >>>
@@ -41,6 +38,11 @@
 // </h> end PSRAM GPIO Pinset Selection
 
 // <<< end of configuration section >>>
+
+#else
+
+#warning \
+  "PSRAM GPIO pinset configuration missing. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then set PSRAM_GPIO_PIN_SET_SEL macro."
 
 #endif // USER_CONFIGURATION_ENABLE
 

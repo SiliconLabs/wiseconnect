@@ -440,8 +440,11 @@ sl_status_t sl_si91x_config_timer_set_mode(sl_config_timer_mode_t mode);
  *         - SL_STATUS_INVALID_PARAMETER  - Counter direction parameter has an invalid value.
  *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * @note 
- * Config Timer supports only 16-bit mode, and the SL_CT_MODE_32BIT_ENABLE_MACRO in configuration file is defined to 16-bit mode by default. 
+ * Config Timer supports only 16-bit mode, and the SL_CT_MODE_32BIT_ENABLE_MACRO in the configuration file is defined to 16-bit mode by default.
  *
+ * If UC is enabled, the application can only use the configuration set in the Universal Configurator (UC).
+ * If your application needs to change the configuration at run-time, disable UC configuration and pass user-defined configuration.
+ * 
  * For more information on status codes, see 
  * [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  *******************************************************************************/

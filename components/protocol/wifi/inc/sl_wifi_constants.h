@@ -33,22 +33,22 @@
 #include <stdint.h>
 
 /** \addtogroup SL_WIFI_CONSTANTS Constants
-  * @{ */
+   * @{ */
 
 /// Maximum number of Access Points are scanned in response to a normal scan request.
 /// @note This is not a configurable value.
 #define SL_WIFI_MAX_SCANNED_AP 11
 
 /**
- * @def SL_WIFI_MAX_SSID_LENGTH
- * @brief Defines the maximum length of a Wi-Fi SSID.
- *
- * @details This macro specifies the maximum number of characters (including the null terminator) 
- *          that a Wi-Fi SSID can have. It is used to ensure proper memory allocation and validation 
- *          of SSID strings in Wi-Fi operations.
- *
- * @note The maximum SSID length is 34 characters, which includes the null terminator.
- */
+  * @def SL_WIFI_MAX_SSID_LENGTH
+  * @brief Defines the maximum length of a Wi-Fi SSID.
+  *
+  * @details This macro specifies the maximum number of characters (including the null terminator) 
+  *          that a Wi-Fi SSID can have. It is used to ensure proper memory allocation and validation 
+  *          of SSID strings in Wi-Fi operations.
+  *
+  * @note The maximum SSID length is 34 characters, which includes the null terminator.
+  */
 #define SL_WIFI_MAX_SSID_LENGTH 34
 
 /// Maximum number of clients supported when module is running in Access Point mode.
@@ -57,8 +57,11 @@
 /// Maximum length of the Wi-Fi Pre-Shared Key (PSK) credential.
 #define SL_WIFI_MAX_PSK_LENGTH 64
 
+/// Minimum length of the Wi-Fi Pre-Shared Key (PSK) credential.
+#define SL_WIFI_MIN_PSK_LENGTH 8
+
 /// Maximum length of the Wi-Fi Pairwise Master Key (PMK) credential.
-#define SL_WIFI_MAX_PMK_LENGTH 64
+#define SL_WIFI_MAX_PMK_LENGTH 32
 
 /// Maximum length of the key in WEP security.
 #define SL_WIFI_WEP_KEY_LENGTH 32
@@ -87,13 +90,25 @@
 /// Maximum interval for Wi-Fi roaming trigger in milliseconds.
 #define SL_WIFI_NEVER_ROAM 0x7FFFFFFF
 
+/// To take listen interval from join command.
+#define SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID (1 << 1)
+
+/// Length of the BSSID (MAC address) for Wi-Fi devices.
+#define SL_WIFI_BSSID_LENGTH 6
+
+/// Length of the Wi-Fi MAC address.
+#define SL_WIFI_MAC_ADDRESS_LENGTH 6
+
+/// No Wi-Fi credential ID.
+#define SL_WIFI_NO_CREDENTIAL_ID 0
+
 /**
- * @enum sl_wifi_security_t
- * @brief Enumeration for Wi-Fi security types.
- *
- * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
- * @note To enable any WPA3 mode, the bit represented by the macro [SL_WIFI_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
- */
+  * @enum sl_wifi_security_t
+  * @brief Enumeration for Wi-Fi security types.
+  *
+  * @note WPA3 Transition security type is not currently supported while running as an Access Point (AP).
+  * @note To enable any WPA3 mode, the bit represented by the macro [SL_WIFI_EXT_FEAT_IEEE_80211W](../wiseconnect-api-reference-guide-si91x-driver/si91-x-extended-custom-feature-bitmap#sl-si91-x-ext-feat-ieee-80211-w) must be set in the [ext_custom_feature_bit_map](../wiseconnect-api-reference-guide-si91x-driver/sl-si91x-boot-configuration-t#ext-custom-feature-bit-map).
+  */
 typedef enum {
   SL_WIFI_OPEN                       = 0,  ///< Wi-Fi Open security type
   SL_WIFI_WPA                        = 1,  ///< Wi-Fi WPA security type
@@ -111,18 +126,17 @@ typedef enum {
 } sl_wifi_security_t;
 
 /**
- * @enum sl_wifi_encryption_t
- * @brief Enumeration for Wi-Fi encryption methods.
- *
- * @note Some encryption types are not currently supported in station (STA) mode.
- * @note If encryption type is configured anything other than SL_WIFI_DEFAULT_ENCRYPTION, then make sure the AP (third party) supports the configured encryption type. If not, there might be a possibility of getting join failure due to the encryption type mismatch between AP (third party) and STA.
- * @note If the encryption type is set to SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, then the eap_method is determined by the macro SL_EAP_PEAP_METHOD defined in components/protocol/wifi/si91x/sl_wifi.c.
- * - PEAP can accept any of the following three values:
- *     1. PEAP: The EAP server may bypass Phase2 authentication (less secure).
- *     2. PEAPSAFE1: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
- *     3. PEAPSAFE2: Requires Phase2 authentication in all cases (most secure).
- * - Possible values for the macro SL_EAP_PEAP_METHOD are "PEAP"(default), "PEAPSAFE1", and "PEAPSAFE2".
- */
+  * @enum sl_wifi_encryption_t
+  * @brief Enumeration for Wi-Fi encryption methods.
+  *
+  * @note Some encryption types are not currently supported in station (STA) mode.
+  * @note If encryption type is configured anything other than SL_WIFI_DEFAULT_ENCRYPTION, then make sure the AP (third party) supports the configured encryption type. If not, there might be a possibility of getting join failure due to the encryption type mismatch between AP (third party) and STA.
+  * @note PEAP encryption supports three security levels through different enum values:
+  * - SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION: The EAP server may bypass Phase2 authentication (less secure).
+  * - SL_WIFI_PEAP_SAFE1_ENCRYPTION: If a client certificate (private_key/client_cert) is not used and TLS session resumption is not used, then Phase2 authentication is mandatory.
+  * - SL_WIFI_PEAP_SAFE2_ENCRYPTION: Requires Phase2 authentication in all cases (most secure).
+  * Users can select the desired PEAP security level by setting the appropriate encryption type in their Wi-Fi profile.
+  */
 typedef enum {
   SL_WIFI_DEFAULT_ENCRYPTION,       ///< Default Wi-Fi encryption
   SL_WIFI_NO_ENCRYPTION,            ///< Wi-Fi with no Encryption (not currently supported in STA mode)
@@ -132,16 +146,18 @@ typedef enum {
   SL_WIFI_EAP_TLS_ENCRYPTION,       ///< Wi-Fi with Enterprise TLS Encryption
   SL_WIFI_EAP_TTLS_ENCRYPTION,      ///< Wi-Fi with Enterprise TTLS Encryption
   SL_WIFI_EAP_FAST_ENCRYPTION,      ///< Wi-Fi with Enterprise FAST Encryption
-  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption
-  SL_WIFI_EAP_LEAP_ENCRYPTION       ///< Wi-Fi with Enterprise LEAP Encryption
+  SL_WIFI_PEAP_MSCHAPV2_ENCRYPTION, ///< Wi-Fi with Enterprise PEAP Encryption (default, less secure)
+  SL_WIFI_PEAP_SAFE1_ENCRYPTION,    ///< Wi-Fi with Enterprise PEAP Encryption (SAFE1, medium security)
+  SL_WIFI_PEAP_SAFE2_ENCRYPTION,    ///< Wi-Fi with Enterprise PEAP Encryption (SAFE2, most secure)
+  SL_WIFI_EAP_LEAP_ENCRYPTION,      ///< Wi-Fi with Enterprise LEAP Encryption
 } sl_wifi_encryption_t;
 
 /**
- * @enum sl_wifi_tdi_t
- * @brief Enumeration for Wi-Fi Transition Disable Indication (TDI).
- *
- * @note TDI is supported only in WPA3 (Personal or Personal Transition) security in Access Point (AP) mode.
- */
+  * @enum sl_wifi_tdi_t
+  * @brief Enumeration for Wi-Fi Transition Disable Indication (TDI).
+  *
+  * @note TDI is supported only in WPA3 (Personal or Personal Transition) security in Access Point (AP) mode.
+  */
 typedef enum {
   SL_WIFI_TDI_NONE = 0, ///< Allows stations to transition within AP network.
   SL_WIFI_TDI_SAE =
@@ -150,9 +166,9 @@ typedef enum {
 } sl_wifi_tdi_t;
 
 /**
- * @enum sl_wifi_credential_type_t
- * @brief Enumeration for Wi-Fi Credential Types.
- */
+  * @enum sl_wifi_credential_type_t
+  * @brief Enumeration for Wi-Fi Credential Types.
+  */
 typedef enum {
   SL_WIFI_PSK_CREDENTIAL  = 0,        ///< Wi-Fi Personal Credential
   SL_WIFI_PMK_CREDENTIAL  = 1,        ///< Wi-Fi Pairwise Master Key
@@ -162,11 +178,11 @@ typedef enum {
 } sl_wifi_credential_type_t;
 
 /**
- * @enum sl_wifi_antenna_t
- * @brief Enumeration of Wi-Fi antenna selections.
- *
- * @note Only the internal antenna is currently supported.
- */
+  * @enum sl_wifi_antenna_t
+  * @brief Enumeration of Wi-Fi antenna selections.
+  *
+  * @note Only the internal antenna is currently supported.
+  */
 typedef enum {
   SL_WIFI_ANTENNA_1,        ///< Wi-Fi Radio Antenna 1 (not currently supported)
   SL_WIFI_ANTENNA_2,        ///< Wi-Fi Radio Antenna 2 (not currently supported)
@@ -176,11 +192,11 @@ typedef enum {
 } sl_wifi_antenna_t;
 
 /**
- * @enum sl_wifi_interface_index_t
- * @brief Enumeration of Wi-Fi interface indices.
- *
- * @note 5 GHz interfaces are not currently supported.
- */
+  * @enum sl_wifi_interface_index_t
+  * @brief Enumeration of Wi-Fi interface indices.
+  *
+  * @note 5 GHz interfaces are not currently supported.
+  */
 typedef enum {
   SL_WIFI_CLIENT_2_4GHZ_INTERFACE_INDEX = 0, ///< Wi-Fi client on 2.4 GHz interface
   SL_WIFI_AP_2_4GHZ_INTERFACE_INDEX,         ///< Wi-Fi access point on 2.4 GHz interface
@@ -193,11 +209,11 @@ typedef enum {
 } sl_wifi_interface_index_t;
 
 /**
- * @enum sl_wifi_interface_t
- * @brief Enumeration of Wi-Fi interfaces.
- *
- * @note 5 GHz radio interfaces are not currently supported.
- */
+  * @enum sl_wifi_interface_t
+  * @brief Enumeration of Wi-Fi interfaces.
+  *
+  * @note 5 GHz radio interfaces are not currently supported.
+  */
 typedef enum {
   SL_WIFI_INVALID_INTERFACE = 0, ///< Invalid interface
 
@@ -237,11 +253,11 @@ typedef enum {
 } sl_wifi_deauth_reason_t;
 
 /**
- * @enum sl_wifi_regulatory_region_t
- * @brief Enumeration of Wi-Fi regulatory regions.
- *
- * @note Australia and France regions are not currently supported.
- */
+  * @enum sl_wifi_regulatory_region_t
+  * @brief Enumeration of Wi-Fi regulatory regions.
+  *
+  * @note Australia and France regions are not currently supported.
+  */
 typedef enum {
   SL_WIFI_REGION_AUSTRALIA,      ///< Wi-Fi Region Australia (not currently supported)
   SL_WIFI_REGION_FRANCE,         ///< Wi-Fi Region France (not currently supported)
@@ -251,10 +267,10 @@ typedef enum {
 } sl_wifi_regulatory_region_t;
 
 /**
- * @brief Wi-Fi rate protocols.
- * @note Recommended value for default behavior is SL_WIFI_RATE_PROTOCOL_AUTO.
- * @note 802.11ac not currently supported.
- */
+  * @brief Wi-Fi rate protocols.
+  * @note Recommended value for default behavior is SL_WIFI_RATE_PROTOCOL_AUTO.
+  * @note 802.11ac not currently supported.
+  */
 typedef enum {
   SL_WIFI_RATE_PROTOCOL_B_ONLY,  ///< 802.11b rates only (rates go here)
   SL_WIFI_RATE_PROTOCOL_G_ONLY,  ///< 802.11g rates only (rates go here)
@@ -276,9 +292,9 @@ typedef enum {
 } sl_wifi_scan_type_t;
 
 /**
- * @enum sl_wifi_rate_t
- * @brief Enumeration of Wi-Fi transfer rates.
- */
+  * @enum sl_wifi_rate_t
+  * @brief Enumeration of Wi-Fi transfer rates.
+  */
 typedef enum {
   SL_WIFI_AUTO_RATE = 0, ///< Wi-Fi Auto transfer rate
 
@@ -326,9 +342,9 @@ typedef enum {
 } sl_wifi_rate_t;
 
 /**
- * @enum sl_wifi_bss_type_t
- * @brief Enumeration of Wi-Fi Basic Service Set (BSS) types.
- */
+  * @enum sl_wifi_bss_type_t
+  * @brief Enumeration of Wi-Fi Basic Service Set (BSS) types.
+  */
 typedef enum {
   SL_WIFI_BSS_TYPE_INFRASTRUCTURE =
     0, ///< Infrastructure BSS: Standard Wi-Fi Infrastructure network with an access point
@@ -339,11 +355,11 @@ typedef enum {
 } sl_wifi_bss_type_t;
 
 /**
- * @enum sl_wifi_band_t
- * @brief Enumeration of Wi-Fi radio bands.
- *
- * @note Only the 2.4 GHz band is currently supported.
- */
+  * @enum sl_wifi_band_t
+  * @brief Enumeration of Wi-Fi radio bands.
+  *
+  * @note Only the 2.4 GHz band is currently supported.
+  */
 typedef enum {
   SL_WIFI_AUTO_BAND   = 0, ///< Wi-Fi Band Auto
   SL_WIFI_BAND_900MHZ = 1, ///< Wi-Fi Band 900 MHz (not currently supported)
@@ -355,11 +371,11 @@ typedef enum {
 } sl_wifi_band_t;
 
 /**
- * @enum sl_wifi_bandwidth_t
- * @brief Enumeration of Wi-Fi bandwidth options.
- *
- * @note Only 20 MHz bandwidth is currently supported.
- */
+  * @enum sl_wifi_bandwidth_t
+  * @brief Enumeration of Wi-Fi bandwidth options.
+  *
+  * @note Only 20 MHz bandwidth is currently supported.
+  */
 typedef enum {
   SL_WIFI_AUTO_BANDWIDTH   = 0, ///< Wi-Fi Bandwidth Auto
   SL_WIFI_BANDWIDTH_10MHz  = 0, ///< Wi-Fi Bandwidth 10 MHz (not currently supported)
@@ -370,9 +386,9 @@ typedef enum {
 } sl_wifi_bandwidth_t;
 
 /**
- * @enum sl_wifi_client_flag_t
- * @brief Option flags for Wi-Fi client interfaces.
- */
+  * @enum sl_wifi_client_flag_t
+  * @brief Option flags for Wi-Fi client interfaces.
+  */
 typedef enum {
   SL_WIFI_NO_JOIN_OPTION   = 0,        ///< Wi-Fi Client Join with no flags
   SL_WIFI_JOIN_WITH_NO_CSA = (1 << 0), ///< Wi-Fi Client Join without Channel Switch Announcement (CSA)
@@ -380,35 +396,61 @@ typedef enum {
 } sl_wifi_client_flag_t;
 
 /**
- * @enum sl_wifi_ap_flag_t
- * @brief Option flags for Access Point (AP) interfaces.
- */
+  * @enum sl_wifi_ap_flag_t
+  * @brief Option flags for Access Point (AP) interfaces.
+  * 
+  * @note When SL_WIFI_HIDDEN_SSID is enabled, the AP's SSID will not be broadcast in beacon frames.
+  *       Clients must manually enter the exact SSID name to connect to the hidden AP.
+  * @note Hidden SSID dynamic configurability is only available in APCONF when it is disabled in opermode.
+  */
 typedef enum {
   SL_WIFI_HIDDEN_SSID = (1 << 0), ///< Hide the SSID of the AP
 } sl_wifi_ap_flag_t;
 
 /**
- * @enum sl_wifi_listen_interval_time_unit_t
- * @brief Enumeration of listen interval time units.
- */
+  * @enum sl_wifi_listen_interval_time_unit_t
+  * @brief Enumeration of listen interval time units.
+  */
 typedef enum {
   SL_WIFI_LISTEN_INTERVAL_TIME_UNIT_BEACON, ///< Time units specified in beacon periods
   SL_WIFI_LISTEN_INTERVAL_TIME_UNIT_DTIM ///< Time units specified in Delivery Traffic Indication Message (DTIM) periods
 } sl_wifi_listen_interval_time_unit_t;
 
 /**
- * @enum sl_wifi_wps_mode_t
- * @brief Enumeration of Wi-Fi WPS (Wi-Fi Protected Setup) modes.
- */
+  * @enum sl_wifi_wps_mode_t
+  * @brief Enumeration of Wi-Fi Protected Setup (WPS) modes.
+  */
 typedef enum {
-  SL_WIFI_WPS_PIN_MODE, ///< WPS pin mode: Requires a PIN to be entered on the client device.
   SL_WIFI_WPS_PUSH_BUTTON_MODE, ///< WPS push button mode: Requires the user to press a physical or virtual button on both the AP and the client device.
+  SL_WIFI_WPS_PIN_MODE, ///< WPS pin mode: Requires a PIN to be entered on the client device.
 } sl_wifi_wps_mode_t;
 
 /**
- * @enum sl_wifi_event_group_t
- * @brief Enumeration of Wi-Fi event groups.
- */
+  * @enum sl_wifi_wps_role_t
+  * @brief Enumeration of Wi-Fi WPS (Wi-Fi Protected Setup) modes.
+  * @note The SL_WIFI_WPS_REGISTRAR_ROLE is currently not supported.
+  */
+typedef enum {
+  SL_WIFI_WPS_ENROLLEE_ROLE, ///< With enrollee role configured, the device will join the network.
+  SL_WIFI_WPS_REGISTRAR_ROLE, ///< With registrar role configured, the device will create a Wi-Fi network for other devices to join.
+} sl_wifi_wps_role_t;
+
+/**
+  * @enum sl_wifi_wps_resp_status_error_code_t
+  * @brief Provides definitions for error codes updated in the status field of the sl_wifi_wps_response_t structure.
+  */
+typedef enum {
+  SL_WIFI_WPS_RESP_STATUS_NO_ERROR = 0, ///< Success case - Used in all successful M1, M2 messages
+  SL_WIFI_WPS_RESP_STATUS_MULTIPLE_PBC_DETECTED =
+    12, ///< PBC overlap detected - Multiple devices attempting PBC at the same time
+  SL_WIFI_WPS_RESP_STATUS_SETUP_LOCKED = 15, ///< AP setup locked - AP refuses new registrar enrollment when locked
+  SL_WIFI_WPS_RESP_STATUS_MSG_TIMEOUT  = 16, ///< WPS timeout - Operation timed out (2 min PBC_WALK_TIME expired)
+} sl_wifi_wps_resp_status_error_code_t;
+
+/**
+  * @enum sl_wifi_event_group_t
+  * @brief Enumeration of Wi-Fi event groups.
+  */
 typedef enum {
   SL_WIFI_SCAN_RESULT_EVENTS = 0, ///< Event group for Wi-Fi scan results
   SL_WIFI_JOIN_EVENTS        = 1, ///< Event group for Wi-Fi join status
@@ -421,21 +463,22 @@ typedef enum {
   SL_WIFI_NETWORK_DOWN_EVENTS =
     6, ///< Event group for Wi-Fi network down. This feature is not supported in current release
   SL_WIFI_NETWORK_UP_EVENTS = 7, ///< Event group for Wi-Fi network up. This feature is not supported in current release
-  SL_WIFI_CLIENT_CONNECTED_EVENTS    = 8,  ///< Event group for Wi-Fi client connected status
-  SL_WIFI_TWT_RESPONSE_EVENTS        = 9,  ///< Event group for Wi-Fi TWT response
-  SL_WIFI_CLIENT_DISCONNECTED_EVENTS = 10, ///< Event group for Wi-Fi client disconnection status
-  SL_WIFI_TRANSCEIVER_EVENTS         = 11, ///< Event group for Wi-Fi transceiver events
-  SL_WIFI_EVENT_GROUP_COUNT = 12, ///< Event group for Wi-Fi maximum default group count. Used internally by SDK
+  SL_WIFI_CLIENT_CONNECTED_EVENTS      = 8,  ///< Event group for Wi-Fi client connected status
+  SL_WIFI_TWT_RESPONSE_EVENTS          = 9,  ///< Event group for Wi-Fi TWT response
+  SL_WIFI_CLIENT_DISCONNECTED_EVENTS   = 10, ///< Event group for Wi-Fi client disconnection status
+  SL_WIFI_TRANSCEIVER_EVENTS           = 11, ///< Event group for Wi-Fi transceiver events
+  SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS = 12, ///< Event group for Wi-Fi command engine status
+  SL_WIFI_EVENT_GROUP_COUNT = 13, ///< Event group for Wi-Fi maximum default group count. Used internally by SDK
   SL_WIFI_EVENT_FAIL_INDICATION_EVENTS = (1 << 31), ///< Event group for Wi-Fi fail indication
 } sl_wifi_event_group_t;
 
 /**
- * @enum sl_wifi_event_t
- * @brief Enumeration of Wi-Fi events.
- *
- * @note Each event group has a matching event.
- * @note Each event group may be a source of multiple different events.
- */
+  * @enum sl_wifi_event_t
+  * @brief Enumeration of Wi-Fi events.
+  *
+  * @note Each event group has a matching event.
+  * @note Each event group may be a source of multiple different events.
+  */
 typedef enum {
   SL_WIFI_SCAN_RESULT_EVENT =
     SL_WIFI_SCAN_RESULT_EVENTS, ///< Event for Wi-Fi scan result. Data would be type of @ref sl_wifi_scan_result_t
@@ -460,6 +503,8 @@ typedef enum {
     SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ///< Event for Wi-Fi client disconnection status in Access Point Mode. Data would of type [sl_mac_address_t](../wiseconnect-api-reference-guide-common/ieee802#sl-mac-address-t).
   SL_WIFI_TRANSCEIVER_EVENT =
     SL_WIFI_TRANSCEIVER_EVENTS, ///< Event for Wi-Fi transceiver TX/RX events in WiFi Client mode.
+  SL_WIFI_COMMAND_ENGINE_STATUS_EVENT =
+    SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS, ///< Event for Wi-Fi command engine status.
   // TWT specific events
   SL_WIFI_TWT_UNSOLICITED_SESSION_SUCCESS_EVENT =
     SL_WIFI_TWT_RESPONSE_EVENTS
@@ -546,9 +591,9 @@ typedef enum {
 } sl_wifi_event_t;
 
 /**
- * @enum sl_wifi_reschedule_twt_action_t
- * @brief Enumeration defining actions related to Target Wake Time (TWT).
- */
+  * @enum sl_wifi_reschedule_twt_action_t
+  * @brief Enumeration defining actions related to Target Wake Time (TWT).
+  */
 typedef enum {
   SL_WIFI_SUSPEND_INDEFINITELY, ///< Suspend TWT indefinitely, effectively disabling TWT functionality until explicitly resumed.
   SL_WIFI_SUSPEND_FOR_DURATION, ///< Suspend TWT for a specified duration, after which it can automatically resume.
@@ -556,9 +601,9 @@ typedef enum {
 } sl_wifi_reschedule_twt_action_t;
 
 /**
- * @enum sl_wifi_data_rate_t
- * @brief Enumeration of Wi-Fi data rates.
- */
+  * @enum sl_wifi_data_rate_t
+  * @brief Enumeration of Wi-Fi data rates.
+  */
 typedef enum {
   SL_WIFI_DATA_RATE_1       = 0,   ///< Wi-Fi 1 Mbps transfer rate
   SL_WIFI_DATA_RATE_2       = 2,   ///< Wi-Fi 2 Mbps transfer rate
@@ -584,9 +629,9 @@ typedef enum {
 } sl_wifi_data_rate_t;
 
 /**
- * @enum sl_wifi_tx_test_mode_t
- * @brief Enumeration of Wi-Fi TX test modes.
- */
+  * @enum sl_wifi_tx_test_mode_t
+  * @brief Enumeration of Wi-Fi TX test modes.
+  */
 typedef enum {
   SL_WIFI_TEST_BURST_MODE                          = 0, ///< Burst Mode
   SL_WIFI_TEST_CONTINOUS_MODE                      = 1, ///< Continuous Mode
@@ -596,21 +641,21 @@ typedef enum {
 } sl_wifi_tx_test_mode_t;
 
 /**
- * @enum sl_wifi_high_throughput_capability_types_t
- * @brief Enumeration of High Throughput (HT) capabilities.
- */
+  * @enum sl_wifi_high_throughput_capability_types_t
+  * @brief Enumeration of High Throughput (HT) capabilities.
+  */
 typedef enum {
   SL_WIFI_HT_CAPS_NUM_RX_STBC    = (1 << 8), ///< Number of RX Space-Time Block Coding (STBC) streams supported
   SL_WIFI_HT_CAPS_SHORT_GI_20MHZ = (1 << 5), ///< Support for Short Guard Interval (GI) in 20 MHz channels
   SL_WIFI_HT_CAPS_GREENFIELD_EN =
     (1 << 4), ///< Support for Greenfield mode, which improves efficiency by eliminating legacy preambles
-  SL_WIFI_HT_CAPS_SUPPORT_CH_WIDTH = (1 << 1), ///< Support for wider channel bandwidths
+  SL_WIFI_HT_CAPS_SUPPORT_CH_WIDTH = (1 << 1), ///< Support for wider channel bandwidth (Not supported for SiWx917)
 } sl_wifi_high_throughput_capability_types_t;
 
 /**
- * @enum sl_wifi_multicast_filter_command_t
- * @brief Enumeration of multicast filter command types.
- */
+  * @enum sl_wifi_multicast_filter_command_t
+  * @brief Enumeration of multicast filter command types.
+  */
 typedef enum {
   SL_WIFI_MULTICAST_MAC_ADD_BIT   = 0, ///< To set particular bit in multicast bitmap
   SL_WIFI_MULTICAST_MAC_CLEAR_BIT = 1, ///< To reset particular bit in multicast bitmap
@@ -619,9 +664,9 @@ typedef enum {
 } sl_wifi_multicast_filter_command_t;
 
 /**
- * @enum sl_wifi_eap_client_flag_t
- * @brief Option flags for EAP (Extensible Authentication Protocol) client interfaces.
- */
+  * @enum sl_wifi_eap_client_flag_t
+  * @brief Option flags for EAP (Extensible Authentication Protocol) client interfaces.
+  */
 typedef enum {
   SL_WIFI_EAP_ENABLE_OKC = (1 << 0), ///< Wi-Fi EAP Client flag to enable Opportunistic Key Caching (OKC)
   SL_WIFI_EAP_ENABLE_PEAP_CA =
@@ -645,11 +690,11 @@ typedef enum {
 
 //! @cond Doxygen_Suppress
 /**
- * @enum sli_wifi_statistics_report_t
- * @brief Enumeration for Wi-Fi statistics report commands.
- *
- * This enumeration defines the commands to start or stop the collection of Wi-Fi statistics.
- */
+  * @enum sli_wifi_statistics_report_t
+  * @brief Enumeration for Wi-Fi statistics report commands.
+  *
+  * This enumeration defines the commands to start or stop the collection of Wi-Fi statistics.
+  */
 typedef enum {
   SLI_WIFI_START_STATISTICS_REPORT, ///< Start statistics report
   SLI_WIFI_STOP_STATISTICS_REPORT,  ///< Stop statistics report
@@ -657,10 +702,10 @@ typedef enum {
 //! @endcond
 
 /**
- * @enum sl_wifi_band_mode_t
- * @brief Band mode.
- * @note Only 2.4 GHz is currently supported.
- */
+  * @enum sl_wifi_band_mode_t
+  * @brief Band mode.
+  * @note Only 2.4 GHz is currently supported.
+  */
 typedef enum {
   SL_WIFI_BAND_MODE_2_4GHZ = 0, ///< 2.4 GHz Wi-Fi band
   SL_WIFI_BAND_MODE_5GHZ   = 1, ///< 5 GHz Wi-Fi band (not currently supported)
@@ -668,24 +713,29 @@ typedef enum {
 } sl_wifi_band_mode_t;
 
 /**
- * @enum sl_wifi_region_code_t
- * @brief
- * Guidance for Region code Mapping for Different Countries
- * | Country         | Country Code  |  Max power (Based on Regulatory domain)   | Frequency Range (Based on Regulatory Domain) | Suggested Region Code Mapping |
- * |:----------------|:--------------|:------------------------------------------|:---------------------------------------------|:------------------------------|
- * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_KR             |                         |
- * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
- * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
- * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
- * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
- * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
- * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
- * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
- * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |                            |
- * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |                            |
- * | China           | CN            | 20 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_CN             |
- *
- **/
+  * @enum sl_wifi_region_code_t
+  * 
+  * @brief
+  * Enumeration of Wi-Fi region codes.
+  * 
+  * @details
+  * Guidance for Region code Mapping for Different Countries
+  * | Country         | Country Code  |  Max power (Based on Regulatory domain)   | Frequency Range (Based on Regulatory Domain) | Suggested Region Code Mapping |
+  * |:----------------|:--------------|:------------------------------------------|:---------------------------------------------|:------------------------------|
+  * | Korea           | KR            | 23 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_KR             |
+  * | Hong Kong       | HK            | 36 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Singapore       | SG            | 200 mW (23 dBm)                           | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Malaysia        | MY            | 500 mW (27 dBm)                           | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Australia       | AU            | 4000 mW (36 dBm)                          | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Taiwan          | TW            | 30 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | Thailand        | TH            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Mexico          | MX            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Vietnam         | VN            | 20 dBm                                    | 2402 - 2482                                  | SL_WIFI_REGION_EU             |
+  * | Indonesia       | ID            | 500mW (27 dBm)                            | 2400 - 2483.5                                | SL_WIFI_REGION_EU             |
+  * | China           | CN            | 20 dBm                                    | 2400 - 2483.5                                | SL_WIFI_REGION_CN             |
+  *
+  * @note `SL_WIFI_IGNORE_REGION` This option will be deprecated in future releases.
+  **/
 typedef enum {
   SL_WIFI_DEFAULT_REGION,      ///< Factory default region
   SL_WIFI_REGION_US,           ///< United States
@@ -695,13 +745,13 @@ typedef enum {
   SL_WIFI_REGION_KR,           ///< Korea
   SL_WIFI_REGION_SG,           ///< Singapore (not currently supported)
   SL_WIFI_REGION_CN,           ///< China
-  SL_WIFI_IGNORE_REGION        ///< Do not update region code during initialization
+  SL_WIFI_IGNORE_REGION        ///< @deprecated This option will be deprecated in future releases.
 } sl_wifi_region_code_t;
 
 /**
- * @enum sl_wifi_vap_id_t
- * @brief Wi-Fi VAP ID
- */
+  * @enum sl_wifi_vap_id_t
+  * @brief Wi-Fi VAP ID
+  */
 typedef enum {
   SL_WIFI_CLIENT_VAP_ID,   ///< Wi-Fi Client VAP ID
   SL_WIFI_AP_VAP_ID,       ///< Wi-Fi Access point VAP ID
@@ -710,9 +760,9 @@ typedef enum {
 } sl_wifi_vap_id_t;
 
 /**
- * @enum sl_wifi_ap_keepalive_type_t
- * @brief Keepalive types
- */
+  * @enum sl_wifi_ap_keepalive_type_t
+  * @brief Keepalive types
+  */
 typedef enum {
   SL_WIFI_AP_KEEP_ALIVE_DISABLE = 0, ///< Disable keepalive functionality.
   SL_WIFI_AP_DEAUTH_BASED_KEEP_ALIVE =
@@ -724,30 +774,30 @@ typedef enum {
 } sl_wifi_ap_keepalive_type_t;
 
 /**
- * @def SL_WIFI_AUTO_CHANNEL
- * @brief Macro to enable Auto Channel Selection (ACS).
- *
- * This macro defines the value to enable the Auto Channel Selection (ACS) feature, which automatically determines the operating channel for the Access Point (AP).
- *
- * @note
- * - The channel in which the AP operates. A value of zero enables the ACS feature.
- * - If ACS is enabled, AP start may take approximately 9 seconds as the device scans all channels to select the best channel.
- */
+  * @def SL_WIFI_AUTO_CHANNEL
+  * @brief Macro to enable Auto Channel Selection (ACS).
+  *
+  * This macro defines the value to enable the Auto Channel Selection (ACS) feature, which automatically determines the operating channel for the Access Point (AP).
+  *
+  * @note
+  * - The channel in which the AP operates. A value of zero enables the ACS feature.
+  * - If ACS is enabled, AP start may take approximately 9 seconds as the device scans all channels to select the best channel.
+  */
 #define SL_WIFI_AUTO_CHANNEL 0
 
 /**
- * @def SL_WIFI_DEFAULT_CHANNEL_BITMAP
- * @brief Macro to define the default channel bitmap for scanning.
- *
- * @note 
- * - The selected or preferred channels to be scanned before the client connects to the AP. A value of zero means to scan on all available channels.
- */
+  * @def SL_WIFI_DEFAULT_CHANNEL_BITMAP
+  * @brief Macro to define the default channel bitmap for scanning.
+  *
+  * @note 
+  * - The selected or preferred channels to be scanned before the client connects to the AP. A value of zero means to scan on all available channels.
+  */
 #define SL_WIFI_DEFAULT_CHANNEL_BITMAP 0
 
 /**
- * @def SL_WIFI_ARGS_CHECK_NULL_POINTER(ptr)
- * @brief Macro to check for null pointers in API inputs.
- */
+  * @def SL_WIFI_ARGS_CHECK_NULL_POINTER(ptr)
+  * @brief Macro to check for null pointers in API inputs.
+  */
 #define SL_WIFI_ARGS_CHECK_NULL_POINTER(ptr) \
   do {                                       \
     if (ptr == NULL) {                       \
@@ -756,9 +806,9 @@ typedef enum {
   } while (0)
 
 /**
- * @def SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)
- * @brief Macro to check for invalid Wi-Fi interfaces in API inputs.
- */
+  * @def SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)
+  * @brief Macro to check for invalid Wi-Fi interfaces in API inputs.
+  */
 #define SL_WIFI_ARGS_CHECK_INVALID_INTERFACE(interface)                                                   \
   {                                                                                                       \
     if (!((interface == SL_WIFI_CLIENT_INTERFACE) || (interface == SL_WIFI_AP_INTERFACE)                  \
@@ -767,6 +817,50 @@ typedef enum {
       return SL_STATUS_WIFI_UNKNOWN_INTERFACE;                                                            \
     }                                                                                                     \
   }
+
+/**
+  * @enum sl_wifi_cw_tone_frequency_t
+  * @brief CW Tone Frequency.
+  *
+  * Frequency used for Continuous Wave (CW) Tone transmission in Wi-Fi test modes.
+  */
+typedef enum __attribute__((packed)) {
+  SL_WIFI_CW_TONE_FREQUENCY_312500HZ = 0,    ///< CW Tone Frequency 312500Hz
+  SL_WIFI_CW_TONE_FREQUENCY_612KHZ   = 1,    ///< CW Tone Frequency 612KHz
+  SL_WIFI_CW_TONE_FREQUENCY_1250KHZ  = 2,    ///< CW Tone Frequency 1250KHz
+  SL_WIFI_CW_TONE_FREQUENCY_2500KHZ  = 3,    ///< CW Tone Frequency 2500KHz
+  SL_WIFI_CW_TONE_FREQUENCY_5000KHZ  = 4,    ///< CW Tone Frequency 5000KHz
+  SL_WIFI_CW_TONE_FREQUENCY_INVALID  = 0xFF, ///< Invalid CW Tone Frequency
+} sl_wifi_cw_tone_frequency_t;
+
+/**
+  * @enum sl_wifi_dc_val_iq_t
+  * @brief DC value for I/Q signals.
+  *
+  * DC value for I/Q signals.
+  *
+  */
+typedef enum __attribute__((packed)) {
+  SL_WIFI_DC_VAL_IQ_NODATA  = 0x0,    ///< DC Value IQ No Data
+  SL_WIFI_DC_VAL_IQ_DEFAULT = 0x80,   ///< DC Value IQ Default
+  SL_WIFI_DC_VAL_IQ_INVALID = 0xFFFF, ///< Invalid DC Value IQ
+} sl_wifi_dc_val_iq_t;
+
+/**
+  * @enum sl_wifi_cw_tone_amplitude_t
+  * @brief CW Tone Amplitude.
+  *
+  * Amplitude used for Continuous Wave (CW) Tone transmission in Wi-Fi test modes.
+  *
+  */
+typedef enum __attribute__((packed)) {
+  SL_WIFI_CW_TONE_AMPLITUDE_1000MV  = 0x0,  ///< Tone Scale Value 1000MV peak amplitude
+  SL_WIFI_CW_TONE_AMPLITUDE_500MV   = 0x1,  ///< Tone Scale Value 500MV peak amplitude
+  SL_WIFI_CW_TONE_AMPLITUDE_250MV   = 0x2,  ///< Tone Scale Value 250MV peak amplitude
+  SL_WIFI_CW_TONE_AMPLITUDE_125MV   = 0x3,  ///< Tone Scale Value 125MV peak amplitude
+  SL_WIFI_CW_TONE_AMPLITUDE_INVALID = 0xFF, ///<  Invalid Tone scale value
+} sl_wifi_cw_tone_amplitude_t;
+
 /** @} */
 
 #endif // _SL_WIFI_CONSTANTS_H_

@@ -327,7 +327,7 @@ sl_status_t sl_dns_hostgetbyname_command_handler(console_args_t *arguments)
 sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data)
 {
   UNUSED_PARAMETER(user_data);
-  sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+  sl_net_ping_response_t *response = (sl_net_ping_response_t *)data;
 
   if (SL_NET_PING_RESPONSE_EVENT == event) {
     if (status != SL_STATUS_OK) {

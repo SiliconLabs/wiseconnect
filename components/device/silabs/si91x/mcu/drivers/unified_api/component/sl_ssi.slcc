@@ -1,6 +1,6 @@
 id: sl_ssi
 label: SSI
-package: platform
+package: platform_siwx91x
 description: >
   The SSI driver supports sending, receiving, and transferring data at 40 MHz. 
   It enables full duplex and half duplex communication modes. 

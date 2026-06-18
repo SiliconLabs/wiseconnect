@@ -424,20 +424,24 @@ sl_i2c_status_t sl_i2c_driver_receive_data_blocking(sl_i2c_instance_t i2c_instan
  * @param[in] rx_len Data length in bytes, ranging from 1 to 30,000.
  * @param[in] p_dma_config Pointer to the DMA configuration structure. See \ref sl_i2c_dma_config_t.
  * 
+ *  @return status 0 if successful, else error code as follow
+ *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
+ *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid 
+ *         - \ref SL_I2C_DMA_TRANSFER_ERROR (0x000E) - DMA parameters are invalid
+ * 
  * @note 
  *       -  Maximum rx_len values can be 30000 (receives back in around 4 seconds).
  *       - The default values cannot be any of the reserved address locations: that is, 0x00 to 0x07, 
  *        or 0x78 to 0x7f.
- * @return status 0 if successful, else error code as follow
- *         - \ref SL_I2C_SUCCESS (0x0000) - Success 
- *         - \ref SL_I2C_INVALID_PARAMETER (0x000F) - Parameters are invalid 
- *         - \ref SL_I2C_DMA_TRANSFER_ERROR (0x000E) - DMA parameters are invalid
+ *       - Use of this API is not recommended, as DMA support is limited to transmit mode only.
+ *       - Moving forward, this API will be deprecated. This is retained for backward compatibility.
  ******************************************************************************/
 sl_i2c_status_t sl_i2c_driver_receive_data_non_blocking(sl_i2c_instance_t i2c_instance,
                                                         uint16_t address,
                                                         uint8_t *rx_buffer,
                                                         uint32_t rx_len,
-                                                        sl_i2c_dma_config_t *p_dma_config);
+                                                        sl_i2c_dma_config_t *p_dma_config)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -621,7 +625,6 @@ sl_i2c_status_t sl_si91x_i2c_wait_till_i2c_is_idle(sl_i2c_instance_t i2c_instanc
  *     - **Receive data:** @ref sl_i2c_driver_receive_data_blocking
  *     - **Send data:** @ref sl_i2c_driver_send_data_blocking
  *   - Non-blocking mode (Recommended for larger buffers):
- *     - **Receive data:** @ref sl_i2c_driver_receive_data_non_blocking
  *     - **Send data:** @ref sl_i2c_driver_send_data_non_blocking
  * - Deinitialize the I2C driver: @ref sl_i2c_driver_deinit
  * 

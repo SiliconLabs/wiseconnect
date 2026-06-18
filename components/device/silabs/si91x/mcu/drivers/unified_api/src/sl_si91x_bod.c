@@ -413,7 +413,7 @@ sl_status_t sl_si91x_bod_button_register_callback(bod_button_callback_t callback
   }
   // To validate the function pointer if the parameters is not NULL then, it
   // returns an error code
-  if (user_callback != NULL) {
+  if (user_button_callback != NULL) {
     return SL_STATUS_BUSY;
   }
   // User callback address is passed to the static variable which is called

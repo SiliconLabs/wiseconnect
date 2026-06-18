@@ -1,6 +1,6 @@
 id: sl_sdc_peripheral
 label: SDC
-package: platform
+package: platform_siwx91x
 description: >
   Sensor Data Collector Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

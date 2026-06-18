@@ -64,7 +64,7 @@ extern "C" {
 #ifndef SL_ADC_CH8_PERIPHERAL
 #define SL_ADC_CH8_PERIPHERAL ADC_CH8
 #endif
-#warning "ADC peripheral is not configured. Please configure the ADC pins according to the board connections."
+
 // ADC_CH8 P on GPIO_27
 #ifndef SL_ADC_CH8_P_PORT
 #define SL_ADC_CH8_P_PORT HP
@@ -82,7 +82,12 @@ extern "C" {
 #if (!defined(SL_ADC_CH8_N_PORT) && (SL_ADC_CHANNEL_8_INPUT_TYPE == ADC_DIFFERENTIAL_INPUT))
 #warning "Channel_8's ADC_N pin is not set up for a differential input type"
 #endif
-#endif
+#else
+
+#warning \
+  "ADC Channel 8 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 // Positive Input Channel Selection
 #ifdef SL_ADC_CH8_P_PIN
 #define SL_ADC_CHANNEL_8_POS_INPUT_CHNL_SEL \

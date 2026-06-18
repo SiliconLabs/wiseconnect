@@ -64,16 +64,8 @@ void adc_fifo_mode_example_init(void)
 {
   sl_adc_version_t version;
   sl_status_t status;
-  sl_adc_clock_config_t adc_clock_config;
-  adc_clock_config.soc_pll_clock           = PS4_SOC_FREQ;
-  adc_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
-  adc_clock_config.division_factor         = DVISION_FACTOR;
-#ifdef SLI_SI915
-  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
-#else
   sl_adc_channel_config.channel = SL_ADC_CHANNEL_1;
-#endif
-  adc_channel = sl_adc_channel_config.channel;
+  adc_channel                   = sl_adc_channel_config.channel;
 
 #ifdef DAC_FIFO_MODE_EN
   sl_dac_clock_config_t dac_clock_config;
@@ -81,7 +73,10 @@ void adc_fifo_mode_example_init(void)
   dac_clock_config.soc_pll_reference_clock = SOC_PLL_REF_FREQUENCY;
   dac_clock_config.division_factor         = DVISION_FACTOR;
 #endif
-
+  // DMA Ping/Pong buffer configuration for FIFO mode:
+  // These fields MUST be configured before calling sl_si91x_adc_init() and
+  // sl_si91x_adc_set_channel_configuration() for FIFO+DMA operation.
+  // The init function does NOT automatically set these addresses.
   sl_adc_channel_config.rx_buf[adc_channel]            = adc_output;
   sl_adc_channel_config.chnl_ping_address[adc_channel] = ADC_PING_BUFFER; /* ADC Ping address */
   sl_adc_channel_config.chnl_pong_address[adc_channel] =
@@ -91,15 +86,7 @@ void adc_fifo_mode_example_init(void)
     version = sl_si91x_adc_get_version();
     DEBUGOUT("ADC version is fetched successfully \n");
     DEBUGOUT("API version is %d.%d.%d\n", version.release, version.major, version.minor);
-    if (sl_adc_config.operation_mode == 0) {
-      // Configure ADC clock
-      status = sl_si91x_adc_configure_clock(&adc_clock_config);
-      if (status != SL_STATUS_OK) {
-        DEBUGOUT("sl_si91x_adc_clock_configuration: Error Code : %lu \n", status);
-        break;
-      }
-      DEBUGOUT("Clock configuration is successful \n");
-    }
+
     status = sl_si91x_adc_init(sl_adc_channel_config, sl_adc_config, vref_value);
     /* Due to calling trim_efuse API on ADC init in driver it will change the clock frequency,
       if we are not initialize the debug again it will print the garbage data in console output. */

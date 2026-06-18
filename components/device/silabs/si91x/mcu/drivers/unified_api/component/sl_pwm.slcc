@@ -1,6 +1,6 @@
 id: sl_pwm
 label: PWM
-package: platform
+package: platform_siwx91x
 description: >
   The Motor Control Pulse Width Modulation (MCPWM) controller driver is used to generate a periodic pulse waveform, which is useful in
   motor control and power control applications. It supports 4 channel instances.

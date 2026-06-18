@@ -1,5 +1,5 @@
 id: sl_si91x_ecdh
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the ECDH APIs
 label: ECDH

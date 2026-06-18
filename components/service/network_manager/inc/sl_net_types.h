@@ -35,6 +35,7 @@
 #include "sl_constants.h"
 #include "sl_status.h"
 #include "sl_utility.h"
+#include "sl_wifi_types.h"
 #include <stdint.h>
 
 /** \addtogroup SL_NET_TYPES Types
@@ -56,6 +57,9 @@
  * | SL_NET_OTA_FW_UPDATE_EVENT           | NULL in case of success, else uint16_t chunk number in case of failure |
  * | SL_NET_DHCP_NOTIFICATION_EVENT       | NULL                                   |
  * | SL_NET_IP_ADDRESS_CHANGE_EVENT       | @ref sl_net_ip_configuration_t         |
+ * | SL_NET_AUTO_JOIN_EVENT               | @ref sl_net_auto_join_status_t         |
+ * | SL_NET_CONNECT_EVENT                 | NULL  |
+ * | SL_NET_IP_CONFIG_EVENT               | NULL  |
  * | SL_NET_EVENT_COUNT                   | Not Applicable, Internally used by SDK |
  * 
  * @param status
@@ -114,7 +118,7 @@ typedef struct {
  * @note
  * Moving forward, this `sl_si91x_ping_response_t` type will be deprecated. Instead, use @ref sl_net_ping_response_t type. This is retained for backward compatibility.
  */
-typedef sl_net_ping_response_t sl_si91x_ping_response_t;
+typedef sl_net_ping_response_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_ping_response_t;
 
 /**
  * @struct sl_net_nat_config_t
@@ -131,4 +135,23 @@ typedef struct {
   uint32_t non_tcp_session_timeout; ///< NAT non-TCP session timeout in seconds
   sl_net_interface_t interface;     ///< Network interface to apply NAT settings
 } sl_net_nat_config_t;
+
+/**
+ * @struct sl_net_interface_info_t
+ * @brief Structure containing network interface information.
+ * 
+ * @details
+ * This structure holds information about a network interface, including IPv4 and IPv6 addresses,
+ * and hardware-specific details. The hardware-specific information is stored in a union, allowing for extension
+ * to other hardware types as needed.
+ */
+typedef struct {
+  sl_ipv4_address_t ipv4_address; ///< Module IPv4 Address
+  sl_ipv6_address_t ipv6_address; ///< Module IPv6 Address
+  union {
+    sl_wifi_interface_info_t
+      wifi_info; ///< Wi-Fi specific interface information [sl_wifi_interface_info_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-interface-info-t)
+    // Add other hardware-specific structs here if needed
+  } hw_info; ///< Hardware-specific information
+} sl_net_interface_info_t;
 /** @} */

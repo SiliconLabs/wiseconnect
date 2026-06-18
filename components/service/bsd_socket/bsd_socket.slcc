@@ -1,5 +1,5 @@
 id: bsd_socket
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The BSD Socket provides an BSD-style TCP/IP communications API
 label: BSD Socket

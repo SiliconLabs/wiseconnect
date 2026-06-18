@@ -1,6 +1,6 @@
 id: sli_buffer_manager
 label: sli Buffer Manager
-package: wiseconnect3_sdk
+package: wifi
 description: >
   This package provides buffer management
 category: Buffer Manager

@@ -1,6 +1,6 @@
 id: littlefs_si91x
 label: LITTLEFS_SI91X
-package: platform
+package: platform_nwp_siwx91x
 description: >
   A little fail-safe filesystem. It's designed to handle random power failures, 
   with flash in mind, and provides wear leveling over dynamic blocks and to work 

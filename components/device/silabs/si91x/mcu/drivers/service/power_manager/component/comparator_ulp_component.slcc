@@ -1,6 +1,6 @@
 id: comparator_ulp_component
 label: PM ULP Comparator
-package: platform
+package: platform_siwx91x
 description: >
   ULP COMPARATOR component will enable Comparator in the low-power mode. It moves all the peripheral dependencies to RAM. 
   It also installs the peripheral component if already not installed.
@@ -21,6 +21,6 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: comparator_ps2
-    value: rsi_comparator.o
+    value: rsi_comparator.*
   - name: comparator_ps2
-    value: sl_si91x_analog_comparator.o
+    value: sl_si91x_analog_comparator.*

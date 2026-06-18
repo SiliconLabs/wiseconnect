@@ -68,7 +68,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   poc_bias_efuse[2] = value;
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /* POC_BIAS_EFUSE */
   data  = (ipmu_calib_data->trim_0p5na1);
   mask  = MASK_BITS(22, 0);
@@ -88,7 +88,7 @@ void RSI_IPMU_UpdateIpmuCalibData_efuse(const efuse_ipmu_t *ipmu_calib_data)
   bg_trim_efuse[4] = value;
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /* BG_TRIM_EFUSE */
   data  = (ipmu_calib_data->bg_r_ptat_vdd_ulp);
   mask  = MASK_BITS(22, 0);
@@ -411,7 +411,7 @@ void RSI_IPMU_InitCalibData(void)
   //rsi_cmd_m4_ta_secure_handshake(2,0,NULL,sizeof(efuse_ipmu_t),(uint8_t *)&global_ipmu_calib_data);
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
   /* Checks the Calibration values are present at MCU flash */
   if ((*(uint32_t *)(COMMON_FLASH_IPMU_VALUES_OFFSET)) == 0x00) {
@@ -458,19 +458,20 @@ void RSI_Configure_Ipmu_Mode(void)
 {
   double temperature = 0;
 
-#if defined(ENABLE_1P8V) || defined(SLI_SI915)
+#if defined(ENABLE_1P8V)
   (void)temperature;
   /*configures chip supply mode to HP-LDO */
   configure_ipmu_mode(HP_LDO_MODE);
 #else
+  (void)temperature;
   /* Read the temperature; if it is within the range of 0 to 60 degrees, switch the chip supply to SCDC mode. Otherwise, maintain the default LDO supply mode.*/
-  sl_si91x_bjt_temperature_sensor_init(sl_bjt_channel_config, sl_bjt_config);
-  sl_si91x_bjt_temperature_sensor_read_data(&temperature);
-  sl_si91x_bjt_temperature_sensor_deinit(sl_bjt_config);
-  if ((temperature > 0) && (temperature <= 60)) {
+  // sl_si91x_bjt_temperature_sensor_init(sl_bjt_channel_config, sl_bjt_config);
+  // sl_si91x_bjt_temperature_sensor_read_data(&temperature);
+  // sl_si91x_bjt_temperature_sensor_deinit(sl_bjt_config);
+  // if ((temperature > 0) && (temperature <= 60)) {
     /*configures chip supply mode to SCDC */
     configure_ipmu_mode(SCDC_MODE);
-  }
+  // }
 #endif
 }
 void update_efuse_system_configs(int data, uint32_t config_ptr[])
@@ -531,6 +532,7 @@ void RSI_IPMU_PowerGateSet(uint32_t mask_vlaue)
     ;
   /*Dummy read*/
   impuPowerGate = ULP_SPI_MEM_MAP(POWERGATE_REG_WRITE);
+  (void)impuPowerGate;
   return;
 }
 
@@ -1383,9 +1385,9 @@ void RSI_IPMU_32KHzROClkClib(void)
     /*  Off controls for clock cleaner are taken from NPSS */
     ULP_SPI_MEM_MAP(ULPCLKS_REFCLK_REG_ADDR) &= ~BIT(16);
     /* RO 32KHz clock enable */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= BIT(21);
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= BIT(21); /* 32KHz RO clock is not supported */
     /* calibrated trim goes to the block */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= ~(BIT(15));
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= ~(BIT(15)); /* 32KHz RO clock is not supported */
     /* Enable the clock gate for npss ref clk &wait for 1us*/
     /*  32KHz RO clock calibration */
     /* Binary search calibration enable signal for low frequency clocks RO and RC */
@@ -1396,11 +1398,12 @@ void RSI_IPMU_32KHzROClkClib(void)
     /* Read calibrated trim value after low frequency calibration done */
     ro32k_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & RO_TRIM_VALUE_LF) >> 4);
     /*Mask the bits where the trim value need to write */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &= (uint32_t)(~MASK32KRO_TRIM_VALUE_WRITE_BITS);
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) &=
+      (uint32_t)(~MASK32KRO_TRIM_VALUE_WRITE_BITS); /* 32KHz RO clock is not supported */
     /* Programming the calibrated trim to SPI register. */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (ro32k_trim << 16);
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (ro32k_trim << 16); /* 32KHz RO clock is not supported */
     /*  trim given from spi goes to the block */
-    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (BIT(15));
+    ULP_SPI_MEM_MAP(ULPCLKS_32KRO_CLK_REG_OFFSET) |= (BIT(15)); /* 32KHz RO clock is not supported */
     /* Measures MHz RC clock Clock Frequency  */
     no_of_tst_clk_khz_ro = RSI_Clks_Calibration(sleep_clk, khz_ro_clk);
     no_of_tst_clk_khz_ro /= 1000;
@@ -1564,13 +1567,13 @@ void RSI_IPMU_20M_ROClktrim(uint8_t clkfreq)
 
   if (clkfreq > 10) {
     /* select input to High frequency RO */
-    ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= BIT(13);
+    ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= BIT(13); /* RO_CLK is not supported */
   } else {
     /*select input to Low frequency RO  */
-    ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= ~BIT(13);
+    ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= ~BIT(13); /* RO_CLK is not supported */
   }
   /* Enable the 50MHZ RO clock  */
-  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= BIT(21) | BIT(12);
+  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= BIT(21) | BIT(12); /* RO_CLK is not supported */
   /*  powergate enable for calibration domain   */
   ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) = ENABLE_CALIB_DOMAIN;
   /* Mask the bits to write required frequency for High frequency RO clock */
@@ -1585,9 +1588,9 @@ void RSI_IPMU_20M_ROClktrim(uint8_t clkfreq)
   /* Reading calibrated trim value */
   ro50m_trim = ((ULP_SPI_MEM_MAP(ULPCLKS_CALIB_DONE_REG_ADDR) & TRIM_VALUE_BITS) >> 11);
   /*Mask the bits where the trim value need to write */
-  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= (uint32_t)~MASK_TRIM_VALUE_WRITE_BITS;
+  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= (uint32_t)~MASK_TRIM_VALUE_WRITE_BITS; /* RO_CLK is not supported */
   /* Programming the calibrated trim to SPI register. */
-  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= (ro50m_trim << 14);
+  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) |= (ro50m_trim << 14); /* RO_CLK is not supported */
   /* pointing the trim select to SPI i.e write default values to that register */
   ULP_SPI_MEM_MAP(ULPCLKS_TRIM_SEL_REG_ADDR) = ULPCLKS_TRIM_SEL_REG_DEFAULT;
   /* CLK40M buffer circuit will be OFF */
@@ -1595,7 +1598,7 @@ void RSI_IPMU_20M_ROClktrim(uint8_t clkfreq)
   /*  ON controls for clock cleaner are taken from NPSS */
   ULP_SPI_MEM_MAP(ULPCLKS_REFCLK_REG_ADDR) |= BIT(16);
   /*  Disable the 50MHZ RO clock  */
-  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= ~BIT(21);
+  ULP_SPI_MEM_MAP(ULPCLKS_HF_RO_CLK_REG_OFFSET) &= ~BIT(21); /* RO_CLK is not supported */
 
   return;
 }
@@ -1624,7 +1627,7 @@ uint32_t RSI_Clks_Calibration(INPUT_CLOCK_T inputclk, SLEEP_CLOCK_T sleep_clk_ty
       M4CLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = khz_rc_clk;
     }
     if (sleep_clk_type == khz_ro_clk) {
-      M4CLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = khz_ro_clk;
+      M4CLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = khz_ro_clk; /* RO clock is not supported */
     }
     if (sleep_clk_type == khz_xtal_clk) {
       M4CLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = khz_xtal_clk;

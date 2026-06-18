@@ -1,7 +1,7 @@
 !!omap
 - id: brd4346a
 - label: BRD4346A
-- package: platform
+- package: platform_siwx91x
 - description: Board support for BRD4346A.
 - category: Board|Radio Board
 - quality: production

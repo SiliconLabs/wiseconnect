@@ -13,7 +13,7 @@
 
 ## Purpose / Scope
 
-This application brings up the SiWx91x device as a station using BLE provisioning. Once connected, the SiWx91x device also enables the Access Point (AP) interface and operates in concurrent mode. After that, the Network Address Translation (NAT) feature is activated, allowing third-party Wi-Fi clients connected to the SiWx91x device AP to access the internet through a third-party AP via NAT.
+This application brings up the SiWx91x device as a station using BLE provisioning. Once connected, the SiWx91x device also enables the AP interface and operates in concurrent mode. After that, the Network Address Translation (NAT) feature is activated, allowing third-party Wi-Fi clients connected to the SiWx91x device Access Point (AP) to access the internet through a third-party AP via NAT.
 
 ## Prerequisites / Setup Requirements
 
@@ -44,13 +44,14 @@ This application brings up the SiWx91x device as a station using BLE provisionin
      - SPI - EFR32 
 
 - Wireless Access point
-- Android Phone or iPhone with **Simplicity Connect App (formerly EFR Connect App)**, which is available in Google Play Store and Apple App Store.
-- Windows PC with windows Silicon Labs Connect application.
+- Android Phone or iPhone with **Simplicity Connect App(formerly EFR Connect App)** App, which is available in Play Store and App Store.
+- Windows PC with windows Silicon labs connect application.
 
 ### Software Requirements
 
 - Simplicity Studio IDE - [Simplicity Studio IDE](https://www.silabs.com/developer-tools/simplicity-studio) (to be used with Silicon Labs MCU)
-- Download and install the Silicon Labs [Simplicity Connect App (formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) from the Google Play store or Apple App store.
+- Download and install the Silicon Labs [Simplicity Connect App (formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) from Play store/App store.
+
 
 ### Setup Diagram
 
@@ -62,7 +63,7 @@ This application brings up the SiWx91x device as a station using BLE provisionin
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide/#install-the-wiseconnect-3-extension) 
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide/#install-the-wiseconnect-3-extension) 
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
@@ -81,19 +82,16 @@ The application can be configured to suit your requirements and development envi
   #define RSI_BLE_APP_DEVICE_NAME        "BLE_CONFIGURATOR"
   ```
 
-  ### Configure the Wi-Fi Parameters
+  **Configure the Wi-Fi parameters**
 
-1. In the Project Explorer pane, open the `wifi_config.h` file and update/modify following macros:
+- In the Project Explorer pane, open the `wifi_config.h` file and update/modify following macros:
 
-2. Enter the third-party AP Connectivity essentials configurations as the value to SSID and PSK.
-
-
+  - Enter the third-party AP Connectivity essentials configurations as the value to SSID and PSK.
       ```c
       #define WIFI_AP_PROFILE_SSID     "MY_DUAL_AP_SSID"
       #define WIFI_AP_CREDENTIAL       "MY_AP_PASSPHRASE"
-
       ```
-3. To operate in AP-only mode, enable the `AP_ONLY_MODE` macro.
+- To operate in AP-only mode, enable the `AP_ONLY_MODE` macro.
 
 > **Note:** The NAT feature is supported only when the device operates in concurrent AP+STA mode.
 
@@ -109,58 +107,55 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ###  Steps to verify the Wi-Fi Concurrent NAT with BLE Provisioning Example
 
- Complete the following steps to verify WLAN Station BLE Provisioning with Android/iOS **Simplicity Connect App (formerly EFR Connect App)**:
+ Steps to be followed to verify WLAN Station BLE Provisioning with Android/iOS **Simplicity Connect App(formerly EFR Connect App)** App
  > **Note:** Version 2.9.0 or above
 
 1. Configure the third-party AP in OPEN, WPA-PSK, WPA2-PSK, or WPA3 mode for the SiWx91x device to connect.
 
 2. Connect any serial console for prints.
 
-3. The Siwx91x device enters into the BLE advertising mode. Launch the **Simplicity Connect App (formerly EFR Connect App)**.
+3. The SiWx91x device enters into the BLE advertising mode, launch the **Simplicity Connect App(formerly EFR Connect App)** App.
 
 4. Click on the **Demo** tab and select **Wi-Fi Commissioning** tile.
 
-    ![Demo](resources/readme/remote_screen1.png)
+    ![](resources/readme/remote_screen1.png)
 
-5. The SiWx91x device advertises as the 
-`BLE_CONFIGURATOR`. Click on `BLE_CONFIGURATOR` to initiate the connection from the mobile app.
+5. The SiWx91x device advertises as the "BLE_CONFIGURATOR". Click on "BLE_CONFIGURATOR" to initiate the connection from the mobile app.
 
     ![](resources/readme/remote_screen2.png)
 
-6. After the BLE connection is successfully established, the SiWx917 device initiates a WLAN scan to detect available access points in the vicinity and forwards the scan results to the Si Connect app via BLE.
+6. Once the BLE connection is successfully established, the SiWx917 initiates a WLAN scan to detect available access points in the vicinity and forwards the scan results to the Si Connect app via BLE.
 
 7. Select the third-party AP from the scanned list as shown below.
 
     ![](resources/readme/remote_screen3.png)
 
-8. If the selected third-party AP is configured in the security, the password entry pop-up window appears.
+8. If the selected third-party AP is configured in the security, the password entry pop-up window will be appeared.
 
-9. Enter the password and click on **CONNECT**.
+9. Enter the password and click on "CONNECT".
 
     ![](resources/readme/remote_screen4.png)
 
-10. After the SiWx91x device connects to the third-party AP, the IP address of SiWx91x device is displayed on the screen.
+10. Once the SiWx91x device gets connected to the third-party AP, IP address of SiWx91x device get displayed on the screen.
 
     ![](resources/readme/serial_log1.png)
 
     ![](resources/readme/serial_log2.png)
 
-11. The SiWx91x device then brings up the AP interface and starts operating in concurrent mode, after which NAT is enabled.
+11. SiWx91x device then brings up the AP interface and starts operating in concurrent mode after which NAT is enabled.
 
     ![](resources/readme/serial_log3.png)
 
 12. Client devices can then connect to the SiWx91x device AP and get internet access via a third-party AP.
 
-###  Throughput Testing
+###  Throughput testing
 
-#### UDP Tx Throughput
+**UDP Tx Throughput**
 
 1. Set the following macro in `wifi_config.h`:
-
    ```c
       #define THROUGHPUT_TYPE       UDP_TX
    ```
-
 2. Compile and flash the application.
 
 3. Once connected to the SiWx91x device AP, navigate to **`/<SDK>/resources/scripts/`**. Run the **udp_client.py** script on port number 5000 using the following command:
@@ -170,26 +165,22 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![](resources/readme/UDP_tx_console.png)
 
 
-#### TCP Tx Throughput
+**TCP Tx Throughput**
 
 1. Set the following macro in `wifi_config.h`:
-
    ```c
       #define THROUGHPUT_TYPE       TCP_TX
    ```
-
 2. Compile and flash the application.
 
 3. Once connected to the SiWx91x device AP, navigate to **`/<SDK>/resources/scripts/`**. Run the **tcp_client.py** script on port number 5000 using the following command:
 
    `python.exe .\tcp_client.py 192.168.10.10 5000`
 
-   ![](resources/readme/TCP_tx_console_1.png)
+   ![](resources/readme/TCP_tx_console.png)
 
-   ![](resources/readme/TCP_tx_console_2.png)
+   **NOTE:** If the python command is not working, replace the python with py.
 
-   > **Note:** If the python command is not working, replace `python` with `py`.
+
 
 > **Note** : The number of NAT entries is limited to 100.
-
-> **Note** : NAT feature is internal test feature only, not recommended for Production.

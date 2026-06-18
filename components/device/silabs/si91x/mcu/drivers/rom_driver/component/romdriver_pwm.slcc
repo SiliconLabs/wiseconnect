@@ -1,6 +1,6 @@
 id: romdriver_pwm
 label: ROM DRIVER PWM
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver Pulse Width Modulation
 category: Device|Si91x|MCU|Internal|ROM Drivers

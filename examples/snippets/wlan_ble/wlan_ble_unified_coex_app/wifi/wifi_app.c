@@ -33,6 +33,7 @@
 /*=======================================================================*/
 #include "rsi_common_app.h"
 #if WLAN_TASK_ENABLE
+#if (WIFI_APP == MQTT_APP)
 #include "stdlib.h"
 #include "wifi_app_config.h"
 
@@ -125,7 +126,11 @@ void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, i
 //!  CALLBACK FUNCTIONS
 /*************************************************************************/
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
@@ -136,7 +141,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
     if (osThreadGetState(wifi_app_thread_id) == osThreadBlocked) {
       osThreadResume(wifi_app_thread_id);
     }
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -153,7 +158,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
  * ==================================================*/
 void wlan_app_callbacks_init(void)
 {
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
@@ -187,6 +192,7 @@ static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -197,8 +203,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
 
   if (result_length != 0) {
@@ -221,6 +227,9 @@ void wifi_app_task(void *unused)
   int32_t status = SL_STATUS_FAIL;
   UNUSED_PARAMETER(unused);
 
+  select_sem              = NULL;
+  data_received_semaphore = NULL;
+
   while (1) {
     switch (wlan_app_cb) {
       case WIFI_APP_INITIAL_STATE: {
@@ -234,7 +243,7 @@ void wifi_app_task(void *unused)
         printf("WLAN scan started \r\n");
         scan_complete   = false;
         callback_status = SL_STATUS_FAIL;
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
           printf("Scanning...\r\n");
@@ -335,6 +344,15 @@ void wifi_app_task(void *unused)
         break;
     }
   }
+  // Clean up semaphores after MQTT session completes
+  if (select_sem != NULL) {
+    osSemaphoreDelete(select_sem);
+    select_sem = NULL;
+  }
+  if (data_received_semaphore != NULL) {
+    osSemaphoreDelete(data_received_semaphore);
+    data_received_semaphore = NULL;
+  }
 }
 
 sl_status_t start_aws_mqtt(void)
@@ -350,8 +368,17 @@ sl_status_t start_aws_mqtt(void)
   }
   printf("\r\nLoaded certificates\r\n");
 
-  select_sem              = osSemaphoreNew(1, 0, NULL);
+  select_sem = osSemaphoreNew(1, 0, NULL);
+  if (select_sem == NULL) {
+    printf("\r\nFailed to create select_sem semaphore\r\n");
+    return SL_STATUS_FAIL;
+  }
+
   data_received_semaphore = osSemaphoreNew(1, 0, NULL);
+  if (data_received_semaphore == NULL) {
+    printf("\r\nFailed to create data_received_semaphore semaphore\r\n");
+    return SL_STATUS_FAIL;
+  }
 
 #if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
   uint32_t start_time         = 0;
@@ -416,7 +443,12 @@ sl_status_t start_aws_mqtt(void)
     switch (wlan_app_cb) {
 
       case WIFI_APP_MQTT_INIT_STATE: {
-        rc = aws_iot_mqtt_init(&mqtt_client, &mqtt_init_params);
+        // Clean up state variables from previous session
+        check_for_recv_data = 0;
+        qos1_publish_handle = 0;
+        pub_state           = 0;
+        select_given        = 0;
+        rc                  = aws_iot_mqtt_init(&mqtt_client, &mqtt_init_params);
         if (SUCCESS != rc) {
           wlan_app_cb = WIFI_APP_MQTT_INIT_STATE;
           printf("\r\nMQTT Initialization failed with error: %d\r\n", rc);
@@ -479,6 +511,10 @@ sl_status_t start_aws_mqtt(void)
               sl_si91x_select(mqtt_client.networkStack.socket_id + 1, &read_fds, NULL, NULL, NULL, async_socket_select);
 
             printf("\rSelect status: 0x%lX\r\n", status);
+
+            // Break here to allow async_socket_select callback to execute
+            // Prevents race condition where state machine continues before callback completes
+            break;
           }
 
           if (check_for_recv_data) {
@@ -536,7 +572,6 @@ sl_status_t start_aws_mqtt(void)
             } else {
               printf("\r\nMQTT Publish with QoS%d failed with error: %d\n", PUBLISH_QOS, rc);
             }
-            osSemaphoreRelease(select_sem);
             wlan_app_cb = WIFI_APP_MQTT_DISCONNECT;
             break;
           } else {
@@ -562,11 +597,11 @@ sl_status_t start_aws_mqtt(void)
 #endif
 
 #if ENABLE_NWP_POWER_SAVE
-        sl_wifi_performance_profile_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
-                                                              .listen_interval = 1000 };
+        sl_wifi_performance_profile_v2_t performance_profile = { .profile         = ASSOCIATED_POWER_SAVE_LOW_LATENCY,
+                                                                 .listen_interval = 1000 };
         if (!powersave_given) {
           osMutexAcquire(power_cmd_mutex, 0xFFFFFFFFUL);
-          rc = sl_wifi_set_performance_profile(&performance_profile);
+          rc = sl_wifi_set_performance_profile_v2(&performance_profile);
           if (rc != SL_STATUS_OK) {
             printf("\r\nPower save configuration Failed, Error Code : %d\r\n", rc);
           }
@@ -659,19 +694,19 @@ void async_socket_select(fd_set *fd_read, fd_set *fd_write, fd_set *fd_except, i
 {
   UNUSED_PARAMETER(fd_except);
   UNUSED_PARAMETER(fd_write);
-  UNUSED_PARAMETER(status);
 
-  //!Check the data pending on this particular socket descriptor
-  if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
-    if (pub_state != 1) { //This check is for handling PUBACK in QOS1
-      check_for_recv_data = 1;
-      osSemaphoreRelease(data_received_semaphore);
-      wlan_app_cb = WIFI_APP_AWS_SELECT_CONNECT_STATE;
-    } else if (pub_state == 1) { //This check is for handling PUBACK in QOS1
-      osSemaphoreRelease(select_sem);
+  if (status == SL_STATUS_OK) {
+    //!Check the data pending on this particular socket descriptor
+    if (FD_ISSET(mqtt_client.networkStack.socket_id, fd_read)) {
+      if (pub_state != 1) { //This check is for handling PUBACK in QOS1
+        check_for_recv_data = 1;
+        osSemaphoreRelease(data_received_semaphore);
+      } else {
+        osSemaphoreRelease(select_sem);
+      }
     }
+    wlan_app_cb = WIFI_APP_AWS_SELECT_CONNECT_STATE;
   }
-  wlan_app_cb = WIFI_APP_AWS_SELECT_CONNECT_STATE;
 }
 
 void disconnect_notify_handler(AWS_IoT_Client *pClient, void *data)
@@ -693,4 +728,5 @@ void subscribe_handler(struct _Client *pClient,
   UNUSED_PARAMETER(data);
   printf("\rData received on the Subscribed Topic: %.*s \r\n", pParams->payloadLen, (char *)pParams->payload);
 }
+#endif
 #endif

@@ -63,7 +63,7 @@ extern "C" {
 #ifndef SL_ADC_CH13_PERIPHERAL
 #define SL_ADC_CH13_PERIPHERAL ADC_CH13
 #endif
-#warning "ADC peripheral is not configured. Please configure the ADC pins according to the board connections."
+
 // ADC_CH13 P on ULP_GPIO_7/GPIO_71
 #ifndef SL_ADC_CH13_P_PORT
 #define SL_ADC_CH13_P_PORT ULP
@@ -76,7 +76,12 @@ extern "C" {
 #endif
 // [ADC_CH13_SL_ADC_CH13]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "ADC Channel 13 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef SL_ADC_CH13_P_PIN
 #define SL_ADC_CHANNEL_13_POS_INPUT_CHNL_SEL \
   ((SL_ADC_CH13_P_PIN == 0)    ? 0           \

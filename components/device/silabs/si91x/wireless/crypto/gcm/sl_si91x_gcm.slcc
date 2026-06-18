@@ -1,5 +1,5 @@
 id: sl_si91x_gcm
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the GCM API
 label: GCM

@@ -69,8 +69,6 @@ extern "C" {
 
 sl_bod_uc_param_t uc_config_params = { .slot_value = SLOT_VALUE, .blackout_en = BLACK_OUT_EN };
 
-//#if USER_CONFIGURATION_ENABLE
-
 //  <e> BOD Button UC configuration
 //  <i> Enable: BOD Button configuration enable
 //  <i> Disable: BOD Button configuration disable
@@ -123,7 +121,7 @@ sl_bod_button_uc_config_param_t button_uc_config_param = {
   .button_3_min_voltage_percentage = BUTTON_3_MIN_VOLTAGE_PERCENTAGE,
   .button_3_max_voltage_percentage = BUTTON_3_MAX_VOLTAGE_PERCENTAGE
 };
-//#endif // USER_CONFIGURATION_ENABLE
+
 #ifdef __cplusplus
 }
 #endif // SL_BOD

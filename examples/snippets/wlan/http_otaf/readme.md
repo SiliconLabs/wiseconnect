@@ -75,7 +75,7 @@ This process allows the device to update its software OTA without needing a phys
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -137,7 +137,39 @@ The application can be configured to suit your requirements and the development 
       #define FW_UPDATE_TYPE TA_FW_UPDATE
       ```
 
-    - Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which the firmware files need to be downloaded, the following parameters need to be configured.
+      > **Note:**
+      > - Use a combined image to update the firmware whenever possible. A combined image includes both the Network Processor (NWP) and Application Processor (M4) images in a single package.
+      > - When generating a combined image, use the NWP and M4 images from the same release package. Using different versions may result in undefined behavior due to a version mismatch.
+      > - For devices with 4 MB flash, updating with a combined image is not supported because of memory limitations. In this case, update the NWP image first, and then update the M4 image.
+      > - For NCP mode, update the NWP image first, followed by the host image from the same release version.
+
+  - Steps to Create a Combined Image
+
+    - **Case 1: When Security is Disabled**
+      1. Navigate to the Commander directory.
+      2. Copy the NWP firmware image and M4 image into the Commander directory.
+      3. Create the nwp_combined_image.rps file:
+
+         ```sh
+         commander rps convert <nwp_combined_image.rps> --taapp <original non-encrypted TA rps> --combinedimage
+         ```
+
+      4. Create the m4_combined_image.rps file:
+
+         ```sh
+         commander rps convert <m4_combined_image.rps> --app <original non-encrypted M4 rps> --combinedimage
+         ```
+
+      5. Create the final combined image:
+
+         ```sh
+         commander rps convert <combined_image.rps> --app <m4_combined_image.rps> --taapp <nwp_combined_image.rps>
+         ```
+
+    - **Case 2: When Security is Enabled**
+      - For devices with security enabled, additional signing and encryption steps are required. Follow the detailed instructions in **Section 6 - Combined Image (NWP + M4)** of the [UG574 SiWx917 SoC Manufacturing Utility User Guide](https://www.silabs.com/documents/public/user-guides/ug574-siwx917-soc-manufacturing-utility-user-guide.pdf#page=24).
+
+  - Based on the type of server (Apache/AWS S3 bucket/Azure Blob Storage) from which the firmware files are downloaded, configure the following parameters.
       - Configure FLAGS to choose the version and security type to be enabled.
 
         Valid configurations are:
@@ -236,8 +268,11 @@ The application can be configured to suit your requirements and the development 
 
       - For **Azure Blob Storage**:
 
-        - Include Azure Baltimore certificate file for SSL connection.
-          > **Note:** This certificate is already included in the SDK in linear array format ``azure_baltimore_ca.pem.h``, which can be directly used for SSL connection to Azure Blob Storage.
+        - Include **DigiCert Global Root G2** certificate file for SSL connection.
+    
+          > **Note:** The `silabs_dgcert_ca.pem.h` file is included in the SDK as a linear array and can be used directly for SSL connections to Azure Blob Storage.
+
+          > **Deprecation Notice:** The Baltimore CyberTrust Root certificate is being deprecated by Azure. Devices must use DigiCert Global Root G2 and Microsoft RSA Root Certificate Authority 2017 to maintain connectivity after September 30, 2024. See [Azure TLS certificate migration](https://learn.microsoft.com/azure/iot-hub/migrate-tls-certificate) for details.
 
         - Extract the hostname from the Azure Blob Storage URL `https://<Your-Azure-Storage-Account-name>.blob.core.windows.net/<Your-container-name>/firmware.rps` and provide it in **hostname**.
 
@@ -251,7 +286,7 @@ The application can be configured to suit your requirements and the development 
 
           ```c
           //Sample configurations
-          #include "azure_baltimore_ca.pem.h"        //Baltimore Root CA
+          #include "silabs_dgcert_ca.pem.h"        //DigiCert Global Root G2 CA
           #define FLAGS                             HTTPS_SUPPORT
           #define HTTP_PORT                         443
           #define HTTP_URL                          "rps/firmware.rps" //Firmware file name to download
@@ -325,10 +360,10 @@ The application can be configured to suit your requirements and the development 
 
       ```c
       // Certificate includes
-      #include "azure_baltimore_ca.pem.h"
+      #include "silabs_dgcert_ca.pem.h"
 
       // Load Security Certificates
-      status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, azure_baltimore_ca, (sizeof(azure_baltimore_ca) - 1));
+      status = sl_net_set_credential(SL_NET_TLS_SERVER_CREDENTIAL_ID(0), SL_NET_SIGNING_CERTIFICATE, silabs_dgcert_ca, (sizeof(silabs_dgcert_ca) - 1));
       ```
 
   >**Note:**
@@ -337,7 +372,7 @@ The application can be configured to suit your requirements and the development 
   > Alternate certification chains support is added. With this, as opposed to requiring full chain validation, only the peer certificate must validate to a trusted certificate. This allows loading intermediate root CAs as trusted.
   > The default CA certificate is the Starfield Combined CA certificate. To use the Intermediate Amazon Root CA 1 certificate, define the `SL_SI91X_AWS_IOT_ROOT_CA1` macro in the application.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -725,3 +760,5 @@ The HTTPs server configuration for Apache requires the Wamp server. If you have 
     > **Note:** Make sure to check your HTTPS server from other local machines present in the same network. It should be accessible.
 
     > **NOTE :** Support for the SNI extension has been added to the AWS SDK, ensuring it is set by the client when connecting to an AWS server using TLS 1.3. This is handled internally by the AWS SDK and does not affect compatibility with other TLS versions.
+
+

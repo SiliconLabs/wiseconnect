@@ -1012,7 +1012,7 @@ sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init)
       sl_si91x_gpio_select_ulp_pad_driver_disable_state(pin_init->scl_pin, GPIO_PULLUP);
     } else {
       if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
         // Power up M4SS peripheral based on the defined macros
         RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -1051,7 +1051,7 @@ sl_i2c_status_t sl_si91x_i2c_pin_init(sl_i2c_pin_init_t *pin_init)
       sl_si91x_gpio_select_ulp_pad_driver_disable_state(pin_init->sda_pin, GPIO_PULLUP);
     } else {
       if (pin_init->instance == SL_I2C0 || pin_init->instance == SL_I2C1) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
         // Power up M4SS peripheral based on the defined macros
         RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -1107,7 +1107,7 @@ static void *get_i2c_base_address(sl_i2c_instance_t i2c_instance)
 static void i2c_clock_init(I2C_TypeDef *i2c)
 {
   if ((uint32_t)i2c == I2C0_BASE) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
@@ -1117,7 +1117,7 @@ static void i2c_clock_init(I2C_TypeDef *i2c)
     // Initialize the I2C clock.
     RSI_CLK_I2CClkConfig(M4CLK, true, I2C1_INSTAN);
   } else if ((uint32_t)i2c == I2C1_BASE) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     // Powering up the peripheral.
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else

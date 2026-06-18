@@ -54,7 +54,7 @@ typedef void (*cdDelay)(uint32_t delay);
 #define USART1_SCLK_ENABLE BIT(1) /*  Enables USART1_SCLK_ENABLE */
 #define USART2_PCLK_ENABLE BIT(2) /*  Enables USART2_PCLK_ENABLE */
 #define USART2_SCLK_ENABLE BIT(3) /*  Enables USART2_SCLK_ENABLE */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define QSPI_2_CLK_ENABLE        BIT(4) /*  Enables QSPI_CLK_ENABLE */
 #define QSPI_2_HCLK_ENABLE       BIT(5) /*  Enables QSPI_HCLK_ENABLE */
 #define QSPI_2_M4_SOC_SYNC       BIT(6) /*  Enables QSPI_M4_SOC_SYNC */
@@ -402,14 +402,14 @@ typedef void (*cdDelay)(uint32_t delay);
 #define MISC_CFG_MISC_CTRL1   (*((uint32_t volatile *)(MISC_CONFIG_BASE + 0x44))) /*  address of MISC_CFG_MISC_CTRL1 */
 #define I2S_MASTER_SLAVE_MODE (1 << 23)                                           /* Sets I2S/I2S PCM master mode  */
 
-#define MCU_ULP_40MHZ_CLK_EN_TRUN_ON_DELAY          10   /*  delay to enable the ULP 40MHZ  CLK*/
-#define MCU_ULP_DOUBLER_CLK_EN_TRUN_ON_DELAY        10   /*  delay to enable the ULP DOUBLER CLK*/
-#define MCU_ULP_20MHZ_RING_OSC_CLK_EN_TRUN_ON_DELAY 10   /*  delay to enable the ULP 20MHZ_RING_OSC CLK*/
-#define MCU_ULP_MHZ_RC_CLK_EN_TRUN_ON_DELAY         2    /*  delay to enable the ULP MHZ_RC CLK*/
-#define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_1   500  /*  delay to enable the ULP 32KHZ_XTAL CLK*/
-#define MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_2   1500 /*  delay to enable the ULP 32KHZ_XTAL CLK*/
-#define MCU_ULP_32KHZ_RO_CLK_EN_TRUN_ON_DELAY       250  /*  delay to enable the ULP 32KHZ_RO CLK*/
-#define MCU_ULP_32KHZ_RC_CLK_EN_TRUN_ON_DELAY       150  /*  delay to enable the ULP 32KHZ_RC CLK*/
+#define MCU_ULP_40MHZ_CLK_EN_TURN_ON_DELAY          10   /*  delay to enable the ULP 40MHZ  CLK*/
+#define MCU_ULP_DOUBLER_CLK_EN_TURN_ON_DELAY        10   /*  delay to enable the ULP DOUBLER CLK*/
+#define MCU_ULP_20MHZ_RING_OSC_CLK_EN_TURN_ON_DELAY 10   /*  delay to enable the ULP 20MHZ_RING_OSC CLK*/
+#define MCU_ULP_MHZ_RC_CLK_EN_TURN_ON_DELAY         2    /*  delay to enable the ULP MHZ_RC CLK*/
+#define MCU_ULP_32KHZ_XTAL_CLK_EN_TURN_ON_DELAY_1   500  /*  delay to enable the ULP 32KHZ_XTAL CLK*/
+#define MCU_ULP_32KHZ_XTAL_CLK_EN_TURN_ON_DELAY_2   1500 /*  delay to enable the ULP 32KHZ_XTAL CLK*/
+#define MCU_ULP_32KHZ_RO_CLK_EN_TURN_ON_DELAY       250  /*  delay to enable the ULP 32KHZ_RO CLK*/
+#define MCU_ULP_32KHZ_RC_CLK_EN_TURN_ON_DELAY       150  /*  delay to enable the ULP 32KHZ_RC CLK*/
 
 /**
  *@brief Reference clock selection
@@ -420,7 +420,7 @@ typedef enum REF_CLK_ENABLE {
   MCU_ULP_20MHZ_RING_OSC_CLK_EN, /*!< Enables ULP_20MHZ_RING_OSC_CLK when it is passed */
   MCU_ULP_MHZ_RC_CLK_EN,         /*!< Enables ULP_MHZ_RC_CLK when it is passed */
   MCU_ULP_32KHZ_XTAL_CLK_EN,     /*!< Enables ULP_32KHZ_XTAL_CLK when it is passed */
-  MCU_ULP_32KHZ_RO_CLK_EN,       /*!< Enables ULP_32KHZ_RO_CLK when it is passed */
+  MCU_ULP_32KHZ_RO_CLK_EN,       /*!< 32KHZ RO clock not supported */
   MCU_ULP_32KHZ_RC_CLK_EN        /*!< Enables ULP_32KHZ_RC_CLK when it is passed */
 } REF_CLK_ENABLE_T;
 /**
@@ -445,7 +445,7 @@ typedef enum PERIPHERALS_CLK {
   MCUCLKOUT_CLK, /*!< Enables or Disables MCUCLKOUT Peripheral clock when it is passed */
   HWRNG_CLK,     /*!< Enables or Disables HWRNG Peripheral clock when it is passed */
   I2SM_CLK,      /*!< Enables or Disables I2SM Peripheral clock when it is passed */
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   QSPI_2_CLK, /*!< Enables or Disables QSPI 2 Peripheral clock when it is passed */
 #endif
 } PERIPHERALS_CLK_T;
@@ -583,7 +583,7 @@ typedef enum MCU_CLKOUT_SRC_SEL {
   MCUCLKOUT_ULP_DOUBLER_CLK,       /*!< MCUCLKOUT_ULP_DOUBLER_CLK selection*/
   MCUCLKOUT_ULP_32KHZ_RC_CLK,      /*!< MCUCLKOUT_ULP_32KHZ_RC_CLK selection*/
   MCUCLKOUT_ULP_32KHZ_XTAL_CLK,    /*!< MCUCLKOUT_ULP_32KHZ_XTAL_CLK selection*/
-  MCUCLKOUT_ULP_32KHZ_RO_CLK,      /*!< MCUCLKOUT_ULP_32KHZ_RO_CLK selection*/
+  MCUCLKOUT_ULP_32KHZ_RO_CLK,      /*!< 32KHZ RO clock not supported*/
   MCUCLKOUT_INTF_PLL_CLK,          /*!< MCUCLKOUT_INTF_PLL_CLK selection*/
   MCUCLKOUT_MODEM_PLL_CLK1,        /*!< MCUCLKOUT_MODEM_PLL_CLK1 selection*/
   MCUCLKOUT_MODEM_PLL_CLK2,        /*!< MCUCLKOUT_MODEM_PLL_CLK2 selection*/
@@ -613,7 +613,7 @@ typedef enum SLEEP_CLK_SRC_SEL {
   SLP_ULP_32KHZ_RC_CLK   = 0, /*!< SLP_ULP_32KHZ_RC_CLK selection*/
   SLP_ULP_32KHZ_XTAL_CLK = 1, /*!< SLP_ULP_32KHZ_XTAL_CLK selection*/
   SLP_CLK_GATED          = 2, /*!< Default Sleep Clk Gated*/
-  SLP_ULP_32KHZ_RO_CLK   = 3  /*!< SLP_ULP_32KHZ_RO_CLK selection*/
+  SLP_ULP_32KHZ_RO_CLK   = 3  /*!< 32KHZ RO clock not supported*/
 } SLEEP_CLK_SRC_SEL_T;
 /**
  *@brief CCI Input clock source selection
@@ -753,7 +753,7 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
                                 boolean_t swalloEn,
                                 boolean_t OddDivEn,
                                 uint32_t divFactor);
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
                                   QSPI_CLK_SRC_SEL_T clkSource,
                                   boolean_t swalloEn,

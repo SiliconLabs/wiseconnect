@@ -71,6 +71,24 @@ sl_status_t sl_si91x_pcm_deinit(sl_i2s_handle_t *pcm_handle)
 }
 
 /*******************************************************************************
+ * PCM de-initialization function
+ ******************************************************************************/
+sl_status_t sl_si91x_pcm_deinit_v2(sl_i2s_handle_t pcm_handle)
+{
+  sl_status_t status = SL_STATUS_OK;
+
+  do {
+    /* Deinitialize I2S handle and clear the driver handle */
+    status = sl_si91x_i2s_deinit_v2(pcm_handle);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
+
+  } while (false);
+
+  return status;
+}
+/*******************************************************************************
  * PCM set configuration function
  ******************************************************************************/
 sl_status_t sl_si91x_pcm_set_configuration(sl_i2s_handle_t pcm_handle,
@@ -178,6 +196,12 @@ sl_status_t sl_si91x_pcm_receive_data(sl_i2s_handle_t pcm_handle, const void *da
 sl_status_t sl_si91x_pcm_register_event_callback(sl_i2s_handle_t pcm_handle, sl_i2s_signal_event_t callback_event)
 {
   sl_status_t status = SL_STATUS_OK;
+
+  // Validates the null pointer, if true returns error code
+  if (callback_event == NULL) {
+    status = SL_STATUS_NULL_POINTER;
+    return status;
+  }
 
   user_callback = callback_event;
   status        = sl_si91x_i2s_register_event_callback(pcm_handle, callback_event_handler);

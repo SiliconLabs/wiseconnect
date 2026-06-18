@@ -46,7 +46,7 @@
 // This macro converts a 16-bit value from host to little-endian byte order
 #define htole16(x) (x)
 
-void sli_submit_rx_buffer(void);
+sl_status_t sli_submit_rx_buffer(void);
 
 sl_status_t sli_si91x_bus_set_interrupt_mask(uint32_t mask)
 {
@@ -59,7 +59,7 @@ sl_status_t sli_si91x_bus_set_interrupt_mask(uint32_t mask)
 #endif
 
   // Read the current interrupt mask configuration from memory
-  status = sl_si91x_bus_read_memory(SLI_INT_MASK_REG_ADDR, sizeof(buffer), buffer);
+  status = sl_si91x_bus_read_memory(SLI_INT_MASK_REG_ADDR, sizeof(buffer), (const uint8_t *)buffer);
   SLI_VERIFY_STATUS(status);
 
   // Modify the interrupt configuration based on the provided mask
@@ -105,8 +105,9 @@ sl_status_t sli_si91x_req_wakeup(void)
   } while (1);
   return SL_STATUS_OK;
 }
-void sli_submit_rx_buffer(void)
+sl_status_t sli_submit_rx_buffer(void)
 {
+  return SL_STATUS_OK;
 }
 
 sl_status_t sli_si91x_boot_instruction(uint8_t type, uint16_t *data)
@@ -122,7 +123,7 @@ sl_status_t sli_si91x_boot_instruction(uint8_t type, uint16_t *data)
 
   switch (type) {
     case SLI_REG_READ:
-      retval = sl_si91x_bus_read_memory(SLI_HOST_INTF_REG_OUT, 2, (uint8_t *)&read_data);
+      retval = sl_si91x_bus_read_memory(SLI_HOST_INTF_REG_OUT, 2, (const uint8_t *)&read_data);
       *data  = read_data;
       break;
 
@@ -169,7 +170,7 @@ sl_status_t sli_si91x_boot_instruction(uint8_t type, uint16_t *data)
       SLI_SI91X_RESET_LOOP_COUNTER(loop_counter);
       SLI_SI91X_WHILE_LOOP(loop_counter, SLI_SI91X_LOOP_COUNT_UPGRADE_IMAGE)
       {
-        retval = sl_si91x_bus_read_memory(SLI_HOST_INTF_REG_OUT, 2, (uint8_t *)&read_data);
+        retval = sl_si91x_bus_read_memory(SLI_HOST_INTF_REG_OUT, 2, (const uint8_t *)&read_data);
         VERIFY_STATUS_AND_RETURN(retval);
         if (read_data == (uint16_t)(SLI_SEND_RPS_FILE | SLI_HOST_INTERACT_REG_VALID)) {
           break;

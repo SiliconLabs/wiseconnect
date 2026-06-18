@@ -1,6 +1,6 @@
 id: debug_ulp_component
 label: PM ULP Debug
-package: platform
+package: platform_siwx91x
 description: >
   ULP DEBUG component will enable Debug in the low-power mode. 
   It moves all the peripheral dependencies to RAM.
@@ -18,42 +18,42 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: debug_ps2
-    value: stdio.o
+    value: stdio.*
   - name: debug_ps2
-    value: puts.o
+    value: puts.*
   - name: debug_ps2
-    value: wbuf.o
+    value: wbuf.*
   - name: debug_ps2
-    value: writer.o
+    value: writer.*
   - name: debug_ps2
-    value: memchr.o
+    value: memchr.*
   - name: debug_ps2
-    value: memset.o
+    value: memset.*
   - name: debug_ps2
-    value: nano-vfprintf.o
+    value: nano-vfprintf.*
   - name: debug_ps2
-    value: nano-vfprintf_i.o
+    value: nano-vfprintf_i.*
   - name: debug_ps2
-    value: printf.o
+    value: printf.*
   - name: debug_ps2
-    value: lock.o
+    value: lock.*
   - name: debug_ps2
-    value: fflush.o
+    value: fflush.*
   - name: debug_ps2
-    value: rsi_debug.o
+    value: rsi_debug.*
   - name: debug_ps2
-    value: rsi_usart.o
+    value: rsi_usart.*
   - name: debug_ps2
-    value: syscalls.o
+    value: syscalls.*
   - name: debug_ps2
-    value: USART.o
+    value: USART.*
   - name: debug_ps2
-    value: libm_a-s_ceil.o
+    value: libm_a-s_ceil*
   - name: debug_ps2
-    value: '_arm_*.o'
+    value: '_arm_*'
   - name: debug_ps2
-    value: 'libc_a*.o'
+    value: 'libc_a*'
   - name: debug_ps2
-    value: 'libm_a*.o'
+    value: 'libm_a*'
   - name: debug_ps2
-    value: 'sbrk.o*'
+    value: 'sbrk.*'

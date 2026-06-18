@@ -791,19 +791,6 @@ __STATIC_INLINE void sl_si91x_i2c_set_sda_hold_time(I2C_TypeDef *i2c, sl_i2c_dir
 }
 
 /***************************************************************************/ /**
- * 
- * @param[in] i2c (I2C_TypeDef) Pointer to the I2C instance base address
- * @param[in] p_config (sl_i2c_init_params_t) Pointer to the 
- *                      initialization parameters structure
- * @return none
- ******************************************************************************/
-__STATIC_INLINE void sl_si91x_i2c_send_ack(I2C_TypeDef *i2c)
-{
-  UNUSED_VARIABLE(i2c);
-  // not supported
-}
-
-/***************************************************************************/ /**
  * Sets read direction and adds stop bit for I2C interface
  * It updates the register with the read mask value & adds stop bit.
  *

@@ -762,14 +762,14 @@ static sl_status_t initialize_wireless(void)
     .mac_address = NULL,
     .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
     .region_code = US,
-    .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
-                     .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                     .feature_bit_map = (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE
-                                         | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+    .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+                     .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
+                     .feature_bit_map =
+                       (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
                      .tcp_ip_feature_bit_map =
                        (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT | SL_SI91X_TCP_IP_FEAT_SSL
                         | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                     .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                     .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                      .ext_custom_feature_bit_map = 0,
                      .bt_feature_bit_map         = 0,
                      .ext_tcp_ip_feature_bit_map =
@@ -816,7 +816,7 @@ void wireless_sleep(void)
   status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
-    DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
+    DEBUGOUT("sl_wifi_set_performance_profile_v2 failed, Error Code: 0x%lX \n", status);
     return;
   }
   // Wifi Profile (TA Mode) is set to standby power save with RAM retention.
@@ -826,7 +826,7 @@ void wireless_sleep(void)
   status = sl_wifi_set_performance_profile_v2(&ta_performance_profile);
   if (status != SL_STATUS_OK) {
     // If status is not OK, return with error code.
-    DEBUGOUT("sl_wifi_set_performance_profile failed, Error Code: 0x%lX \n", status);
+    DEBUGOUT("sl_wifi_set_performance_profile_v2 failed, Error Code: 0x%lX \n", status);
     return;
   }
 }

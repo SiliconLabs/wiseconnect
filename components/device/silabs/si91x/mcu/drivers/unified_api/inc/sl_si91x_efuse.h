@@ -39,7 +39,7 @@ extern "C" {
 #include "rsi_rom_clks.h"
 #include "rsi_rom_efuse.h"
 #include "sl_status.h"
-
+#include "sl_si91x_clock_manager.h"
 /***************************************************************************/
 /**
  * @addtogroup EFUSE eFuse Controller
@@ -114,7 +114,7 @@ sl_status_t sl_si91x_efuse_enable_clock(void);
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  *      - \ref sl_si91x_efuse_memory_mapped_read_byte()
  * 
  * @return sl_status_t Status code indicating the result:
@@ -148,7 +148,7 @@ sl_status_t sl_si91x_efuse_init(void);
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  *      - \ref sl_si91x_efuse_memory_mapped_read_byte()
  * 
  * @return sl_status_t Status code indicating the result:
@@ -192,7 +192,7 @@ sl_status_t sl_si91x_efuse_set_address(uint16_t address);
  * 
  * @return sl_status_t Status code indicating the result:
  *         - SL_STATUS_OK  - Success.
- *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
  * 
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
@@ -210,18 +210,43 @@ sl_status_t sl_si91x_efuse_get_address(uint16_t *read_address);
  *      - \ref sl_si91x_efuse_set_address()
  * 
  * @param[in] address Holds the address at which the data has to be written in
- *                    the eFuse range 0x0 to 0x31.
+ *                    the eFuse range 0 to 31.
  * @param[in] bit_pos Variable that holds the position of the bit on which the
  *                    data will be placed (0 - 7).
  * @param[in] hold_time eFuse strobe hold time, depends on the clock frequency of the eFuse controller.
  * 
  * @return sl_status_t Status code indicating the result:
- *         - SL_STATUS_OK  - Success.
- *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
- * 
+ *         - SL_STATUS_OK  - Bit write operation completed successfully.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_FAIL - Bit write operation failed.
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_efuse_write_bit(uint16_t address, uint8_t bit_pos, uint32_t hold_time);
+sl_status_t sl_si91x_efuse_write_bit(uint16_t address,
+                                     uint8_t bit_pos,
+                                     uint32_t hold_time) SL_DEPRECATED_API_WISECONNECT_4_0;
+
+/***************************************************************************/
+/**
+ * @brief To write a bit in the position of an 8-bit location in the specified eFuse address.
+ * 
+ * @details The API writes a bit to a specific 8-bit location position at the designated
+ *          eFuse address. There is only one programming scheme, which is single-bit programming.
+ * 
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_efuse_init()
+ *      - \ref sl_si91x_efuse_set_address()
+ * 
+ * @param[in] address Holds the address at which the data has to be written in
+ *                    the eFuse range 0 to 31.
+ * @param[in] bit_pos Variable that holds the position of the bit on which the
+ *                    data will be placed (0 - 7).
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK - Bit write operation completed successfully.
+ *         - SL_STATUS_INVALID_PARAMETER  - The parameter is an invalid argument.
+ *         - SL_STATUS_FAIL - Bit write operation failed.
+ * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_efuse_write_bit_v2(uint16_t address, uint8_t bit_pos);
 
 /***************************************************************************/
 /**
@@ -232,7 +257,7 @@ sl_status_t sl_si91x_efuse_write_bit(uint16_t address, uint8_t bit_pos, uint32_t
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  * 
  * @param[in] address Holds the address from where we are reading the 1 word (max value is 0x31).
  * @param[out] read_word Pointer that points to the data which is stored in the eFuse.
@@ -256,7 +281,7 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_word(uint16_t address, uint16_t *r
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  * 
  * @param[in] address Holds the address from where we are reading the 1 byte of data (max value is 0x31).
  * @param[out] read_byte Pointer that points to the 8-bit data which is stored in the eFuse.
@@ -280,7 +305,7 @@ sl_status_t sl_si91x_efuse_memory_mapped_read_byte(uint16_t address, uint8_t *re
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  * 
  * @param[in] address Holds the address from where we are reading the 1 byte of data (max value is 0x31).
  * @param[out] read_byte Pointer that points to the 8-bit data which is stored in the eFuse.
@@ -317,7 +342,7 @@ __STATIC_INLINE void sl_si91x_efuse_enable(void)
  * @pre Pre-conditions:
  *      - \ref sl_si91x_efuse_init()
  *      - \ref sl_si91x_efuse_set_address()
- *      - \ref sl_si91x_efuse_write_bit()
+ *      - \ref sl_si91x_efuse_write_bit_v2()
  *      - \ref sl_si91x_efuse_memory_mapped_read_byte()
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_efuse_disable(void)
@@ -355,7 +380,7 @@ __STATIC_INLINE void sl_si91x_efuse_disable(void)
 *  - Read 1 byte of data from 32x8 byte eFuse memory (OTP) in FSM mode using @ref  sl_si91x_efuse_fsm_read_byte.
 *  - Read 1 byte of data from 32x8 byte eFuse memory(OTP) in memory-mapped mode using @ref sl_si91x_efuse_memory_mapped_read_byte.
 *  - Read the 1 word (16 bits) of data from 32x8 byte eFuse memory (OTP) in memory-mapped mode using @ref sl_si91x_efuse_memory_mapped_read_word.
-* 2. Write a bit to a specific 8-bit location in the eFuse at the designated address using @ref  sl_si91x_efuse_write_bit
+* 2. Write a bit to a specific 8-bit location in the eFuse at the designated address using @ref  sl_si91x_efuse_write_bit_v2
 * 
 * @n @section eFuse_Use Usage
 *
@@ -369,7 +394,7 @@ __STATIC_INLINE void sl_si91x_efuse_disable(void)
 * 1. *Initializes the eFuse:* @ref sl_si91x_efuse_init
 * 2. *Set the eFuse address for read and write operations:* @ref sl_si91x_efuse_set_address
 * 3. *Get the eFuse address for read and write operations:* @ref sl_si91x_efuse_get_address
-* 4. *Write the bit in the position of an 8-bit location in eFuse specified address:* @ref sl_si91x_efuse_write_bit
+* 4. *Write the bit in the position of an 8-bit location in eFuse specified address:* @ref sl_si91x_efuse_write_bit_v2
 * 5. *Read 1 byte of data from 32x8 byte eFuse memory (OTP) in FSM mode:* @ref sl_si91x_efuse_fsm_read_byte 
 * 6. *Read 1 byte of data from 32x8 byte eFuse memory(OTP) in memory mapped mode:* @ref sl_si91x_efuse_memory_mapped_read_byte
 * 7. *Read the 1 word (16 bits) of data from 32x8 byte eFuse memory (OTP) in memory mapped mode:* @ref sl_si91x_efuse_memory_mapped_read_word

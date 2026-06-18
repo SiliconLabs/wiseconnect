@@ -1,5 +1,5 @@
 id: console_variables
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Enables Console to read and write variables.
 label: Console Variables

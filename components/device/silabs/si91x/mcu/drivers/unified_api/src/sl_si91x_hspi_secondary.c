@@ -380,6 +380,35 @@ sl_status_t sl_si91x_hspi_secondary_init(void)
 }
 
 /**
+ * De-Initializes the HSPI secondary.
+ *         Returns an error if there is an issue with GPDMA De-initialization.
+ */
+sl_status_t sl_si91x_hspi_secondary_deinit(void)
+{
+  // Initialize the hspi secondary
+  hspi_secondary_peripheral_deinit();
+
+  //Disbale the interrupts
+  hspi_secondary_disable_interrupts(SL_HSPI_INT_WR | SL_HSPI_INT_RD);
+#if (SL_HSPI_DMA == DISABLE)
+  // Validate the function pointer, if the parameter is not NULL, then unregister the call back
+  if (sl_hspi_user_callback == NULL)
+#endif
+#if (SL_HSPI_DMA == ENABLE)
+    // Validate the function pointer, if the parameter is not NULL, return an error code
+    if (user_gpdma_callback == NULL)
+#endif
+    {
+      return SL_STATUS_NULL_POINTER;
+    } else {
+      //  Unregisters the callback, i.e., clear the callback function address
+      //  and pass NULL value to the variable
+      sl_si91x_hspi_secondary_unregister_event_callback();
+    }
+  return SL_STATUS_OK;
+}
+
+/**
  * Registers the event callback.
  *         Stores the callback function address and passes it to the variable that is called in the Interrupt Handler.
  *         If another callback is registered without unregistering the previous callback, it returns an error code.
@@ -425,11 +454,8 @@ sl_status_t sl_si91x_hspi_secondary_register_event_callback(sl_hspi_secondary_ca
  * Unregisters the callback, i.e., clear the callback function address
  * and pass NULL value to the variable
  */
-void sl_si91x_hspi_secondary_unregister_event_callback(uint32_t flag)
+void sl_si91x_hspi_secondary_unregister_event_callback(void)
 {
-  //Disbale the interrupts
-  hspi_secondary_disable_interrupts(flag);
-
 #if (SL_HSPI_DMA == DISABLE)
   // Pass the NULL value to the static variable which is called at the time of
   // interrupt.
@@ -450,7 +476,13 @@ uint32_t sl_si91x_hspi_secondary_send_blocking(const void *data)
   uint32_t *data_32 = (uint32_t *)data;
   uint32_t sent = 0, sent_success = 0;
   uint32_t num = 0;
-  num          = hspi_secondary_get_data_len();
+
+  // Validate pointers, if the parameter is NULL, return an error code
+  if (data == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  num = hspi_secondary_get_data_len();
 
   /* Align to 4 bytes */
   num = ((num + SL_HSPI_ALIGNMENT_VALUE) & ~SL_HSPI_ALIGNMENT_VALUE);
@@ -473,7 +505,11 @@ uint32_t sl_si91x_hspi_secondary_receive_blocking(void *data)
   uint32_t *data_32 = (uint32_t *)data;
   uint32_t recv = 0, recv_success = 0;
   uint32_t num = 0;
-  num          = hspi_secondary_get_data_len();
+  // Validate pointers, if the parameter is NULL, return an error code
+  if (data == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  num = hspi_secondary_get_data_len();
   /* Align to 4 bytes */
   num = ((num + SL_HSPI_ALIGNMENT_VALUE) & ~SL_HSPI_ALIGNMENT_VALUE);
 

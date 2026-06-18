@@ -1,6 +1,6 @@
 id: sl_si91x_sleep_timer_clock_selection
 label: SL SI91X SLEEP TIMER CLOCK SELECTION
-package: platform
+package: platform_siwx91x
 metadata:
   sbom:
     license: MSLA

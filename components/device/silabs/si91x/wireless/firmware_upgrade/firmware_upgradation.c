@@ -34,10 +34,10 @@
 #include "sl_si91x_driver.h"
 #include <string.h>
 #include "firmware_upgradation.h"
+#include <sl_string.h>
+
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 #include "sl_si91x_socket_utility.h"
-#endif
-#include <sl_string.h>
 
 /******************************************************
  *                      Macros
@@ -51,6 +51,259 @@
  *                 Global Variables
  ******************************************************/
 extern bool device_initialized;
+
+/******************************************************
+ *                 Helper Functions
+ ******************************************************/
+
+/**
+ * @brief Configure HTTPS features based on flags
+ * @param[in] flags HTTP OTAF flags
+ * @return Configured HTTPS enable value
+ */
+static uint16_t sli_configure_https_features(uint16_t flags)
+{
+  uint16_t https_enable = 0;
+
+  // Set https feature
+  https_enable = (flags & SL_SI91X_ENABLE_TLS) ? SL_SI91X_ENABLE_TLS : https_enable;
+
+  // Set default by NULL delimiter
+  https_enable |= SL_SI91X_ENABLE_NULL_DELIMETER;
+
+  // SSL versions
+  https_enable = (flags & SL_SI91X_TLS_V_1_0) ? (https_enable | SL_SI91X_TLS_V_1_0) : https_enable;
+  https_enable = (flags & SL_SI91X_TLS_V_1_1) ? (https_enable | SL_SI91X_TLS_V_1_1) : https_enable;
+  https_enable = (flags & SL_SI91X_TLS_V_1_2) ? (https_enable | SL_SI91X_TLS_V_1_2) : https_enable;
+  https_enable = (flags & SL_SI91X_TLS_V_1_3) ? (https_enable | SL_SI91X_TLS_V_1_3) : https_enable;
+
+  // Set HTTP version 1.1 feature bit
+  https_enable = (flags & SL_SI91X_HTTP_V_1_1) ? (https_enable | SL_SI91X_HTTP_V_1_1) : https_enable;
+
+  // Certificate indices
+  https_enable = (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_1) ? (https_enable | SL_SI91X_HTTPS_CERTIFICATE_INDEX_1)
+                                                              : https_enable;
+  https_enable = (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_2) ? (https_enable | SL_SI91X_HTTPS_CERTIFICATE_INDEX_2)
+                                                              : https_enable;
+
+  return https_enable;
+}
+
+/**
+ * @brief Setup SNI (Server Name Indication) if required
+ * @param[in] flags HTTP OTAF flags
+ * @param[in] host_name Host name for SNI
+ * @return sl_status_t
+ */
+static sl_status_t sli_setup_sni_if_required(uint16_t flags, const uint8_t *host_name)
+{
+  if (!(flags & SL_SI91X_HTTPS_USE_SNI)) {
+    return SL_STATUS_OK;
+  }
+
+  if (host_name == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  sli_si91x_tls_extension_info_t *set_sni = (sli_si91x_tls_extension_info_t *)malloc(
+    sizeof(sli_si91x_tls_extension_info_t) + sl_strlen((const char *)host_name));
+  if (set_sni == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  // Initialize the SNI structure
+  set_sni->type   = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
+  set_sni->length = (uint16_t)sl_strlen((const char *)host_name);
+  memcpy(set_sni->value, host_name, set_sni->length);
+
+  sl_status_t status = sli_si91x_set_sni_for_embedded_socket(set_sni, SI91X_SNI_FOR_HTTPS);
+  free(set_sni);
+
+  return status;
+}
+
+/**
+ * @brief Copy string to buffer with length check
+ * @param[in] source Source string to copy
+ * @param[out] buffer Destination buffer
+ * @param[in] buffer_size Size of destination buffer
+ * @param[in] current_length Current length in buffer
+ * @return sl_status_t
+ */
+static sl_status_t sli_copy_string_to_buffer(const uint8_t *source,
+                                             uint8_t *buffer,
+                                             size_t buffer_size,
+                                             uint16_t *current_length)
+{
+  if (sl_strlen((const char *)source) >= buffer_size - 1 - *current_length) {
+    return SL_STATUS_HAS_OVERFLOWED;
+  }
+
+  uint16_t length = (uint16_t)sl_strlen((const char *)source);
+  memcpy(buffer + *current_length, source, length);
+  *current_length += length + 1;
+
+  return SL_STATUS_OK;
+}
+
+/**
+ * @brief Fill HTTP client buffer with parameters
+ * @param[in] http_otaf_params HTTP OTAF parameters
+ * @param[out] http_client HTTP client structure
+ * @param[out] http_length Current buffer length
+ * @return sl_status_t
+ */
+static sl_status_t sli_fill_http_client_buffer(const sl_si91x_http_otaf_params_t *http_otaf_params,
+                                               sli_si91x_http_client_request_t *http_client,
+                                               uint16_t *http_length)
+{
+  sl_status_t status;
+
+  // Fill username
+  status = sli_copy_string_to_buffer(http_otaf_params->user_name,
+                                     http_client->buffer,
+                                     sizeof(http_client->buffer),
+                                     http_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Fill password
+  status = sli_copy_string_to_buffer(http_otaf_params->password,
+                                     http_client->buffer,
+                                     sizeof(http_client->buffer),
+                                     http_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Check for HTTP_V_1.1 and empty host name
+  const uint8_t *host_name_ptr =
+    ((http_otaf_params->flags & SL_SI91X_HTTP_V_1_1) && (sl_strlen((const char *)http_otaf_params->host_name) == 0))
+      ? http_otaf_params->ip_address
+      : http_otaf_params->host_name;
+
+  // Copy host name
+  status = sli_copy_string_to_buffer(host_name_ptr, http_client->buffer, sizeof(http_client->buffer), http_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Copy IP address
+  status = sli_copy_string_to_buffer(http_otaf_params->ip_address,
+                                     http_client->buffer,
+                                     sizeof(http_client->buffer),
+                                     http_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Copy URL resource
+  status = sli_copy_string_to_buffer(http_otaf_params->resource,
+                                     http_client->buffer,
+                                     sizeof(http_client->buffer),
+                                     http_length);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Copy extended header if present
+  if (http_otaf_params->extended_header != NULL) {
+    if (sl_strlen((const char *)http_otaf_params->extended_header) >= sizeof(http_client->buffer) - 1 - *http_length) {
+      return SL_STATUS_HAS_OVERFLOWED;
+    }
+
+    uint16_t length = (uint16_t)sl_strlen((const char *)http_otaf_params->extended_header);
+    memcpy(http_client->buffer + *http_length, http_otaf_params->extended_header, length);
+    *http_length += length;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/**
+ * @brief Validate HTTP request parameters
+ * @param[in] http_length Current HTTP buffer length
+ * @param[in] resource Resource string to validate
+ * @return sl_status_t
+ */
+static sl_status_t sli_validate_http_request(uint16_t http_length, const uint8_t *resource)
+{
+  if (http_length > SLI_SI91X_HTTP_BUFFER_LEN) {
+    return SL_STATUS_HAS_OVERFLOWED;
+  }
+
+  if (sl_strnlen((const char *)resource, SLI_SI91X_MAX_HTTP_URL_SIZE + 1) > SLI_SI91X_MAX_HTTP_URL_SIZE) {
+    return SL_STATUS_HAS_OVERFLOWED;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/**
+ * @brief Send HTTP request in chunks
+ * @param[in] http_client HTTP client structure
+ * @param[in] http_length Total HTTP buffer length
+ * @return sl_status_t
+ */
+static sl_status_t sli_send_http_request_chunked(const sli_si91x_http_client_request_t *http_client,
+                                                 uint16_t http_length)
+{
+  sli_si91x_http_client_request_t *packet_buffer = malloc(sizeof(sli_si91x_http_client_request_t));
+  if (packet_buffer == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  sl_status_t status  = SL_STATUS_OK;
+  uint16_t offset     = 0;
+  uint16_t rem_length = http_length;
+  uint16_t chunk_size;
+  uint8_t packet_identifier;
+
+  while (rem_length) {
+    if (rem_length > SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {
+      packet_identifier = (offset == 0) ? SLI_HTTP_GET_FIRST_PKT : SLI_HTTP_GET_MIDDLE_PKT;
+      chunk_size        = SLI_SI91X_MAX_HTTP_CHUNK_SIZE;
+    } else {
+      packet_identifier = SLI_HTTP_GET_LAST_PKT;
+      chunk_size        = rem_length;
+    }
+
+    packet_buffer->ip_version   = http_client->ip_version;
+    packet_buffer->https_enable = http_client->https_enable;
+    packet_buffer->port_number  = http_client->port_number;
+
+    // Bounds check to prevent out-of-bounds access
+    if (offset + chunk_size > SLI_SI91X_HTTP_BUFFER_LEN) {
+      free(packet_buffer);
+      return SL_STATUS_HAS_OVERFLOWED;
+    }
+
+    memcpy(packet_buffer->buffer, (http_client->buffer + offset), chunk_size);
+
+    status = sl_si91x_custom_driver_send_command(
+      SLI_WLAN_REQ_HTTP_OTAF,
+      SLI_WIFI_WLAN_CMD,
+      packet_buffer,
+      (sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + chunk_size),
+      (rem_length == chunk_size) ? SLI_WIFI_WAIT_FOR_OTAF_RESPONSE : SLI_WIFI_WAIT_FOR_COMMAND_RESPONSE,
+      NULL,
+      NULL,
+      packet_identifier);
+
+    if ((status != SL_STATUS_OK) && (status != SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS)) {
+      break;
+    }
+
+    offset += chunk_size;
+    rem_length -= chunk_size;
+  }
+
+  free(packet_buffer);
+  return status;
+}
+
+#endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */
 
 /***************************************************************************/ /**
  * @brief  
@@ -85,10 +338,10 @@ static sl_status_t sl_si91x_fwup(uint16_t type, const uint8_t *content, uint16_t
 
   // Send FW update command
   status = sli_si91x_driver_send_command(SLI_WLAN_REQ_FWUP,
-                                         SLI_SI91X_WLAN_CMD,
+                                         SLI_WIFI_WLAN_CMD,
                                          &fwup,
                                          sizeof(sli_si91x_req_fwup_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(5000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_WLAN_RSP_FWUP_WAIT_TIME),
                                          NULL,
                                          NULL);
 
@@ -188,7 +441,7 @@ sl_status_t sl_si91x_set_fast_fw_up(void)
 {
   uint32_t read_data = 0;
   sl_status_t retval = 0;
-  retval             = sl_si91x_bus_read_memory(SLI_SI91X_SAFE_UPGRADE_ADDR, 4, (uint8_t *)&read_data);
+  retval             = sl_si91x_bus_read_memory(SLI_SI91X_SAFE_UPGRADE_ADDR, 4, (const uint8_t *)&read_data);
   VERIFY_STATUS_AND_RETURN(retval);
 
   //disabling safe upgradation bit
@@ -209,16 +462,16 @@ sl_status_t sl_si91x_ota_firmware_upgradation(sl_ip_address_t server_ip,
                                               uint16_t tcp_retry_count,
                                               bool asynchronous)
 {
-  sl_wifi_buffer_t *buffer            = NULL;
-  sl_status_t status                  = SL_STATUS_FAIL;
-  sli_si91x_wait_period_t wait_period = SLI_SI91X_RETURN_IMMEDIATELY;
+  sl_wifi_buffer_t *buffer           = NULL;
+  sl_status_t status                 = SL_STATUS_FAIL;
+  sli_wifi_wait_period_t wait_period = SLI_WIFI_RETURN_IMMEDIATELY;
 
   // Initialize the OTA firmware update request structure
   sli_si91x_ota_firmware_update_request_t otaf_fwup = { 0 };
 
   // Determine the wait period based on the 'asynchronous' flag
   if (asynchronous == false) {
-    wait_period = SLI_SI91X_WAIT_FOR_OTAF_RESPONSE;
+    wait_period = SLI_WIFI_WAIT_FOR_OTAF_RESPONSE;
   }
 
   // Check IP version
@@ -284,206 +537,17 @@ sl_status_t sl_si91x_http_otaf(uint8_t type,
   UNUSED_PARAMETER(post_data);
   UNUSED_PARAMETER(post_data_length);
 
-  sl_status_t status                             = SL_STATUS_FAIL;
-  uint32_t send_size                             = 0;
-  uint16_t http_length                           = 0;
-  uint16_t length                                = 0;
-  uint16_t https_enable                          = 0;
-  uint8_t packet_identifier                      = 0;
-  sli_si91x_http_client_request_t *packet_buffer = NULL;
-  uint16_t offset                                = 0;
-  uint16_t rem_length                            = 0;
-  uint16_t chunk_size                            = 0;
-  sli_si91x_http_client_request_t *http_client   = malloc(sizeof(sli_si91x_http_client_request_t));
-  SL_VERIFY_POINTER_OR_RETURN(http_client, SL_STATUS_ALLOCATION_FAILED);
+  // Create the v2 parameter structure and call the new implementation
+  sl_si91x_http_otaf_params_t http_otaf_params = { .flags           = flags,
+                                                   .ip_address      = ip_address,
+                                                   .port            = port,
+                                                   .resource        = resource,
+                                                   .host_name       = host_name,
+                                                   .extended_header = extended_header,
+                                                   .user_name       = user_name,
+                                                   .password        = password };
 
-  memset(http_client, 0, sizeof(sli_si91x_http_client_request_t));
-  http_client->ip_version = (flags & IP_VERSION_6) ? SL_IPV6_VERSION : SL_IPV4_VERSION;
-
-  // Set https feature
-  https_enable = (flags & SL_SI91X_ENABLE_TLS) ? SL_SI91X_ENABLE_TLS : https_enable;
-
-  // Set default by NULL delimiter
-  https_enable |= SL_SI91X_ENABLE_NULL_DELIMETER;
-
-  //ssl versions
-  https_enable = (flags & SL_SI91X_TLS_V_1_0) ? (https_enable | SL_SI91X_TLS_V_1_0) : https_enable;
-
-  https_enable = (flags & SL_SI91X_TLS_V_1_1) ? (https_enable | SL_SI91X_TLS_V_1_1) : https_enable;
-
-  https_enable = (flags & SL_SI91X_TLS_V_1_2) ? (https_enable | SL_SI91X_TLS_V_1_2) : https_enable;
-
-  https_enable = (flags & SL_SI91X_TLS_V_1_3) ? (https_enable | SL_SI91X_TLS_V_1_3) : https_enable;
-
-  // Set HTTP version 1.1 feature bit
-  https_enable = (flags & SL_SI91X_HTTP_V_1_1) ? (https_enable | SL_SI91X_HTTP_V_1_1) : https_enable;
-
-  https_enable = (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_1) ? (https_enable | SL_SI91X_HTTPS_CERTIFICATE_INDEX_1)
-                                                              : https_enable;
-
-  https_enable = (flags & SL_SI91X_HTTPS_CERTIFICATE_INDEX_2) ? (https_enable | SL_SI91X_HTTPS_CERTIFICATE_INDEX_2)
-                                                              : https_enable;
-
-  if (flags & SL_SI91X_HTTPS_USE_SNI) {
-    if (host_name == NULL) {
-      free(http_client);
-      return SL_STATUS_NULL_POINTER;
-    }
-
-    https_enable = (https_enable | SL_SI91X_HTTPS_USE_SNI);
-
-    sl_si91x_socket_type_length_value_t *set_sni = (sl_si91x_socket_type_length_value_t *)malloc(
-      sizeof(sl_si91x_socket_type_length_value_t) + sl_strlen((char *)host_name));
-    if (set_sni == NULL) {
-      free(http_client);
-      return SL_STATUS_ALLOCATION_FAILED;
-    }
-
-    // Initialize the SNI structure.
-    set_sni->type   = SL_SI91X_TLS_EXTENSION_SNI_TYPE;
-    set_sni->length = sl_strlen((char *)host_name);
-    memcpy(set_sni->value, host_name, set_sni->length);
-    status = sli_si91x_set_sni_for_embedded_socket(set_sni);
-    if (status != SL_STATUS_OK) {
-      free(http_client);
-      free(set_sni);
-      return status;
-    }
-    free(set_sni);
-  }
-
-  // Fill https features parameters
-  http_client->https_enable = https_enable;
-
-  // Fill port no
-  http_client->port_number = port;
-  memset(http_client->buffer, 0, sizeof(http_client->buffer));
-
-  // Fill username
-  if (sl_strlen((char *)user_name) < sizeof(http_client->buffer)) {
-    length = (uint16_t)sl_strlen((char *)user_name);
-    memcpy(http_client->buffer, user_name, length);
-    http_length += length + 1;
-  } else {
-    free(http_client);
-    return status;
-  }
-
-  // Fill password
-  if (sl_strlen((char *)password) < (sizeof(http_client->buffer) - 1 - http_length)) {
-    length = (uint16_t)sl_strlen((char *)password);
-    memcpy(((http_client->buffer) + http_length), password, length);
-    http_length += length + 1;
-  } else {
-    free(http_client);
-    return status;
-  }
-
-  // Check for HTTP_V_1.1 and Empty host name
-  host_name = ((flags & SL_SI91X_HTTP_V_1_1) && (sl_strlen((char *)host_name) == 0)) ? ip_address : host_name;
-
-  // Copy  Host name
-  if (sl_strlen((char *)host_name) < (sizeof(http_client->buffer) - 1 - http_length)) {
-    length = (uint16_t)sl_strlen((char *)host_name);
-    memcpy(((http_client->buffer) + http_length), host_name, length);
-    http_length += length + 1;
-  } else {
-    free(http_client);
-    return status;
-  }
-
-  // Copy IP address
-  if (sl_strlen((char *)ip_address) < (sizeof(http_client->buffer) - 1 - http_length)) {
-    length = (uint16_t)sl_strlen((char *)ip_address);
-    memcpy(((http_client->buffer) + http_length), ip_address, length);
-    http_length += length + 1;
-  } else {
-    free(http_client);
-    return status;
-  }
-
-  // Copy URL resource
-  if (sl_strlen((char *)resource) < (sizeof(http_client->buffer) - 1 - http_length)) {
-    length = (uint16_t)sl_strlen((char *)resource);
-    memcpy(((http_client->buffer) + http_length), resource, length);
-    http_length += length + 1;
-  } else {
-    free(http_client);
-    return status;
-  }
-
-  // Copy Extended header
-  if (extended_header != NULL) {
-    if (sl_strlen((char *)extended_header) < (sizeof(http_client->buffer) - 1 - http_length)) {
-      length = (uint16_t)sl_strlen((char *)extended_header);
-      memcpy(((http_client->buffer) + http_length), extended_header, length);
-      http_length += length;
-    } else {
-      free(http_client);
-      return status;
-    }
-  }
-
-  // Check if request buffer is overflowed or resource length is overflowed
-  if (http_length > SLI_SI91X_HTTP_BUFFER_LEN
-      || sl_strnlen(((char *)resource), SLI_SI91X_MAX_HTTP_URL_SIZE + 1) > SLI_SI91X_MAX_HTTP_URL_SIZE)
-    return SL_STATUS_HAS_OVERFLOWED;
-
-  send_size = sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + http_length;
-  send_size &= 0xFFF;
-
-  rem_length = http_length;
-  if (http_length <= SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {
-    status = sli_si91x_driver_send_command(SLI_WLAN_REQ_HTTP_OTAF,
-                                           SLI_SI91X_WLAN_CMD,
-                                           http_client,
-                                           send_size,
-                                           SLI_SI91X_WAIT_FOR_OTAF_RESPONSE,
-                                           NULL,
-                                           NULL);
-  } else {
-    packet_buffer = malloc(sizeof(sli_si91x_http_client_request_t));
-    SLI_VERIFY_MALLOC_AND_RETURN(packet_buffer);
-
-    while (rem_length) {
-      if (rem_length > SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {
-        packet_identifier = (offset == 0) ? SLI_HTTP_GET_FIRST_PKT : SLI_HTTP_GET_MIDDLE_PKT;
-        chunk_size        = SLI_SI91X_MAX_HTTP_CHUNK_SIZE;
-      } else {
-        packet_identifier = SLI_HTTP_GET_LAST_PKT;
-        chunk_size        = rem_length;
-      }
-
-      packet_buffer->ip_version   = http_client->ip_version;
-      packet_buffer->https_enable = http_client->https_enable;
-      packet_buffer->port_number  = http_client->port_number;
-
-      memcpy(packet_buffer->buffer, (http_client->buffer + offset), chunk_size);
-
-      status = sl_si91x_custom_driver_send_command(
-        SLI_WLAN_REQ_HTTP_OTAF,
-        SLI_SI91X_WLAN_CMD,
-        packet_buffer,
-        (sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + chunk_size),
-        (rem_length == chunk_size) ? SLI_SI91X_WAIT_FOR_OTAF_RESPONSE : SLI_SI91X_WAIT_FOR_COMMAND_RESPONSE,
-        NULL,
-        NULL,
-        packet_identifier);
-
-      if ((status != SL_STATUS_OK) && (status != SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS))
-        break;
-
-      offset += chunk_size;
-      rem_length -= chunk_size;
-    }
-
-    // Free packet buffer structure memory
-    free(packet_buffer);
-  }
-
-  free(http_client);
-  VERIFY_STATUS_AND_RETURN(status);
-  return status;
+  return sl_si91x_http_otaf_v2(&http_otaf_params);
 }
 
 sl_status_t sl_si91x_http_otaf_v2(const sl_si91x_http_otaf_params_t *http_otaf_params)
@@ -492,16 +556,78 @@ sl_status_t sl_si91x_http_otaf_v2(const sl_si91x_http_otaf_params_t *http_otaf_p
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  return sl_si91x_http_otaf(0,
-                            http_otaf_params->flags,
-                            http_otaf_params->ip_address,
-                            http_otaf_params->port,
-                            http_otaf_params->resource,
-                            http_otaf_params->host_name,
-                            http_otaf_params->extended_header,
-                            http_otaf_params->user_name,
-                            http_otaf_params->password,
-                            NULL,
-                            0);
+  if (!device_initialized) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+
+  sl_status_t status                           = SL_STATUS_FAIL;
+  uint16_t http_length                         = 0;
+  uint16_t https_enable                        = 0;
+  sli_si91x_http_client_request_t *http_client = malloc(sizeof(sli_si91x_http_client_request_t));
+  SL_VERIFY_POINTER_OR_RETURN(http_client, SL_STATUS_ALLOCATION_FAILED);
+
+  memset(http_client, 0, sizeof(sli_si91x_http_client_request_t));
+  http_client->ip_version = (http_otaf_params->flags & IP_VERSION_6) ? SL_IPV6_VERSION : SL_IPV4_VERSION;
+
+  // Configure HTTPS features
+  https_enable = sli_configure_https_features(http_otaf_params->flags);
+
+  // Setup SNI if required
+  if (http_otaf_params->flags & SL_SI91X_HTTPS_USE_SNI) {
+    if (http_otaf_params->host_name == NULL) {
+      free(http_client);
+      return SL_STATUS_NULL_POINTER;
+    }
+
+    https_enable = (https_enable | SL_SI91X_HTTPS_USE_SNI);
+
+    status = sli_setup_sni_if_required(http_otaf_params->flags, http_otaf_params->host_name);
+    if (status != SL_STATUS_OK) {
+      free(http_client);
+      return status;
+    }
+  }
+
+  // Fill https features parameters
+  http_client->https_enable = https_enable;
+
+  // Fill port no
+  http_client->port_number = http_otaf_params->port;
+
+  memset(http_client->buffer, 0, sizeof(http_client->buffer));
+
+  // Fill HTTP client buffer with parameters
+  status = sli_fill_http_client_buffer(http_otaf_params, http_client, &http_length);
+  if (status != SL_STATUS_OK) {
+    free(http_client);
+    return status;
+  }
+
+  // Check if request buffer is overflowed or resource length is overflowed
+  status = sli_validate_http_request(http_length, http_otaf_params->resource);
+  if (status != SL_STATUS_OK) {
+    free(http_client);
+    return status;
+  }
+
+  // Send HTTP request
+  uint32_t send_size = sizeof(sli_si91x_http_client_request_t) - SLI_SI91X_HTTP_BUFFER_LEN + http_length;
+  send_size &= 0xFFF;
+
+  if (http_length <= SLI_SI91X_MAX_HTTP_CHUNK_SIZE) {
+    status = sli_si91x_driver_send_command(SLI_WLAN_REQ_HTTP_OTAF,
+                                           SLI_WIFI_WLAN_CMD,
+                                           http_client,
+                                           send_size,
+                                           SLI_WIFI_WAIT_FOR_OTAF_RESPONSE,
+                                           NULL,
+                                           NULL);
+  } else {
+    status = sli_send_http_request_chunked(http_client, http_length);
+  }
+
+  free(http_client);
+  VERIFY_STATUS_AND_RETURN(status);
+  return status;
 }
 #endif /* SLI_SI91X_OFFLOAD_NETWORK_STACK */

@@ -43,10 +43,11 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_socket.h"
 #include "app.h"
+#include "sl_si91x_core_utilities.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
-
+#include "sl_wifi_callback_framework.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -389,13 +390,21 @@ void receive_data_from_tcp_client(void)
 
   LOG_PRINT("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      LOG_PRINT("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -410,8 +419,8 @@ void receive_data_from_tcp_client(void)
 
   measure_and_print_throughput(total_bytes_received, (now - start));
 
-  close(server_socket);
   close(client_socket);
+  close(server_socket);
 
 #endif
 }
@@ -500,6 +509,7 @@ void receive_data_from_udp_client(void)
 
   close(client_socket);
 #else
+  sl_status_t status            = SL_STATUS_OK;
   int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
   client_socket                 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -525,10 +535,20 @@ void receive_data_from_udp_client(void)
   while (total_bytes_received < BYTES_TO_RECEIVE) {
     read_bytes = recvfrom(client_socket, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (read_bytes < 0) {
-      LOG_PRINT("\r\nReceive failed with bsd error: %d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
+
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {

@@ -91,11 +91,7 @@
 
 // </h> end Joystick Voltage value Configuration
 
-#ifndef SLI_SI915
 #define SL_JOYSTICK_ADC_CHANNEL JOYSTICK_ADC_CHANNEL
-#else
-#define SL_JOYSTICK_ADC_CHANNEL SL_ADC_CHANNEL_2
-#endif
 
 // <<< end of configuration section >>>
 

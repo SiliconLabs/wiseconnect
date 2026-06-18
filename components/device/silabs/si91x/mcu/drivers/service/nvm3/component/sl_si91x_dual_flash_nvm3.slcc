@@ -1,6 +1,6 @@
 id: sl_si91x_dual_flash_nvm3
 label: NVM3 Dual Flash
-package: platform
+package: platform_nwp_siwx91x
 description: >
   Implements NVM3 for the SiWG91x parts that have both internal and external flash parts fitted.
 category: Device|Si91x|MCU|Service
@@ -30,8 +30,8 @@ include:
 requires:
   - name: romdriver_qspi
   - name: romdriver_gpdma
+  - name: sl_core
   - name: sl_main
-  - name: emlib_core
   - name: sl_assert
   - name: sl_common
   - name: status

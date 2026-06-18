@@ -1,6 +1,6 @@
 id: adc_ulp_component
 label: PM ULP ADC
-package: platform
+package: platform_siwx91x
 description: >
   ULP ADC component will enable ADC in the low-power mode. It moves all the peripheral dependencies to RAM. 
   It also installs the peripheral component if already not installed.
@@ -22,23 +22,23 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: adc_ps2
-    value: sl_si91x_adc.o
+    value: sl_si91x_adc.*
   - name: adc_ps2
-    value: rsi_adc.o
+    value: rsi_adc.*
   - name: adc_ps2
-    value: rsi_bod.o
+    value: rsi_bod.*
   - name: adc_ps2
-    value: aux_reference_volt_config.o
+    value: aux_reference_volt_config.*
   - name: adc_ps2
-    value: memcpy-stub.o
+    value: memcpy-stub.*
   - name: adc_ps2
-    value: s_ceil.o
+    value: s_ceil*
   - name: adc_ps2
-    value: addsubdf3.o
+    value: addsubdf3*
   - name: adc_ps2
-    value: fixunsdfsi.o
+    value: fixunsdfsi*
   - name: adc_ps2
-    value: cmpdf2.o
+    value: cmpdf2*
 
 
 

@@ -40,7 +40,7 @@ typedef enum { SEND_DATA, RECEIVE_DATA, WAIT_STATE, INVALID_STATE } transfer_sta
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static int32_t clock_configuration_pll(void);
+
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
 /*******************************************************************************
@@ -63,13 +63,6 @@ void i2s_example_init(void)
     i2s_version = sl_si91x_i2s_get_version();
     DEBUGOUT("I2S version is fetched successfully \n");
     DEBUGOUT("API version is %d.%d.%d\n", i2s_version.release, i2s_version.major, i2s_version.minor);
-    // Configure PLL and switch M4 clock to PLL clock for speed operations
-    if (clock_configuration_pll()) {
-      DEBUGOUT("PLL configuration fail\r\n");
-      break;
-    } else {
-      DEBUGOUT("PLL configuration success\r\n");
-    }
     //Initialize I2S peripheral and store driver handle in i2s_driver_handle
     status = sl_si91x_i2s_init(I2S_INSTANCE, &i2s_driver_handle);
     if (status != SL_STATUS_OK) {
@@ -178,22 +171,6 @@ void i2s_example_process_action(void)
       break;
   }
 }
-
-/*******************************************************************************
- * Function to configure PLL for high speed operations
- *
- * @param none
- * @return none
- ******************************************************************************/
-static int32_t clock_configuration_pll(void)
-{
-  int32 status = 0;
-  do {
-
-  } while (false);
-  return status;
-}
-
 /*******************************************************************************
  * Function to compare the loop back data, i.e., after transfer it will compare
  * the send and receive data

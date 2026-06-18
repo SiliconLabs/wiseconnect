@@ -345,6 +345,56 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
 }
 
 /*******************************************************************************
+ * Receives data from the slave device in blocking mode
+ * It stores the received data in the data buffer.
+ * Arguments:
+ *   - gspi_handle: GSPI handle
+ *   - data: pointer to the data buffer which stores the data that is received
+ *   - data_length: The number of data items to be received
+ *   - timeout: timeout value for the receive operation
+ * Returns SL_STATUS_OK on success or appropriate error code.
+ ******************************************************************************/
+sl_status_t sl_si91x_gspi_receive_data_blocking(sl_gspi_handle_t gspi_handle,
+                                                void *data,
+                                                uint32_t data_length,
+                                                uint32_t timeout)
+{
+  sl_status_t status;
+  int32_t error_status;
+  do {
+    // Validate pointers, if any parameter is NULL, return error code
+    if ((data == NULL) || (gspi_handle == NULL)) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // Validate the GSPI handle address, if incorrect return error code
+    if (!validate_gspi_handle(gspi_handle)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // If data_length is not in range, return error code
+    if ((data_length == MIN_DATA_LENGTH) || (data_length > MAX_READ_SIZE)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Enable slave select GPIO
+    status = GSPI_MASTER_SetSlaveSelectGPIOState(ENABLE);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
+    // Receive data in blocking mode and convert ARM error code to SL error code
+    error_status = GSPI_MASTER_Receive_Blocking(data, data_length, timeout);
+    status       = convert_arm_to_sl_error_code(error_status);
+    // Disable slave select GPIO
+    if (GSPI_MASTER_SetSlaveSelectGPIOState(DISABLE) != SL_STATUS_OK) {
+      status = SL_STATUS_FAIL;
+      break;
+    }
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
  * Sends the data to the slave device
  * It takes two arguments,
  *   - data: pointer to the data buffer which stores the data that needs to
@@ -380,6 +430,55 @@ sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *da
     // the API is converted to SL error code via convert_arm_to_sl_error_code function.
     error_status = ((sl_gspi_driver_t *)gspi_handle)->Send(data, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * Sends data to the slave device in blocking mode.
+ * Arguments:
+ *   - gspi_handle: GSPI handle
+ *   - data: pointer to the data buffer to be sent
+ *   - data_length: number of data items to send
+ *   - timeout: timeout value for the send operation
+ * Returns SL_STATUS_OK on success or appropriate error code.
+ ******************************************************************************/
+sl_status_t sl_si91x_gspi_send_data_blocking(sl_gspi_handle_t gspi_handle,
+                                             const void *data,
+                                             uint32_t data_length,
+                                             uint32_t timeout)
+{
+  sl_status_t status;
+  int32_t error_status;
+  do {
+    // Validate pointers, if any parameter is NULL, return error code
+    if ((data == NULL) || (gspi_handle == NULL)) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // Validate the GSPI handle address, if incorrect return error code
+    if (!validate_gspi_handle(gspi_handle)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Validate data_length, if zero return error code
+    if (data_length == MIN_DATA_LENGTH) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Enable slave select GPIO
+    status = GSPI_MASTER_SetSlaveSelectGPIOState(ENABLE);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
+    // Send data in blocking mode and convert ARM error code to SL error code
+    error_status = GSPI_MASTER_Send_Blocking(data, data_length, timeout);
+    status       = convert_arm_to_sl_error_code(error_status);
+    // Disable slave select GPIO
+    if (GSPI_MASTER_SetSlaveSelectGPIOState(DISABLE) != SL_STATUS_OK) {
+      status = SL_STATUS_FAIL;
+      break;
+    }
   } while (false);
   return status;
 }
@@ -426,6 +525,57 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
     // It updates the data_in variable with the data received.
     error_status = ((sl_gspi_driver_t *)gspi_handle)->Transfer(data_out, data_in, data_length);
     status       = convert_arm_to_sl_error_code(error_status);
+  } while (false);
+  return status;
+}
+
+/*******************************************************************************
+ * Sends and receives data to/from the slave device simultaneously in blocking mode.
+ * Arguments:
+ *   - gspi_handle: GSPI handle
+ *   - data_out: pointer to the data buffer to be sent
+ *   - data_in: pointer to the data buffer to store received data
+ *   - data_length: number of data items to transfer
+ *   - timeout: timeout value for the transfer
+ * Returns SL_STATUS_OK on success or appropriate error code.
+ ******************************************************************************/
+sl_status_t sl_si91x_gspi_transfer_data_blocking(sl_gspi_handle_t gspi_handle,
+                                                 const void *data_out,
+                                                 void *data_in,
+                                                 uint32_t data_length,
+                                                 uint32_t timeout)
+{
+  sl_status_t status;
+  int32_t error_status;
+  do {
+    // Validate pointers, if any parameter is NULL, return error code
+    if ((data_in == NULL) || (data_out == NULL) || (gspi_handle == NULL)) {
+      status = SL_STATUS_NULL_POINTER;
+      break;
+    }
+    // Validate the GSPI handle address, if incorrect return error code
+    if (!validate_gspi_handle(gspi_handle)) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Validate data_length, if zero return error code
+    if (data_length == MIN_DATA_LENGTH) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // Enable slave select GPIO
+    status = GSPI_MASTER_SetSlaveSelectGPIOState(ENABLE);
+    if (status != SL_STATUS_OK) {
+      break;
+    }
+    // Transfer data in blocking mode and convert ARM error code to SL error code
+    error_status = GSPI_MASTER_Transfer_Blocking(data_out, data_in, data_length, timeout);
+    status       = convert_arm_to_sl_error_code(error_status);
+    // Disable slave select GPIO
+    if (GSPI_MASTER_SetSlaveSelectGPIOState(DISABLE) != SL_STATUS_OK) {
+      status = SL_STATUS_FAIL;
+      break;
+    }
   } while (false);
   return status;
 }

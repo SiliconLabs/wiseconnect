@@ -146,9 +146,8 @@ extern "C" {
 #define DUAL_FLASH_IPMU_VALUES_OFFSET MCU_MANF_DATA_BASE_ADDR
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
-#if (((defined SLI_SI917 || defined SLI_SI915) && (defined SLI_SI917B0 || defined SLI_SI915)) \
-     || (defined CHIP_917_6x6 && (defined SLI_SI917B0 || defined SLI_SI915)))
+#if defined(SLI_SI917)
+#if (((defined SLI_SI917) && (defined SLI_SI917B0)) || (defined CHIP_917_6x6 && (defined SLI_SI917B0)))
 #ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
 #define PACKAGE_TYPE_VALUES_OFFSET_COMMON_FLASH 0x8160292
 #define SILICON_REV_VALUES_OFFSET_COMMON_FLASH  0x8160293
@@ -202,10 +201,10 @@ extern "C" {
 #define MASK_BITS(A, B)                 (((1U << A) - 1) << B)
 #define ULP_SPI                         0
 #define ULPCLKS_DOUBLER_XTAL_REG_OFFSET 0x101
-#define ULPCLKS_32KRO_CLK_REG_OFFSET    0x102
+#define ULPCLKS_32KRO_CLK_REG_OFFSET    0x102 /*!<32KHZ RO clock not supported*/
 #define ULPCLKS_32KRC_CLK_REG_OFFSET    0x103
 #define ULPCLKS_MRC_CLK_REG_OFFSET      0x104
-#define ULPCLKS_HF_RO_CLK_REG_OFFSET    0x105
+#define ULPCLKS_HF_RO_CLK_REG_OFFSET    0x105 /*!<HF RO clock not supported*/
 #define ULPCLKS_REFCLK_REG_ADDR         0x106
 #define ULPCLKS_TRIM_SEL_REG_ADDR       0x107
 #define ULPCLKS_CALIB_REG_ADDR          0x10A
@@ -214,7 +213,7 @@ extern "C" {
 #define ULPCLKS_32KXTAL_CLK_REG_OFFSET  0x10E
 #define BG_SCDC_PROG_REG_1_OFFSET       0x127
 #define iPMU_SPARE_REG1_OFFSET          0x140
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define BG_SCDC_PROG_REG_3_ADDR 0x12B
 #endif
 
@@ -227,10 +226,10 @@ extern "C" {
 //! ULP SPI (0x2405A000)
 #define ULPCLKS_ADAPTIVE_REG_OFFSET         0x100
 #define ULPCLKS_DOUBLER_XTAL_REG_OFFSET     0x101
-#define ULPCLKS_32KRO_CLK_REG_OFFSET        0x102
+#define ULPCLKS_32KRO_CLK_REG_OFFSET        0x102 /*!<32 KHZ RO clock not supported*/
 #define ULPCLKS_32KRC_CLK_REG_OFFSET        0x103
 #define ULPCLKS_MRC_CLK_REG_OFFSET          0x104
-#define ULPCLKS_HF_RO_CLK_REG_OFFSET        0x105
+#define ULPCLKS_HF_RO_CLK_REG_OFFSET        0x105 /*!<HF RO clock not supported*/
 #define ULPCLKS_REF_CLK_REG_OFFSET          0x106
 #define ULPCLKS_TRIM_SEL_REG_OFFSET         0x107
 #define ULPCLKS_32KXTAL_CLK_REG_OFFSET      0x10E
@@ -312,7 +311,7 @@ extern "C" {
 #define rc_mhz_en BIT(21)
 
 //! ULPCLKS_HF_RO_CLK_REG defines
-#define ro_hf_en BIT(21)
+#define ro_hf_en BIT(21) /*!< HF RO clock not supported*/
 
 //! ULPCLKS_TRIM_SEL_REG defines
 #define calib_powergate_en BIT(9)
@@ -441,7 +440,7 @@ typedef struct retention_boot_status_word_s {
 #define ACCELARATOR      6
 #define WC_SIMULATANEOUS 7
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 //! Product modes
 #define WISEMCU     0
 #define WCPLUS      3
@@ -667,7 +666,7 @@ typedef struct efuse_ipmu_s {
 } __attribute__((__packed__)) efuse_ipmu_t;
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
 typedef struct efuse_ipmu_s {
   unsigned int trim_0p5na1 : 1;
   unsigned int bg_r_vdd_ulp : 5;
@@ -734,7 +733,12 @@ typedef enum INPUT_CLOCK {
 
 } INPUT_CLOCK_T;
 
-typedef enum SLEEP_CLOCK { khz_rc_clk = 0x0, khz_xtal_clk = 0x1, khz_ro_clk = 0x3, none = 0x233 } SLEEP_CLOCK_T;
+typedef enum SLEEP_CLOCK {
+  khz_rc_clk   = 0x0,
+  khz_xtal_clk = 0x1,
+  khz_ro_clk   = 0x3, /* RO clock is not supported */
+  none         = 0x233
+} SLEEP_CLOCK_T;
 
 /******************************************************
    * *                 Global Variables

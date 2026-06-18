@@ -46,7 +46,7 @@ void sli_si91x_ta_events_init(void);
 sl_status_t sli_si91x_bus_set_interrupt_mask(uint32_t mask);
 sl_status_t sli_si91x_bus_enable_high_speed(void);
 sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer);
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
 
 void sl_si91x_host_enable_high_speed_bus()
 {
@@ -125,7 +125,7 @@ sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint
   return 0;
 }
 
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
 {
   UNUSED_PARAMETER(addr);
   UNUSED_PARAMETER(length);

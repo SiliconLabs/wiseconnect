@@ -1,5 +1,5 @@
 id: sl_si91x_uart_bus
-package: wiseconnect3_sdk
+package: wifi
 description: >
   This component implements UART communication interface to Si91x from the host MCU.
 

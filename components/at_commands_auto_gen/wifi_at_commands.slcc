@@ -1,5 +1,5 @@
 id: wifi_at_commands
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Wi-Fi AT commands
 category: Service| AT Commands Autogen| Wi-Fi AT commands
@@ -28,7 +28,7 @@ template_contribution:
       wifi:
         config:
           type: "ram_struct"
-          struct: "sl_si91x_boot_configuration_t"
+          struct: "sl_wifi_system_boot_configuration_t"
           instance: "si91x_init_configuration.boot_config"
           members:
             - name: "oper_mode"
@@ -63,12 +63,12 @@ template_contribution:
         handler: echo_command_handler
         arguments:
           - "uint8"
-      wifi-init:
-        handler: wifi_init_command_handler
-        arguments:
-          - "uint8"
-      wifi-deinit:
-        handler: wifi_deinit_command_handler
+      #wifi-init:
+      #  handler: wifi_init_command_handler
+      #  arguments:
+      #    - "uint8"
+      #wifi-deinit:
+      #  handler: wifi_deinit_command_handler
       wifisys-fwver?:
         handler: wifi_get_firmware_version_command_handler
       wifi-get-mac:
@@ -93,24 +93,24 @@ template_contribution:
         handler: wifi_stop_scan_command_handler
         arguments:
           - "uint8"
-      wifi-connect:
-        handler: wifi_connect_command_handler
-        arguments:
-          - "string"
-          - "string"
-          - "wifi_security"
-          - "string"
-          - "wifi_encryption"
-          - "uint32"
-          - "uint8"
-          - "uint16"
-          - "wifi_band"
-          - "wifi_bandwidth"
-          - "uint8"
-          - "boolean"
-          - "string"
-      wifi-disconnect:
-        handler: wifi_disconnect_command_handler
+      #wifi-connect:
+      #  handler: wifi_connect_command_handler
+      #  arguments:
+      #    - "string"
+      #    - "string"
+      #    - "wifi_security"
+      #    - "string"
+      #    - "wifi_encryption"
+      #    - "uint32"
+      #    - "uint8"
+      #    - "uint16"
+      #    - "wifi_band"
+      #    - "wifi_bandwidth"
+      #    - "uint8"
+      #    - "boolean"
+      #    - "string"
+      #wifi-disconnect:
+      #  handler: wifi_disconnect_command_handler
       wifi-is-ifup:
         handler: wifi_is_interface_up_command_handler
         arguments:
@@ -171,3 +171,72 @@ template_contribution:
           - "uint16"
       wifi-perf-prof?:
         handler: wifi_get_performance_profile_command_handler
+      wifi-per-cnf-gen:
+        handler: wifi_per_cnf_gen_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint16"  # power
+          - "uint32"  # rate
+          - "uint16"  # packet-length
+          - "uint16"  # mode
+          - "uint16"  # channel
+          - "uint16"  # rate-flags
+          - "uint16"  # channel-bw
+          - "uint16"  # aggr-enable
+          - "uint16"  # reserved
+          - "uint16"  # pkt-count
+          - "uint32"  # delay
+      wifi-per-cnf-axppdu:
+        handler: wifi_per_cnf_axppdu_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint8"   # enable-11ax
+          - "uint8"   # he-ppdu-type
+          - "uint8"   # ul-dl
+          - "uint8"   # bw
+          - "uint8"   # coding-type
+          - "uint8"   # spatial-reuse
+          - "uint8"   # nominal-pe
+          - "uint8"   # bss-color
+      wifi-per-cnf-axsiga:
+        handler: wifi_per_cnf_axsiga_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint8"   # gi-ltf
+          - "uint8"   # num-he-ltf
+          - "uint8"   # beam-change
+          - "uint8"   # dcm
+          - "uint16"  # he-siga2-reserved
+          - "uint8"   # nsts-midamble
+          - "uint8"   # ru-allocation
+          - "uint8"   # stbc
+          - "uint8"   # tx-bf
+      wifi-per-cnf-axsigb:
+        handler: wifi_per_cnf_axsigb_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint8"   # sigb-compression-field
+          - "uint8"   # sigb-dcm
+          - "uint8"   # sigb-mcs
+          - "uint8"   # user-idx
+          - "uint16"  # user-sta-id
+      wifi-per-start:
+        handler: wifi_per_start_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint8"   # enable
+      wifi-per-stop:
+        handler: wifi_per_stop_command_handler
+        arguments:
+          - "uint8"   # interface
+      wifi-stats-start:
+        handler: wifi_statistics_start_command_handler
+        arguments:
+          - "uint8"   # interface
+          - "uint16"  # channel
+          - "uint8"   # band
+          - "uint8"   # bandwidth
+      wifi-stats-stop:
+        handler: wifi_statistics_stop_command_handler
+        arguments:
+          - "uint8"   # interface

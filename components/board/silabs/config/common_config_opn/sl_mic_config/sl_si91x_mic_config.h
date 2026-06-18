@@ -41,7 +41,7 @@ extern "C" {
 #ifndef SL_SI91X_MIC_PERIPHERAL
 #define SL_SI91X_MIC_PERIPHERAL I2S0
 #endif
-#warning "MIC not configured"
+
 // I2S0 SCLK on GPIO_46
 #ifndef SL_SI91X_MIC_SCLK_PORT
 #define SL_SI91X_MIC_SCLK_PORT HP
@@ -92,11 +92,26 @@ extern "C" {
 
 #define SL_SI91X_MIC_ENABLE_PORT RTE_MIC_ENABLE_PORT
 #define SL_SI91X_MIC_ENABLE_PIN  SL_MIC_ENABLE_PIN
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
+
+// <<< Use Configuration Wizard in Context Menu >>>
+// <e>MIC UC Configuration
+// <i> Default: 0
+#define MIC_UC 0
+
+// <o SL_MIC_DATA_SIZE> MIC Data size
+//   <16=> 16 bit
+//   <32=> 32 bit
+// <i> Default: 16
+#define SL_MIC_DATA_SIZE 16
+
+// </e>
+
 #else
-#define SL_SI91X_MIC_ENABLE_PORT 5
-#define SL_SI91X_MIC_ENABLE_PIN  0
-#endif
+
+#warning \
+  "Mic pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

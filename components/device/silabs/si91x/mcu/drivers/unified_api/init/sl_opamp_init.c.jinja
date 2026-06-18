@@ -32,6 +32,9 @@
 #include "sl_si91x_opamp_common_config.h"
 #include "sl_si91x_opamp_init.h"
 #include "sl_opamp_board.h"
+{% for inst in opamp_instances %}
+#include "sl_si91x_opamp_{{ inst }}_config.h"
+{% endfor %}
 
 {% for inst in opamp_instances %}
 sl_opamp_pin_config_t sl_{{ inst }}_pin_config = {
@@ -46,9 +49,10 @@ sl_opamp_pin_config_t sl_{{ inst }}_pin_config = {
 #endif		
         .vout_output    = SL_{{ inst | upper }}_OUT_PIN,
 };   
+
 sl_opamp_config_t sl_{{ inst }}_feature = {
         .opamp_number   = SL_OPAMP_{{ inst | upper }},
-        .features       = SL_OPAMP_CONFIGURATION_SELECTION,
+        .features       = SL_OPAMP_{{ inst | upper }}_CONFIGURATION_SELECTION,
 };  
 {% endfor %}
 
@@ -60,4 +64,3 @@ void sl_opamp_init_instances(void)
   
   {% endfor %}
 }
-

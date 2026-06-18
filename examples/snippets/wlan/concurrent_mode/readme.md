@@ -12,6 +12,12 @@
   - [Getting Started](#getting-started)
   - [Application Build Environment](#application-build-environment)
       - [Open **sl\_wifi\_device.h** file. You can also refer to `sl_wifi_default_concurrent_configuration` and modify/create configurations as per your needs and requirements.](#open-sl_wifi_deviceh-file-you-can-also-refer-to-sl_wifi_default_concurrent_configuration-and-modifycreate-configurations-as-per-your-needs-and-requirements)
+  - [Vendor Specific Information Element (IE) Support](#vendor-specific-information-element-ie-support)
+    - [Maximum Number of IEs](#maximum-number-of-ies)
+    - [Unique Identifier](#unique-identifier)
+      - [Auto Assignment](#auto-assignment-sl_wifi_vendor_ie_auto_assign)
+    - [IE Buffer Length](#ie-buffer-length)
+    - [IE Buffer Format](#ie-buffer-format)
   - [Test the Application](#test-the-application)
     - [To Run Server](#to-run-server)
       - [UDP Tx Throughput](#udp-tx-throughput)
@@ -72,7 +78,7 @@ In this application, the SiWx91x's STA instance gets connected to a wireless Acc
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -171,7 +177,62 @@ Configure the following parameters in `app.c` to test throughput app as per requ
       #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
       ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
+## Vendor Specific Information Element (IE) Support
+
+This example also demonstrates how to add and remove Vendor Specific Information Elements (IEs) in Wi-Fi management frames using the following APIs:
+
+- **`sl_wifi_add_vendor_ie`**
+- **`sl_wifi_remove_vendor_ie`**
+- **`sl_wifi_remove_all_vendor_ie`**
+
+This functionality is controlled by the `SL_WIFI_ENABLE_VENDOR_IE` macro. Set this macro to `1` in `app.c` to enable related features.
+
+### Maximum Number of IEs
+
+The valid range for unique IDs is from 1 to `SLI_WIFI_MAX_VENDOR_IE` (inclusive).
+
+### Unique Identifier
+
+The unique identifier is the unique ID associated with each added vendor-specific IE. If a new vendor-specific IE needs to be added, `SL_WIFI_VENDOR_IE_AUTO_ASSIGN` should be used as the identifier. More details about `SL_WIFI_VENDOR_IE_AUTO_ASSIGN` can be found next section.
+
+#### Auto-Assignment (`SL_WIFI_VENDOR_IE_AUTO_ASSIGN`)
+
+Use `SL_WIFI_VENDOR_IE_AUTO_ASSIGN` (value: 0) when you want the firmware to automatically select and assign any available memory for the vendor-specific IE, ie for new vendor-specific IE addition.
+When a vendor-specific IE is successfully added, the firmware returns the actual assigned unique ID through the `fw_unique_id` output parameter of the `sl_wifi_add_vendor_ie` API. This firmware-assigned identifier must be passed as `unique_id` for subsequent operations like removing or updating the IE.
+
+**Important Notes:**
+
+- `unique_id` is an input parameter that specifies which vendor IE to operate on. (Use `SL_WIFI_VENDOR_IE_AUTO_ASSIGN` for adding new IEs or the `fw_unique_id` value for existing IEs.)
+- `fw_unique_id` is an output parameter that receives the actual unique ID assigned by the firmware.
+- Always use the returned `fw_unique_id` value for subsequent operations such as removal or updates.
+- The addition operation will fail with an error status if no firmware slots are available.
+
+### Management Frame Bitmap
+
+The management frame bitmap specifies which Wi-Fi management frames the Vendor IE should be included in. Each bit in the bitmap corresponds to a specific management frame type. You can use the following macros to set or combine bits for your use case:
+
+- `SL_WIFI_VENDOR_IE_IN_BEACON`     – (1U << 0)
+- `SL_WIFI_VENDOR_IE_IN_PROBE_RESP` – (1U << 1)
+- `SL_WIFI_VENDOR_IE_IN_ASSOC_RESP` – (1U << 2)
+- `SL_WIFI_VENDOR_IE_IN_PROBE_REQ`  – (1U << 3)
+- `SL_WIFI_VENDOR_IE_IN_ASSOC_REQ`  – (1U << 4)
+
+Set the `mgmt_frame_bitmap` field in the `sl_wifi_vendor_ie_t` structure using these macros to control which management frames will carry the Vendor IE. Multiple bits can be combined using the bitwise OR operator (`|`).
+
+### IE Buffer Length
+
+The maximum length of the IE buffer is restricted. Refer to `SLI_WIFI_MAX_VENDOR_IE_BUFFER_LENGTH` for the precise value.
+IE length mentioned inside the buffer **should not** be greater than the length passed as the argument. Violation of this will result in error with a `SL_STATUS_INVALID_PARAMETER` error code.
+
+### IE Buffer Format
+
+The Vendor Specific IE buffer must be formatted as follows:
+
+| 1st byte     | 2nd byte                                      | j bytes                | n - j bytes           |
+|--------------|-----------------------------------------------|------------------------|-----------------------|
+| Element ID   | Length (n number of bytes following this field)| Organization Identifier| vendor-specific data  |
 
 ## Test the Application
 

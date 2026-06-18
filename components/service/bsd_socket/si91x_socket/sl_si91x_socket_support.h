@@ -45,6 +45,10 @@
  * @addtogroup SI91X_SOCKET_FUNCTIONS
  * @{ 
  */
+
+///< A macro to define the size of array in sl_si91x_socket_info_response_t to hold socket data.
+#define SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT 20
+
 /**
  * @brief Structure for query SiWx91x socket information.
  *
@@ -87,12 +91,11 @@ typedef struct {
 
 /**
  * @brief
- * Retrieve information about currently opened sockets from the network stack.
+ * Retrieve information about currently opened sockets from the socket management system.
  * @param[out] socket_info_response
- *    Pointer to a sl_si91x_socket_info_response_t structure that will hold the response from the firmware.
+ *    Pointer to a sl_si91x_socket_info_response_t structure that will hold the response from the socket management system.
  * @return 
  * sl_status_t
- * @note The socket IDs in the response are specific to the firmware and should not be used as file descriptors in socket APIs.
 */
 sl_status_t sl_si91x_get_socket_info(sl_si91x_socket_info_response_t *socket_info_response);
 /** @} */

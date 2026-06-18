@@ -347,7 +347,7 @@ void egpio_set_pin_mux(EGPIO_Type *pEGPIO, uint8_t port, uint8_t pin, uint8_t mu
  */
 void egpio_ulp_soc_gpio_mode(ULPCLK_Type *pULPCLK, uint8_t gpio, uint8_t mode)
 {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_MODE_REG_b.ULP_SOC_GPIO_MODE_REG = (unsigned int)(mode & 0x07);
 #else
   pULPCLK->ULP_SOC_GPIO_MODE_REG[gpio].ULP_SOC_GPIO_0_MODE_REG_b.ULP_SOCGPIO_N_MODE = (mode);
@@ -800,7 +800,7 @@ void egpio_pad_selection_enable(uint8_t padNum)
 	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
     PADSELECTION |= BIT(padNum);
   }
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
 	A value of 1 on this gives control to M4SS(by default it is 0 means NWP control) */
@@ -823,7 +823,7 @@ void egpio_pad_selection_disable(uint8_t padNum)
 	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */
     PADSELECTION &= ~BIT(padNum);
   }
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   else {
     /*(tass_m4ss_gpio_sel)PAD selection (22 t0 33) 
 	A value of 0 on this gives control to TASS(by default it is 0 means NWP control) */

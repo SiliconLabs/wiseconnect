@@ -111,14 +111,15 @@ typedef enum wifi_app_cmd_e {
 /*****************************************************
  *                      Socket configuration
 *****************************************************/
+
 #define TOTAL_SOCKETS                   WIFI_MAX_CLIENTS //@ Total number of sockets. TCP TX + TCP RX + UDP TX + UDP RX
 #define TOTAL_TCP_SOCKETS               WIFI_MAX_CLIENTS //@ Total TCP sockets. TCP TX + TCP RX
-#define TOTAL_UDP_SOCKETS               0
+#define TOTAL_UDP_SOCKETS               0                //@ Total UDP sockets. UDP TX + UDP RX
 #define TCP_TX_ONLY_SOCKETS             0                //@ Total TCP TX only sockets. TCP TX
-#define TCP_RX_ONLY_SOCKETS             WIFI_MAX_CLIENTS //@ Total TCP RX only sockets. TCP RX
+#define TCP_RX_ONLY_SOCKETS             0                //@ Total TCP RX only sockets. TCP RX
 #define UDP_TX_ONLY_SOCKETS             0                // UDP TX only sockets
 #define UDP_RX_ONLY_SOCKETS             0                // UDP RX only sockets
-#define TCP_RX_HIGH_PERFORMANCE_SOCKETS 1                //@ Total TCP RX High Performance sockets
+#define TCP_RX_HIGH_PERFORMANCE_SOCKETS 0                //@ Total TCP RX High Performance sockets
 #define TCP_RX_WINDOW_SIZE_CAP          44               //@ TCP RX Window size
 #define TCP_RX_WINDOW_DIV_FACTOR        44               //@ TCP RX Window division factor
 

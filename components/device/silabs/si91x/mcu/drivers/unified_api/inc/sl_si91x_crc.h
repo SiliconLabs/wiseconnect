@@ -61,18 +61,18 @@ typedef RSI_CRC_PARAMS_T sl_crc_params_t; ///< Renamed CRC param structure
 
 /*******************************************************************************/
 /**
- * @brief Initializes the Cyclic Redundancy Check (CRC) module with the provided configuration parameters.
+ * @brief Initializes the CRC module with the provided configuration parameters.
  * 
  * @details This API configures the CRC module with the specified parameters by performing
  * the following operations in sequence:
- *   1. Sets the general control for CRC.
- *   2. Enables the CRC module.
- *   3. Loads the polynomial value.
- *   4. Sets the polynomial width.
- *   5. Initializes the LFSR value.
- *   6. Configures the swapped initialization value.
- *   7. Sets the data width type.
- *   8. Configures the FIFO thresholds.
+ *   1. Sets the general control for CRC
+ *   2. Enables the CRC module
+ *   3. Loads the polynomial value
+ *   4. Sets the polynomial width
+ *   5. Initializes the LFSR value
+ *   6. Configures the swapped initialization value
+ *   7. Sets the data width type
+ *   8. Configures the FIFO thresholds
  * 
  * @param[in] params Pointer to the CRC parameters structure containing the configuration settings.
  * 

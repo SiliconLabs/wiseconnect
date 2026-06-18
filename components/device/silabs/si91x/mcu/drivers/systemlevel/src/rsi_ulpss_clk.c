@@ -168,7 +168,7 @@ rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_SEL = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_SSI_ULP_32KHZ_RO_CLK:
+    case ULP_SSI_ULP_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -197,7 +197,7 @@ rsi_error_t ulpss_ulp_ssi_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_SEL = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_SSI_ULP_20MHZ_RO_CLK:
+    case ULP_SSI_ULP_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
       pULPCLK->ULP_I2C_SSI_CLK_GEN_REG_b.ULP_SSI_CLK_SEL = clkSource;
@@ -248,7 +248,7 @@ rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T 
       pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLK_SEL_b = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_I2S_ULP_32KHZ_RO_CLK:
+    case ULP_I2S_ULP_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -275,7 +275,7 @@ rsi_error_t ulpss_ulp_i2s_clk_config(ULPCLK_Type *pULPCLK, ULP_I2S_CLK_SELECT_T 
       pULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_CLK_SEL_b = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_I2S_ULP_20MHZ_RO_CLK:
+    case ULP_I2S_ULP_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -357,7 +357,7 @@ rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLK_SEL = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_UART_ULP_32KHZ_RO_CLK:
+    case ULP_UART_ULP_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -384,7 +384,7 @@ rsi_error_t ulpss_ulp_uar_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_UART_CLK_GEN_REG_b.ULP_UART_CLK_SEL = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_UART_ULP_20MHZ_RO_CLK:
+    case ULP_UART_ULP_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -456,7 +456,7 @@ rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_TIMER_CLK_GEN_REG_b.ULP_TIMER_CLK_SEL = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_TIMER_32KHZ_RO_CLK:
+    case ULP_TIMER_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -483,7 +483,7 @@ rsi_error_t ulpss_time_clk_config(ULPCLK_Type *pULPCLK,
       pULPCLK->ULP_TIMER_CLK_GEN_REG_b.ULP_TIMER_CLK_SEL = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_TIMER_20MHZ_RO_CLK:
+    case ULP_TIMER_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -533,7 +533,7 @@ rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP
       pULPCLK->ULP_AUXADC_CLK_GEN_REG_b.ULP_AUX_CLK_SEL = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_AUX_32KHZ_RO_CLK:
+    case ULP_AUX_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -560,7 +560,7 @@ rsi_error_t ulpss_aux_clk_config(ULPCLK_Type *pULPCLK, CLK_ENABLE_T clkType, ULP
       pULPCLK->ULP_AUXADC_CLK_GEN_REG_b.ULP_AUX_CLK_SEL = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_AUX_20MHZ_RO_CLK:
+    case ULP_AUX_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -628,7 +628,7 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
   ulpss_peripheral_disable(pULPCLK, ULP_VAD_CLK);
   /*Select the VAD clock MUX */
   switch (clkSource) {
-    case ULP_VAD_32KHZ_RO_CLK:
+    case ULP_VAD_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_CLK_SEL = clkSource;
       break;
     case ULP_VAD_32KHZ_RC_CLK:
@@ -663,7 +663,7 @@ rsi_error_t ulpss_vad_clk_config(ULPCLK_Type *pULPCLK,
       ulpss_enable_ref_clks(MCU_ULP_MHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_FCLK_SEL = FclkSource;
       break;
-    case ULP_VAD_20MHZ_RO_CLK:
+    case ULP_VAD_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*3: ulp_20mhz_ro_clk*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pULPCLK->ULP_VAD_CLK_GEN_REG_b.ULP_VAD_FCLK_SEL = FclkSource;
@@ -717,7 +717,7 @@ rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T 
       pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLK_SEL = clkSource;
       break;
       /*1: ulp_32khz_ro_clk */
-    case ULP_TOUCH_32KHZ_RO_CLK:
+    case ULP_TOUCH_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -744,7 +744,7 @@ rsi_error_t ulpss_touch_clk_config(ULPCLK_Type *pULPCLK, ULP_TOUCH_CLK_SELECT_T 
       pULPCLK->ULP_TOUCH_CLK_GEN_REG_b.ULP_TOUCH_CLK_SEL = clkSource;
       break;
       /*5: ulp_20mhz_ro_clk*/
-    case ULP_TOUCH_20MHZ_RO_CLK:
+    case ULP_TOUCH_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       /*Select clock MUX */
@@ -1093,7 +1093,7 @@ rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
       SystemCoreClock                                = system_clocks.ulpss_ref_clk;
       break;
 
-    case ULP_PROC_ULP_32KHZ_RO_CLK:
+    case ULP_PROC_ULP_32KHZ_RO_CLK: /* 32KHZ RO clock not supported */
       /*Enable clock*/
       RSI_SetRegSpiDivision(0U);
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PROCESSOR_CLK, delayFn);
@@ -1128,7 +1128,7 @@ rsi_error_t ulpss_ulp_proc_clk_config(ULPCLK_Type *pULPCLK,
       SystemCoreClock                                = system_clocks.rc_mhz_clock;
       break;
 
-    case ULP_PROC_ULP_20MHZ_RO_CLK:
+    case ULP_PROC_ULP_20MHZ_RO_CLK: /* 20MHZ RO clock not supported */
       /*Enable clock*/
       RSI_SetRegSpiDivision(0U);
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PROCESSOR_CLK, delayFn);

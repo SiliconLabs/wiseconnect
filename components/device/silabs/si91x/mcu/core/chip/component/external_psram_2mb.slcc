@@ -1,6 +1,6 @@
 id: external_psram_2mb
 label: 2MB PSRAM (External)
-package: platform
+package: platform_siwx91x
 description: It is necessary to initialize this component, if the external PSRAM connected to the SiWG91x part is of size 2MB.
 category: Device|Si91x|MCU|PSRAM
 quality: production

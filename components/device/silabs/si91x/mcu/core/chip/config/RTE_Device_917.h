@@ -28,8 +28,6 @@
 #ifndef __RTE_DEVICE_H
 #define __RTE_DEVICE_H
 
-#warning \
-  "Board-related MACROS are not defined for an OPN or SoC project. Install the [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE MACRO to 1, then define the macros in this file according to the board connections."
 #if USER_CONFIGURATION_ENABLE
 
 #include "rsi_ccp_user_config.h"
@@ -79,17 +77,36 @@
 
 #define RTE_LED1_PAD 5
 
+// RGB LED Instance 0
+// Note: RTE_LED0_NUMBER is already defined above
+
+// Red LED
+#define RTE_LED0_LEDR_PORT   HP
+#define RTE_LED0_LEDR_NUMBER RTE_LED0_NUMBER
+#define RTE_LED0_LEDR_PIN    2
+#define RTE_LED0_LEDR_PAD    14
+
+// Green LED
+#define RTE_LED0_LEDG_PORT   HP
+#define RTE_LED0_LEDG_NUMBER RTE_LED0_NUMBER
+#define RTE_LED0_LEDG_PIN    3
+#define RTE_LED0_LEDG_PAD    15
+
+// Blue LED
+#define RTE_LED0_LEDB_PORT   HP
+#define RTE_LED0_LEDB_NUMBER RTE_LED0_NUMBER
+#define RTE_LED0_LEDB_PIN    15
+#define RTE_LED0_LEDB_PAD    8
+
 // <e> USART0  [Driver_USART0]
 // <i> Configuration settings for Driver_USART0 in component ::CMSIS Driver:USART
 #define RTE_ENABLE_FIFO 1
 
 #define RTE_USART0 1
 
-#define RTE_USART0_CLK_SRC      USART_ULPREFCLK
 #define RTE_USART0_CLK_DIV_FACT 1
 #define RTE_USART0_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
-#define RTE_USART_MODE            0 //!Usart mode macros
 #define RTE_CONTINUOUS_CLOCK_MODE 0
 
 #define RTE_USART0_LOOPBACK   0
@@ -604,7 +621,6 @@
 // <i> Configuration settings for Driver_UART1 in component ::CMSIS Driver:USART
 #define RTE_UART1 1
 
-#define RTE_UART1_CLK_SRC      USART_ULPREFCLK
 #define RTE_UART1_CLK_DIV_FACT 1
 #define RTE_UART1_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
@@ -905,7 +921,6 @@
 // <i> Configuration settings for Driver_ULP_UART in component ::CMSIS Driver:USART
 #define RTE_ULP_UART 1
 
-#define RTE_ULP_UART_CLK_SRC      ULP_UART_REF_CLK
 #define RTE_ULP_UART_CLK_DIV_FACT 0
 #define RTE_ULP_UART_FRAC_SEL     USART_FRACTIONAL_DIVIDER
 
@@ -4789,7 +4804,7 @@
 
 //QEI_IDX <0=>GPIO_8 <1=>GPIO_25 <2=>GPIO_46 <3=>GPIO_31 <4=>GPIO_52 <5=>GPIO_68 <6=>GPIO_64 <7=>GPIO_72
 #ifndef QEI_IDX_LOC
-#define RTE_QEI_IDX_PORT_ID 3
+#define RTE_QEI_IDX_PORT_ID 1
 
 #if (RTE_QEI_IDX_PORT_ID == 0)
 #define RTE_QEI_IDX_PORT HP
@@ -4883,9 +4898,9 @@
 //QEI_PHA <0=>GPIO_9 <1=>GPIO_26 <2=>GPIO_47 <3=>GPIO_32 <4=>GPIO_53 <5=>GPIO_69 <6=>GPIO_65 <7=>GPIO_73
 #ifndef QEI_PHA_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_QEI_PHA_PORT_ID 3
+#define RTE_QEI_PHA_PORT_ID 1
 #else
-#define RTE_QEI_PHA_PORT_ID 5
+#define RTE_QEI_PHA_PORT_ID 1
 #endif
 
 #if (RTE_QEI_PHA_PORT_ID == 0)
@@ -4980,9 +4995,9 @@
 //QEI_PHB <0=>GPIO_10 <1=>GPIO_27 <1=>GPIO_48 <1=>GPIO_33 <1=>GPIO_56 <1=>GPIO_70 <7=>GPIO_74
 #ifndef QEI_PHB_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_QEI_PHB_PORT_ID 5
+#define RTE_QEI_PHB_PORT_ID 1
 #else
-#define RTE_QEI_PHB_PORT_ID 4
+#define RTE_QEI_PHB_PORT_ID 1
 #endif
 
 #if (RTE_QEI_PHB_PORT_ID == 0)
@@ -5064,7 +5079,6 @@
 //Pintool data
 #endif
 
-#endif
 //COMPARATOR START
 
 #ifndef COMP1_P0_LOC
@@ -6206,4 +6220,11 @@
 //Pintool data
 #endif
 
+#else
+
+#warning \
+  "Board-related MACROS are not defined for an OPN or SoC project. Install the [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE MACRO to 1, then define the macros in this file as per the Custom board."
+
 #endif // USER_CONFIGURATION_ENABLE
+
+#endif //__RTE_DEVICE_H

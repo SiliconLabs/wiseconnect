@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #pragma once
+#include "sli_wifi_types.h"
 #include "sl_si91x_types.h"
 #include "sl_wifi_device.h"
 #include "sl_additional_status.h"
@@ -50,7 +51,7 @@ extern sli_task_register_id_t sli_fw_status_storage_index;
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
  ******************************************************************************/
-static inline sl_status_t sl_si91x_get_saved_firmware_status(void)
+static inline SL_DEPRECATED_API_WISECONNECT_4_0 sl_status_t sl_si91x_get_saved_firmware_status(void)
 {
   sl_status_t status = SL_STATUS_FAIL;
 
@@ -159,21 +160,7 @@ static inline sl_status_t sli_convert_si91x_status_to_sl_status(si91x_status_t s
  * @param[in] queue Pointer to the destination buffer queue where the buffer will be appended.
  * @param[in] buffer Pointer to the buffer that is to be appended to the queue.
  */
-void sli_si91x_append_to_buffer_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
-
-/**
- * @brief Atomically remove the head buffer from a buffer queue.
- * 
- * This function removes the buffer at the head of the specified buffer queue in an atomic operation,
- * ensuring thread safety during the removal. The removed buffer is then passed back through a pointer
- * to the caller.
- *
- * @param[in] queue Pointer to the source buffer queue from which the head buffer will be removed.
- * @param[out] buffer Pointer to a pointer of sl_wifi_buffer_t where the removed buffer's address will be stored.
- * @return sl_status_t Returns the status of the operation. A value of 0 (SL_STATUS_OK) indicates success.
- *                     Other values indicate failure. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
- */
-sl_status_t sli_si91x_pop_from_buffer_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+void sli_si91x_append_to_buffer_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
 
 /**
  * @brief
@@ -202,7 +189,7 @@ sl_status_t sli_si91x_allocate_command_buffer(sl_wifi_buffer_t **host_buffer,
  * @return
  *   true if empty; false if not empty.
  *****************************************************************************/
-static inline bool sli_si91x_buffer_queue_empty(const sli_si91x_buffer_queue_t *queue)
+static inline bool sli_si91x_buffer_queue_empty(const sli_wifi_buffer_queue_t *queue)
 {
   return (queue->head == NULL);
 }

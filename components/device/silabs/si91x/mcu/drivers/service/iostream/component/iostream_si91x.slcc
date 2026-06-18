@@ -1,6 +1,6 @@
 id: iostream_si91x
 label: IO Stream Si91x
-package: platform
+package: platform_siwx91x
 description: >
   The IO Stream component allows to read/write data using a variety of physical
   communication interfaces, or Streams. This allows for standardized data 

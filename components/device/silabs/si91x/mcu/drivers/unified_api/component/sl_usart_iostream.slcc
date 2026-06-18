@@ -1,6 +1,6 @@
 id: sl_usart_iostream
 label: 'IO Stream: USART'
-package: platform
+package: platform_siwx91x
 description: >
   IO Stream  UART communication is often performed using lower-level programming, 
   interacting directly with hardware registers or using dedicated UART libraries.

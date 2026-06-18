@@ -25,6 +25,7 @@
 #include "sl_ip_types.h"
 #include "sl_constants.h"
 #include "sl_utility.h"
+#include "sl_wifi.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -72,6 +73,10 @@ sl_status_t wifi_iot_socket_create_handler(console_args_t *arguments)
   int32_t type     = (int32_t)arguments->arg[0];
   int32_t protocol = (int32_t)arguments->arg[1];
   int32_t domain   = GET_OPTIONAL_COMMAND_ARG(arguments, 2, IOT_SOCKET_AF_INET, int32_t);
+
+  if (!sl_wifi_is_interface_up(SL_WIFI_ALL_INTERFACES)) {
+    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  }
 
   int32_t sock_fd = iotSocketCreate(domain, type, protocol);
   VERIFY_IOT_STATUS(sock_fd);

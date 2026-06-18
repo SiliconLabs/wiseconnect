@@ -1,8 +1,9 @@
 id: sl_si91x_spi_bus
-package: wiseconnect3_sdk
-description: >
-  This component implements SPI communication interface to Si91x from the host MCU.
+package: wifi
+description: 'This component implements SPI communication interface to Si91x from
+  the host MCU.
 
+  '
 label: Si91x NCP SPI bus interface
 category: Device|Si91x|Wireless|Network Stack
 quality: production
@@ -16,11 +17,13 @@ provides:
 source:
 - path: sl_si91x_spi.c
 requires:
-- condition: ["device_efx"]
+- condition:
+  - device_efx
   name: sli_si91x_ncp_spi_config
-
 recommends:
-- condition: [device_efx]
+- condition:
+  - device_efx
   id: spidrv
-  instance: ["exp"]
-
+  instance:
+  - exp
+  vendor: silabs

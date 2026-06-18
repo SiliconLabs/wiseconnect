@@ -1,5 +1,5 @@
 id: memlcd_917
-package: platform
+package: platform_siwx91x
 label: Memory LCD SPI driver
 description: >
   Provides a driver implementation to drive the LCD device connected to the Si91x MCU via SPI.

@@ -1,6 +1,6 @@
 
 id: sli_routing_utility
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The routing_utility implements the routing table to route the packet to appropriate destinations
 label: Sli Routing Utility

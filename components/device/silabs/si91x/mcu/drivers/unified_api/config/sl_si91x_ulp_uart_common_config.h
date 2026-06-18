@@ -32,11 +32,17 @@
 #define SL_SI91X_ULP_UART_COMMON_CONFIG_H
 
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>DMA Configuration
+// <h>ULP UART Configuration
 
 // <q SL_ULPUART_DMA_CONFIG_ENABLE> ULP UART DMA
 // <i> Default: 1
 #define SL_ULPUART_DMA_CONFIG_ENABLE 1
+
+// <o SL_ULPUART_CLOCK_SRC> ULP UART Clock Source
+// <ULP_UART_REF_CLK=> ULP REF CLK
+// <ULP_UART_SOC_CLK=> SOC PLL CLK
+// <i> Default: ULP_UART_REF_CLK
+#define SL_ULPUART_CLOCK_SRC ULP_UART_REF_CLK
 
 // </h>
 // <<< end of configuration section >>>

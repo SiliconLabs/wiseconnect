@@ -51,6 +51,10 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_gpio_board.h"
 
+#define SSI_4_BIT_DATA_WIDTH    4    // 4-bit data frame width
+#define SSI_8_BIT_DATA_WIDTH    8    // 8-bit data frame width
+#define SSI_16_BIT_DATA_WIDTH   16   // 16-bit data frame width
+#define SSI_32_BIT_DATA_WIDTH   32   // 32-bit data frame width
 #define BYTES_FOR_8_DATA_WIDTH  1    // Number of bytes for 8 bit data frame
 #define BYTES_FOR_16_DATA_WIDTH 2    // Number of bytes for 16 bit data frame
 #define BYTES_FOR_32_DATA_WIDTH 4    // Number of bytes for 32 bit data frame
@@ -90,8 +94,6 @@ static int32_t SPI_Configure_Dma_Transfer(const SPI_RESOURCES *spi,
                                           uint32_t num,
                                           uint16_t data_width,
                                           uint16_t xfer_type);
-static void SPI_Send_Data(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address);
-static void SPI_Receive_Data(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address);
 #endif
 STATIC INLINE void spi_configure_gpio_pin(SPI_PIN *spi_pin);
 #ifndef SSI_ROMDRIVER_PRESENT
@@ -357,6 +359,7 @@ int32_t SPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
     if (sl_si91x_dma_init(&dma_init)) {
       return ARM_DRIVER_ERROR;
     }
+    *udmaHandle = sl_si91x_get_dma_handle(dma_init.dma_number);
 #else
     *udmaHandle = UDMAx_Initialize(udma, UDMA_Table, udmaHandle, mem);
 #endif
@@ -951,6 +954,7 @@ set_speed:
 
           RSI_EGPIO_SetDir(EGPIO, 0, cs_pin, 0);
           RSI_EGPIO_SetPin(EGPIO, 0, cs_pin, 1);
+
           spi->info->mode |= ARM_SPI_SS_MASTER_SW;
         } else {
           return ARM_SPI_ERROR_SS_MODE;
@@ -1042,17 +1046,19 @@ set_speed:
 
   // Configure Number of Data Bits
   data_bits = ((control & ARM_SPI_DATA_BITS_Msk) >> ARM_SPI_DATA_BITS_Pos);
-  if ((data_bits < 4U) && (data_bits > 16U)) {
+  if ((data_bits < SSI_4_BIT_DATA_WIDTH) || (data_bits > SSI_32_BIT_DATA_WIDTH)) {
     return ARM_SPI_ERROR_DATA_BITS;
   }
   if ((spi->instance_mode == SPI_MASTER_MODE) || (spi->instance_mode == SPI_ULP_MASTER_MODE)) {
-    // For Dual/Quad SPI, the frame length should be a multiple of 2 or 4.
-    if ((spi->reg->CTRLR0_b.SPI_FRF != STANDARD_SPI_FORMAT) && ((data_bits % 2U != 0U) || (data_bits % 4U != 0U))) {
+    // For Dual/Quad SPI, the data bits should be a multiple of 2/4.
+    if ((spi->reg->CTRLR0_b.SPI_FRF == DUAL_SPI_FORMAT) && ((data_bits % 2) != 0U)) {
+      return ARM_SPI_ERROR_DATA_BITS;
+    } else if ((spi->reg->CTRLR0_b.SPI_FRF == QUAD_SPI_FORMAT) && ((data_bits % 4) != 0U)) {
       return ARM_SPI_ERROR_DATA_BITS;
     }
     spi->reg->CTRLR0_b.DFS_32 = (unsigned int)((data_bits - 1U) & 0x1F);
   } else {
-    if ((data_bits >= 4U) && (data_bits <= 16U)) {
+    if ((data_bits >= SSI_4_BIT_DATA_WIDTH) && (data_bits <= SSI_16_BIT_DATA_WIDTH)) {
       spi->reg->CTRLR0_b.DFS = (unsigned int)((data_bits - 1U) & 0x0F);
     } else {
       return ARM_SPI_ERROR_DATA_BITS;
@@ -1111,10 +1117,9 @@ int32_t SPI_Command_Configure(const SPI_RESOURCES *spi,
 
   return ARM_DRIVER_OK;
 }
-
 /**
  * @fn          int32_t SPI_Command_Send(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address)
- * @brief       Send command sequence to a SPI device (instruction, address)  * 
+ * @brief       Send command sequence to a SPI device (instruction, address)
  * @param[in]   spi        : Pointer to the SPI resources
  * @param[in]   instruction: The instruction value to send in the command phase
  * @param[in]   address    : The address value to send in the command phase
@@ -1137,7 +1142,12 @@ int32_t SPI_Command_Send(const SPI_RESOURCES *spi, uint32_t instruction, uint32_
   if (addr_len) {
     if (spi_frf == SSI_FRF_STANDARD) {
       // Write address bytes MSB first for standard SPI
-      for (int i = (addr_len * 4 - 4); i >= 0; i -= 8) {
+      // This loop breaks the multi-byte address into individual bytes and sends them
+      // starting from the most significant byte (MSB) down to the least significant byte (LSB)
+      // Example: For a 3-byte address (addr_len=6), this sends bytes at positions 16, 8, 0
+      for (int i = ((addr_len * 4) - SSI_8_BIT_DATA_WIDTH); i >= 0; i -= SSI_8_BIT_DATA_WIDTH) {
+        // Extract and write one byte at bit position 'i'
+        // The mask 0xFF ensures only the lower 8 bits are sent
         spi->reg->DR = (address >> i) & 0xFF;
       }
     } else {
@@ -1471,70 +1481,6 @@ static int32_t SPI_Configure_Dma_Transfer(const SPI_RESOURCES *spi,
 
   return status;
 }
-
-/**
- * @brief       Send data over SPI (blocking, interrupt, or DMA mode).
- *
- * @details
- * This function handles the transmission of data over SSI. It first sends the instruction and address (if present)
- * When all data is sent, it disables the TX FIFO Empty interrupt, sets the transfer complete event,
- * and releases the CS pin if needed.
- *
- * @param[in]   spi         Pointer to the SPI resources structure.
- * @param[in]   sl_ssi_cmd  Pointer to command configuration structure containing 
- *                          instruction, address, and other transfer parameters.
- */
-static void SPI_Send_Data(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address)
-{
-  uint32_t data                       = 0U;
-  uint32_t event                      = 0U;
-  uint32_t data_width                 = data_width_in_bytes;
-  const volatile unsigned int *ssi_sr = &spi->reg->SR;
-
-  if (spi->xfer->tx_buf) {
-
-    // Write instruction and address
-    SPI_Command_Send(spi, instruction, address);
-
-    while (spi->xfer->tx_cnt < spi->xfer->num) {
-      while ((*ssi_sr & 0x2) == 0) {
-      }
-      if (data_width == 1) {
-        // For data width less than 8
-        data         = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
-        spi->reg->DR = data;
-      } else if (data_width == 2) {
-        // For data width 8-16
-        data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
-        data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
-        spi->reg->DR = (uint16_t)data;
-      } else if (data_width == 4) {
-        // For data width 16-32
-        data = *(spi->xfer->tx_buf + spi->xfer->tx_cnt++);
-        data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 8;
-        data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 16;
-        data |= *(spi->xfer->tx_buf + spi->xfer->tx_cnt++) << 24;
-        spi->reg->DR = data;
-      }
-    }
-    if (spi->xfer->tx_cnt >= spi->xfer->num) {
-      while (spi->reg->SR & BIT(0))
-        ;
-      // All data sent, disable TX Buffer Empty Interrupt
-      spi->reg->IMR &= (uint32_t)(~TXEIM);
-      // Transfer completed
-      event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
-      // Clear busy flag
-      spi->info->status.busy = 0U;
-    }
-  }
-  // Send event
-  if (event && spi->info->cb_event) {
-    // Append the instance value to the callback event variable
-    event |= (SSI_MASTER_INSTANCE << SSI_INSTANCE_BIT);
-    spi->info->cb_event(event);
-  }
-}
 #endif
 
 /// @cond PRIVATE
@@ -1754,7 +1700,6 @@ int32_t SPI_Send_Command_Data(const void *data,
 {
   //Added to suppress unused variable warning
   (void)udma;
-  (void)udmaHandle;
   (void)chnl_info;
   int32_t status;
   uint16_t data_width;
@@ -1778,116 +1723,54 @@ int32_t SPI_Send_Command_Data(const void *data,
   spi->xfer->tx_buf            = (uint8_t *)data;
   spi->xfer->tx_cnt            = 0U;
   spi->xfer->rx_cnt            = 0U;
+  spi->xfer->num               = num;
   spi->reg->CTRLR0_b.TMOD      = TRANSMIT_ONLY;
-  data_width                   = spi->reg->CTRLR0_b.DFS_32;
+  // Get data width from CTRLR0 register
+  data_width = spi->reg->CTRLR0_b.DFS_32;
+  // Converts the data width into number of bytes to send/receive at once
+  SPI_Convert_Data_Width_To_Bytes(data_width);
 
   if (spi->tx_dma != NULL) {
-    status = SPI_Configure_Dma_Transfer(spi, num, data_width, TRANSMIT_ONLY);
+    RSI_UDMA_DATACONTEXT_T *pDrv = (RSI_UDMA_DATACONTEXT_T *)udmaHandle;
+    uint32_t inst_len            = spi->reg->SPI_CTRLR0_b.INST_L;
+    uint32_t addr_len            = spi->reg->SPI_CTRLR0_b.ADDR_L;
+    uint32_t spi_frf             = spi->reg->CTRLR0_b.SPI_FRF;
+    status                       = SPI_Configure_Dma_Transfer(spi, spi->xfer->num, data_width, TRANSMIT_ONLY);
     if (status == ARM_DRIVER_ERROR) {
       return status;
     }
-    SPI_Command_Send(spi, instruction, address);
-    sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->tx_dma->channel + 1);
     sl_si91x_dma_enable(DMA_INSTANCE);
+
+    // Enable SSI after configuration
+    spi->reg->SSIENR_b.SSI_EN = 1;
+
+    // Write instruction (if non-zero length)
+    if (inst_len) {
+      spi->reg->DR = instruction;
+    }
+    // Write address
+    if (spi_frf == SSI_FRF_STANDARD) {
+      // Write address bytes MSB first for standard SPI
+      // This loop breaks the multi-byte address into individual bytes and sends them
+      // starting from the most significant byte (MSB) down to the least significant byte (LSB)
+      // Example: For a 3-byte address (addr_len=6), this sends bytes at positions 16, 8, 0
+      for (int i = ((addr_len * 4) - SSI_8_BIT_DATA_WIDTH); i >= 0; i -= SSI_8_BIT_DATA_WIDTH) {
+        // Extract and write one byte at bit position 'i'
+        // The mask 0xFF ensures only the lower 8 bits are sent
+        spi->reg->DR = (address >> i) & 0xFF;
+      }
+      // Enable the DMA channel
+      pDrv->base->CHNL_ENABLE_SET = SET_BIT(spi->tx_dma->channel);
+    } else if (addr_len) {
+      // Enable the DMA channel
+      pDrv->base->CHNL_ENABLE_SET = SET_BIT(spi->tx_dma->channel);
+      // For dual/quad, write the address as a single value
+      spi->reg->DR = address;
+    }
   } else {
-    // Converts the data width into number of bytes to send/receive at once
-    SPI_Convert_Data_Width_To_Bytes(data_width);
-    // Total number of transfers according to the configured data width
-    spi->xfer->num = num * data_width_in_bytes;
-    // Send command ,address and data
-    SPI_Send_Data(spi, instruction, address);
+    return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
   return ARM_DRIVER_OK;
-}
-
-/**
- * @brief       Receive data over SSI.
- *
- * @details
- * This function handles the reception of data over SSI. When all data is received, it disables the
- * RX FIFO Full interrupt, sets the transfer complete event, and releases the CS pin if needed.
- *
- * @param[in]   spi         Pointer to the SPI resources structure.
- * @param[in]   sl_ssi_cmd  Pointer to command configuration structure containing
- *                          instruction, address, and other transfer parameters.
- */
-static void SPI_Receive_Data(const SPI_RESOURCES *spi, uint32_t instruction, uint32_t address)
-{
-  uint8_t *rx_buf                     = spi->xfer->rx_buf;
-  uint32_t rx_cnt                     = spi->xfer->rx_cnt;
-  uint32_t rx_num                     = spi->xfer->num;
-  uint32_t data_width                 = data_width_in_bytes;
-  uint32_t data                       = 0U;
-  uint32_t event                      = 0U;
-  const volatile unsigned int *ssi_sr = &spi->reg->SR;
-  volatile unsigned int *ssi_dr       = &spi->reg->DR;
-
-  if (!rx_buf)
-    return;
-
-  // Enable SPI if not already enabled
-  spi->reg->SSIENR = SSI_ENABLE;
-
-  // Write instruction and address
-  SPI_Command_Send(spi, instruction, address);
-
-  // Data read loop
-  if (data_width == 1) {
-    // Fast path: 8-bit reads, no casts
-    while (rx_cnt < rx_num) {
-      while ((*ssi_sr & 0x08) == 0) {
-      }
-      rx_buf[rx_cnt++] = (uint8_t)(*ssi_dr);
-    }
-  } else if (data_width == 2) {
-    // 16-bit data width: each DR read gives 2 bytes
-    while (rx_cnt + 1 < rx_num) {
-      while ((*ssi_sr & 0x08) == 0) {
-      }
-      data             = spi->reg->DR;
-      rx_buf[rx_cnt++] = (uint8_t)data;
-      rx_buf[rx_cnt++] = (uint8_t)(data >> 8);
-    }
-    // Handle odd byte if num is odd (rare)
-    if (rx_cnt < rx_num) {
-      data             = spi->reg->DR;
-      rx_buf[rx_cnt++] = (uint8_t)data;
-    }
-  } else if (data_width == 4) {
-    // 32-bit data width: each DR read gives 4 bytes
-    while (rx_cnt + 3 < rx_num) {
-      while ((*ssi_sr & 0x08) == 0) {
-      }
-      data             = spi->reg->DR;
-      rx_buf[rx_cnt++] = (uint8_t)data;
-      rx_buf[rx_cnt++] = (uint8_t)(data >> 8);
-      rx_buf[rx_cnt++] = (uint8_t)(data >> 16);
-      rx_buf[rx_cnt++] = (uint8_t)(data >> 24);
-    }
-    // Handle remaining bytes if num is not multiple of 4
-    if (rx_cnt < rx_num) {
-      data = spi->reg->DR;
-      for (uint32_t i = 0; rx_cnt < rx_num && i < 4; ++i)
-        rx_buf[rx_cnt++] = (uint8_t)(data >> (i * 8));
-    }
-  }
-
-  // Update main struct with new count
-  spi->xfer->rx_cnt = rx_cnt;
-
-  // Disable RX Buffer Not Empty Interrupt
-  spi->reg->IMR &= (uint32_t)(~RXFIM);
-
-  // Mark transfer complete and clear busy
-  spi->info->status.busy = 0U;
-  event |= ARM_SPI_EVENT_TRANSFER_COMPLETE;
-
-  // Send event
-  if (event && spi->info->cb_event) {
-    // Appending the instance value in the callback event variable
-    event |= (SSI_MASTER_INSTANCE << SSI_INSTANCE_BIT);
-    spi->info->cb_event(event);
-  }
 }
 #endif
 /**
@@ -2264,17 +2147,20 @@ int32_t SPI_Receive_Command_Data(void *data,
     if (status == ARM_DRIVER_ERROR) {
       return status;
     }
-    // Send command to SPI peripheral
-    SPI_Command_Send(spi, instruction, address);
+
+    if (spi->reg->CTRLR0_b.SPI_FRF == STANDARD_SPI_FORMAT) {
+      SPI_Command_Send(spi, instruction, address);
+    }
+
     sl_si91x_dma_channel_enable(DMA_INSTANCE, spi->rx_dma->channel + 1);
     sl_si91x_dma_enable(DMA_INSTANCE);
+    if (spi->reg->CTRLR0_b.SPI_FRF != STANDARD_SPI_FORMAT) {
+      // Send command to SPI peripheral
+      SPI_Command_Send(spi, instruction, address);
+    }
   } else {
-    // Converts the data width into number of bytes to send/receive at once
-    SPI_Convert_Data_Width_To_Bytes(data_width);
-    // Total number of transfers according to the configured data width
-    spi->xfer->num = num * data_width_in_bytes;
-    // receive data
-    SPI_Receive_Data(spi, instruction, address);
+    // non-DMA mode not supported for dual and quad modes
+    return ARM_DRIVER_ERROR_UNSUPPORTED;
   }
   return ARM_DRIVER_OK;
 }

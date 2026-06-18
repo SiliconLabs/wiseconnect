@@ -1,5 +1,5 @@
 id: sli_si91x_ncp_spi_config
-package: wiseconnect3_sdk
+package: platform_siwx91x
 description: >
   This component implements NCP configuration for host MCU.
 

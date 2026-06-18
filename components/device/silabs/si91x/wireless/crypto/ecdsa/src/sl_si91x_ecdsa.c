@@ -34,6 +34,7 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
@@ -80,7 +81,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
     memcpy(request->signature, config->signature, config->signature_length);
   }
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
@@ -95,10 +96,10 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sl_si91x_ecdsa_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_ECDSA + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
 
@@ -110,7 +111,7 @@ static sl_status_t sl_si91x_ecdsa_pending(sl_si91x_ecdsa_config_t *config,
 
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   if (config->ecdsa_operation == SL_SI91X_GENERATE_ECC_KEY_PAIR) {
     // Verify the length from the firmware against the expected length

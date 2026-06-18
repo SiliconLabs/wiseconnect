@@ -1,6 +1,6 @@
 id: cmsis_device_config_917
 label: DEVICE CONFIG 917
-package: platform
+package: platform_siwx91x
 description: >
   Si917 Device Configuration API's
 category: Device|Si91x|MCU|Internal|CMSIS Drivers

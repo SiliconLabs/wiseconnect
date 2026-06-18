@@ -126,26 +126,34 @@ sl_status_t sli_si91x_vap_shutdown(uint8_t vap_id, sli_si91x_bsd_disconnect_reas
  * configurations, and performance-related parameters.
  */
 typedef struct {
-  uint8_t total_sockets; ///< Total number of sockets (that includes BSD, IoT, Si91x)
-
-  uint8_t total_tcp_sockets; ///< Total number of TCP sockets
-
-  uint8_t total_udp_sockets; ///< Total number of UDP sockets
-
-  uint8_t tcp_tx_only_sockets; ///< Number of TCP sockets intended for transmission (TX)
-
-  uint8_t tcp_rx_only_sockets; ///< Number of TCP sockets intended for reception (RX)
-
-  uint8_t udp_tx_only_sockets; ///< Number of UDP sockets intended for transmission (TX)
-
-  uint8_t udp_rx_only_sockets; ///< Number of UDP sockets intended for reception (RX)
-
-  uint8_t tcp_rx_high_performance_sockets; ///< Total number of high-performance TCP RX sockets
+  uint8_t total_sockets; ///< Total number of sockets (combination of TOTAL_TCP_SOCKETS + TOTAL_UDP_SOCKETS).
 
   uint8_t
-    tcp_rx_window_size_cap; ///< TCP RX window size cap, scales window size linearly (TCP MSS * TCP_RX_WINDOW_SIZE_CAP)
+    total_tcp_sockets; ///< Total number of TCP sockets (combination of TCP_TX_ONLY_SOCKETS + TCP_RX_ONLY_SOCKETS).
 
-  uint8_t tcp_rx_window_div_factor; ///< TCP RX window division factor, increases ACK frequency for asynchronous sockets
+  uint8_t
+    total_udp_sockets; ///< Total number of UDP sockets (combination of UDP_TX_ONLY_SOCKETS + UDP_RX_ONLY_SOCKETS).
+
+  uint8_t
+    tcp_tx_only_sockets; ///< The number of TCP sockets is primarily intended for transmission (TX). While these sockets can support both transmission (TX) and reception (RX).
+
+  uint8_t
+    tcp_rx_only_sockets; ///< The number of TCP sockets is primarily intended for Reception (RX). While these sockets can support both transmission (TX) and reception (RX).
+
+  uint8_t
+    udp_tx_only_sockets; ///< The number of UDP sockets is primarily intended for transmission (TX). While these sockets can support both transmission (TX) and reception (RX).
+
+  uint8_t
+    udp_rx_only_sockets; ///< The number of UDP sockets is primarily intended for Reception (RX). While these sockets can support both transmission (TX) and reception (RX).
+
+  uint8_t
+    tcp_rx_high_performance_sockets; ///< Total number of high-performance TCP RX sockets, specifically configured to handle high-throughput data reception.
+
+  uint8_t
+    tcp_rx_window_size_cap; ///< The TCP receive window size is capped and scales linearly based on the product of the TCP Maximum Segment Size (MSS) and the TCP_RX_WINDOW_SIZE_CAP
+
+  uint8_t
+    tcp_rx_window_div_factor; ///< The TCP receive window division factor increases the frequency of ACKs for asynchronous sockets.
 } sl_si91x_socket_config_t;
 
 /** @} */
@@ -191,7 +199,6 @@ typedef struct {
  *   protocol, and other options specific to the SiWx91x series.
  *
  * @pre Pre-conditions:
- * - Ensure that the necessary initialization for the SiWx91x module has been completed.
  * - This API is called before calling @ref sl_si91x_socket_async.
  *
  * @param[in] socket_config 
@@ -321,28 +328,6 @@ sl_status_t sli_si91x_udp_connect_if_unconnected(sli_si91x_socket_t *si91x_socke
                                                  int socket_id);
 
 /**
- * @brief 
- *    Configures the Server Name Indication (SNI) extension for a socket.
- *
- *  @details
- *    This function sets up the SNI extension, which is used in TLS communication
- *    to specify the hostname of the server the client intends to connect to. It prepares
- *    the necessary request structure and initiates the configuration process for the
- *    embedded socket.
- *
- * @param[in] sni_extension 
- *    Pointer to the SNI extension data of type `sl_si91x_socket_type_length_value_t`.
- *    This structure contains the type, length, and value of the SNI extension.
- *
- * @return sl_status_t
- *    - SL_STATUS_OK: Operation completed successfully.
- *    - SL_STATUS_SI91X_MEMORY_ERROR: The SNI extension size exceeds the allowed limit.
- *    - Other error codes: Refer to [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) 
- *      and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details. 
- */
-sl_status_t sli_si91x_set_sni_for_embedded_socket(const sl_si91x_socket_type_length_value_t *sni_extension);
-
-/** 
  * @addtogroup SOCKET_CONFIGURATION_FUNCTION
  * @{
  */

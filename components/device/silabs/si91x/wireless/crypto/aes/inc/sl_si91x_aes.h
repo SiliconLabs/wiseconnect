@@ -197,7 +197,7 @@ sl_status_t sl_si91x_aes(sl_si91x_aes_config_t *config, uint8_t *output);
 /***************************************************************************/
 /**
  * @brief 
- *   Encrypts or decrypts a chunk of a message according to the given configuration. This is a blocking API.
+ *   Encrypts or decrypts a chunk of a message (CBC and ECB modes are not supported for multipart operations) according to the given configuration. This is a blocking API.
  * @param[in] config 
  *   Configuration object of type @ref sl_si91x_aes_config_t containing the AES operation parameters.
  * @param[in] chunk_length 

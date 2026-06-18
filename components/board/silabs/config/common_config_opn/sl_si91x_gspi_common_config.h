@@ -61,7 +61,7 @@ extern "C" {
 #ifndef SL_GSPI_MASTER_PERIPHERAL
 #define SL_GSPI_MASTER_PERIPHERAL GSPI_MASTER
 #endif
-#warning "GSPI peripheral is not configured. Please configure the GSPI pins according to the board connections."
+
 // GSPI_MASTER SCK_ on GPIO_25
 #ifndef SL_GSPI_MASTER_SCK__PORT
 #define SL_GSPI_MASTER_SCK__PORT HP
@@ -107,7 +107,12 @@ extern "C" {
 #endif
 // [GSPI_MASTER_SL_GSPI_MASTER]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "GSPI pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

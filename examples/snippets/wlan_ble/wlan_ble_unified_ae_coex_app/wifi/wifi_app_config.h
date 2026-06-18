@@ -85,6 +85,8 @@
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 
+#define SOCKET_ASYNC_FEATURE 1 //disable this macro to use synchronous sockets
+
 /*****************************************************
  *                      Socket configuration
 *****************************************************/

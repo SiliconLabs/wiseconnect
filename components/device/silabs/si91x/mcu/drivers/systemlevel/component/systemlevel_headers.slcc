@@ -1,6 +1,6 @@
 id: systemlevel_headers
 label: System-Level API Headers
-package: platform
+package: platform_siwx91x
 description: >
   System-Level API Headers
 category: Device|Si91x|MCU|Internal|System-Level Drivers

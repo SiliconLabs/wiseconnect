@@ -45,7 +45,7 @@
 #endif
 #include "rsi_gspi.h"
 
-#define MAX_BAUDRATE_FOR_DYNAMIC_CLOCK   110000000 // Maximum baudrate for dynamic clock division factor
+#define MAX_BAUDRATE_FOR_DYNAMIC_CLOCK   116000000 // Maximum baudrate for dynamic clock division factor
 #define MAX_BAUDRATE_FOR_POS_EDGE_SAMPLE 40000000  // Maximum baudrate for positive edge sample
 #define STATIC_CLOCK_DIV_FACTOR          1         // Static clock divison factor
 #define HALF_CLOCK_DIV_FACTOR            2         // To make the clock division factor half
@@ -92,7 +92,7 @@ int32_t GSPI_Initialize(ARM_SPI_SignalEvent_t cb_event,
   (void)UDMA_Table;
   (void)mem;
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
   RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI2);
@@ -304,7 +304,7 @@ int32_t GSPI_PowerControl(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi)
       gspi->info->state &= (uint8_t)~SPI_POWERED; // SPI is not powered
 
 // power down
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
       RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
       RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_PERI2);

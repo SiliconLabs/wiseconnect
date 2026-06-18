@@ -1,6 +1,6 @@
 id: sl_sdio_secondary
 label: SDIO Secondary 
-package: platform
+package: platform_siwx91x
 description: >
   The SDIO Secondary application shows how to read and write data between SDIO Secondary
   external device which is going to act as Primary and demonstrates about soc clock setting, 

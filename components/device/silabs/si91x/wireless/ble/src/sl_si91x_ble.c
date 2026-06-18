@@ -29,7 +29,7 @@
  ******************************************************************************/
 #include "sl_si91x_ble.h"
 #include "sl_rsi_utility.h"
-
+#include "sli_wifi_power_profile.h"
 extern bool device_initialized;
 
 /*=======================================================================*/

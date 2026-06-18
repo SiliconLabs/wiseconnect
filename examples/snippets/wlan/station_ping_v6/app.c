@@ -72,9 +72,8 @@ static sl_status_t network_event_handler(sl_net_event_t event, sl_status_t statu
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -189,8 +188,8 @@ static sl_status_t network_event_handler(sl_net_event_t event, sl_status_t statu
   UNUSED_PARAMETER(data_length);
   switch (event) {
     case SL_NET_PING_RESPONSE_EVENT: {
-      sl_ip_address_t remote_ip_address  = { 0 };
-      sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+      sl_ip_address_t remote_ip_address = { 0 };
+      sl_net_ping_response_t *response  = (sl_net_ping_response_t *)data;
       if (status != SL_STATUS_OK) {
         printf("\r\nPing request failed with status 0x%lX\r\n", status);
         return status;

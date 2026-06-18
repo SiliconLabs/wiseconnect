@@ -69,7 +69,7 @@ typedef struct {
  * @brief Enumeration for the sleep modes.
  */
 typedef enum {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if (SLI_SI917)
   SLI_SI91X_POWER_MANAGER_WAKEUP_FROM_FLASH_MODE = 0x11, // Wakeup from flash mode
 #else
   SLI_SI91X_POWER_MANAGER_WAKEUP_FROM_FLASH_MODE = 1, // Wakeup from flash mode

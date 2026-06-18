@@ -27,11 +27,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include "sli_wifi_utility.h"
 #include "sl_si91x_status.h"
 #include "sl_si91x_types.h"
 #include "sl_si91x_constants.h"
 #include "sl_si91x_spi_constants.h"
 #include "sl_si91x_host_interface.h"
+#include "sl_si91x_driver.h"
 #include "sl_status.h"
 #include "sl_additional_status.h"
 #include "sl_wifi_constants.h"
@@ -274,7 +276,7 @@ sl_status_t sli_si91x_bus_write_slave(uint32_t data_length, const uint8_t *buffe
   return status;
 }
 
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer)
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer)
 {
   //  uint8_t rx_buffer[4];
   sl_status_t status;
@@ -301,7 +303,7 @@ sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *bu
   SLI_SPI_VERIFY_STATUS(status);
 
   // Read in the memory data
-  status = sl_si91x_host_spi_transfer(NULL, buffer, length);
+  status = sl_si91x_host_spi_transfer(NULL, (uint8_t *)buffer, length);
 
   sl_si91x_host_spi_cs_deassert();
   return status;
@@ -422,10 +424,11 @@ sl_status_t sli_si91x_bus_read_frame(sl_wifi_buffer_t **buffer)
   if (status != SL_STATUS_OK) {
     sl_si91x_host_spi_cs_deassert();
     SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-    BREAKPOINT();
+    sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+    return SL_STATUS_ALLOCATION_FAILED;
   }
 
-  data = (uint8_t *)sl_si91x_host_get_buffer_data(*buffer, 0, &temp);
+  data = (uint8_t *)sli_wifi_host_get_buffer_data(*buffer, 0, &temp);
 
   // Read complete RX packet
   if (local_buffer[1] == 0) {
@@ -508,7 +511,7 @@ sl_status_t sli_si91x_bootup_firmware(const uint8_t select_option, uint8_t image
 
 sl_status_t sli_si91x_bus_rx_irq_handler(void)
 {
-  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_wifi_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   return SL_STATUS_OK;
 }
 

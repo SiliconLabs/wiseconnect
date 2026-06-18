@@ -1,6 +1,6 @@
 id: rsilib_i2s
 label: I2S
-package: platform
+package: platform_siwx91x
 description: >
   Inter-IC Sound Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

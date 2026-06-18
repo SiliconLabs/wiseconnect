@@ -288,8 +288,8 @@
 #define SLI_CONFIG_RTSTHRESHOLD 1
 #endif
 
-#ifndef SLI_RTS_THRESHOLD
-#define SLI_RTS_THRESHOLD 2346
+#ifndef SLI_WIFI_RTS_THRESHOLD
+#define SLI_WIFI_RTS_THRESHOLD 2346
 #endif
 
 /*=======================================================================*/
@@ -453,7 +453,7 @@
 #define RSI_TX_TEST_NUM_PKTS 0
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
 #ifndef RSI_11AX_ENABLE
 //11AX_ENABLE 0-disable, 1-enable
 #define RSI_11AX_ENABLE 0
@@ -575,7 +575,7 @@
 
 #define RSI_SSL_RELEASE_2_0 RSI_ENABLE
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
 #ifndef RSI_SSL_EXT_CIPHERS
 #define RSI_SSL_EXT_CIPHERS SL_SI91X_TLSV1_3_ALL_CIPHERS
 #endif

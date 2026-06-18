@@ -1,6 +1,6 @@
 id: systemlevel_power_save
 label: POWER SAVE
-package: platform
+package: platform_siwx91x
 description: >
   Power Save API's
 category: Device|Si91x|MCU|Internal|System-Level Drivers

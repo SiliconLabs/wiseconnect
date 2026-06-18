@@ -368,6 +368,38 @@ extern "C" {
 #define SL_ICM40627_REG_OFFSET_USER8 (SL_ICM40627_BANK_4 | 0x7F) /**< Lower Bits of Z-Accel Offset Register */
 
 #define ICM40627_DEVICE_ID (0x4E) /**< ICM40627 Device ID value    */
+
+// Constants for sensor calibration
+#define SL_ICM40627_FIFO_PACKET_SIZE           16 // Each FIFO packet: Header(1)+Accel(6)+Gyro(6)+Temp(1)+Timestamp(2)
+#define SL_ICM40627_FIFO_DATA_ARRAY_SIZE       17 // FIFO data array size (1 register address + 16 data bytes)
+#define SL_ICM40627_FIFO_ACCEL_X_MSB_INDEX     2  // Index of accel X MSB in FIFO data
+#define SL_ICM40627_FIFO_ACCEL_X_LSB_INDEX     3  // Index of accel X LSB in FIFO data
+#define SL_ICM40627_FIFO_ACCEL_Y_MSB_INDEX     4  // Index of accel Y MSB in FIFO data
+#define SL_ICM40627_FIFO_ACCEL_Y_LSB_INDEX     5  // Index of accel Y LSB in FIFO data
+#define SL_ICM40627_FIFO_ACCEL_Z_MSB_INDEX     6  // Index of accel Z MSB in FIFO data
+#define SL_ICM40627_FIFO_ACCEL_Z_LSB_INDEX     7  // Index of accel Z LSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_X_MSB_INDEX      8  // Index of gyro X MSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_X_LSB_INDEX      9  // Index of gyro X LSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_Y_MSB_INDEX      10 // Index of gyro Y MSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_Y_LSB_INDEX      11 // Index of gyro Y LSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_Z_MSB_INDEX      12 // Index of gyro Z MSB in FIFO data
+#define SL_ICM40627_FIFO_GYRO_Z_LSB_INDEX      13 // Index of gyro Z LSB in FIFO data
+#define SL_ICM40627_GYRO_OFFSET_RESOLUTION_DPS 32.0f   // Gyro offset resolution: 1/32 dps per LSB
+#define SL_ICM40627_GYRO_OFFSET_MAX_LSB        2047    // Maximum gyro offset value in LSB (±64 dps)
+#define SL_ICM40627_GYRO_OFFSET_MIN_LSB        -2048   // Minimum gyro offset value in LSB (±64 dps)
+#define SL_ICM40627_ACCEL_OFFSET_RESOLUTION_MG 2000.0f // Accel offset resolution: 0.5mg per LSB (1g/0.5mg = 2000)
+#define SL_ICM40627_ACCEL_OFFSET_MAX_LSB       2000    // Maximum accel offset value in LSB (±1g)
+#define SL_ICM40627_ACCEL_OFFSET_MIN_LSB       -2000   // Minimum accel offset value in LSB (±1g)
+#define SL_ICM40627_BYTE_MASK_LOW_NIBBLE       0x0F    // Mask for lower 4 bits
+#define SL_ICM40627_BYTE_MASK_HIGH_NIBBLE      0xF0    // Mask for upper 4 bits
+#define SL_ICM40627_BYTE_SHIFT_8               8       // Shift by 8 bits
+#define SL_ICM40627_BYTE_SHIFT_4               4       // Shift by 4 bits
+#define SL_ICM40627_REG_BANK_SHIFT             7       // Shift value to extract bank number from register address
+#define SL_ICM40627_AXIS_X                     0       // X-axis index
+#define SL_ICM40627_AXIS_Y                     1       // Y-axis index
+#define SL_ICM40627_AXIS_Z                     2       // Z-axis index
+#define SL_ICM40627_FIFO_DISABLE_VALUE         0x00    // Value to disable FIFO
+
 /** @endcond */
 
 /***************************************************************************/ /**

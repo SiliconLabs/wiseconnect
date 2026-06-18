@@ -148,12 +148,19 @@ int32_t wifi_app_get_event(void)
 }
 
 // rejoin failure callback handler in station mode
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // update wlan application state
   disconnected = 1;
@@ -196,6 +203,7 @@ static sl_status_t show_scan_results()
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -206,8 +214,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
   SL_VERIFY_POINTER_OR_RETURN(scan_result, SL_STATUS_NULL_POINTER);
   memset(scan_result, 0, scanbuf_size);
@@ -251,7 +259,7 @@ void wifi_app_task()
         LOG_PRINT("WIFI App Initial State\n");
 
         //! Initialize join fail call back
-        sl_wifi_set_join_callback(join_callback_handler, NULL);
+        sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 
         // update wlan application state
         if (magic_word) {
@@ -276,8 +284,10 @@ void wifi_app_task()
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
 
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
@@ -315,6 +325,9 @@ void wifi_app_task()
             printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
             continue;
           }
+        } else {
+          // For OPEN security, clear the credential ID
+          id = SL_WIFI_NO_CREDENTIAL_ID;
         }
         access_point.ssid.length = strlen((char *)coex_ssid);
         memcpy(access_point.ssid.value, coex_ssid, access_point.ssid.length);

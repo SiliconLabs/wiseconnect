@@ -1,6 +1,6 @@
 id: romdriver_ct
 label: ROM DRIVER CT
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver Configurable Timers
 category: Device|Si91x|MCU|Internal|ROM Drivers

@@ -79,7 +79,8 @@ sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, ui
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-static inline sl_status_t sl_si91x_register_event_handler(sl_net_event_handler_t function);
+static inline SL_DEPRECATED_API_WISECONNECT_4_0 sl_status_t
+sl_si91x_register_event_handler(sl_net_event_handler_t function);
 
 /***************************************************************************/ /**
  * @brief
@@ -96,17 +97,19 @@ static inline sl_status_t sl_si91x_register_event_handler(sl_net_event_handler_t
  ******************************************************************************/
 sl_status_t sl_si91x_default_handler(sl_net_event_t event, sl_wifi_buffer_t *buffer);
 
-static inline sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
-                                                  sl_net_credential_type_t type,
-                                                  const void *credential,
-                                                  uint32_t credential_length);
+static inline SL_DEPRECATED_API_WISECONNECT_4_0 sl_status_t sl_si91x_set_credential(sl_net_credential_id_t id,
+                                                                                    sl_net_credential_type_t type,
+                                                                                    const void *credential,
+                                                                                    uint32_t credential_length);
 
-static inline sl_status_t sl_si91x_get_credential(sl_net_credential_id_t id,
-                                                  const sl_net_credential_type_t *type,
-                                                  const void *credential,
-                                                  const uint32_t *credential_length);
+static inline SL_DEPRECATED_API_WISECONNECT_4_0 sl_status_t
+sl_si91x_get_credential(sl_net_credential_id_t id,
+                        const sl_net_credential_type_t *type,
+                        const void *credential,
+                        const uint32_t *credential_length);
 
-static inline sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id, sl_net_credential_type_t type);
+static inline SL_DEPRECATED_API_WISECONNECT_4_0 sl_status_t sl_si91x_delete_credential(sl_net_credential_id_t id,
+                                                                                       sl_net_credential_type_t type);
 
 //! @cond Doxygen_Suppress
 /// Enumerate multicast address command types
@@ -121,6 +124,8 @@ typedef enum {
 #define SL_SI91X_DHCP_HOSTNAME SLI_NET_DHCP_HOSTNAME
 #define SL_SI91X_DHCP_OPTION81 SLI_NET_DHCP_OPTION81
 #define SL_SI91X_DHCP_OPTION77 SLI_NET_DHCP_OPTION77
+
+typedef sli_net_ip_config_mode_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_ip_config_mode_t;
 
 /// Enumerate certificate types
 typedef enum {

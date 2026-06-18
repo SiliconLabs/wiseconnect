@@ -37,6 +37,7 @@ extern "C" {
 
 #include "sl_status.h"
 #include "GSPI.h"
+#include "base_types.h"
 
 /***************************************************************************/
 /**
@@ -209,7 +210,8 @@ typedef struct {
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configuration);
+sl_status_t sl_si91x_gspi_configure_clock(sl_gspi_clock_config_t *clock_configuration)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -328,6 +330,38 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
 
 /***************************************************************************/
 /**
+ * @brief To receive data from the secondary device in blocking mode.
+ *
+ * @details This API receives data from the secondary device and blocks until all data is received
+ * or the timeout expires.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_gspi_init
+ *      - \ref sl_si91x_gspi_set_configuration
+ *      - \ref sl_si91x_gspi_set_slave_number
+ *
+ * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
+ * @param[in] data Pointer to the variable that will store the received data.
+ * @param[in] data_length (uint32_t) Number of data items to receive.
+ * @param[in] timeout (uint32_t) Timeout in milliseconds.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_TIMEOUT  - Timeout occurred before all data was received.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_gspi_receive_data_blocking(sl_gspi_handle_t gspi_handle,
+                                                void *data,
+                                                uint32_t data_length,
+                                                uint32_t timeout);
+
+/***************************************************************************/
+/**
  * @brief To send data to the secondary device.
  * 
  * @details If DMA is enabled, it configures the DMA channel and required parameters.
@@ -353,6 +387,38 @@ sl_status_t sl_si91x_gspi_receive_data(sl_gspi_handle_t gspi_handle, void *data,
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_gspi_send_data(sl_gspi_handle_t gspi_handle, const void *data, uint32_t data_length);
+
+/***************************************************************************/
+/**
+ * @brief To send data to the secondary device in blocking mode.
+ *
+ * @details This API sends data to the secondary device and blocks until all data is sent
+ * or the timeout expires.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_gspi_init
+ *      - \ref sl_si91x_gspi_set_configuration
+ *      - \ref sl_si91x_gspi_set_slave_number
+ *
+ * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
+ * @param[in] data Const pointer to the variable that contains the data to be sent.
+ * @param[in] data_length (uint32_t) Number of data items to send.
+ * @param[in] timeout (uint32_t) Timeout in milliseconds.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_TIMEOUT  - Timeout occurred before all data was sent.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ***************************************************************************/
+sl_status_t sl_si91x_gspi_send_data_blocking(sl_gspi_handle_t gspi_handle,
+                                             const void *data,
+                                             uint32_t data_length,
+                                             uint32_t timeout);
 
 /***************************************************************************/
 /**
@@ -385,6 +451,40 @@ sl_status_t sl_si91x_gspi_transfer_data(sl_gspi_handle_t gspi_handle,
                                         const void *data_out,
                                         void *data_in,
                                         uint32_t data_length);
+
+/***************************************************************************/
+/**
+ * @brief To send and receive data to and from the secondary device simultaneously in blocking mode.
+ *
+ * @details This API sends and receives data to and from the secondary device and blocks until all data is transferred
+ * or the timeout expires.
+ *
+ * @pre Pre-conditions:
+ *      - \ref sl_si91x_gspi_init
+ *      - \ref sl_si91x_gspi_set_configuration
+ *      - \ref sl_si91x_gspi_set_slave_number
+ *
+ * @param[in] gspi_handle Pointer to the GSPI driver handle \ref sl_gspi_handle_t.
+ * @param[in] data_out Const pointer to the variable that has data which needs to be sent.
+ * @param[in] data_in Pointer to the variable that will store the received data.
+ * @param[in] data_length (uint32_t) Number of data items to transfer.
+ * @param[in] timeout (uint32_t) Timeout in milliseconds.
+ *
+ * @return Status code indicating the result:
+ *         - SL_STATUS_OK  - Success.
+ *         - SL_STATUS_FAIL  - Function failed.
+ *         - SL_STATUS_BUSY  - Driver is busy.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - The parameter is a null pointer.
+ *         - SL_STATUS_TIMEOUT  - Timeout occurred before all data was transferred.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_gspi_transfer_data_blocking(sl_gspi_handle_t gspi_handle,
+                                                 const void *data_out,
+                                                 void *data_in,
+                                                 uint32_t data_length,
+                                                 uint32_t timeout);
 
 /***************************************************************************/
 /**

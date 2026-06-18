@@ -58,7 +58,7 @@ Before running the application, the user will need the following things to setup
 
 - Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-   - Install Studio and WiSeConnect 3 extension
+   - Install Studio and WiSeConnect extension
    - Connect your device to the computer
    - Upgrade your connectivity firmware
    - Create a Studio project
@@ -80,7 +80,7 @@ Before running the application, the user will need the following things to setup
    #define RTE_USART0_CHNL_UDMA_RX_EN         1
   ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

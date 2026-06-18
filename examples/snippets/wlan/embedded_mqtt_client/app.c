@@ -44,10 +44,11 @@
 #ifdef SLI_SI91X_ENABLE_IPV6
 #define MQTT_BROKER_IP "2401:4901:1290:10de::1000"
 #else
-#define MQTT_BROKER_IP "192.168.1.27"
+#define MQTT_BROKER_IP "192.168.0.107"
 #endif
 
 #define MQTT_BROKER_PORT 8886
+#define MQTT_BROKER_HOST "yourmqtthost.com"
 
 #define CLIENT_PORT 1
 
@@ -61,7 +62,7 @@
 #define QOS_OF_PUBLISH_MESSAGE 0
 
 #define IS_DUPLICATE_MESSAGE 0
-#define IS_MESSAGE_RETAINED  1
+#define IS_MESSAGE_RETAINED  0
 #define IS_CLEAN_SESSION     1
 
 #define LAST_WILL_TOPIC       "WISECONNECT-SDK-MQTT-CLIENT-LAST-WILL"
@@ -102,17 +103,17 @@ static const sl_wifi_device_configuration_t wifi_mqtt_client_configuration = {
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .feature_bit_map        = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_SSL | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
 #ifdef SLI_SI91X_ENABLE_IPV6
                                               | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
 #endif
                                               ),
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_SSL_VERSIONS_SUPPORT | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -137,16 +138,25 @@ sl_mqtt_client_configuration_t mqtt_client_configuration = { .is_clean_session =
                                                              .client_id_length = strlen(CLIENT_ID),
 #if ENCRYPT_CONNECTION
                                                              .tls_flags = SL_MQTT_TLS_ENABLE | SL_MQTT_TLS_TLSV_1_2
-                                                                          | SL_MQTT_TLS_CERT_INDEX_1,
+                                                                          | SL_MQTT_TLS_CERT_INDEX_1
+                                                                          | SL_MQTT_TLS_SNI_ENABLE,
 #endif
                                                              .client_port = CLIENT_PORT };
 
-sl_mqtt_broker_t mqtt_broker_configuration = {
+sl_mqtt_broker_v2_t mqtt_broker_configuration = {
   .port                    = MQTT_BROKER_PORT,
   .is_connection_encrypted = ENCRYPT_CONNECTION,
   .connect_timeout         = MQTT_CONNECT_TIMEOUT,
   .keep_alive_interval     = KEEP_ALIVE_INTERVAL,
   .keep_alive_retries      = MQTT_KEEPALIVE_RETRIES,
+  .host_name               = NULL,
+#if ENCRYPT_CONNECTION
+  .enable_sni    = 1,                           /* enable SNI when using TLS */
+  .sni_host_name = (uint8_t *)MQTT_BROKER_HOST, // SNI hostname for TLS/SNI connections
+#else
+  .enable_sni    = 0,
+  .sni_host_name = NULL,
+#endif
 };
 
 sl_mqtt_client_message_t message_to_be_published = {
@@ -183,9 +193,8 @@ sl_status_t mqtt_example();
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -422,7 +431,7 @@ sl_status_t mqtt_example()
 #endif
 
   status =
-    sl_mqtt_client_connect(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
+    sl_mqtt_client_connect_v2(&client, &mqtt_broker_configuration, &last_will_message, &mqtt_client_configuration, 0);
   if (status != SL_STATUS_IN_PROGRESS) {
     printf("Failed to connect to mqtt broker: 0x%lx\r\n", status);
 

@@ -46,6 +46,7 @@
 #include "em_cmu.h"
 #include "em_eusart.h"
 #include "sl_uartdrv_eusart_exp_config.h"
+#include "sl_si91x_core_utilities.h"
 
 /******************************************************
  *                      Macros
@@ -159,7 +160,7 @@ app_state_t app_cb; //! application control block
 //! IP address of Gateway
 #define DEFAULT_WIFI_AP_GATEWAY6_ADDRESS "2001:db8:0:1::121"
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
+static sl_net_wifi_client_profile_t wifi_client_profile_4 = {
     .config = {
         .channel.channel = SL_WIFI_AUTO_CHANNEL,
         .channel.band = SL_WIFI_AUTO_BAND,
@@ -177,7 +178,7 @@ static const sl_net_wifi_client_profile_t wifi_client_profile_4 = {
     }
 };
 
-static const sl_net_wifi_client_profile_t wifi_client_profile_6 = {
+static sl_net_wifi_client_profile_t wifi_client_profile_6 = {
     .config = {
         .channel.channel = SL_WIFI_AUTO_CHANNEL,
         .channel.band = SL_WIFI_AUTO_BAND,
@@ -268,8 +269,16 @@ sl_wifi_security_t string_to_security_type(const char *securityType);
 sl_status_t login_request_handler(sl_http_server_t *handle, sl_http_server_request_t *req);
 sl_status_t default_handler(sl_http_server_t *handle, sl_http_server_request_t *req);
 sl_status_t connect_data_handler(sl_http_server_t *handle, sl_http_server_request_t *req);
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 
 /******************************************************
  *               Function Definitions
@@ -321,15 +330,20 @@ void app_init(void)
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
+
   LOG_PRINT("in join CB\r\n");
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     LOG_PRINT("F: Join Event received with %lu bytes payload\n", result_length);
     app_cb = MODULE_DISCONNECT_STATE;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   return SL_STATUS_OK;
 }
@@ -436,8 +450,8 @@ static void application_start(void *argument)
           return;
         }
 
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
         LOG_PRINT("\r\nWi-Fi AP interface init Success");
 
         status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
@@ -528,8 +542,20 @@ static void application_start(void *argument)
           fw_up_thread_create = 0;
         }
 
-        sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-        sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+
+        wifi_client_profile_4.config.ssid.length = strlen((char *)WIFI_CLIENT_PROFILE_SSID);
+        memcpy(&wifi_client_profile_4.config.ssid.value,
+               WIFI_CLIENT_PROFILE_SSID,
+               wifi_client_profile_4.config.ssid.length);
+        wifi_client_profile_4.config.security = string_to_security_type(WIFI_CLIENT_SECURITY_TYPE);
+
+        wifi_client_profile_6.config.ssid.length = strlen((char *)WIFI_CLIENT_PROFILE_SSID);
+        memcpy(&wifi_client_profile_6.config.ssid.value,
+               WIFI_CLIENT_PROFILE_SSID,
+               wifi_client_profile_6.config.ssid.length);
+        wifi_client_profile_6.config.security = string_to_security_type(WIFI_CLIENT_SECURITY_TYPE);
 
         //  Keeping the station ipv4 record in profile_id_0
         status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_PROFILE_ID_0, &wifi_client_profile_4);
@@ -566,7 +592,7 @@ static void application_start(void *argument)
 
           SL_DEBUG_LOG("SSID %s\n", access_point.ssid.value);
 
-          sl_wifi_set_join_callback(join_callback_handler, NULL);
+          sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
           status = sl_wifi_connect(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &access_point, 25000);
         } else {
           LOG_PRINT("\r\nFailed to set credentials; status: %lu\n", status);
@@ -885,11 +911,18 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   LOG_PRINT("Remote Client connected\n");
   print_client_mac_address((sl_mac_address_t *)data);
@@ -899,11 +932,18 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   LOG_PRINT("\r\nRemote Client disconnected\r\n");
   print_client_mac_address((sl_mac_address_t *)data);
@@ -1074,6 +1114,7 @@ sl_wifi_security_t string_to_security_type(const char *securityType)
 
 void receive_data_from_tcp_client(void)
 {
+  sl_status_t status                = SL_STATUS_OK;
   int server_socket                 = -1;
   int client_socket                 = -1;
   uint32_t start                    = 0;
@@ -1134,13 +1175,21 @@ void receive_data_from_tcp_client(void)
 
   LOG_PRINT("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      LOG_PRINT("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -1154,6 +1203,7 @@ void receive_data_from_tcp_client(void)
   LOG_PRINT("\r\nTotal bytes received : %ld\r\n", total_bytes_received);
 
   close(client_socket);
+  close(server_socket);
 }
 
 void send_data_to_udp_server(void)

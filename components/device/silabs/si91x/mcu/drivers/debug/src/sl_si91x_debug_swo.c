@@ -46,9 +46,10 @@
 ****************************  LOCAL VARIABLES   ********************************
 *******************************************************************************/
 
-static sl_si91x_gpio_pin_config_t sl_mcu_clk_out_gpio_pin_config      = { { SL_SI91X_GPIO_12_PORT, GPIO_PIN_NUMBER12 },
-                                                                          GPIO_OUTPUT };
-static sl_si91x_gpio_pin_config_t sl_mcu_trace_clk_in_gpio_pin_config = { { SL_SI91X_GPIO_15_PORT, GPIO_PIN_NUMBER15 },
+static sl_si91x_gpio_pin_config_t sl_mcu_clk_out_gpio_pin_config = { { SL_SI91X_GPIO_12_PORT, SL_SI91X_GPIO_12_PIN },
+                                                                     GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_mcu_trace_clk_in_gpio_pin_config = { { SL_SI91X_GPIO_15_PORT,
+                                                                            SL_SI91X_GPIO_15_PIN },
                                                                           GPIO_INPUT };
 
 /*******************************************************************************

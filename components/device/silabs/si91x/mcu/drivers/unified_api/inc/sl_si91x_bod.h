@@ -289,6 +289,8 @@ sl_status_t sl_si91x_bod_get_threshold(float *vbatt_threshold);
   * This function enables the interrupt for the BOD in the NVIC, allowing the
   * system to handle BOD-related interrupts.
   *
+  * @note
+  *   Moving forward, this API will be deprecated. This is retained for backward compatibility.
   *****************************************************************/
 void sl_si91x_bod_NVIC_enable_irq(void) SL_DEPRECATED_API_WISECONNECT_3_5;
 
@@ -371,6 +373,9 @@ sl_status_t sl_si91x_bod_button_wakeup_disable(void);
   * @param[in] enable
   *            - 1: Enable button wakeup functionality.
   *            - 0: Disable button wakeup functionality.
+  *
+  * @note
+  *   Moving forward, this API will be deprecated. Instead, use @ref sl_si91x_bod_button_wakeup_enable_v2 API. This is retained for backward compatibility.
   */
 void sl_si91x_bod_button_wakeup_enable(uint8_t enable) SL_DEPRECATED_API_WISECONNECT_3_5;
 

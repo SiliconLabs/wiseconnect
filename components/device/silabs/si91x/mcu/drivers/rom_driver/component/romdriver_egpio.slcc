@@ -1,6 +1,6 @@
 id: romdriver_egpio
 label: ROM DRIVER EGPIO
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver Enhanced General Purpose Input Output Peripheral
 category: Device|Si91x|MCU|Internal|ROM Drivers

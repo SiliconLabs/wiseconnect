@@ -1,6 +1,6 @@
 id: rsilib_gpdma
 label: GPDMA
-package: platform
+package: platform_siwx91x
 description: >
   General Purpose Direct Memory Access Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

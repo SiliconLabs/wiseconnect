@@ -23,6 +23,7 @@
 #include "sl_i2c_instances.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_peripheral_i2c.h"
+#include "sl_component_catalog.h"
 #ifdef SLI_SI917
 #include "sl_si91x_i2c_init_i2c2_config.h"
 #else
@@ -31,12 +32,6 @@
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#ifdef SLI_SI915
-#define I2C_INSTANCE_USED \
-  0 // Update this macro with i2c instance number used for application, 0 for instance 0, 1 for instance 1 and 2  for ulp instance (instance 2).
-#else
-#define I2C_INSTANCE_USED 2
-#endif
 #define FOLLOWER_I2C_ADDR            0x50  // I2C follower address
 #define MAX_BUFFER_SIZE_BLOCKING     80000 // Maximum buffer size for RX and TX length when transferring without DMA
 #define MAX_BUFFER_SIZE_NON_BLOCKING 30000 // Maximum buffer size for RX and TX length when transferring with DMA
@@ -48,9 +43,6 @@
 #define I2C_RX_FIFO_THRESHOLD        0                // FIFO threshold
 #define INITIAL_VALUE                0                // For 0 initial value
 #define ONE                          0x1              // For value one
-#define INSTANCE_ZERO                0                // For 0 value
-#define INSTANCE_ONE                 1                // For 0 value
-#define INSTANCE_TWO                 2                // For 0 value
 /*******************************************************************************
  ******************************  Data Types  ***********************************
  ******************************************************************************/
@@ -65,7 +57,7 @@ typedef enum {
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
+sl_i2c_instance_t i2c_instance;
 static uint8_t i2c_read_buffer[I2C_SIZE_BUFFERS];
 #if SL_I2C_I2C2_INIT_DMA \
   == 0 // including config.h file in this application, when DMA disable == 0 is uint8_t data type or enable == 1 is uint32_t data type
@@ -111,11 +103,14 @@ void i2c_init(void)
 {
   sl_i2c_status_t i2c_status;
 
-#if (I2C_INSTANCE_USED == INSTANCE_ZERO)
+#if defined(SL_CATALOG_I2C_I2C0_PRESENT)
+  i2c_instance  = SL_I2C0;
   sl_i2c_config = sl_i2c_i2c0_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_ONE)
+#elif defined(SL_CATALOG_I2C_I2C1_PRESENT)
+  i2c_instance  = SL_I2C1;
   sl_i2c_config = sl_i2c_i2c1_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+#elif defined(SL_CATALOG_I2C_I2C2_PRESENT)
+  i2c_instance  = SL_ULP_I2C;
   sl_i2c_config = sl_i2c_i2c2_config;
 #endif
 

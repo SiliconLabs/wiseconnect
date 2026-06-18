@@ -34,8 +34,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#warning \
-  "For an OPN or SoC project, memlcd instances not defined. Installing the [ENABLE USER CONFIGURATION] component or defining USER_CONFIGURATION_ENABLE MACRO to 1 is the first step towards configuring the board macros. Then, define the macros in the header file in accordance with the board connections.."
 
 #if USER_CONFIGURATION_ENABLE
 // <<< sl:start pin_tool >>>
@@ -104,8 +102,15 @@ extern "C" {
 // [GPIO_SL_MEMLCD_DISP_EXT_COMIN]$
 // <<< sl:end pin_tool >>>
 
+#else
+
+#warning \
+  "Memory LCD instances not defined for this OPN or SoC project. To configure board connections, either install [ENABLE USER CONFIGURATION] component or set USER_CONFIGURATION_ENABLE MACRO to 1, then define the required macros in this header file according to your board connections."
+
+#endif // USER_CONFIGURATION_ENABLE
+
 #ifdef __cplusplus
 }
 #endif
+
 #endif // SL_SI91X_MEMLCD_CONFIG_H
-#endif // USER_CONFIGURATION_ENABLE

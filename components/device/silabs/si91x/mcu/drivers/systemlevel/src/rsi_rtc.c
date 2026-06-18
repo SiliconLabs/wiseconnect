@@ -48,7 +48,7 @@
 
 void RSI_RTC_Start(RTC_Type *Cal)
 {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   if (0x1 == STATIC_COMBI_RTC_PG_ENABLE) {
     /* Enable static combi rtc powergate */
     Cal->MCU_CAL_POWERGATE_REG_b.DISABLE_COMBI_DYN_PWRGATE_EN = 0x1;

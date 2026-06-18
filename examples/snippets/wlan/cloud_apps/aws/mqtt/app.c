@@ -67,17 +67,18 @@
 
 #define CERTIFICATE_INDEX 0
 
-#define SUBSCRIBE_TO_TOPIC    "aws_status"      //! Subscribe Topic to receive the message from cloud
-#define PUBLISH_ON_TOPIC      "siwx91x_status"  //! Publish Topic to send the status from application to cloud
-#define MQTT_PUBLISH_PAYLOAD  "Hi from SiWx91x" //! Publish message
-#define SUBSCRIBE_QOS         QOS1              //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC"
-#define PUBLISH_QOS           QOS1              //! Quality of Service for publish topic "PUBLISH_ON_TOPIC"
-#define PUBLISH_PERIODICITY   30000             //! Publish periodicity in milliseconds
+#define SUBSCRIBE_TO_TOPIC "aws_status"     //! Subscribe Topic to receive the message from cloud.
+#define PUBLISH_ON_TOPIC   "siwx91x_status" //! Publish Topic to send the status from application to cloud.
+#define MQTT_PUBLISH_PAYLOAD \
+  "Hi from SiWx91x" //! Publish message. Increase the AWS_IOT_MQTT_TX_BUF_LEN value in aws_iot_config.h for larger payloads.
+#define SUBSCRIBE_QOS         QOS1  //! Quality of Service for subscribed topic "SUBSCRIBE_TO_TOPIC".
+#define PUBLISH_QOS           QOS1  //! Quality of Service for publish topic "PUBLISH_ON_TOPIC".
+#define PUBLISH_PERIODICITY   30000 //! Publish periodicity in milliseconds.
 #define MQTT_USERNAME         "username"
 #define MQTT_PASSWORD         "password"
 #define ENABLE_NWP_POWER_SAVE 1
 #define LOW                   0
-#define WRAP_PRIVATE_KEY      0 //! Enable this to wrap the private key
+#define WRAP_PRIVATE_KEY      0 //! Enable this to wrap the private key.
 
 #if ENABLE_NWP_POWER_SAVE
 volatile uint8_t powersave_given = 0;
@@ -176,9 +177,9 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
 #ifdef SLI_SI91X_MCU_INTERFACE
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_WPS_DISABLE | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE),
 #else
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION
 #if ENABLE_NWP_POWER_SAVE
                       | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #endif
@@ -191,12 +192,12 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                       | SL_SI91X_TCP_IP_FEAT_DHCPV6_CLIENT | SL_SI91X_TCP_IP_FEAT_IPV6
 #endif
                       | SL_SI91X_TCP_IP_FEAT_ICMP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map = SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
-                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0 | SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
                       | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -207,10 +208,10 @@ static const sl_wifi_device_configuration_t client_init_configuration = {
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
 #ifdef SLI_SI91X_MCU_INTERFACE
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP)
 #else
 #if ENABLE_NWP_POWER_SAVE
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP)
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP)
 #else
                    .config_feature_bit_map = 0
 #endif
@@ -628,6 +629,12 @@ sl_status_t start_aws_mqtt(void)
 #if !(defined(SLI_SI91X_MCU_INTERFACE) && ENABLE_NWP_POWER_SAVE)
           publish_msg = 1;
 #endif
+        } else if (rc == MQTT_RX_BUFFER_TOO_SHORT_ERROR) {
+          printf("\r\nMQTT Yield (receive) with QoS%d failed with error: %d (rx_buf_len=%u tx_buf_len=%u)\n",
+                 SUBSCRIBE_QOS,
+                 rc,
+                 (unsigned)AWS_IOT_MQTT_RX_BUF_LEN,
+                 (unsigned)AWS_IOT_MQTT_TX_BUF_LEN);
         }
         application_state = AWS_MQTT_SELECT_STATE;
 

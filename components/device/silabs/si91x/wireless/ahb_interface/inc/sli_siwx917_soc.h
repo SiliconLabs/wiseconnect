@@ -55,11 +55,14 @@
 #define HOST_INTERACT_REG_VALID_READ (0xAB << 8)
 #endif
 
-#define RSI_RESET_LOOP_COUNTER(X)     X = 0
-#define RSI_WHILE_LOOP(X, Y)          while ((X++) < (uint32_t)Y)
-#define RSI_LOOP_COUNT_UPGRADE_IMAGE  0xFFFF
-#define RSI_LOOP_COUNT_WAKEUP_REQ     0xFFFFFFFF
-#define RSI_LOOP_COUNT_WAKEUP_WAIT    0xFFFFFFFF
+#define RSI_RESET_LOOP_COUNTER(X)    X = 0
+#define RSI_WHILE_LOOP(X, Y)         while ((X++) < (uint32_t)Y)
+#define RSI_LOOP_COUNT_UPGRADE_IMAGE 0xFFFF
+#define RSI_LOOP_COUNT_WAKEUP_REQ    0xFFFFFFFF
+#define RSI_LOOP_COUNT_WAKEUP_WAIT   0xFFFFFFFF
+
+// It takes more time than usual to set the default firmware image
+#define RSI_LOOP_COUNT_SET_IMAGE_WAIT 0xFFFFFFF
 #define RSI_LOOP_COUNT_UPGRADE_REQ    0xFFFF
 #define RSI_LOOP_COUNT_UPGRADE_CHUNK  0xFFFF
 #define RSI_LOOP_COUNT_UPGRADE_STATUS 0xFFFF
@@ -82,3 +85,4 @@ int16_t rsi_bl_select_option(uint8_t cmd);
 int16_t rsi_boot_insn(uint8_t type, uint16_t *data);
 int16_t rsi_mem_rd(uint32_t addr, uint16_t len, uint8_t *dBuf);
 void sli_si91x_ulp_wakeup_init(void);
+int16_t sli_si91x_set_default_nwp_fw(const uint8_t fw_image_number);

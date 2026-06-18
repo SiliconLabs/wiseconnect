@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
- * @file pcm_primary_example.h
- * @brief pcm examples functions
+ * @file pcm_secondary_example.h
+ * @brief pcm secondary example functions
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -15,8 +15,8 @@
  *
  ******************************************************************************/
 
-#ifndef PCM_PRIMARY_EXAMPLE_H_
-#define PCM_PRIMARY_EXAMPLE_H_
+#ifndef PCM_SECONDARY_EXAMPLE_H_
+#define PCM_SECONDARY_EXAMPLE_H_
 
 // -----------------------------------------------------------------------------
 // Prototypes
@@ -27,7 +27,7 @@
  * @param none
  * @return none
  ******************************************************************************/
-void pcm_example_init(void);
+void pcm_secondary_example_init(void);
 
 /***************************************************************************/ /**
  * Function will run continuously 
@@ -37,6 +37,6 @@ void pcm_example_init(void);
  * @param none
  * @return none
  ******************************************************************************/
-void pcm_example_process_action(void);
+void pcm_secondary_example_process_action(void);
 
-#endif /* PCM_PRIMARY_EXAMPLE_H_ */
+#endif /* PCM_SECONDARY_EXAMPLE_H_ */

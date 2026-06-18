@@ -73,7 +73,7 @@ sl_wifi_device_configuration_t *get_default_device_configuration(void)
   return &default_device_configuration;
 }
 
-sl_si91x_boot_configuration_t *get_default_device_boot_configuration(void)
+sl_wifi_system_boot_configuration_t *get_default_device_boot_configuration(void)
 {
   return &default_device_configuration.boot_config;
 }

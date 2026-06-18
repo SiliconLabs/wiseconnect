@@ -71,6 +71,11 @@ extern "C" {
 #define DCACHE_MAINT_CTRL_LINES_LOWER_ADDRESS_MASK \
   (0x1F) // Mask to isolate the address of the cache line in a maintenance control register
 
+/** @brief D-Cache Control and Status Register */
+#define DCACHE_CTRL_AND_STATUS (*((uint32_t volatile *)(0x460081F8)))
+
+/** @brief This is BIT(10) in  D-Cache Control and Status Register using to disable Allocate signal*/
+#define HPORT_ALLOCATE_SIGNAL 0x400
 /*******************************************************************************
  ******************************   Structure    ********************************
  ******************************************************************************/

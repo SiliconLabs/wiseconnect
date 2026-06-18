@@ -1,5 +1,5 @@
 id: sl_si91x_chachapoly
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the CHACHAPOLY API
 label: CHACHAPOLY

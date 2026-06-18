@@ -24,14 +24,13 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_gpio_board.h"
 #include "rsi_debug.h"
-
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define DELAY            1000 // Delay for 1sec
-#define MS_DELAY_COUNTER 4600 // Delay count
-#define ULP_INT_CH       0    // ULP GPIO Pin interrupt 0
-#define AVL_INTR_NO      0    // available interrupt number
+#define DELAY       1000 // Delay for 1sec
+#define ULP_INT_CH  0    // ULP GPIO Pin interrupt 0
+#define AVL_INTR_NO 0    // available interrupt number
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -50,18 +49,12 @@ static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_ULP_GPIO_2_P
 // Define GPIO port and pin for ULP instance. Here SL_SI91X_ULP_GPIO_8_PORT / SL_SI91X_ULP_GPIO_4_PORT refers to ULP GPIO pin 8's port number : 4.
 // This is defined to '4' which is ULP_PORT and SL_SI91X_ULP_GPIO_8_PIN refers to GPIO pin number 8 / SL_SI91X_ULP_GPIO_4_PIN refers to GPIO pin number 4.
 // Same representation followed for other port and pins.
-#ifdef SLI_SI915
-static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_ULP_GPIO_4_PORT, SL_SI91X_ULP_GPIO_4_PIN },
-                                                          GPIO_INPUT };
-#else
 static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN },
                                                           GPIO_INPUT };
-#endif
 
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void delay(uint32_t idelay);
 static void gpio_ulp_pin_interrupt_callback(uint32_t pin_intr);
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -130,7 +123,7 @@ void gpio_ulp_example_process_action(void)
   }
   // Prints indicating successful pin setting
   DEBUGOUT("ULP GPIO driver set pin is successful \r\n");
-  delay(DELAY);                                                    // Delay of 1sec
+  sl_si91x_delay_ms(DELAY);                                        // Delay of 1sec
   status = sl_gpio_driver_clear_pin(&sl_gpio_pin_config.port_pin); // Clear ULP GPIO pin 2
   if (status != SL_STATUS_OK) {
     // Prints if clearing pin fails
@@ -139,17 +132,7 @@ void gpio_ulp_example_process_action(void)
   }
   // Prints indicating successful pin clearing
   DEBUGOUT("ULP GPIO driver clear pin is successful \r\n");
-  delay(DELAY); // Delay of 1sec
-}
-
-/*******************************************************************************
- * Delay function for 1ms
- ******************************************************************************/
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
-    __NOP();
-  }
+  sl_si91x_delay_ms(DELAY); // Delay of 1sec
 }
 
 /*******************************************************************************

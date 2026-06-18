@@ -41,7 +41,7 @@ extern "C" {
 #ifndef SL_MEMLCD_PERIPHERAL
 #define SL_MEMLCD_PERIPHERAL ULP_SSI
 #endif
-#warning "MEMLCD peripheral not configured"
+
 // ULP_SSI MOSI_ on ULP_GPIO_1/GPIO_65
 #ifndef SL_MEMLCD_MOSI__PORT
 #define SL_MEMLCD_MOSI__PORT ULP
@@ -80,7 +80,7 @@ extern "C" {
 // <<< sl:start pin_tool >>>
 // <gpio> SL_MEMLCD_DISP_ENABLE
 // $[GPIO_SL_MEMLCD_DISP_ENABLE]
-#warning "MEMLCD peripheral not configured"
+
 #ifndef SL_MEMLCD_DISP_ENABLE_PORT
 #define SL_MEMLCD_DISP_ENABLE_PORT UULP_VBAT
 #endif
@@ -93,7 +93,7 @@ extern "C" {
 // <<< sl:start pin_tool >>>
 // <gpio> SL_MEMLCD_DISP_EXT_COMIN
 // $[GPIO_SL_MEMLCD_DISP_EXT_COMIN]
-#warning "MEMLCD peripheral not configured"
+
 #ifndef SL_MEMLCD_DISP_EXT_COMIN_PORT
 #define SL_MEMLCD_DISP_EXT_COMIN_PORT UULP_VBAT
 #endif
@@ -102,7 +102,12 @@ extern "C" {
 #endif
 // [GPIO_SL_MEMLCD_DISP_EXT_COMIN]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "MEMLCD pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

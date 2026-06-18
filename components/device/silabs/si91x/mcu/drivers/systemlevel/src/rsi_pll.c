@@ -74,10 +74,10 @@ boolean_t clk_check_pll_lock(PLL_TYPE_T pllType)
 rsi_error_t clk_soc_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable SoC-PLL*/
+    /* Enable SoC-PLL */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
-    /*Disable SoC-PLL*/
+    /* Disable SoC-PLL */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
@@ -104,7 +104,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
   uint16_t socreg3      = 0;
   uint16_t socPllTvRead = 0;
 
-  /*parameter validation*/
+  /* parameter validation */
 
   if ((pCLK == NULL) || (socPllFreq < SOC_PLL_MIN_FREQUECY) || (socPllFreq > SOC_PLL_MAX_FREQUECY)) {
     return INVALID_PARAMETERS;
@@ -114,15 +114,15 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
 
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (socPllFreq >= 201) {
-      /*New table*/
+      /* New table */
       /* Program PLL to 200Mhz */
       /* Call low level API with m,n,p values for 200Mhz configuration. */
       clk_soc_pll_set_freq_div(pCLK, 1, 0, 39, 199, 0, 1, 1);
       return ERROR_INVALID_INPUT_FREQUENCY;
     } else {
-      /* Derive the m,n,p values as per the newer table*/
+      /* Derive the m,n,p values as per the newer table */
       /* program PLL with derived values */
-      /* Wait for PLL lock*/
+      /* Wait for PLL lock */
       if (socPllFreq < 2) {
         shiftFac = 7;
       } else if (socPllFreq < 3) {
@@ -145,7 +145,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
 
       socPllMulFac = (uint16_t)(((socPllDivFac + 1) * socPllFreq) - 1);
 
-      /*RESET PLL*/
+      /* RESET PLL */
       clk_soc_pll_clk_reset();
 
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
@@ -156,7 +156,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
 
       socreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
-      /*writing the value into the dco_fix_sel=1*/
+      /* writing the value into the dco_fix_sel=1 */
       socreg1 |= 1;
 
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG2) = (uint16_t)(socPllDivFac << 9 | (pllRefClk - 1) << 3);
@@ -164,30 +164,30 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
       socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
 
-      /*Enable */
+      /* Enable */
       clk_soc_pll_clk_set(pCLK); /* wait for lock */
       /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
 
-      /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11]*/
+      /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11] */
       socPllTvRead = (SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG12) & 0xF800) >> 11;
 
       if (socPllTvRead <= (M4_BBFF_STORAGE1 & 0x001F)) {
-        /*New table*/
+        /* New table */
         /* Program PLL to 200Mhz */
         /* Call low level API with m,n,p values for 200Mhz configuration. */
         clk_soc_pll_set_freq_div(pCLK, 1, 0, 39, 199, 0, 1, 1);
         return ERROR_INVALID_INPUT_FREQUENCY;
 
       } else {
-        /*Program the required frequency by user*/
+        /* Program the required frequency by user */
         return RSI_OK;
       }
     }
   } else {
-    /*Older table*/
+    /* Older table */
     if (socPllFreq < 2) {
       shiftFac = 7;
     } else if (socPllFreq < 4) {
@@ -209,7 +209,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
     socPllMulFac = (uint16_t)((socPllFreq << shiftFac) - 1);
     socPllDivFac = (uint16_t)((1 << shiftFac) - 1);
 
-    /*RESET PLL*/
+    /* RESET PLL */
     clk_soc_pll_clk_reset();
 
     if (socPllFreq >= 201) {
@@ -222,12 +222,12 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
       }
     }
     if (dcoFreq >= 251) {
-      /*clearing the two bits i.e dco_fix_sel*/
+      /* clearing the two bits i.e dco_fix_sel */
       socreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
-      /*writing the value into the dco_fix_sel=2*/
+      /* writing the value into the dco_fix_sel=2 */
       socreg1 |= 2;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
-      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
+      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
       reg &= (uint16_t)~LDO_PROG_SOCPLL;
       reg |= 5 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
@@ -239,7 +239,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
     } else if ((dcoFreq >= 201) && (dcoFreq <= 250)) {
       socreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
-      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
+      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
       reg &= (uint16_t)~LDO_PROG_SOCPLL;
       reg |= 5 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
@@ -254,7 +254,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
       socreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
       socreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
-      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
+      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
       reg &= (uint16_t)~LDO_PROG_SOCPLL;
       reg |= 4 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3)       = reg;
@@ -263,7 +263,7 @@ rsi_error_t clk_set_soc_pll_freq(const M4CLK_Type *pCLK, uint32_t socPllFreq, ui
       socreg1 |= (uint16_t)((socPllMulFac << 6) | PLL_500_CLK_ENABLE); // m factor
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
-    /*Enable */
+    /* Enable */
     clk_soc_pll_clk_set(pCLK);
   }
   return RSI_OK;
@@ -307,7 +307,7 @@ rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  /*RESET PLL*/
+  /* RESET PLL */
   clk_soc_pll_clk_reset();
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (clk_en) {
@@ -317,7 +317,7 @@ rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
       socreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
       socreg1 |= 1;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
-      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift*/
+      reg = (uint16_t)(reg << 1); /* according to RTL bug SOCPLLMACROREG3 (read issue) will shift to one left shift */
       reg &= (uint16_t)~LDO_PROG_SOCPLL;
       reg |= 1 << 13;
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
@@ -327,26 +327,26 @@ rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
       socreg1 |= (uint16_t)(mFactor << 6 | PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     } else {
-      socreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE); /*soc_pll_clk o/p disable */
+      socreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE); /* soc_pll_clk o/p disable */
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
 
-    /*wait for lock */
+    /* wait for lock */
     clk_soc_pll_clk_set(pCLK);
     /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
 
-    /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11]*/
+    /* Read the TV value from PLL500CTRLREG12  BIT[15 : 11] */
     socPllTvRead = (SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG12) & 0xF800) >> 11;
 
     if ((socPllTvRead <= (M4_BBFF_STORAGE1 & 0x001F)) && (divFactor == 0)) {
-      /*RESET PLL*/
+      /* RESET PLL */
       clk_soc_pll_clk_reset();
       return ERROR_INVALID_INPUT_FREQUENCY;
     } else {
-      /*Program the required frequency by user*/
+      /* Program the required frequency by user */
       return RSI_OK;
     }
   } else {
@@ -371,7 +371,7 @@ rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
       SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
     }
 
-    /*Enable */
+    /* Enable */
     clk_soc_pll_clk_set(pCLK);
   }
   return RSI_OK;
@@ -388,7 +388,7 @@ rsi_error_t clk_soc_pll_set_freq_div(const M4CLK_Type *pCLK,
 rsi_error_t clk_soc_pll_clk_set(const M4CLK_Type *pCLK)
 {
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG11) = 0xFFFF;
-  /*Wait for lock*/
+  /* Wait for lock */
   while ((pCLK->PLL_STAT_REG_b.SOCPLL_LOCK) != 1)
     ;
   return RSI_OK;
@@ -405,10 +405,10 @@ rsi_error_t clk_soc_pll_clk_set(const M4CLK_Type *pCLK)
 rsi_error_t clk_soc_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable PLL clock*/
+    /* Enable PLL clock */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
-    /*Disable PLL clock*/
+    /* Disable PLL clock */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
@@ -438,10 +438,10 @@ rsi_error_t clk_soc_pll_clk_reset(void)
 rsi_error_t clk_soc_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
-    /*Enable power down*/
+    /* Enable power down */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) |= PLL_500_PD;
   } else {
-    /*Disable power down*/
+    /* Disable power down */
     SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
@@ -457,7 +457,7 @@ rsi_error_t clk_soc_pll_pd_enable(boolean_t en)
 rsi_error_t clk_soc_pll_turn_off(void)
 {
   uint16_t socreg1 = 0x31c9;
-  /*Set PLL PD Bit*/
+  /* Set PLL PD Bit */
   socreg1 |= PLL_500_PD;
   socreg1 |= PLL_500_RST;
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
@@ -474,7 +474,7 @@ rsi_error_t clk_soc_pll_turn_off(void)
 rsi_error_t clk_soc_pll_turn_on(void)
 {
   uint16_t socreg1 = 0x31c9;
-  /*Disable power down */
+  /* Disable power down */
   socreg1 &= (uint16_t)(~(PLL_500_RST));
   socreg1 &= (uint16_t)(~(PLL_500_PD));
   SPI_MEM_MAP_PLL(SOC_PLL_500_CTRL_REG1) = socreg1;
@@ -492,10 +492,10 @@ rsi_error_t clk_soc_pll_turn_on(void)
 rsi_error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable SoC-PLL*/
+    /* Enable SoC-PLL */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
-    /*Disable SoC-PLL*/
+    /* Disable SoC-PLL */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
@@ -512,10 +512,10 @@ rsi_error_t clk_i2s_pll_clk_enable(boolean_t clkEnable)
 rsi_error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable PLL clock*/
+    /* Enable PLL clock */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
-    /*Disable PLL clock*/
+    /* Disable PLL clock */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
@@ -532,10 +532,10 @@ rsi_error_t clk_i2s_pll_clk_bypass_enable(boolean_t clkEnable)
 rsi_error_t clk_i2s_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
-    /*Enable power down*/
+    /* Enable power down */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= PLL_500_PD;
   } else {
-    /*Disable power down*/
+    /* Disable power down */
     SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
@@ -551,7 +551,7 @@ rsi_error_t clk_i2s_pll_pd_enable(boolean_t en)
 rsi_error_t clk_i2s_pll_turn_off(void)
 {
   uint16_t i2sreg1 = 0x1244;
-  /*Set PLL PD Bit*/
+  /* Set PLL PD Bit */
   i2sreg1 |= PLL_500_PD;
   i2sreg1 |= PLL_500_RST;
   SPI_MEM_MAP_PLL(I2S_PLL_CTRL_REG1) |= i2sreg1;
@@ -605,11 +605,11 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
   }
 
   if (!((fXtal == 9600000) || (fXtal == 19200000) || (fXtal == 38400000))) {
-    fref = 1000000; /* One Mega herz steps*/
+    fref = 1000000; /* One Mega herz steps */
   } else {
-    fref = 960000; /* 0.96 Mega herz steps*/
+    fref = 960000; /* 0.96 Mega herz steps */
   }
-  /*Calculating p_div value*/
+  /* Calculating p_div value */
   g = ((float)I2S_DCO_FREQ1 / (float)i2sPllFreq);
   if (g - (float)(int)g == 0) /* checking if the value is an integer */
   {
@@ -619,8 +619,8 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
     p_div = (uint16_t)(I2S_DCO_FREQ2 / i2sPllFreq);
     Fdco  = I2S_DCO_FREQ2;
   }
-  N = (uint16_t)(fXtal / fref); /*calculating N value*/
-  /*deriving M and FCW_F value*/
+  N = (uint16_t)(fXtal / fref); /* calculating N value */
+  /* deriving M and FCW_F value */
   FCW   = (float)Fdco / (float)fref;
   M     = (uint16_t)FCW;
   frac  = (FCW - M);
@@ -628,8 +628,8 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
   if (Fdco == I2S_DCO_FREQ1) {
     FCW_F = (FCW_F + 1);
   }
-  /*deriving the p_div1 and p_div2 values from p_div value*/
-  /*From the refernce of PLL Programming table*/
+  /* deriving the p_div1 and p_div2 values from p_div value */
+  /* From the refernce of PLL Programming table */
   if (p_div >= 288) {
     u16DivFactor2 = 4;
     u16DivFactor1 = ((p_div >> 4) - 1);
@@ -646,7 +646,7 @@ rsi_error_t clk_set_i2s_pll_freq(const M4CLK_Type *pCLK, uint32_t i2sPllFreq, ui
     u16DivFactor2 = 0;
     u16DivFactor1 = (p_div - 1);
   }
-  /*RESET PLL*/
+  /* RESET PLL */
   clk_i2s_pll_clk_reset();
   i2sreg2 &= (uint16_t)~N_DIV_MASK;
   i2sreg2 |= (uint16_t)(N << 1);
@@ -761,10 +761,10 @@ rsi_error_t clk_i2s_pll_clk_reset(void)
 rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable SoC-PLL*/
+    /* Enable SoC-PLL */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_CLK_ENABLE;
   } else {
-    /*Disable SoC-PLL*/
+    /* Disable SoC-PLL */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_CLK_ENABLE));
   }
   return RSI_OK;
@@ -781,10 +781,10 @@ rsi_error_t clk_intf_pll_clk_enable(boolean_t clkEnable)
 rsi_error_t clk_intf_pll_pd_enable(boolean_t en)
 {
   if (en == Enable) {
-    /*Enable power down*/
+    /* Enable power down */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_PD;
   } else {
-    /*Disable power down*/
+    /* Disable power down */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_PD));
   }
   return RSI_OK;
@@ -800,7 +800,7 @@ rsi_error_t clk_intf_pll_pd_enable(boolean_t en)
 rsi_error_t clk_intf_pll_turn_off(void)
 {
   uint16_t intfreg1 = 0x31c9;
-  /*Set PLL PD Bit*/
+  /* Set PLL PD Bit */
   intfreg1 |= PLL_500_PD;
   /* setting the bit reset */
   intfreg1 |= PLL_500_RST;
@@ -829,7 +829,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
   uint16_t intfreg3      = 0;
   uint16_t intfPllTvRead = 0;
 
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (intfPllFreq < INTF_PLL_MIN_FREQUECY) || (intfPllFreq > INTF_PLL_MAX_FREQUECY)) {
     return INVALID_PARAMETERS;
   }
@@ -838,15 +838,15 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
 
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (intfPllFreq >= 201) {
-      /*New table*/
+      /* New table */
       /* Program PLL to 200Mhz */
       /* Call low level API with m,n,p values for 200Mhz configuration. */
       clk_intf_pll_set_freq_div(pCLK, 1, 0, 39, 199, 0, 1, 1);
       return ERROR_INVALID_INPUT_FREQUENCY;
     } else {
-      /* Derive the m,n,p values as per the newer table*/
+      /* Derive the m,n,p values as per the newer table */
       /* program PLL with derived values */
-      /* Wait for PLL lock*/
+      /* Wait for PLL lock */
       if (intfPllFreq < 2) {
         shiftFac = 7;
       } else if (intfPllFreq < 3) {
@@ -869,7 +869,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
 
       intfPllMulFac = (uint16_t)(((intfPllDivFac + 1) * intfPllFreq) - 1);
 
-      /*RESET PLL*/
+      /* RESET PLL */
       clk_intf_pll_clk_reset();
 
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
@@ -880,7 +880,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
       SPI_MEM_MAP_PLL(SOCPLLMACROREG3) = reg;
 
       intfreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
-      /*writing the value into the dco_fix_sel=1*/
+      /* writing the value into the dco_fix_sel=1 */
       intfreg1 |= 1;
 
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG2) = (uint16_t)(intfPllDivFac << 9 | (pllRefClk - 1) << 3);
@@ -888,24 +888,24 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
       intfreg1 |= (uint16_t)((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
 
-      /*Enable */
+      /* Enable */
       clk_intf_pll_clk_set(pCLK);
       /* Set and clear(read modify write) INTFPLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) |= SPI_INP_RD_EN;
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG7) &= (uint16_t)(~(SPI_INP_RD_EN));
-      /* Read the TV value from INTFPLL500CTRLREG12  BIT[15 : 11]*/
+      /* Read the TV value from INTFPLL500CTRLREG12  BIT[15 : 11] */
       intfPllTvRead = (SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG12) & 0xF800) >> 11;
 
       if (intfPllTvRead <= ((M4_BBFF_STORAGE1 & 0x03E0) >> 5)) {
-        /*New table*/
+        /* New table */
         /* Program PLL to 200Mhz */
-        /* Call low level API with m,n,p values for 200Mhz configuration.*/
+        /* Call low level API with m,n,p values for 200Mhz configuration. */
         clk_intf_pll_set_freq_div(pCLK, 1, 0, 39, 199, 0, 1, 1);
         return ERROR_INVALID_INPUT_FREQUENCY;
 
       } else {
-        /*Program the required frequency by user*/
+        /* Program the required frequency by user */
         return RSI_OK;
       }
     }
@@ -931,7 +931,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
     dcoFreq       = (uint16_t)(intfPllFreq << shiftFac);
     intfPllMulFac = (uint16_t)((intfPllFreq << shiftFac) - 1);
     intfPllDivFac = (uint16_t)((1 << shiftFac) - 1);
-    /*RESET PLL*/
+    /* RESET PLL */
     clk_intf_pll_clk_reset();
     if (intfPllFreq >= 201) {
       if ((intfPllFreq % 2) == 0) {
@@ -946,7 +946,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
     if (dcoFreq >= 251) {
 
       intfreg1 &= (uint16_t)~DCO_FIX_SEL_MASK;
-      /*writing the value into the dco_fix_sel=2*/
+      /* writing the value into the dco_fix_sel=2 */
       intfreg1 |= 2;
       reg = SPI_MEM_MAP_PLL(SOCPLLMACROREG3);
       reg = (uint16_t)(reg << 1);
@@ -988,7 +988,7 @@ rsi_error_t clk_set_intf_pll_freq(const M4CLK_Type *pCLK, uint32_t intfPllFreq, 
       intfreg1 |= (uint16_t)((intfPllMulFac << 6) | PLL_500_CLK_ENABLE); /* m factor */
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
     }
-    /*Enable */
+    /* Enable */
 
     clk_intf_pll_clk_set(pCLK);
   }
@@ -1034,7 +1034,7 @@ rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  /*RESET PLL*/
+  /* RESET PLL */
   clk_intf_pll_clk_reset();
   if ((MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) || (M4_BBFF_STORAGE1 & BIT(10))) {
     if (clk_en) {
@@ -1057,7 +1057,7 @@ rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
       intfreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1; /* soc_pll_clk o/p disable */
     }
-    /*Enable */
+    /* Enable */
     clk_intf_pll_clk_set(pCLK);
     /* Set and clear(read modify write) PLL500CTRLREG7 BIT[4] :  TV value will be latched */
 
@@ -1068,11 +1068,11 @@ rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
     intfPllTvRead = (SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG12) & 0xF800) >> 11;
 
     if ((intfPllTvRead <= ((M4_BBFF_STORAGE1 & 0x03E0) >> 5)) && (divFactor == 0)) {
-      /*RESET PLL*/
+      /* RESET PLL */
       clk_intf_pll_clk_reset();
       return ERROR_INVALID_INPUT_FREQUENCY;
     } else {
-      /*Program the required frequency by user*/
+      /* Program the required frequency by user */
       return RSI_OK;
     }
   } else {
@@ -1096,7 +1096,7 @@ rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
       intfreg1 &= (uint16_t)(~PLL_500_CLK_ENABLE);
       SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1; /* soc_pll_clk o/p disable */
     }
-    /*Enable */
+    /* Enable */
     clk_intf_pll_clk_set(pCLK);
   }
   return RSI_OK;
@@ -1113,10 +1113,10 @@ rsi_error_t clk_intf_pll_set_freq_div(const M4CLK_Type *pCLK,
 rsi_error_t clk_intf_pll_clk_bypass_enable(boolean_t clkEnable)
 {
   if (clkEnable == Enable) {
-    /*Enable PLL clock*/
+    /* Enable PLL clock */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) |= PLL_500_BYPASS;
   } else {
-    /*Disable PLL clock*/
+    /* Disable PLL clock */
     SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) &= (uint16_t)(~(PLL_500_BYPASS));
   }
   return RSI_OK;
@@ -1133,7 +1133,7 @@ rsi_error_t clk_intf_pll_turn_on()
 {
   uint16_t intfreg1 = 0x31c9;
 
-  intfreg1 &= (uint16_t)(~PLL_500_PD);  /* clearing pd  */
+  intfreg1 &= (uint16_t)(~PLL_500_PD);  /* clearing pd */
   intfreg1 &= (uint16_t)(~PLL_500_RST); /* clearing reset */
   SPI_MEM_MAP_PLL(INTF_PLL_500_CTRL_REG1) = intfreg1;
 
@@ -1375,40 +1375,40 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
                                 uint32_t divFactor)
 {
   rsi_error_t errorCode = RSI_OK;
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > QSPI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*disabling the clocks*/
+  /* disabling the clocks */
   clk_peripheral_clk_disable(pCLK, QSPI_CLK);
-  /*Select clock MUX*/
+  /* Select clock MUX */
   switch (clkSource) {
     case QSPI_ULPREFCLK:
       pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_SEL = clkSource;
       break;
 
     case QSPI_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
-      } /*Update the clock MUX*/
+      } /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_SEL = 0x01;
       break;
 
     case QSPI_MODELPLLCLK2:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, MODEM_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
       }
-      /*Update the clock MUX*/
+      /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_SEL = 0x02;
       break;
 
     case QSPI_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
@@ -1417,7 +1417,7 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
       break;
 
     case M4_SOCCLKNOSWLSYNCCLKTREEGATED:
-      /*incase of qspi in sync with soc*/
+      /* incase of qspi in sync with soc */
       pCLK->CLK_ENABLE_SET_REG3 = QSPI_M4_SOC_SYNC;
       break;
 
@@ -1426,22 +1426,22 @@ rsi_error_t clk_qspi_clk_config(M4CLK_Type *pCLK,
       break;
   }
   if (errorCode == RSI_OK) {
-    /*wait for QSPI clock switched */
+    /* wait for QSPI clock switched */
     while ((pCLK->PLL_STAT_REG_b.QSPI_CLK_SWITCHED) != true)
       ;
 
-    /*update the division factor */
+    /* update the division factor */
     pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
-    /*Specifies whether QSPI clock is in sync with Soc clock.
-	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching*/
-    /*Enable the QSPI clock*/
+    /* Specifies whether QSPI clock is in sync with Soc clock.
+	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching */
+    /* Enable the QSPI clock */
     pCLK->CLK_CONFIG_REG1_b.QSPI_CLK_SWALLOW_SEL = swalloEn ? ENABLE : DISABLE;
     pCLK->CLK_CONFIG_REG2_b.QSPI_ODD_DIV_SEL     = OddDivEn ? ENABLE : DISABLE;
   }
   clk_peripheral_clk_enable(pCLK, QSPI_CLK, ENABLE_STATIC_CLK);
   return errorCode;
 }
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 /*==============================================*/
 /**
  * @fn       rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
@@ -1466,40 +1466,40 @@ rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
 {
 
   rsi_error_t errorCode = RSI_OK;
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > QSPI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*disabling the clocks*/
+  /* disabling the clocks */
   clk_peripheral_clk_disable(pCLK, QSPI_2_CLK);
-  /*Select clock MUX*/
+  /* Select clock MUX */
   switch (clkSource) {
     case QSPI_ULPREFCLK:
       pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_SEL = 0x00;
       break;
 
     case QSPI_MODELPLLCLK2:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, MODEM_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
       }
-      /*Update the clock MUX*/
+      /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_SEL = 0x02;
       break;
 
     case QSPI_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
-      } /*Update the clock MUX*/
+      } /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_SEL = 0x01;
       break;
 
     case QSPI_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         errorCode = ERROR_CLOCK_NOT_ENABLED;
         break;
@@ -1508,7 +1508,7 @@ rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
       break;
 
     case M4_SOCCLKNOSWLSYNCCLKTREEGATED:
-      /*incase of qspi in sync with soc*/
+      /* incase of qspi in sync with soc */
       pCLK->CLK_ENABLE_SET_REG1 = QSPI_2_M4_SOC_SYNC;
       break;
 
@@ -1517,15 +1517,15 @@ rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
       break;
   }
   if (errorCode == RSI_OK) {
-    /*wait for QSPI clock switched */
+    /* wait for QSPI clock switched */
     while ((pCLK->PLL_STAT_REG_b.QSPI_2_CLK_SWITCHED) != 1)
       ;
 
-    /*update the division factor */
+    /* update the division factor */
     pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
-    /*Specifies whether QSPI clock is in sync with Soc clock.
-	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching*/
-    /*Enable the QSPI clock*/
+    /* Specifies whether QSPI clock is in sync with Soc clock.
+	  Before enabling this make sure that qspi_clk_onehot_enable is 1\92b0 to enable glitch free switching */
+    /* Enable the QSPI clock */
     if (swalloEn) {
       pCLK->CLK_CONFIG_REG6_b.QSPI_2_CLK_SWALLOW_SEL = 1;
     } else {
@@ -1553,28 +1553,28 @@ rsi_error_t clk_qspi_2_clk_config(M4CLK_Type *pCLK,
 * @param[in] clkSource : cource clock  for SSI clocks
 * @param[in] divFactor : division factor for SSI clocks
 * @return    RSI_OK on success 
-*/
+ */
 
 rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
                                    CLK_ENABLE_T clkType,
                                    SSI_MST_CLK_SRC_SEL_T clkSource,
                                    uint32_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > SSI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*Disable the clock */
+  /* Disable the clock */
   clk_peripheral_clk_disable(pCLK, SSIMST_CLK);
-  /*Master mode */
+  /* Master mode */
   switch (clkSource) {
     case SSI_ULPREFCLK:
       pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_SEL = 0x00;
       break;
 
     case SSI_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1590,7 +1590,7 @@ rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
       break;
 
     case SSI_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1612,16 +1612,16 @@ rsi_error_t clk_ssi_mst_clk_config(M4CLK_Type *pCLK,
     default:
       return INVALID_PARAMETERS;
   }
-  /*wait for clock switch */
+  /* wait for clock switch */
   while ((pCLK->PLL_STAT_REG_b.SSI_MST_SCLK_SWITCHED) != 1)
     ;
-  /*division factor */
+  /* division factor */
   pCLK->CLK_CONFIG_REG1_b.SSI_MST_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-  /*Enable the SSI clock */
+  /* Enable the SSI clock */
   clk_peripheral_clk_enable(pCLK, SSIMST_CLK, clkType);
   return RSI_OK;
 }
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
 
 /*==============================================*/
 /**
@@ -1639,16 +1639,16 @@ rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
                                   SDMEM_CLK_SRC_SEL_T clkSource,
                                   uint32_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > SDMEM_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*Disable the SDMEM clock*/
+  /* Disable the SDMEM clock */
   clk_peripheral_clk_disable(pCLK, SD_MEM_CLK);
   switch (clkSource) {
     case SDMEM_SOCPLLCLK:
-      /*Check clock is present or not before switching*/
+      /* Check clock is present or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1663,7 +1663,7 @@ rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
       break;
 
     case SDMEM_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1678,17 +1678,17 @@ rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
     default:
       return INVALID_PARAMETERS;
   }
-  /*wait for SD mem clock switch */
+  /* wait for SD mem clock switch */
   while ((pCLK->PLL_STAT_REG_b.SD_MEM_INTF_CLK_SWITCHED) != 1)
     ;
-  /*Update the division factor */
+  /* Update the division factor */
   pCLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_DIV_FAC = divFactor;
   if (swalloEn) {
     pCLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_SWALLOW_SEL = 1;
   } else {
     pCLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_SWALLOW_SEL = 0;
   }
-  /*Enable SD memory clock */
+  /* Enable SD memory clock */
   clk_peripheral_clk_enable(pCLK, SD_MEM_CLK, ENABLE_STATIC_CLK);
   return RSI_OK;
 }
@@ -1706,13 +1706,13 @@ rsi_error_t clk_sd_mem_clk_config(M4CLK_Type *pCLK,
 
 rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > CCI_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
-  /*Enable CCI clock */
+  /* Enable CCI clock */
   clk_peripheral_clk_disable(pCLK, CCI_CLK);
-  /*cci_sync_mode_enable_for_ams = 0 */
+  /* cci_sync_mode_enable_for_ams = 0 */
   MISC_CFG_MISC_CTRL &= ~CCI_SYNC_MODE;
   switch (clkSource) {
     case CCI_M4_SOC_CLK_FOR_OTHER_CLKS:
@@ -1721,7 +1721,7 @@ rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, ui
       break;
 
     case CCI_INTF_PLL_CLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1729,15 +1729,15 @@ rsi_error_t clk_cci_clk_config(M4CLK_Type *pCLK, CCI_CLK_SRC_SEL_T clkSource, ui
       break;
 
     case CCI_M4_SOC_CLK_NO_SWL_SYNC_CLK_TREE:
-      /*cci_sync_mode_enable_for_ams = 1*/
+      /* cci_sync_mode_enable_for_ams = 1 */
       MISC_CFG_MISC_CTRL |= CCI_SYNC_MODE;
       break;
     default:
       return INVALID_PARAMETERS;
   }
-  /*update the division factor */
+  /* update the division factor */
   pCLK->CLK_CONFIG_REG2_b.CCI_CLK_DIV_FAC = divFactor;
-  /*Enable the CCI clock */
+  /* Enable the CCI clock */
   clk_peripheral_clk_enable(pCLK, CCI_CLK, clkType);
   return RSI_OK;
 }
@@ -1764,7 +1764,7 @@ rsi_error_t clk_can_clk_config(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_
 
   pCLK->CLK_CONFIG_REG3_b.CAN1_CLK_DIV_FAC = divFactor;
 
-  /*Disable the clock*/
+  /* Disable the clock */
   clk_peripheral_clk_enable(pCLK, CAN_CLK, clkType);
 
   return RSI_OK;
@@ -1789,20 +1789,20 @@ rsi_error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
                                     ETHERNET_CLK_SRC_SEL_T clkSource,
                                     uint32_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > PLL_INTF_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
-  /*Disable Ethernet clock*/
+  /* Disable Ethernet clock */
   pCLK->CLK_ENABLE_CLEAR_REG2 = PLL_INTF_CLK_ENABLE;
   if (clkSource == ETH_INTF_PLL_CLK) {
-    /*Check clock is present is or not before switching*/
+    /* Check clock is present is or not before switching */
     if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
       return ERROR_CLOCK_NOT_ENABLED;
     }
     pCLK->CLK_CONFIG_REG1_b.PLL_INTF_CLK_SEL = 0;
   } else {
-    /*Check clock is present or not before switching*/
+    /* Check clock is present or not before switching */
     if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
       return ERROR_CLOCK_NOT_ENABLED;
     }
@@ -1810,7 +1810,7 @@ rsi_error_t clk_ethernet_clk_config(M4CLK_Type *pCLK,
   }
   while ((pCLK->PLL_STAT_REG_b.PLL_INTF_CLK_SWITCHED) != 1)
     ;
-  /*Update the division factor */
+  /* Update the division factor */
   pCLK->CLK_CONFIG_REG1_b.PLL_INTF_CLK_DIV_FAC = divFactor;
   if (swalloEn) {
     pCLK->CLK_CONFIG_REG1_b.PLL_INTF_CLK_SWALLOW_SEL = 1;
@@ -1861,7 +1861,7 @@ rsi_error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t
     pCLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_SWALLOW_SEL = 0;
   }
 
-  /*SDMEM division selection */
+  /* SDMEM division selection */
   pCLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_DIV_FAC = divFactor;
   return RSI_OK;
 }
@@ -1878,24 +1878,24 @@ rsi_error_t clk_sd_mem_clk_div(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t
 
 rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > USB_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
-  /*clock Disable */
+  /* clock Disable */
   pCLK->CLK_ENABLE_CLEAR_REG3 = USB_PHY_CLK_IN_ENABLE;
   switch (clkSource) {
     case USB_MEMS_REF_CLK:
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, MODEM_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
-      /*mems_ref_clk from Modem PLL*/
+      /* mems_ref_clk from Modem PLL */
       TASS_PLL_CTRL_SET_REG(AFEPLLCTRLREG1) |= MEMS_REF_CLK_ENABLE;
       pCLK->CLK_CONFIG_REG5_b.USB_CLK_SEL = 0x00;
       break;
 
     case USB_REFERENCE_CLK:
-      /*Reference clock*/
+      /* Reference clock */
       pCLK->CLK_CONFIG_REG5_b.USB_CLK_SEL = 0x01;
       break;
     case USB_PLL_CLK:
@@ -1908,9 +1908,9 @@ rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, ui
     default:
       return INVALID_PARAMETERS;
   }
-  /*Program the division factor */
+  /* Program the division factor */
   pCLK->CLK_CONFIG_REG6_b.USB_PHY_CLK_DIV_FAC = divFactor;
-  /*clock Enable */
+  /* clock Enable */
   pCLK->CLK_ENABLE_SET_REG3 = USB_PHY_CLK_IN_ENABLE;
   return RSI_OK;
 }
@@ -1929,11 +1929,11 @@ rsi_error_t clk_usb_clk_config(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, ui
 
 rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint32_t divFactor, CLK_ENABLE_T clkType)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > CT_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
-  /*Disable SCT clock*/
+  /* Disable SCT clock */
   clk_peripheral_clk_disable(pCLK, CT_CLK);
   switch (clkSource) {
     case CT_ULPREFCLK:
@@ -1941,7 +1941,7 @@ rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint
       break;
 
     case CT_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1949,7 +1949,7 @@ rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint
       break;
 
     case CT_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -1963,10 +1963,10 @@ rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint
     default:
       return INVALID_PARAMETERS;
   }
-  /*wait for SCT switched */
+  /* wait for SCT switched */
   while ((pCLK->PLL_STAT_REG_b.CT_CLK_SWITCHED) != 1)
     ;
-  /*Program the division factor */
+  /* Program the division factor */
   pCLK->CLK_CONFIG_REG5_b.CT_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   clk_peripheral_clk_enable(pCLK, CT_CLK, clkType);
   return RSI_OK;
@@ -1984,15 +1984,15 @@ rsi_error_t clk_ct_clk_config(M4CLK_Type *pCLK, CT_CLK_SRC_SEL_T clkSource, uint
 
 rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > I2S_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
-  /*Disable the I2S clock */
+  /* Disable the I2S clock */
   clk_peripheral_clk_disable(pCLK, I2SM_CLK);
   MISC_CFG_MISC_CTRL1 |= I2S_MASTER_SLAVE_MODE;
   if (clkSource == I2S_PLLCLK) {
-    /*Check clock is present is or not before switching*/
+    /* Check clock is present is or not before switching */
     if (RSI_OK != RSI_CLK_CheckPresent(pCLK, I2S_PLL_CLK_PRESENT)) {
       return ERROR_CLOCK_NOT_ENABLED;
     }
@@ -2002,12 +2002,12 @@ rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, ui
     pCLK->CLK_CONFIG_REG5_b.I2S_CLK_SEL = 1;
   }
 
-  /*Wait for I2S clock switch*/
+  /* Wait for I2S clock switch */
   while ((pCLK->PLL_STAT_REG_b.I2S_CLK_SWITCHED) != 1)
     ;
-  /*update the division factor */
+  /* update the division factor */
   pCLK->CLK_CONFIG_REG5_b.I2S_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
-  /*enable the clock*/
+  /* enable the clock */
   clk_peripheral_clk_enable(pCLK, I2SM_CLK, ENABLE_STATIC_CLK);
   return RSI_OK;
 }
@@ -2024,13 +2024,13 @@ rsi_error_t clk_i2s_clk_config(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, ui
 
 rsi_error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor >= MCU_CLKOUT_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
   clk_peripheral_clk_disable(pCLK, MCUCLKOUT_CLK);
-  /*clock out mux select */
-  /*apply division factor */
+  /* clock out mux select */
+  /* apply division factor */
   pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_DIV_FAC = (unsigned int)(divFactor & 0x3F);
   switch (clkSource) {
     case MCUCLKOUT_ULP_MHZ_RC_CLK:
@@ -2069,7 +2069,7 @@ rsi_error_t clk_mcu_clk_cut_config(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSou
       pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_SEL = 0x08;
       break;
 
-    case MCUCLKOUT_ULP_32KHZ_RO_CLK:
+    case MCUCLKOUT_ULP_32KHZ_RO_CLK: /* 32 KHz RO clock is not supported */
       ulpss_enable_ref_clks(MCU_ULP_32KHZ_RO_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       pCLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_SEL = 0x09;
       break;
@@ -2316,30 +2316,30 @@ rsi_error_t clk_xtal_clk_config(uint8_t xtalPin)
 
 rsi_error_t clk_slp_clk_config(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc)
 {
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (clkSrc > SLP_MAX_SEL)) {
     return INVALID_PARAMETERS;
   }
   switch (clkSrc) {
     case SLP_ULP_32KHZ_RC_CLK:
-      /*Enable clock*/
+      /* Enable clock */
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RC_CLK_EN_b = 1;
       pCLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL                                 = clkSrc;
       break;
     case SLP_ULP_32KHZ_XTAL_CLK:
-      /*Enable clock*/
-      /*NOTE: In order to enable the Xtal clk source need to configure the NPSS_GPIO pins
-    	which can be done through clk_xtal_clk_config(uint8_t xtalPin) API i.e we need to call that API first*/
+      /* Enable clock */
+      /* NOTE: In order to enable the Xtal clk source need to configure the NPSS_GPIO pins
+    	which can be done through clk_xtal_clk_config(uint8_t xtalPin) API i.e we need to call that API first */
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_XTAL_CLK_EN_b = 1;
       pCLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL                                   = clkSrc;
       break;
 
     case SLP_CLK_GATED:
-      /* default value i.e, clock is gated*/
+      /* default value i.e, clock is gated */
       pCLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL = clkSrc;
       break;
 
-    case SLP_ULP_32KHZ_RO_CLK:
+    case SLP_ULP_32KHZ_RO_CLK: /* 32 kHz RO clock is not supported */
       /*Enable clock*/
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RO_CLK_EN_b = 1;
       pCLK->CLK_CONFIG_REG4_b.SLEEP_CLK_SEL                                 = clkSrc;
@@ -2391,14 +2391,14 @@ rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
-  /*Disable the clocks*/
+  /* Disable the clocks */
   pCLK->CLK_CONFIG_REG1_b.GEN_SPI_MST1_SCLK_SEL = 0x07;
-  /*Without this clk enabled, div_fac and mux select for sclk cannot be programmed) */
+  /* Without this clk enabled, div_fac and mux select for sclk cannot be programmed) */
   pCLK->CLK_ENABLE_SET_REG2 = GEN_SPI_MST1_HCLK_ENABLE;
 
   switch (clkSel) {
     case GSPI_M4_SOC_CLK_FOR_OTHER_CLKS:
-      /*M4 SOC Clock for others enable*/
+      /* M4 SOC Clock for others enable */
       pCLK->CLK_ENABLE_SET_REG3                     = M4_SOC_CLK_FOR_OTHER_ENABLE;
       pCLK->CLK_CONFIG_REG1_b.GEN_SPI_MST1_SCLK_SEL = 0x00;
       break;
@@ -2408,7 +2408,7 @@ rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
       break;
 
     case GSPI_SOC_PLL_CLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -2416,7 +2416,7 @@ rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
       break;
 
     case GSPI_MODEM_PLL_CLK2:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, MODEM_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
@@ -2424,14 +2424,14 @@ rsi_error_t clk_gspi_clk_config(M4CLK_Type *pCLK, GSPI_CLK_SRC_SEL_T clkSel)
       break;
 
     case GSPI_INTF_PLL_CLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
       pCLK->CLK_CONFIG_REG1_b.GEN_SPI_MST1_SCLK_SEL = 0x04;
       break;
   }
-  /*Wait for GSPI switched */
+  /* Wait for GSPI switched */
   while ((pCLK->PLL_STAT_REG_b.GEN_SPI_MST1_SCLK_SWITCHED) != 1)
     ;
   return RSI_OK;
@@ -2454,26 +2454,26 @@ rsi_error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T e
   }
   if (enI2C == I2C1_INSTAN) {
     if (clkEnable) {
-      /*I2C 1 bus clock enable*/
+      /* I2C 1 bus clock enable */
       pCLK->CLK_ENABLE_SET_REG2 = I2C_BUS_CLK_ENABLE;
-      /*I2C clk enable */
+      /* I2C clk enable */
       pCLK->CLK_ENABLE_SET_REG3 = I2C_CLK_ENABLE;
     } else {
-      /*I2C bus clock disable*/
+      /* I2C bus clock disable */
       pCLK->CLK_ENABLE_CLEAR_REG2 = I2C_BUS_CLK_ENABLE;
-      /*I2C clk disable */
+      /* I2C clk disable */
       pCLK->CLK_ENABLE_CLEAR_REG3 = I2C_CLK_ENABLE;
     }
   } else {
     if (clkEnable) {
-      /*I2C2 bus clock enable*/
+      /* I2C2 bus clock enable */
       pCLK->CLK_ENABLE_SET_REG2 = I2C_2_BUS_CLK_ENABLE;
-      /*I2C2 clk enable */
+      /* I2C2 clk enable */
       pCLK->CLK_ENABLE_SET_REG3 = I2C_2_CLK_ENABLE;
     } else {
-      /*I2C2 bus clock disable*/
+      /* I2C2 bus clock disable */
       pCLK->CLK_ENABLE_CLEAR_REG2 = I2C_2_BUS_CLK_ENABLE;
-      /*I2C2 clk disable */
+      /* I2C2 clk disable */
       pCLK->CLK_ENABLE_CLEAR_REG3 = I2C_2_CLK_ENABLE;
     }
   }
@@ -2492,7 +2492,7 @@ rsi_error_t clk_i2c_clk_config(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T e
 
 rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType)
 {
-  /*valid parameter check*/
+  /* valid parameter check */
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
@@ -2545,7 +2545,7 @@ rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module
         pCLK->DYN_CLK_GATE_DISABLE_REG2_b.CT_PCLK_DYN_CTRL_DISABLE_b = 0;
       }
       break;
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
     case SD_MEM_CLK:
       pCLK->CLK_ENABLE_SET_REG1 = SD_MEM_INTF_CLK_ENABLE;
       break;
@@ -2561,7 +2561,7 @@ rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module
       }
       break;
     case CAN_CLK:
-      /*Enable the clock */
+      /* Enable the clock */
       pCLK->CLK_ENABLE_SET_REG2 = CAN1_CLK_ENABLE;
       pCLK->CLK_ENABLE_SET_REG3 = M4_SOC_CLK_FOR_OTHER_ENABLE;
       if (clkType == ENABLE_STATIC_CLK) {
@@ -2576,7 +2576,7 @@ rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module
       pCLK->CLK_ENABLE_SET_REG2 = (QSPI_CLK_ENABLE | QSPI_HCLK_ENABLE);
       pCLK->CLK_ENABLE_SET_REG3 = QSPI_CLK_ONEHOT_ENABLE;
       break;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
     case QSPI_2_CLK:
       pCLK->CLK_ENABLE_SET_REG1 = (QSPI_2_CLK_ENABLE | QSPI_2_HCLK_ENABLE);
       pCLK->CLK_ENABLE_SET_REG1 = QSPI_2_CLK_ONEHOT_ENABLE;
@@ -2629,7 +2629,7 @@ rsi_error_t clk_peripheral_clk_enable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module
 
 rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module)
 {
-  /*valid parameter check*/
+  /* valid parameter check */
   if (pCLK == NULL) {
     return INVALID_PARAMETERS;
   }
@@ -2667,7 +2667,7 @@ rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T modul
       pCLK->CLK_ENABLE_CLEAR_REG2 = QSPI_CLK_ENABLE;
       pCLK->CLK_ENABLE_CLEAR_REG3 = (QSPI_CLK_ONEHOT_ENABLE | QSPI_M4_SOC_SYNC);
       break;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
     case QSPI_2_CLK:
       pCLK->CLK_ENABLE_CLEAR_REG1 = QSPI_2_CLK_ENABLE;
       pCLK->CLK_ENABLE_CLEAR_REG1 = (QSPI_2_CLK_ONEHOT_ENABLE | QSPI_2_M4_SOC_SYNC);
@@ -2702,7 +2702,7 @@ rsi_error_t clk_peripheral_clk_disable(M4CLK_Type *pCLK, PERIPHERALS_CLK_T modul
       pCLK->CLK_ENABLE_CLEAR_REG1 = HWRNG_PCLK_ENABLE;
       break;
     case I2SM_CLK:
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
       pCLK->DYN_CLK_GATE_DISABLE_REG_b.I2SM_INTF_SCLK_DYN_CTRL_DISABLE_b = 1;
 #endif
       pCLK->CLK_ENABLE_CLEAR_REG2 = (I2SM_INTF_SCLK_ENABLE | I2SM_SCLK_ENABLE);
@@ -2837,15 +2837,15 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
       system_clocks.m4ss_ref_clk                      = system_clocks.mems_ref_clock;
       break;
     case ULP_20MHZ_RINGOSC_CLK:
-      /*Enable clock*/
+      /* Enable clock */
       ulpss_enable_ref_clks(MCU_ULP_20MHZ_RING_OSC_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
       system_clocks.m4ss_ref_clk                      = system_clocks.ro_20mhz_clock;
       break;
     case ULP_DOUBLER_CLK:
-      /*6: ulp_doubler_clk*/
-      /*Enable clock*/
+      /* 6: ulp_doubler_clk */
+      /* Enable clock */
       ulpss_enable_ref_clks(MCU_ULP_DOUBLER_CLK_EN, ULP_PERIPHERAL_CLK, 0);
       MCU_FSM->MCU_FSM_REF_CLK_REG_b.M4SS_REF_CLK_SEL = clkSource;
       system_clocks.m4_ref_clock_source               = clkSource;
@@ -2854,7 +2854,7 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
     default:
       return INVALID_PARAMETERS;
   }
-  /*wait for clock switched*/
+  /* wait for clock switched */
   while ((pCLK->PLL_STAT_REG_b.ULP_REF_CLK_SWITCHED) != true)
     ;
   return RSI_OK;
@@ -2870,10 +2870,10 @@ rsi_error_t clk_m4ss_ref_clk_config(const M4CLK_Type *pCLK, M4SS_REF_CLK_SEL_T c
 
 rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
 {
-  /*Select clock source*/
+  /* Select clock source */
   switch (clk_type) {
     case MCU_ULP_40MHZ_CLK_EN:
-      /*Cleaners are disabled */
+      /* Cleaners are disabled */
       *(volatile uint32_t *)0x2404811C |= (BIT(7) | BIT(23));
       *(volatile uint32_t *)0x2404811C &= ~(BIT(8) | BIT(24)); /////// API with XTAL Clock disabled ///////
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_40MHZ_CLK_EN_b = 0;
@@ -2894,7 +2894,7 @@ rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
     case MCU_ULP_32KHZ_XTAL_CLK_EN:
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_XTAL_CLK_EN_b = 0;
       break;
-    case MCU_ULP_32KHZ_RO_CLK_EN:
+    case MCU_ULP_32KHZ_RO_CLK_EN: /* 32 KHz RO clock is not supported */
       MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RO_CLK_EN_b = 0;
       break;
 
@@ -2917,60 +2917,60 @@ rsi_error_t ulpss_disable_ref_clks(REF_CLK_ENABLE_T clk_type)
 
 rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSource, uint32_t divFactor)
 {
-  /*check valid parameters*/
+  /* check valid parameters */
   if ((pCLK == NULL) || (divFactor >= SOC_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*Added for MCU 100 MHz variant mode setting
-	 * Clock will be max/2 in this mode*/
+  /* Added for MCU 100 MHz variant mode setting
+	 * Clock will be max/2 in this mode */
   if (MCU_RET->CHIP_CONFIG_MCU_READ_b.LIMIT_M4_FREQ_110MHZ_b == 1) {
     divFactor = divFactor / 2;
   }
-  /*Selects one of the clock sources for M4 SoC clock*/
+  /* Selects one of the clock sources for M4 SoC clock */
   switch (clkSource) {
     case M4_ULPREFCLK:
-      /*Update the clock MUX*/
+      /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.m4ss_ref_clk;
       break;
 
     case M4_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
-      /*Update the clock MUX*/
+      /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.soc_pll_clock;
       break;
 
     case M4_MODEMPLLCLK1:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, MODEM_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
-      /*Update the clock MUX*/
+      /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.modem_pll_clock;
       break;
 
     case M4_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
-      } /*Update the clock MUX*/
+      } /* Update the clock MUX */
       pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       SystemCoreClock                        = system_clocks.intf_pll_clock;
       break;
 
     case M4_SLEEPCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (ULPCLK->M4LP_CTRL_REG_b.ULP_M4_CORE_CLK_ENABLE_b == 1) {
-        /*Update the clock MUX*/
+        /* Update the clock MUX */
         pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_SEL = clkSource;
       } else {
-        /*If clock is not presented return the error */
+        /* If clock is not presented return the error */
         return ERROR_CLOCK_NOT_ENABLED;
       }
       SystemCoreClock = system_clocks.sleep_clock;
@@ -2978,10 +2978,10 @@ rsi_error_t clk_m4_soc_clk_config(M4CLK_Type *pCLK, M4_SOC_CLK_SRC_SEL_T clkSour
     default:
       return INVALID_PARAMETERS;
   }
-  /*wait for clock switched*/
+  /* wait for clock switched */
   while ((pCLK->PLL_STAT_REG_b.M4_SOC_CLK_SWITCHED) != 1)
     ;
-  /*update the division factor */
+  /* update the division factor */
   pCLK->CLK_CONFIG_REG5_b.M4_SOC_CLK_DIV_FAC = (unsigned int)(divFactor & 0x3F);
 
   if (divFactor) {
@@ -3019,42 +3019,42 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
                                  uint32_t divFactor)
 {
 
-  /*Parameter validation */
+  /* Parameter validation */
   if ((pCLK == NULL) || (divFactor > USART_MAX_CLK_DIVISION_FACTOR)) {
     return INVALID_PARAMETERS;
   }
 
-  /*Disable the USART clock*/
+  /* Disable the USART clock */
   if (enUsart == USART1) {
     RSI_CLK_PeripheralClkDisable(pCLK, USART1_CLK);
   } else {
     RSI_CLK_PeripheralClkDisable(pCLK, USART2_CLK);
   }
-  /*Select clock MUX*/
+  /* Select clock MUX */
   switch (clkSource) {
     case USART_ULPREFCLK:
       if (enUsart == USART1) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_SEL = 0x00;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
         } else {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 1;
         }
       } else if (enUsart == USART2) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_SEL = 0x00;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
-        /*fractional clock divider select */
-        /*Update the division factor */
+        /* fractional clock divider select */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
 
         if (FracDivEn) {
@@ -3070,27 +3070,27 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
         return ERROR_CLOCK_NOT_ENABLED;
       }
       if (enUsart == USART1) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_SEL = 0x02;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
         } else {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 1;
         }
       } else if (enUsart == USART2) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_SEL = 0x02;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
-        /*fractional clock divider select */
-        /*Update the division factor */
+        /* fractional clock divider select */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
@@ -3101,18 +3101,18 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
       break;
 
     case USART_INTFPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
       if (enUsart == USART1) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_SEL = 0x03;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
-        /*fractional clock divider select */
-        /*Update the division factor */
+        /* fractional clock divider select */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
@@ -3120,15 +3120,15 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 1;
         }
       } else if (enUsart == USART2) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_SEL = 0x03;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
 
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
         } else {
@@ -3138,33 +3138,33 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
       break;
 
     case USART_SOCPLLCLK:
-      /*Check clock is present is or not before switching*/
+      /* Check clock is present is or not before switching */
       if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
         return ERROR_CLOCK_NOT_ENABLED;
       }
       if (enUsart == USART1) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_SEL = 0x01;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
         } else {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 1;
         }
       } else if (enUsart == USART2) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_SEL = 0x01;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
         } else {
@@ -3176,30 +3176,30 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
     case M4_SOCCLKFOROTHERCLOCKS:
 
       if (enUsart == USART1) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_SEL = 0x04;
         pCLK->CLK_ENABLE_SET_REG3               = M4_SOC_CLK_FOR_OTHER_ENABLE;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART1_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 0;
         } else {
           pCLK->CLK_CONFIG_REG2_b.USART1_SCLK_FRAC_SEL = 1;
         }
       } else if (enUsart == USART2) {
-        /*select the MUX for the USART 1*/
+        /* select the MUX for the USART 1 */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_SEL = 0x04;
         pCLK->CLK_ENABLE_SET_REG3               = M4_SOC_CLK_FOR_OTHER_ENABLE;
-        /*Wait for the clock MUX switch status */
+        /* Wait for the clock MUX switch status */
         while ((pCLK->PLL_STAT_REG_b.USART2_SCLK_SWITCHED) != 1)
           ;
-        /*Update the division factor */
+        /* Update the division factor */
         pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_DIV_FAC = (unsigned int)(divFactor & 0x0F);
-        /*fractional clock divider select */
+        /* fractional clock divider select */
         if (FracDivEn) {
           pCLK->CLK_CONFIG_REG2_b.USART2_SCLK_FRAC_SEL = 0;
         } else {
@@ -3210,7 +3210,7 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
     default:
       return INVALID_PARAMETERS;
   }
-  /*Enable USART clock */
+  /* Enable USART clock */
   if (enUsart == USART1) {
     RSI_CLK_PeripheralClkEnable(pCLK, USART1_CLK, clkType);
   } else {
@@ -3228,115 +3228,90 @@ rsi_error_t clk_usart_clk_config(M4CLK_Type *pCLK,
 * @param[in]  srcType : source type
 * @param[in]  delayFn : delay function
 * @return     RSI_OK on success
-*/
+ */
 
 rsi_error_t ulpss_enable_ref_clks(REF_CLK_ENABLE_T enable, SRC_TYPE_T srcType, cdDelay delayFn)
 {
-  /*Select clock source*/
+  /* Select clock source */
   switch (enable) {
     case MCU_ULP_40MHZ_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_40MHZ_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*Enable the clock source */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_40MHZ_CLK_EN_b = 1;
-      }
-      /*Wait for the time out only in case of ULP processor clock configuration */
+      /* Enable the clock source */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_40MHZ_CLK_EN_b = 1;
+
+      /* Wait for the time out only in case of ULP processor clock configuration */
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_40MHZ_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /*wait for clock source is enabled */
+        _usdelay(MCU_ULP_40MHZ_CLK_EN_TURN_ON_DELAY, delayFn);
       }
-      /*Cleaners are Enabled */
+      /* Cleaners are Enabled */
       *(volatile uint32_t *)0x2404811C &= ~(BIT(7) | BIT(23)); /////// API with XTAL Clock disabled ///////
       *(volatile uint32_t *)0x2404811C |= (BIT(8) | BIT(24));  /////// API with XTAL Clock disabled ///////
       break;
+
     case MCU_ULP_DOUBLER_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_DOUBLER_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*NOTE : 320Mhz RC is interdependent on Doubler clock*/
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_20MHZ_RING_OSC_CLK_EN_b = 1;
-        /*Enable the clock source */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_DOUBLER_CLK_EN_b = 1;
-      }
+      /* NOTE: 20MHz RC is interdependent on Doubler clock */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_20MHZ_RING_OSC_CLK_EN_b = 1;
+      /* Enable the clock source */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_DOUBLER_CLK_EN_b = 1;
+
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_DOUBLER_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /* wait for clock source is enabled */
+        _usdelay(MCU_ULP_DOUBLER_CLK_EN_TURN_ON_DELAY, delayFn);
       }
       break;
 
     case MCU_ULP_20MHZ_RING_OSC_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_20MHZ_RING_OSC_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*Enable the clock source */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_20MHZ_RING_OSC_CLK_EN_b = 1;
-      }
+      /* Enable the clock source */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_20MHZ_RING_OSC_CLK_EN_b = 1;
+
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_20MHZ_RING_OSC_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /* wait for clock source is enabled */
+        _usdelay(MCU_ULP_20MHZ_RING_OSC_CLK_EN_TURN_ON_DELAY, delayFn);
       }
       break;
+
     case MCU_ULP_MHZ_RC_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_MHZ_RC_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*Enable the clock*/
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_MHZ_RC_CLK_EN_b = 1;
-      }
+      /* Enable the clock */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_MHZ_RC_CLK_EN_b = 1;
+
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_MHZ_RC_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /* wait for clock source is enabled */
+        _usdelay(MCU_ULP_MHZ_RC_CLK_EN_TURN_ON_DELAY, delayFn);
       }
       break;
+
     case MCU_ULP_32KHZ_XTAL_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_XTAL_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /* Program the IPMU structure */
+      /* Program the IPMU structure */
 
-        /* Enable the clock source from NPSS */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_XTAL_CLK_EN_b = 1;
+      /* Enable the clock source from NPSS */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_XTAL_CLK_EN_b = 1;
 
-        /*Wait for 0.5 sec delay*/
-        _usdelay(MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_1, delayFn);
+      /* Wait for 0.5 sec delay */
+      _usdelay(MCU_ULP_32KHZ_XTAL_CLK_EN_TURN_ON_DELAY_1, delayFn);
 
-        /* Program the IPMU structure */
+      /* Program the IPMU structure */
 
-        /* Wait for clock source to be enabled for 1.5 seconds */
-        _usdelay(MCU_ULP_32KHZ_XTAL_CLK_EN_TRUN_ON_DELAY_2, delayFn);
-      }
+      /* Wait for clock source to be enabled for 1.5 seconds */
+      _usdelay(MCU_ULP_32KHZ_XTAL_CLK_EN_TURN_ON_DELAY_2, delayFn);
       break;
 
     case MCU_ULP_32KHZ_RO_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RO_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*Enable the clock source */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RO_CLK_EN_b = 1;
-      }
+      /* Enable the clock source */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RO_CLK_EN_b = 1;
+
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_32KHZ_RO_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /* wait for clock source is enabled */
+        _usdelay(MCU_ULP_32KHZ_RO_CLK_EN_TURN_ON_DELAY, delayFn);
       }
       break;
+
     case MCU_ULP_32KHZ_RC_CLK_EN:
-      if (MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RC_CLK_EN_b == 1) {
-        /*Clock is enabled by default*/
-        /*Do Nothing*/
-      } else {
-        /*Enable the clock source */
-        MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RC_CLK_EN_b = 1;
-      }
+      /* Enable the clock source */
+      MCU_FSM->MCU_FSM_CLK_ENS_AND_FIRST_BOOTUP_b.MCU_ULP_32KHZ_RC_CLK_EN_b = 1;
+
       if (srcType == ULP_PROCESSOR_CLK) {
-        /*wait for clock source is enabled*/
-        _usdelay(MCU_ULP_32KHZ_RC_CLK_EN_TRUN_ON_DELAY, delayFn);
+        /* wait for clock source is enabled */
+        _usdelay(MCU_ULP_32KHZ_RC_CLK_EN_TURN_ON_DELAY, delayFn);
       }
       break;
   }

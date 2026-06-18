@@ -36,18 +36,33 @@
 #include "sl_rsi_utility.h"
 #include "cmsis_os2.h"
 #include "cmsis_compiler.h"
+#include "sl_cmsis_utility.h"
 #include "sl_si91x_core_utilities.h"
+#include "sl_core.h"
 #include <string.h>
+#include "sli_wifi_constants.h"
+#include "sli_wifi_power_profile.h"
+#include "sl_utility.h"
+#include "sl_log_helper_si91x.h"
+
+#include <furi.h>
+
+#define TAG "SL_LOG"
+
 #ifdef SL_NET_COMPONENT_INCLUDED
 #include "sl_net_types.h"
 #include "sl_net_constants.h"
 #include "sl_net_wifi_types.h"
 #include "sli_net_types.h"
 #include "sl_net.h"
+#include "sli_net_constants.h"
 #endif
+
+#include "sli_wifi_utility.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_m4.h"
 #endif
+
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
 #include "sl_si91x_socket_types.h"
 #include "sl_si91x_socket_utility.h"
@@ -66,7 +81,7 @@
 #include "rsi_bt_common.h"
 #endif
 
-extern osMessageQueueId_t network_manager_queue;
+extern osMessageQueueId_t sli_network_manager_request_queue;
 #define BUS_THREAD_EVENTS \
   (SL_SI91X_ALL_TX_PENDING_COMMAND_EVENTS | SL_SI91X_NCP_HOST_BUS_RX_EVENT | SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT)
 
@@ -75,8 +90,14 @@ extern osMessageQueueId_t network_manager_queue;
  */
 #define SL_SI91X_NOTIFICATION_FLAG(x) (1 << (x))
 
+// Indicates asynchronous notification for command engine status events
+#define SLI_SI91X_NCP_HOST_COMMAND_ENGINE_STATUS_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SI91X_CMD_MAX + 1)
+
+// Indicates asynchronous RX response received for common command type
+#define NCP_HOST_COMMON_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SLI_WIFI_COMMON_CMD)
+
 // Indicates asynchronous RX response received for WLAN command type
-#define NCP_HOST_WLAN_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SLI_SI91X_WLAN_CMD)
+#define NCP_HOST_WLAN_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SLI_WIFI_WLAN_CMD)
 
 // Indicates asynchronous RX response received for NETWORK command type
 #define NCP_HOST_NETWORK_NOTIFICATION_EVENT SL_SI91X_NOTIFICATION_FLAG(SLI_SI91X_NETWORK_CMD)
@@ -101,6 +122,7 @@ extern osMessageQueueId_t network_manager_queue;
  ******************************************************/
 
 extern osEventFlagsId_t si91x_async_events;
+extern osMessageQueueId_t sli_command_engine_status_msg_queue;
 
 volatile uint32_t tx_command_queues_status             = 0;
 volatile uint32_t tx_socket_command_queues_status      = 0;
@@ -111,11 +133,11 @@ volatile uint32_t tx_command_queues_command_in_flight_status       = 0;
 volatile uint8_t tx_socket_command_command_in_flight_queues_status = 0;
 
 #if SLI_SI91X_MCU_INTERFACE
-extern sli_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
+extern sli_wifi_buffer_queue_t sli_ahb_bus_rx_queue;
 #endif
 
 #if SL_NCP_UART_INTERFACE
-extern sli_si91x_buffer_queue_t sli_uart_bus_rx_queue;
+extern sli_wifi_buffer_queue_t sli_uart_bus_rx_queue;
 #endif
 
 static uint16_t interrupt_status = 0;
@@ -182,8 +204,8 @@ extern bool bg_enabled;
 // Declaration of the SI91x event handler function
 extern sl_wifi_event_handler_t si91x_event_handler;
 
-extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
-extern sli_si91x_buffer_queue_t sli_tx_data_queue;
+extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
+extern sli_wifi_buffer_queue_t sli_tx_data_queue;
 
 sl_status_t sli_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **queue_packet,
                                                      sl_wifi_buffer_t **packet_buffer,
@@ -201,7 +223,7 @@ extern void sli_si91x_config_m4_dma_desc_on_reset(void);
  *               Function Declarations
  ******************************************************/
 
-void sli_submit_rx_buffer(void);
+sl_status_t sli_submit_rx_buffer(void);
 
 static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event);
 
@@ -219,10 +241,10 @@ static void sli_handle_and_queue_wlan_response(sli_si91x_queue_packet_t *node,
 void unmask_ta_interrupt(uint32_t interrupt_no);
 #endif
 
-static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue);
+static sl_status_t bus_write_data_frame(sli_wifi_buffer_queue_t *queue);
 
-static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
-                                   sli_si91x_command_type_t command_type,
+static sl_status_t bus_write_frame(sli_wifi_command_queue_t *queue,
+                                   sli_wifi_command_type_t command_type,
                                    sl_wifi_buffer_type_t buffer_type,
                                    bool *global_queue_block);
 
@@ -235,10 +257,12 @@ static sli_si91x_socket_t *get_socket_from_packet(sl_wifi_system_packet_t *socke
 #endif
 
 static bool sli_si91x_is_bus_ready(bool global_queue_block, uint8_t packet_type);
+void sli_si91x_process_common_events();
 void sli_si91x_process_wifi_events();
 void sli_si91x_process_network_events();
 void sli_si91x_process_socket_events();
 void sli_si91x_process_socket_data_events();
+void sli_si91x_process_command_engine_status_events();
 #ifdef SLI_SI91X_ENABLE_BLE
 void sli_si91x_process_ble_events();
 #endif
@@ -246,8 +270,8 @@ void sli_si91x_process_ble_events();
 /******************************************************
  *             Static Function Definitions
  ******************************************************/
-static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
-                                   sli_si91x_command_type_t command_type,
+static sl_status_t bus_write_frame(sli_wifi_command_queue_t *queue,
+                                   sli_wifi_command_type_t command_type,
                                    sl_wifi_buffer_type_t buffer_type,
                                    bool *global_queue_block)
 {
@@ -258,10 +282,12 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
   sl_wifi_system_packet_t *packet;
   sli_si91x_queue_packet_t *node = NULL;
 
+  // Wake up the device if not in high performance mode
   if ((current_performance_profile != HIGH_PERFORMANCE) && (sli_si91x_req_wakeup() != SL_STATUS_OK)) {
     return SL_STATUS_TIMEOUT;
   }
 
+  // Remove a buffer from the TX queue
   status = sli_si91x_remove_from_queue(&queue->tx_queue, &buffer);
   if (status != SL_STATUS_OK) {
     if (current_performance_profile != HIGH_PERFORMANCE) {
@@ -270,8 +296,9 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
     VERIFY_STATUS_AND_RETURN(status);
   }
 
-  node            = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
-  packet          = sl_si91x_host_get_buffer_data(node->host_packet, 0, NULL);
+  // Get the node and packet from the buffer
+  node            = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+  packet          = sli_wifi_host_get_buffer_data(node->host_packet, 0, NULL);
   uint16_t length = packet->length;
 
   // Modify the packet's descriptor to include the firmware queue ID in the length field
@@ -279,11 +306,11 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
 
   if (packet->command) {
     // Set the global_queue_block flag if it is present in the packet's flags
-    if (SI91X_PACKET_GLOBAL_QUEUE_BLOCK & node->flags) {
+    if (SLI_WIFI_PACKET_GLOBAL_QUEUE_BLOCK & node->flags) {
       *global_queue_block = true;
     }
 
-    if (SI91X_PACKET_WITH_ASYNC_RESPONSE != (node->flags & SI91X_PACKET_WITH_ASYNC_RESPONSE)) {
+    if (SLI_WIFI_PACKET_WITH_ASYNC_RESPONSE != (node->flags & SLI_WIFI_PACKET_WITH_ASYNC_RESPONSE)) {
       // Update trace information with packet details
       // If the packet doesn't have an async response, mark the command as in flight
       queue->command_in_flight = true;
@@ -297,53 +324,86 @@ static sl_status_t bus_write_frame(sli_si91x_command_queue_t *queue,
     }
   }
 #ifdef SLI_SI91X_MCU_INTERFACE
+  // Set flash command status for certain commands
   if ((packet->command == SLI_COMMON_RSP_TA_M4_COMMANDS) || (packet->command == SLI_WLAN_REQ_SET_CERTIFICATE)
       || (packet->command == SLI_COMMON_RSP_SOFT_RESET)) {
-    // set flag
     sli_si91x_update_flash_command_status(true);
   }
   sli_si91x_update_tx_command_status(true);
 #endif
+
   // Write the frame to the bus using packet data and length
   status = sli_si91x_bus_write_frame(packet, packet->data, length);
 
 #ifdef SLI_SI91X_MCU_INTERFACE
-  if (packet->desc[2] == SLI_COMMON_REQ_SOFT_RESET) {
-    sli_si91x_config_m4_dma_desc_on_reset();
-  }
   sli_si91x_update_tx_command_status(false);
 #endif
 
   // Handle errors during frame writing
   if (status != SL_STATUS_OK) {
-    SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");
-    BREAKPOINT();
+    SL_PRINT_STRING_ERROR("\r\n BUS_WRITE_ERROR \r\n");
+    node->frame_status = SL_STATUS_BUS_ERROR;
+#ifdef SLI_SI91X_ENABLE_BLE
+    // Notify BLE stack that transmission is done
+    if (command_type == SLI_SI91X_BT_CMD) {
+      rsi_bt_common_tx_done(packet, status);
+    }
+#endif
+    // Flush the current packet
+    sli_flush_tx_packet(queue, buffer, node, SL_STATUS_BUS_ERROR, node->event_mask);
+    sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_BUS_ERROR);
+  } else {
+#ifdef SLI_SI91X_MCU_INTERFACE
+    // Reconfigure DMA descriptors on soft reset
+    if (packet->desc[2] == SLI_COMMON_REQ_SOFT_RESET) {
+      sli_si91x_config_m4_dma_desc_on_reset();
+    }
+#endif
+    FURI_LOG_D(TAG, "<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u",
+                          node->firmware_queue_id,
+                          packet->command,
+                          length);
+    if (packet->command) {
+      // Set the global_queue_block flag if it is present in the packet's flags
+      if (SI91X_PACKET_GLOBAL_QUEUE_BLOCK & node->flags) {
+        *global_queue_block = true;
+      }
+
+      // If the packet type is not async response, note down the command as in flight and other details
+      if (SI91X_PACKET_WITH_ASYNC_RESPONSE != (node->flags & SI91X_PACKET_WITH_ASYNC_RESPONSE)) {
+        queue->command_in_flight = true;
+        queue->packet_id         = node->host_packet->id;
+        queue->firmware_queue_id = node->firmware_queue_id;
+        queue->frame_type        = packet->command;
+        queue->flags             = node->flags;
+        queue->command_timeout   = node->command_timeout;
+        queue->command_tickcount = node->command_tickcount;
+        queue->sdk_context       = node->sdk_context;
+        queue->event_mask        = node->event_mask;
+      }
+    }
+    queue->tx_counter++;
+
+#ifdef SLI_SI91X_ENABLE_BLE
+    // Notify BLE stack that transmission is done
+    if (command_type == SLI_SI91X_BT_CMD) {
+      rsi_bt_common_tx_done(packet, status);
+    }
+#endif
+    // Free the host packet and buffer after successful transmission
+    sli_si91x_host_free_buffer(node->host_packet);
+    sli_si91x_host_free_buffer(buffer);
   }
 
-  SL_DEBUG_LOG("<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u\n",
-               node->firmware_queue_id,
-               packet->command,
-               length);
-
+  // Clear the sleep indicator if the current performance profile is not high performance
   if (current_performance_profile != HIGH_PERFORMANCE) {
     sl_si91x_host_clear_sleep_indicator();
   }
-
-#ifdef SLI_SI91X_ENABLE_BLE
-  if (command_type == SLI_SI91X_BT_CMD) {
-    rsi_bt_common_tx_done(packet);
-  }
-#endif
-
-  sli_si91x_host_free_buffer(node->host_packet);
-  sli_si91x_host_free_buffer(buffer);
-
-  queue->tx_counter++;
-  return SL_STATUS_OK;
+  return status;
 }
 
 // This function is called for writing data
-static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
+static sl_status_t bus_write_data_frame(sli_wifi_buffer_queue_t *queue)
 {
   sl_status_t status;
   sl_wifi_buffer_t *buffer;
@@ -361,7 +421,7 @@ static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
     VERIFY_STATUS_AND_RETURN(status);
   }
 
-  packet          = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet          = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   uint16_t length = packet->length;
 
   // Modify the packet's descriptor to include the firmware queue ID in the length field
@@ -374,24 +434,24 @@ static sl_status_t bus_write_data_frame(sli_si91x_buffer_queue_t *queue)
   // Write the frame to the bus using packet data and length
   status = sli_si91x_bus_write_frame(packet, packet->data, length);
 
-  // Handle errors during frame writing
-  if (status != SL_STATUS_OK) {
-    SL_DEBUG_LOG("\r\n BUS_WRITE_ERROR \r\n");
-    BREAKPOINT();
-  }
-
 #ifdef SLI_SI91X_MCU_INTERFACE
   sli_si91x_update_tx_command_status(false);
 #endif
 
-  SL_DEBUG_LOG("<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u\n", 5, 0, length);
+  // Handle errors during frame writing
+  if (status != SL_STATUS_OK) {
+    SL_PRINT_STRING_ERROR("\r\n BUS_WRITE_ERROR \r\n");
+    sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_BUS_ERROR);
+  } else {
+    FURI_LOG_D(TAG, "<>>>> Tx -> queueId : %u, frameId : 0x%x, length : %u", 5, 0, length);
+  }
 
   if (current_performance_profile != HIGH_PERFORMANCE) {
     sl_si91x_host_clear_sleep_indicator();
   }
 
   sli_si91x_host_free_buffer(buffer);
-  return SL_STATUS_OK;
+  return status;
 }
 
 static void set_async_event(uint32_t event_mask)
@@ -489,7 +549,7 @@ static void sli_handle_dhcp_and_rejoin_failure(void *sdk_context,
   sli_si91x_queue_packet_t *node;
 
   // Retrieve the packet data from the response buffer
-  sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(response_buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(response_buffer, 0, NULL);
 
   // Create a generic RX packet from the parameters
   status = sli_create_generic_rx_packet_from_params(&node, &temp_buffer, 0, 0, NULL, frame_status);
@@ -510,7 +570,7 @@ static void sli_handle_dhcp_and_rejoin_failure(void *sdk_context,
   }
 
   // Get the dummy packet data from the allocated buffer
-  sl_wifi_system_packet_t *dummy_packet = sl_si91x_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
+  sl_wifi_system_packet_t *dummy_packet = sli_wifi_host_get_buffer_data(dummy_packet_buffer, 0, NULL);
   node->host_packet                     = dummy_packet_buffer; // Link dummy packet to the node
   node->sdk_context                     = sdk_context;
 
@@ -530,25 +590,25 @@ static void sli_handle_and_queue_wlan_response(sli_si91x_queue_packet_t *node,
     return;
   }
   node->firmware_queue_id = SLI_WLAN_MGMT_Q;
-  node->command_type      = SLI_SI91X_WLAN_CMD;
-  node->sdk_context       = cmd_queues[SLI_SI91X_WLAN_CMD].sdk_context;
-  node->flags             = cmd_queues[SLI_SI91X_WLAN_CMD].flags;
-  buffer->id              = (uint8_t)cmd_queues[SLI_SI91X_WLAN_CMD].packet_id;
-  packet->id              = (uint8_t)cmd_queues[SLI_SI91X_WLAN_CMD].packet_id;
+  node->command_type      = SLI_WIFI_WLAN_CMD;
+  node->sdk_context       = cmd_queues[SLI_WIFI_WLAN_CMD].sdk_context;
+  node->flags             = cmd_queues[SLI_WIFI_WLAN_CMD].flags;
+  buffer->id              = (uint8_t)cmd_queues[SLI_WIFI_WLAN_CMD].packet_id;
+  packet->id              = (uint8_t)cmd_queues[SLI_WIFI_WLAN_CMD].packet_id;
   node->host_packet       = NULL;
 
-  if (sl_si91x_host_elapsed_time(cmd_queues[SLI_SI91X_WLAN_CMD].command_tickcount)
-      <= (cmd_queues[SLI_SI91X_WLAN_CMD].command_timeout)) {
+  if (sl_si91x_host_elapsed_time(cmd_queues[SLI_WIFI_WLAN_CMD].command_tickcount)
+      <= (cmd_queues[SLI_WIFI_WLAN_CMD].command_timeout)) {
     // Add the response packet to the WLAN response queue and set the WLAN response event
-    sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].rx_queue, packet);
-    sli_si91x_set_event(NCP_HOST_WLAN_RESPONSE_EVENT);
+    sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].rx_queue, packet);
+    sli_wifi_set_event(NCP_HOST_WLAN_RESPONSE_EVENT);
   } else {
     // no user thread is waiting for the response so flush the packet and buffer
     sli_si91x_host_free_buffer(packet);
   }
 
-  cmd_queues[SLI_SI91X_WLAN_CMD].command_tickcount = 0;
-  cmd_queues[SLI_SI91X_WLAN_CMD].command_timeout   = 0;
+  cmd_queues[SLI_WIFI_WLAN_CMD].command_tickcount = 0;
+  cmd_queues[SLI_WIFI_WLAN_CMD].command_timeout   = 0;
 }
 
 static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
@@ -590,7 +650,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
       *event &= ~SL_SI91X_NCP_HOST_BUS_RX_EVENT; // Reset the event flag
     }
 
-    data = (uint8_t *)sl_si91x_host_get_buffer_data(buffer, 0, &length);
+    data = (uint8_t *)sli_wifi_host_get_buffer_data(buffer, 0, &length);
     // Process the frame
     queue_id     = ((data[1] & 0xF0) >> 4);                // Extract the queue ID
     frame_type   = (uint16_t)(data[2] + (data[3] << 8));   // Extract the frame type
@@ -604,11 +664,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 #endif
 
     const sl_wifi_system_packet_t *response = (const sl_wifi_system_packet_t *)data;
-    SL_DEBUG_LOG("><<<< Rx -> queueId : %u, frameId : 0x%x, frameStatus: 0x%x, length : %u\n",
-                 queue_id,
-                 frame_type,
-                 frame_status,
-                 (response->length & (~(0xF000))));
+    FURI_LOG_D(TAG, "><<<< Rx -> queueId : %u, frameId : 0x%x, frameStatus: 0x%x, length : %u", queue_id, frame_type,frame_status, (response->length & (~(0xF000))));
 
     switch (queue_id) {
       case SLI_WLAN_MGMT_Q: {
@@ -616,12 +672,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         data[1] &= 0xF;
         switch (frame_type) {
           // Handle different frame types within the WLAN management queue
-          case SLI_COMMON_RSP_OPERMODE:
+          case SLI_WIFI_RSP_OPERMODE:
           case SLI_COMMON_RSP_SOFT_RESET:
           case SLI_COMMON_RSP_PWRMODE: {
-            if (frame_type == cmd_queues[SI91X_COMMON_CMD].frame_type) {
+            if (frame_type == cmd_queues[SLI_WIFI_COMMON_CMD].frame_type) {
               if ((SLI_COMMON_RSP_PWRMODE == frame_type) && (frame_status == SL_STATUS_OK)) {
-                sli_get_wifi_current_performance_profile(&current_power_profile_mode);
+                sli_wifi_get_current_performance_profile(&current_power_profile_mode);
                 current_performance_profile = current_power_profile_mode.profile;
               }
               if (current_performance_profile != HIGH_PERFORMANCE) {
@@ -635,7 +691,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             __attribute__((fallthrough));
           case SLI_COMMON_RSP_GET_EFUSE_DATA:
           case SLI_COMMON_RSP_GET_RAM_DUMP:
-          case SLI_COMMON_RSP_ANTENNA_SELECT:
+          case SLI_WIFI_RSP_ANTENNA_SELECT:
           case SLI_COMMON_RSP_ENCRYPT_CRYPTO:
           case SLI_SI91X_FW_FALLBACK_RSP_FROM_HOST:
 #ifdef SLI_PUF_ENABLE
@@ -658,95 +714,104 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_COMMON_RSP_SET_CONFIG:
           case SLI_COMMON_RSP_GET_CONFIG:
           case SLI_COMMON_RSP_DEBUG_LOG:
-          case SLI_COMMON_RSP_FEATURE_FRAME: {
-            ++cmd_queues[SI91X_COMMON_CMD].rx_counter; // Increment the received counter for common commands
+          case SLI_COMMON_RSP_FEATURE_FRAME:
+          case SLI_COMMON_RSP_NWP_LOGGING: {
+            ++cmd_queues[SLI_WIFI_COMMON_CMD].rx_counter; // Increment the received counter for common commands
 
             // Check if this command is expected to have a response status
-            if (((cmd_queues[SI91X_COMMON_CMD].flags & SI91X_PACKET_RESPONSE_STATUS) == SI91X_PACKET_RESPONSE_STATUS)
-                && (cmd_queues[SI91X_COMMON_CMD].frame_type == frame_type)) {
+            if (((cmd_queues[SLI_WIFI_COMMON_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
+                && (cmd_queues[SLI_WIFI_COMMON_CMD].frame_type == frame_type)) {
               // Allocate a packet to store the response
               status = sli_si91x_host_allocate_buffer(&packet,
                                                       SL_WIFI_RX_FRAME_BUFFER,
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
-              node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+              node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
+
+              // Store packet ID before conditional to avoid use-after-free
+              uint8_t pkt_id = (uint8_t)cmd_queues[SLI_WIFI_COMMON_CMD].packet_id;
 
               // Depending on the configuration, attach the original buffer or not
-              if (SI91X_PACKET_RESPONSE_PACKET == (cmd_queues[SI91X_COMMON_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)) {
+              if (SLI_WIFI_PACKET_RESPONSE_PACKET
+                  == (cmd_queues[SLI_WIFI_COMMON_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)) {
                 node->host_packet = buffer;
+                buffer->id        = pkt_id; // Safe to set here since buffer is kept
               } else {
                 node->host_packet = NULL;
                 sli_si91x_host_free_buffer(buffer);
+                buffer = NULL; // Safeguard to prevent accidental use-after-free
               }
 
               // Populate packet metadata
               node->frame_status      = frame_status;
               node->firmware_queue_id = SLI_WLAN_MGMT_Q;
-              node->command_type      = SI91X_COMMON_CMD;
-              node->sdk_context       = cmd_queues[SI91X_COMMON_CMD].sdk_context;
-              node->flags             = cmd_queues[SI91X_COMMON_CMD].flags;
-              buffer->id              = (uint8_t)cmd_queues[SI91X_COMMON_CMD].packet_id;
-              packet->id              = (uint8_t)cmd_queues[SI91X_COMMON_CMD].packet_id;
+              node->command_type      = SLI_WIFI_COMMON_CMD;
+              node->sdk_context       = cmd_queues[SLI_WIFI_COMMON_CMD].sdk_context;
+              node->flags             = cmd_queues[SLI_WIFI_COMMON_CMD].flags;
+              packet->id              = pkt_id;
 
-              if (sl_si91x_host_elapsed_time(cmd_queues[SI91X_COMMON_CMD].command_tickcount)
-                  <= (cmd_queues[SI91X_COMMON_CMD].command_timeout)) {
+              if (sl_si91x_host_elapsed_time(cmd_queues[SLI_WIFI_COMMON_CMD].command_tickcount)
+                  <= (cmd_queues[SLI_WIFI_COMMON_CMD].command_timeout)) {
                 // Add the response packet to the common response queue
-                sli_si91x_append_to_buffer_queue(&cmd_queues[SI91X_COMMON_CMD].rx_queue, packet);
-                sli_si91x_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
+                sli_wifi_append_to_buffer_queue(&cmd_queues[SLI_WIFI_COMMON_CMD].rx_queue, packet);
+                sli_wifi_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
               } else {
                 // no user thread is waiting for the response so flush the packet
                 sli_si91x_host_free_buffer(packet);
-                if ((cmd_queues[SI91X_COMMON_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)
-                    == SI91X_PACKET_RESPONSE_PACKET) {
+                if ((cmd_queues[SLI_WIFI_COMMON_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)
+                    == SLI_WIFI_PACKET_RESPONSE_PACKET) {
                   sli_si91x_host_free_buffer(buffer);
                 }
               }
-              cmd_queues[SI91X_COMMON_CMD].command_tickcount = 0;
-              cmd_queues[SI91X_COMMON_CMD].command_timeout   = 0;
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_tickcount = 0;
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_timeout   = 0;
             } else {
               sli_si91x_host_free_buffer(buffer);
             }
 
             // Marking a received frame as not in flight when it matches the expected type.
-            if (frame_type == cmd_queues[SI91X_COMMON_CMD].frame_type) {
-              cmd_queues[SI91X_COMMON_CMD].command_in_flight = false;
-              cmd_queues[SI91X_COMMON_CMD].frame_type        = 0;
+            if (frame_type == cmd_queues[SLI_WIFI_COMMON_CMD].frame_type) {
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_in_flight = false;
+              cmd_queues[SLI_WIFI_COMMON_CMD].frame_type        = 0;
             }
             break;
           }
-          case SLI_WLAN_RSP_BAND:
-          case SLI_WLAN_RSP_INIT:
+          case SLI_WIFI_RSP_BAND:
+          case SLI_WIFI_RSP_INIT:
           case SLI_WLAN_RSP_RADIO:
-          case SLI_WLAN_RSP_EAP_CONFIG:
+          case SLI_WIFI_RSP_EAP_CONFIG:
           case SLI_WLAN_RSP_SET_CERTIFICATE:
-          case SLI_WLAN_RSP_HOST_PSK:
-          case SLI_WLAN_RSP_JOIN:
-          case SLI_WLAN_RSP_SCAN:
-          case SLI_WLAN_RSP_SCAN_RESULTS:
+          case SLI_WIFI_RSP_HOST_PSK:
+          case SLI_WIFI_RSP_JOIN:
+          case SLI_WIFI_RSP_SCAN:
+          case SLI_WIFI_RSP_SCAN_RESULTS:
           case SLI_WLAN_RSP_FW_VERSION:
           case SLI_WLAN_RSP_FULL_FW_VERSION:
           case SLI_WLAN_RSP_FWUP:
-          case SLI_WLAN_RSP_DISCONNECT:
-          case SLI_WLAN_RSP_AP_STOP:
-          case SLI_WLAN_RSP_RSSI:
-          case SLI_WLAN_RSP_TSF:
-          case SLI_WLAN_RSP_AP_CONFIGURATION:
-          case SLI_WLAN_RSP_WPS_METHOD:
-          case SLI_WLAN_RSP_QUERY_NETWORK_PARAMS:
-          case SLI_WLAN_RSP_SET_MAC_ADDRESS:
+          case SLI_WIFI_RSP_DISCONNECT:
+          case SLI_WIFI_RSP_AP_STOP:
+          case SLI_WIFI_RSP_RSSI:
+          case SLI_WIFI_RSP_TSF:
+          case SLI_WIFI_RSP_AP_CONFIGURATION:
+          case SLI_WIFI_RSP_WPS_METHOD:
+          case SLI_WIFI_RSP_QUERY_NETWORK_PARAMS:
+          case SLI_WIFI_RSP_SET_MAC_ADDRESS:
           case SLI_WLAN_RSP_SET_REGION:
           case SLI_WLAN_RSP_SET_REGION_AP:
-          case SLI_WLAN_RSP_MAC_ADDRESS:
-          case SLI_WLAN_RSP_EXT_STATS:
-          case SLI_WLAN_RSP_GET_STATS:
-          case SLI_WLAN_RSP_RX_STATS:
+          case SLI_WIFI_RSP_MAC_ADDRESS:
+          case SLI_WIFI_RSP_EXT_STATS:
+          case SLI_WIFI_RSP_GET_STATS:
+          case SLI_WIFI_RSP_RX_STATS:
           case SLI_WLAN_RSP_MODULE_STATE:
-          case SLI_WLAN_RSP_QUERY_GO_PARAMS:
-          case SLI_WLAN_RSP_ROAM_PARAMS:
+          case SLI_WIFI_RSP_QUERY_GO_PARAMS:
+          case SLI_WIFI_RSP_ROAM_PARAMS:
           case SLI_WLAN_RSP_HTTP_OTAF:
           case SLI_WLAN_RSP_CLIENT_CONNECTED:
           case SLI_WLAN_RSP_CLIENT_DISCONNECTED:
@@ -757,31 +822,32 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_WLAN_RSP_EVM_OFFSET:
           case SLI_WLAN_RSP_EVM_WRITE:
           case SLI_WLAN_RSP_EFUSE_READ:
-          case SLI_WLAN_RSP_FILTER_BCAST_PACKETS:
-          case SLI_WLAN_RSP_TWT_PARAMS:
+          case SLI_WIFI_RSP_FILTER_BCAST_PACKETS:
+          case SLI_WIFI_RSP_TWT_PARAMS:
           case SLI_WLAN_RSP_TWT_ASYNC:
-          case SLI_WLAN_RSP_TWT_AUTO_CONFIG:
-          case SLI_WLAN_RSP_11AX_PARAMS:
+          case SLI_WIFI_RSP_TWT_AUTO_CONFIG:
+          case SLI_WIFI_RSP_11AX_PARAMS:
           case SLI_WIFI_RSP_RESCHEDULE_TWT:
-          case SLI_WLAN_RSP_REJOIN_PARAMS:
-          case SLI_WLAN_RSP_GAIN_TABLE:
+          case SLI_WIFI_RSP_REJOIN_PARAMS:
+          case SLI_WIFI_RSP_GAIN_TABLE:
           case SLI_WLAN_RSP_TX_TEST_MODE:
           case SLI_WLAN_RSP_TIMEOUT:
-          case SLI_WLAN_RSP_BEACON_STOP:
+          case SLI_WIFI_RSP_BEACON_STOP:
           case SLI_WLAN_RSP_DYNAMIC_POOL:
-          case SLI_WLAN_RSP_TRANSCEIVER_SET_CHANNEL:
-          case SLI_WLAN_RSP_TRANSCEIVER_CONFIG_PARAMS:
-          case SLI_WLAN_RSP_TRANSCEIVER_PEER_LIST_UPDATE:
-          case SLI_WLAN_RSP_TRANSCEIVER_SET_MCAST_FILTER:
-          case SLI_WLAN_RSP_TRANSCEIVER_FLUSH_DATA_Q:
+          case SLI_WIFI_RSP_TRANSCEIVER_SET_CHANNEL:
+          case SLI_WIFI_RSP_TRANSCEIVER_CONFIG_PARAMS:
+          case SLI_WIFI_RSP_TRANSCEIVER_PEER_LIST_UPDATE:
+          case SLI_WIFI_RSP_SET_TRANSCEIVER_MCAST_FILTER:
+          case SLI_WIFI_RSP_TRANSCEIVER_FLUSH_DATA_Q:
           case SLI_WLAN_RSP_TRANSCEIVER_TX_DATA_STATUS:
-          case SLI_WLAN_RSP_HT_CAPABILITIES:
-          case SLI_WLAN_RSP_SET_MULTICAST_FILTER: {
-            ++cmd_queues[SLI_SI91X_WLAN_CMD].rx_counter;
+          case SLI_WIFI_RSP_HT_CAPABILITIES:
+          case SLI_WIFI_RSP_SET_MULTICAST_FILTER:
+          case SLI_WIFI_RSP_VENDOR_IE: {
+            ++cmd_queues[SLI_WIFI_WLAN_CMD].rx_counter;
 
             // Marking a received frame as not in flight when it matches the expected type
-            if (frame_type == cmd_queues[SLI_SI91X_WLAN_CMD].frame_type) {
-              cmd_queues[SLI_SI91X_WLAN_CMD].command_in_flight = false;
+            if (frame_type == cmd_queues[SLI_WIFI_WLAN_CMD].frame_type) {
+              cmd_queues[SLI_WIFI_WLAN_CMD].command_in_flight = false;
             }
 
             // Check for the following scenarios:
@@ -789,27 +855,28 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             // 2. If the station (STA) disconnects from a third-party Access Point (AP).
             // 3. If a third-party station disconnects from the DUT's Access Point (AP).
             // 4. If the DUT's Access Point (AP) stops operating.
-            if (((SLI_WLAN_RSP_JOIN == frame_type && cmd_queues[SLI_SI91X_WLAN_CMD].frame_type != frame_type)
+            if (((SLI_WIFI_RSP_JOIN == frame_type && cmd_queues[SLI_WIFI_WLAN_CMD].frame_type != frame_type)
                  && (frame_status != SL_STATUS_OK))
-                || (SLI_WLAN_RSP_DISCONNECT == frame_type) || (SLI_WLAN_RSP_CLIENT_DISCONNECTED == frame_type)
-                || (SLI_WLAN_RSP_AP_STOP == frame_type)) {
+                || (SLI_WIFI_RSP_DISCONNECT == frame_type) || (SLI_WLAN_RSP_CLIENT_DISCONNECTED == frame_type)
+                || (SLI_WIFI_RSP_AP_STOP == frame_type)) {
 
               // create dummy packets for respective queues to be cleared
-              sli_handle_dhcp_and_rejoin_failure(cmd_queues[SLI_SI91X_WLAN_CMD].sdk_context, buffer, frame_status);
+              sli_handle_dhcp_and_rejoin_failure(cmd_queues[SLI_WIFI_WLAN_CMD].sdk_context, buffer, frame_status);
             }
-            if ((SLI_WLAN_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK)) {
+            if ((SLI_WIFI_RSP_JOIN == frame_type) && (frame_status != SL_STATUS_OK)) {
               // Reset current performance profile and set it to high performance
               sli_reset_coex_current_performance_profile();
               current_performance_profile = SL_WIFI_SYSTEM_ASSOCIATED_POWER_SAVE_LOW_LATENCY;
-            } else if (SLI_WLAN_RSP_DISCONNECT == frame_type) {
+            } else if (SLI_WIFI_RSP_DISCONNECT == frame_type) {
               // Reset current performance profile and set it to high performance
               sli_reset_coex_current_performance_profile();
               current_performance_profile = SL_WIFI_SYSTEM_HIGH_PERFORMANCE;
             }
 
             // check if the frame type is valid
-            if (((cmd_queues[SLI_SI91X_WLAN_CMD].flags & SI91X_PACKET_RESPONSE_STATUS) == SI91X_PACKET_RESPONSE_STATUS)
-                && (cmd_queues[SLI_SI91X_WLAN_CMD].frame_type == frame_type)) {
+            if (((cmd_queues[SLI_WIFI_WLAN_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
+                && (cmd_queues[SLI_WIFI_WLAN_CMD].frame_type == frame_type)) {
 
               // Allocate a buffer for the response packet
               status = sli_si91x_host_allocate_buffer(&packet,
@@ -817,76 +884,85 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
 
-              node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+              node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
+
+              // Store packet ID before conditional to avoid use-after-free
+              uint8_t pkt_id = (uint8_t)cmd_queues[SLI_WIFI_WLAN_CMD].packet_id;
 
               // Check if the packet response mode is set, and associate the host packet accordingly
-              if (SI91X_PACKET_RESPONSE_PACKET
-                  == (cmd_queues[SLI_SI91X_WLAN_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)) {
+              if (SLI_WIFI_PACKET_RESPONSE_PACKET
+                  == (cmd_queues[SLI_WIFI_WLAN_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)) {
                 node->host_packet = buffer;
+                buffer->id        = pkt_id; // Safe to set here since buffer is kept
               } else {
                 node->host_packet = NULL;
                 sli_si91x_host_free_buffer(buffer);
+                buffer = NULL; // Safeguard to prevent accidental use-after-free
               }
 
               // Populate the response packet information
               node->frame_status      = frame_status;
               node->firmware_queue_id = SLI_WLAN_MGMT_Q;
-              node->command_type      = SLI_SI91X_WLAN_CMD;
-              node->sdk_context       = cmd_queues[SLI_SI91X_WLAN_CMD].sdk_context;
-              node->flags             = cmd_queues[SLI_SI91X_WLAN_CMD].flags;
-              packet->id              = (uint8_t)cmd_queues[SLI_SI91X_WLAN_CMD].packet_id;
-              buffer->id              = (uint8_t)cmd_queues[SLI_SI91X_WLAN_CMD].packet_id;
+              node->command_type      = SLI_WIFI_WLAN_CMD;
+              node->sdk_context       = cmd_queues[SLI_WIFI_WLAN_CMD].sdk_context;
+              node->flags             = cmd_queues[SLI_WIFI_WLAN_CMD].flags;
+              packet->id              = pkt_id;
 
-              if (sl_si91x_host_elapsed_time(cmd_queues[SLI_SI91X_WLAN_CMD].command_tickcount)
-                  <= (cmd_queues[SLI_SI91X_WLAN_CMD].command_timeout)) {
+              if (sl_si91x_host_elapsed_time(cmd_queues[SLI_WIFI_WLAN_CMD].command_tickcount)
+                  <= (cmd_queues[SLI_WIFI_WLAN_CMD].command_timeout)) {
                 // Add the response packet to the WLAN response queue and set the WLAN response event
-                sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].rx_queue, packet);
-                sli_si91x_set_event(NCP_HOST_WLAN_RESPONSE_EVENT);
+                sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].rx_queue, packet);
+                sli_wifi_set_event(NCP_HOST_WLAN_RESPONSE_EVENT);
               } else {
                 // no user thread is waiting for the response so flush the packet
                 sli_si91x_host_free_buffer(packet);
-                if ((cmd_queues[SLI_SI91X_WLAN_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)
-                    == SI91X_PACKET_RESPONSE_PACKET) {
+                if ((cmd_queues[SLI_WIFI_WLAN_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)
+                    == SLI_WIFI_PACKET_RESPONSE_PACKET) {
                   sli_si91x_host_free_buffer(buffer);
                 }
               }
-              cmd_queues[SLI_SI91X_WLAN_CMD].command_tickcount = 0;
-              cmd_queues[SLI_SI91X_WLAN_CMD].command_timeout   = 0;
+              cmd_queues[SLI_WIFI_WLAN_CMD].command_tickcount = 0;
+              cmd_queues[SLI_WIFI_WLAN_CMD].command_timeout   = 0;
             } else {
               // The received frame does not match the expected response status and frame type,
               // so add it to the WLAN event queue and set the WLAN notification event
-              sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, buffer);
+              sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].event_queue, buffer);
               set_async_event(NCP_HOST_WLAN_NOTIFICATION_EVENT);
             }
 
             // Resetting the frame_type in cmd_queues when it matches the expected frame_type
-            if (frame_type == cmd_queues[SLI_SI91X_WLAN_CMD].frame_type) {
-              cmd_queues[SLI_SI91X_WLAN_CMD].frame_type = 0;
+            if (frame_type == cmd_queues[SLI_WIFI_WLAN_CMD].frame_type) {
+              cmd_queues[SLI_WIFI_WLAN_CMD].frame_type = 0;
             }
 
             break;
           }
           // Handle WLAN response frame type for background scan
-          case SLI_WLAN_RSP_BG_SCAN: {
-            ++cmd_queues[SLI_SI91X_WLAN_CMD].rx_counter;
+          case SLI_WIFI_RSP_BG_SCAN: {
+            ++cmd_queues[SLI_WIFI_WLAN_CMD].rx_counter;
 
             // Check if the received frame matches the expected response status and frame type
-            if (((cmd_queues[SLI_SI91X_WLAN_CMD].flags & SI91X_PACKET_RESPONSE_STATUS) == SI91X_PACKET_RESPONSE_STATUS)
-                && (cmd_queues[SLI_SI91X_WLAN_CMD].frame_type == frame_type)) {
+            if (((cmd_queues[SLI_WIFI_WLAN_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
+                && (cmd_queues[SLI_WIFI_WLAN_CMD].frame_type == frame_type)) {
               // Allocate a buffer for the response packet
               status = sli_si91x_host_allocate_buffer(&packet,
                                                       SL_WIFI_RX_FRAME_BUFFER,
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
-              node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+              node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
               node->frame_status = frame_status;
               sli_handle_and_queue_wlan_response(node, buffer, packet);
@@ -897,32 +973,35 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                 bg_enabled = true;
               }
               // Add the received frame to the WLAN event queue and set the WLAN notification event
-              sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, buffer);
+              sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].event_queue, buffer);
               set_async_event(NCP_HOST_WLAN_NOTIFICATION_EVENT);
             }
             // Marking a received frame as not in flight when it matches the expected type
-            if (frame_type == cmd_queues[SLI_SI91X_WLAN_CMD].frame_type) {
-              cmd_queues[SLI_SI91X_WLAN_CMD].command_in_flight = false;
-              cmd_queues[SLI_SI91X_WLAN_CMD].frame_type        = 0;
+            if (frame_type == cmd_queues[SLI_WIFI_WLAN_CMD].frame_type) {
+              cmd_queues[SLI_WIFI_WLAN_CMD].command_in_flight = false;
+              cmd_queues[SLI_WIFI_WLAN_CMD].frame_type        = 0;
             }
             break;
           }
-          case SLI_WLAN_RSP_CONFIG: {
-            ++cmd_queues[SLI_SI91X_WLAN_CMD].rx_counter;
+          case SLI_WIFI_RSP_CONFIG: {
+            ++cmd_queues[SLI_WIFI_WLAN_CMD].rx_counter;
 
             // Check if the received frame matches the expected response status and frame type
-            if (((cmd_queues[SLI_SI91X_WLAN_CMD].flags & SI91X_PACKET_RESPONSE_STATUS) == SI91X_PACKET_RESPONSE_STATUS)
-                && (cmd_queues[SLI_SI91X_WLAN_CMD].frame_type == frame_type)) {
+            if (((cmd_queues[SLI_WIFI_WLAN_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
+                && (cmd_queues[SLI_WIFI_WLAN_CMD].frame_type == frame_type)) {
               // Allocate a buffer for the response packet
               status = sli_si91x_host_allocate_buffer(&packet,
                                                       SL_WIFI_RX_FRAME_BUFFER,
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
-              node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+              node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
               // Check if the frame status indicates an invalid configuration type
               if ((SL_STATUS_SI91X_INVALID_CONFIG_TYPE & 0xFF) == frame_status) {
@@ -934,34 +1013,34 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             }
 
             // check if the frame type is valid.
-            if (frame_type == cmd_queues[SLI_SI91X_WLAN_CMD].frame_type) {
-              cmd_queues[SLI_SI91X_WLAN_CMD].command_in_flight = false;
-              cmd_queues[SLI_SI91X_WLAN_CMD].frame_type        = 0;
+            if (frame_type == cmd_queues[SLI_WIFI_WLAN_CMD].frame_type) {
+              cmd_queues[SLI_WIFI_WLAN_CMD].command_in_flight = false;
+              cmd_queues[SLI_WIFI_WLAN_CMD].frame_type        = 0;
             }
 
             sli_si91x_host_free_buffer(buffer);
             break;
           }
           case SLI_COMMON_RSP_ULP_NO_RAM_RETENTION: {
-            //This frame will come, when the M4 is waken in without ram retention. This frame is equivalent to SLI_COMMON_RSP_CARDREADY
+            //This frame will come, when the M4 is waken in without ram retention. This frame is equivalent to SLI_WIFI_RSP_CARDREADY
             sl_si91x_host_clear_sleep_indicator();
           }
             // intentional fallthrough
             __attribute__((fallthrough));
-          case SLI_COMMON_RSP_CARDREADY: {
-            ++cmd_queues[SI91X_COMMON_CMD].rx_counter;
+          case SLI_WIFI_RSP_CARDREADY: {
+            ++cmd_queues[SLI_WIFI_COMMON_CMD].rx_counter;
 
             // Check if the frame type is valid
-            if (frame_type == cmd_queues[SI91X_COMMON_CMD].frame_type) {
+            if (frame_type == cmd_queues[SLI_WIFI_COMMON_CMD].frame_type) {
               // Mark the common command as not in flight
-              cmd_queues[SI91X_COMMON_CMD].command_in_flight = false;
-              cmd_queues[SI91X_COMMON_CMD].frame_type        = 0;
-              cmd_queues[SI91X_COMMON_CMD].command_tickcount = 0;
-              cmd_queues[SI91X_COMMON_CMD].command_timeout   = 0;
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_in_flight = false;
+              cmd_queues[SLI_WIFI_COMMON_CMD].frame_type        = 0;
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_tickcount = 0;
+              cmd_queues[SLI_WIFI_COMMON_CMD].command_timeout   = 0;
             }
 
             sli_si91x_host_free_buffer(buffer);
-            sli_si91x_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
+            sli_wifi_set_event(NCP_HOST_COMMON_RESPONSE_EVENT);
             break;
           }
           case SLI_WLAN_RSP_IPCONFV4:
@@ -978,6 +1057,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           case SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT:
           case SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE:
           case SLI_WLAN_RSP_MDNSD:
+          case SLI_WLAN_RSP_DISCOVER_SERVICE:
           case SLI_WLAN_RSP_NAT: {
             // Increment the received frame counter for network commands
             ++cmd_queues[SLI_SI91X_NETWORK_CMD].rx_counter;
@@ -986,10 +1066,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             status =
               sli_si91x_host_allocate_buffer(&packet, SL_WIFI_RX_FRAME_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
             if (status != SL_STATUS_OK) {
-              SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-              BREAKPOINT();
+              SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+              sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+              sli_si91x_host_free_buffer(buffer);
+              break;
             }
-            node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+            node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
             // Set frame status, queue ID, and command type for the network response
             node->frame_status      = frame_status;
@@ -1034,10 +1116,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
-              error_node = sl_si91x_host_get_buffer_data(error_packet, 0, NULL);
+              error_node = sli_wifi_host_get_buffer_data(error_packet, 0, NULL);
               error_node->frame_status =
                 (SL_STATUS_SI91X_MQTT_REMOTE_TERMINATE_ERROR & 0xFFFF); // error given by firmware for remote terminate
               error_node->host_packet = NULL;
@@ -1045,22 +1129,22 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               error_packet->id        = (uint8_t)cmd_queues[SLI_SI91X_NETWORK_CMD].packet_id;
 
               sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].rx_queue, error_packet);
-              sli_si91x_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
+              sli_wifi_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_tickcount = 0;
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_timeout   = 0;
               break;
             }
 
             // Check if it's a response packet, and handle accordingly
-            if (((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_STATUS)
-                 == SI91X_PACKET_RESPONSE_STATUS)
+            if (((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
                 && ((cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == frame_type)
                     || (cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == SLI_WLAN_REQ_IPCONFV6
                         && frame_type == SLI_WLAN_RSP_IPCONFV6))) {
 
               // Check if the response packet should be free or not
-              if (SI91X_PACKET_RESPONSE_PACKET
-                  != (cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)) {
+              if (SLI_WIFI_PACKET_RESPONSE_PACKET
+                  != (cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)) {
                 node->host_packet = NULL;
                 sli_si91x_host_free_buffer(buffer);
               }
@@ -1068,24 +1152,18 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                   <= (cmd_queues[SLI_SI91X_NETWORK_CMD].command_timeout)) {
                 // Add the response packet to response queue and set the network response event
                 sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].rx_queue, packet);
-                sli_si91x_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
+                sli_wifi_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
               } else {
                 // no user thread is waiting for the response so flush the packet
                 sli_si91x_host_free_buffer(packet);
-                if ((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_PACKET)
-                    == SI91X_PACKET_RESPONSE_PACKET) {
+                if ((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SLI_WIFI_PACKET_RESPONSE_PACKET)
+                    == SLI_WIFI_PACKET_RESPONSE_PACKET) {
                   sli_si91x_host_free_buffer(buffer);
                 }
               }
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_tickcount = 0;
               cmd_queues[SLI_SI91X_NETWORK_CMD].command_timeout   = 0;
             } else {
-              // Set the frame status to a non-zero value to allow queue flushing or graceful enqueuing of error packets by the event thread
-              if (frame_type == SLI_WLAN_RSP_IPV4_CHANGE) {
-                node->frame_status = (uint16_t)SL_STATUS_FAIL;
-                data[12]           = (uint8_t)(SL_STATUS_FAIL & 0x00FF);
-                data[13]           = (uint8_t)((SL_STATUS_FAIL & 0xFF00) >> 8);
-              }
               // Add the packet to event queue and set the async network event
               sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue, packet);
               set_async_event(NCP_HOST_NETWORK_NOTIFICATION_EVENT);
@@ -1116,7 +1194,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             // Find relevant socket
             sl_wifi_system_packet_t *socket_packet = (sl_wifi_system_packet_t *)data;
             sli_si91x_socket_t *socket             = get_socket_from_packet(socket_packet);
-            sli_si91x_command_queue_t *socket_command_queue;
+            sli_wifi_command_queue_t *socket_command_queue;
 
             if ((socket == NULL) || (frame_type == SLI_WLAN_RSP_SELECT_REQUEST)
                 || (frame_type == SLI_WLAN_RSP_SOCKET_CREATE) || (frame_type == SLI_WLAN_RSP_SOCKET_CONFIG)) {
@@ -1132,10 +1210,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                                                       sizeof(sli_si91x_queue_packet_t),
                                                       1000);
               if (status != SL_STATUS_OK) {
-                SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-                BREAKPOINT();
+                SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+                sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+                sli_si91x_host_free_buffer(buffer);
+                break;
               }
-              node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+              node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
               // Set frame status, queue ID, and command type for the network response
               node->frame_status      = frame_status;
@@ -1172,10 +1252,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             status =
               sli_si91x_host_allocate_buffer(&packet, SL_WIFI_RX_FRAME_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
             if (status != SL_STATUS_OK) {
-              SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-              BREAKPOINT();
+              SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+              sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+              sli_si91x_host_free_buffer(buffer);
+              break;
             }
-            node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+            node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
             // Set frame status, queue ID, and command type for the socket response
             node->frame_status      = frame_status;
@@ -1197,11 +1279,11 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             }
 
             // Check if it's a response packet, and handle accordingly
-            if ((socket_command_queue->flags & SI91X_PACKET_RESPONSE_STATUS)
+            if ((socket_command_queue->flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
                 && (socket_command_queue->frame_type == frame_type)) {
 
               // Check if the response packet should be free or not
-              if ((socket_command_queue->flags & SI91X_PACKET_RESPONSE_PACKET) == 0) {
+              if ((socket_command_queue->flags & SLI_WIFI_PACKET_RESPONSE_PACKET) == 0) {
                 node->host_packet = NULL;
                 sli_si91x_host_free_buffer(buffer);
               }
@@ -1210,7 +1292,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               sli_si91x_add_to_queue(&socket_command_queue->rx_queue, packet);
 
               if (socket_command_queue == &cmd_queues[SLI_SI91X_SOCKET_CMD]) {
-                sli_si91x_set_event(NCP_HOST_SOCKET_RESPONSE_EVENT);
+                sli_wifi_set_event(NCP_HOST_SOCKET_RESPONSE_EVENT);
               } else {
                 sli_si91x_set_socket_event(1 << socket->index);
               }
@@ -1240,10 +1322,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             status =
               sli_si91x_host_allocate_buffer(&packet, SL_WIFI_RX_FRAME_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
             if (status != SL_STATUS_OK) {
-              SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-              BREAKPOINT();
+              SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+              sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+              sli_si91x_host_free_buffer(buffer);
+              break;
             }
-            node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+            node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
             // Populate the packet's information
             node->frame_status      = frame_status;
@@ -1269,7 +1353,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 
             if (cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == SLI_WLAN_RSP_HTTP_CLIENT_GET) {
               // If it's an HTTP GET response, check if the frame_status is not OK or if end_of_data is set to 1.
-              sl_wifi_system_packet_t *get_response_packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+              sl_wifi_system_packet_t *get_response_packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
               const uint16_t *end_of_data                  = (uint16_t *)&get_response_packet->data;
 
               if (frame_status != SL_STATUS_OK || *end_of_data == 1) {
@@ -1287,10 +1371,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             status =
               sli_si91x_host_allocate_buffer(&packet, SL_WIFI_RX_FRAME_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
             if (status != SL_STATUS_OK) {
-              SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-              BREAKPOINT();
+              SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+              sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+              sli_si91x_host_free_buffer(buffer);
+              break;
             }
-            node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+            node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
             // Populate the packet's information
             node->host_packet       = buffer;
@@ -1314,10 +1400,11 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             status =
               sli_si91x_host_allocate_buffer(&packet, SL_WIFI_RX_FRAME_BUFFER, sizeof(sli_si91x_queue_packet_t), 1000);
             if (status != SL_STATUS_OK) {
-              SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-              BREAKPOINT();
+              SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+              sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+              break;
             }
-            node = sl_si91x_host_get_buffer_data(packet, 0, &temp);
+            node = sli_wifi_host_get_buffer_data(packet, 0, &temp);
 
             // Populate the packet's information
             node->frame_status      = frame_status;
@@ -1328,8 +1415,8 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
             buffer->id              = (uint8_t)cmd_queues[SLI_SI91X_NETWORK_CMD].packet_id;
             packet->id              = (uint8_t)cmd_queues[SLI_SI91X_NETWORK_CMD].packet_id;
 
-            if (((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_STATUS)
-                 == SI91X_PACKET_RESPONSE_STATUS)
+            if (((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                 == SLI_WIFI_PACKET_RESPONSE_STATUS)
                 && (cmd_queues[SLI_SI91X_NETWORK_CMD].frame_type == frame_type)) {
               // If it's a response status and the frame_type matches, set host_packet to NULL and free the buffer
               node->host_packet = NULL;
@@ -1339,12 +1426,12 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
                   <= (cmd_queues[SLI_SI91X_NETWORK_CMD].command_timeout)) {
                 // Add the packet to the network response queue and set the network response event
                 sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].rx_queue, packet);
-                sli_si91x_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
+                sli_wifi_set_event(NCP_HOST_NETWORK_RESPONSE_EVENT);
               } else {
                 // no user thread is waiting for the response so flush the packet and buffer
                 sli_si91x_host_free_buffer(packet);
-                if ((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SI91X_PACKET_RESPONSE_STATUS)
-                    != SI91X_PACKET_RESPONSE_STATUS) {
+                if ((cmd_queues[SLI_SI91X_NETWORK_CMD].flags & SLI_WIFI_PACKET_RESPONSE_STATUS)
+                    != SLI_WIFI_PACKET_RESPONSE_STATUS) {
                   sli_si91x_host_free_buffer(buffer);
                 }
               }
@@ -1384,7 +1471,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         data[1] &= 0xF;
         if (frame_type == SLI_RECEIVE_RAW_DATA) {
           // If the frame type is raw data reception
-          SL_DEBUG_LOG("Raw Data\n");
+          SL_PRINT_STRING_INFO("Raw Data\n");
 
 #if defined(SLI_SI91X_OFFLOAD_NETWORK_STACK) && !defined(SLI_SI91X_NETWORK_DUAL_STACK)
           // Offload only mode is not enabled
@@ -1403,7 +1490,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
               if (((socket->command_queue.frame_type == SLI_WLAN_RSP_SOCKET_READ_DATA)
                    || (socket->command_queue.frame_type == socket_packet->command))
                   && socket->command_queue.command_in_flight
-                  && socket->command_queue.flags & SI91X_PACKET_RESPONSE_PACKET) {
+                  && socket->command_queue.flags & SLI_WIFI_PACKET_RESPONSE_PACKET) {
                 socket->command_queue.command_in_flight = false;
                 sli_si91x_add_to_queue(&socket->rx_data_queue, buffer);
                 sli_si91x_set_socket_event(1 << socket->index);
@@ -1467,17 +1554,17 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
           sl_si91x_host_process_data_frame(SL_WIFI_CLIENT_INTERFACE, buffer);
           sli_si91x_host_free_buffer(buffer);
         } else if (frame_type == SLI_SI91X_WIFI_RX_DOT11_DATA) {
-          ++cmd_queues[SLI_SI91X_WLAN_CMD].rx_counter;
+          ++cmd_queues[SLI_WIFI_WLAN_CMD].rx_counter;
 
           // Marking a received frame as not in flight when it matches the expected type
-          if (frame_type == cmd_queues[SLI_SI91X_WLAN_CMD].frame_type) {
-            cmd_queues[SLI_SI91X_WLAN_CMD].command_in_flight = false;
-            cmd_queues[SLI_SI91X_WLAN_CMD].command_tickcount = 0;
-            cmd_queues[SLI_SI91X_WLAN_CMD].command_timeout   = 0;
+          if (frame_type == cmd_queues[SLI_WIFI_WLAN_CMD].frame_type) {
+            cmd_queues[SLI_WIFI_WLAN_CMD].command_in_flight = false;
+            cmd_queues[SLI_WIFI_WLAN_CMD].command_tickcount = 0;
+            cmd_queues[SLI_WIFI_WLAN_CMD].command_timeout   = 0;
           }
 
           // Add it to the WLAN event queue and set the WLAN notification event
-          sli_si91x_add_to_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, buffer);
+          sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].event_queue, buffer);
           set_async_event(NCP_HOST_WLAN_NOTIFICATION_EVENT);
         }
         break;
@@ -1485,7 +1572,7 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
 
 #ifdef SLI_SI91X_ENABLE_BLE
       case SLI_BT_Q: {
-        SL_DEBUG_LOG("Received BLE packet\n");
+        SL_PRINT_STRING_INFO("Received BLE packet\n");
         // Increment the receive counter for the Bluetooth command
         ++cmd_queues[SLI_SI91X_BT_CMD].rx_counter;
 
@@ -1501,6 +1588,14 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         break;
       }
 #endif
+      case SLI_LOG_Q: {
+        ++cmd_queues[SLI_WIFI_COMMON_CMD].rx_counter;
+
+        sli_si91x_add_to_queue(&cmd_queues[SLI_WIFI_COMMON_CMD].event_queue, buffer);
+        set_async_event(NCP_HOST_COMMON_NOTIFICATION_EVENT);
+        break;
+      }
+
       default: {
         // If the frame_type doesn't match any known cases
         // Free the buffer
@@ -1508,7 +1603,10 @@ static inline void sli_si91x_wifi_handle_rx_events(uint32_t *event)
         break;
       }
     }
-    sli_submit_rx_buffer();
+    status = sli_submit_rx_buffer();
+    if (status == SL_STATUS_ALLOCATION_FAILED) {
+      sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+    }
   } else {
     *event &= ~SL_SI91X_NCP_HOST_BUS_RX_EVENT; // Reset the event flag
   }
@@ -1590,7 +1688,10 @@ static inline void sli_si91x_wifi_handle_tx_event(uint32_t *event)
 
         sl_status_t status = bus_write_data_frame(&sli_si91x_sockets[i]->tx_data_queue);
         if (status == SL_STATUS_OK) {
+          // Atomic protection for data_buffer_count to prevent race condition
+          CORE_irqState_t state1 = CORE_EnterAtomic();
           --sli_si91x_sockets[i]->data_buffer_count;
+          CORE_ExitAtomic(state1);
         }
         if (sli_si91x_buffer_queue_empty(&sli_si91x_sockets[i]->tx_data_queue)) {
           tx_socket_data_queues_status &= ~(1 << i);
@@ -1625,8 +1726,8 @@ void sli_wifi_event_handler_init(void)
 {
   // Array to track the status of commands in flight
 
-  cmd_queues[SI91X_COMMON_CMD].sequential      = true;
-  cmd_queues[SLI_SI91X_WLAN_CMD].sequential    = true;
+  cmd_queues[SLI_WIFI_COMMON_CMD].sequential   = true;
+  cmd_queues[SLI_WIFI_WLAN_CMD].sequential     = true;
   cmd_queues[SLI_SI91X_NETWORK_CMD].sequential = true;
   cmd_queues[SLI_SI91X_BT_CMD].sequential      = true;
   cmd_queues[SLI_SI91X_SOCKET_CMD].sequential  = true;
@@ -1710,48 +1811,75 @@ extern inline uint32_t sli_wifi_event_handler_get_wait_time(uint32_t *event)
 void sli_si91x_async_rx_event_handler_thread(const void *args)
 {
   UNUSED_PARAMETER(args); // Prevent compiler warning about unused parameters.
-  uint32_t event     = 0; // Event variable to track pending events.
-  uint32_t wait_time = 0; // Variable to set wait time for event flag checking.
+  uint32_t event = 0;     // Event variable to track pending events.
   const uint32_t event_mask =
-    (NCP_HOST_WLAN_NOTIFICATION_EVENT | NCP_HOST_NETWORK_NOTIFICATION_EVENT | NCP_HOST_SOCKET_NOTIFICATION_EVENT
-     | NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT | NCP_HOST_BLE_NOTIFICATION_EVENT);
+    (NCP_HOST_COMMON_NOTIFICATION_EVENT | NCP_HOST_WLAN_NOTIFICATION_EVENT | NCP_HOST_NETWORK_NOTIFICATION_EVENT
+     | NCP_HOST_SOCKET_NOTIFICATION_EVENT | NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT | NCP_HOST_BLE_NOTIFICATION_EVENT
+     | SLI_SI91X_NCP_HOST_COMMAND_ENGINE_STATUS_NOTIFICATION_EVENT);
 
   // Infinite loop to handle incoming events
   while (1) {
-    // Set wait time to indefinite if no event is set, otherwise do not wait.
-    wait_time = (event == 0) ? osWaitForever : 0;
-    event |= osEventFlagsWait(si91x_async_events, event_mask, osFlagsWaitAny, wait_time);
+    event = osEventFlagsWait(si91x_async_events, event_mask, osFlagsWaitAny, osWaitForever);
+
+    // Ignore any error events
+    if (event & osFlagsError) {
+      continue;
+    }
+
+    // Check and process common notification events
+    if (event & NCP_HOST_COMMON_NOTIFICATION_EVENT) {
+      sli_si91x_process_common_events();
+    }
 
     // Check and process WLAN notification events
     if (event & NCP_HOST_WLAN_NOTIFICATION_EVENT) {
       sli_si91x_process_wifi_events();
-      event &= ~NCP_HOST_WLAN_NOTIFICATION_EVENT; // Clear the event flag after processing.
     }
     // Check and process Network notification events
-    else if (event & NCP_HOST_NETWORK_NOTIFICATION_EVENT) {
+    if (event & NCP_HOST_NETWORK_NOTIFICATION_EVENT) {
       sli_si91x_process_network_events();
-      event &= ~NCP_HOST_NETWORK_NOTIFICATION_EVENT;
     }
     // Check and process Socket notification events
-    else if (event & NCP_HOST_SOCKET_NOTIFICATION_EVENT) {
+    if (event & NCP_HOST_SOCKET_NOTIFICATION_EVENT) {
       sli_si91x_process_socket_events();
-      event &= ~NCP_HOST_SOCKET_NOTIFICATION_EVENT;
+    }
+    // Check and process command engine status notifications
+    if (event & SLI_SI91X_NCP_HOST_COMMAND_ENGINE_STATUS_NOTIFICATION_EVENT) {
+      sli_si91x_process_command_engine_status_events();
     }
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
     // Check and process Socket Data notification events, if network stack offload is enabled
-    else if (event & NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT) {
+    if (event & NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT) {
       sli_si91x_process_socket_data_events();
-      event &= ~NCP_HOST_SOCKET_DATA_NOTIFICATION_EVENT;
     }
 #endif
 
 #ifdef SLI_SI91X_ENABLE_BLE
     // Check and process BLE notification events, if BLE is enabled
-    else if (event & NCP_HOST_BLE_NOTIFICATION_EVENT) {
+    if (event & NCP_HOST_BLE_NOTIFICATION_EVENT) {
       sli_si91x_process_ble_events();
-      event &= ~NCP_HOST_BLE_NOTIFICATION_EVENT;
     }
 #endif
+  }
+}
+
+// Process common notification events from the queue.
+void sli_si91x_process_common_events()
+{
+  sl_wifi_buffer_t *buffer = NULL;
+
+  while (sli_si91x_host_queue_status(&cmd_queues[SLI_WIFI_COMMON_CMD].event_queue) != 0) {
+    if (sli_si91x_remove_from_queue(&cmd_queues[SLI_WIFI_COMMON_CMD].event_queue, &buffer) == SL_STATUS_OK) {
+      sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
+
+      // Special handling for the log event
+      if (SLI_COMMON_RSP_NWP_LOGGING == packet->command) {
+        uint16_t pkt_length = (uint16_t)(packet->desc[0] + ((packet->desc[1] & 0x0F) << 8));
+        sli_handle_nwp_log_packet(packet->data, pkt_length);
+      }
+
+      sli_si91x_host_free_buffer(buffer);
+    }
   }
 }
 
@@ -1760,20 +1888,23 @@ void sli_si91x_process_wifi_events()
 {
   sl_wifi_buffer_t *buffer = NULL;
   // Check if there are pending WLAN packet in the queue and process them
-  while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue) != 0) {
+  while (sli_si91x_host_queue_status(&cmd_queues[SLI_WIFI_WLAN_CMD].event_queue) != 0) {
     // Remove packet from queue if available
-    if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_WLAN_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sl_wifi_system_packet_t *packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    if (sli_si91x_remove_from_queue(&cmd_queues[SLI_WIFI_WLAN_CMD].event_queue, &buffer) == SL_STATUS_OK) {
+      sl_wifi_system_packet_t *packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
       uint16_t frame_status           = sli_get_si91x_frame_status(packet);
 #ifdef SL_NET_COMPONENT_INCLUDED
       // Check if the command received is a WLAN join response
-      if (packet->command == SLI_WLAN_RSP_JOIN) {
-        sli_network_manager_message_t message;            // Create a new message for the network manager
+      if (packet->command == SLI_WIFI_RSP_JOIN) {
+        sli_network_manager_message_t message = { 0 };    // Create a new message for the network manager
         message.interface = SL_NET_WIFI_CLIENT_INTERFACE; // Specify the network interface as the Wi-Fi client interface
         message.event_flags = frame_status != SL_STATUS_OK
-                                ? NETWORK_MANAGER_DISCONNECT_CMD
-                                : NETWORK_MANAGER_CONNECT_CMD;    // Set the event flags based on the frame status
-        osMessageQueuePut(network_manager_queue, &message, 0, 0); // Add the message to the network manager queue
+                                ? SLI_NET_DISCONNECT_Q_EVENT
+                                : SLI_NET_CONNECT_Q_EVENT; // Set the event flags based on the frame status
+        osMessageQueuePut(sli_network_manager_request_queue,
+                          &message,
+                          SLI_NET_MSG_PRIO_NORMAL,
+                          0); // Add the message to the network manager queue
       }
 #endif // SL_NET_COMPONENT_INCLUDED
       // Invoke registered event handler if it exists
@@ -1803,9 +1934,9 @@ void sli_si91x_process_network_events()
   // Avoid memory leaks by freeing packets if firmware sends network events without `sl_net` component.
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_NETWORK_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+      sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
       sl_wifi_system_packet_t *packet =
-        (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
+        (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(data->host_packet, 0, NULL);
 
       sli_handle_wifi_events(data, packet);
 
@@ -1826,9 +1957,9 @@ void sli_si91x_process_socket_events()
   // Process socket events in the queue
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_SOCKET_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_SOCKET_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+      sli_si91x_queue_packet_t *data = (sli_si91x_queue_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
       sl_wifi_system_packet_t *packet =
-        (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(data->host_packet, 0, NULL);
+        (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(data->host_packet, 0, NULL);
 
       // Dispatch the socket event to the appropriate handler.
       SL_NET_EVENT_DISPATCH_HANDLER(data, packet);
@@ -1836,6 +1967,19 @@ void sli_si91x_process_socket_events()
       // Free resources after processing the packet.
       sli_si91x_host_free_buffer(data->host_packet);
       sli_si91x_host_free_buffer(buffer);
+    }
+  }
+}
+
+/// Process command engine status notification events
+void sli_si91x_process_command_engine_status_events()
+{
+  sl_status_t status;
+  // Attempt to retrieve the error message from the message queue
+  while (osMessageQueueGet(sli_command_engine_status_msg_queue, &status, NULL, 0) == osOK) {
+    // Call the Event Handler
+    if (si91x_event_handler != NULL) {
+      si91x_event_handler(SL_WIFI_COMMAND_ENGINE_STATUS_EVENT, (sl_wifi_buffer_t *)&status);
     }
   }
 }
@@ -1852,7 +1996,7 @@ void sli_si91x_process_socket_data_events()
       // If data is available in the RX queue, remove and process it
       if (sli_si91x_remove_from_queue(&sli_si91x_sockets[i]->rx_data_queue, &buffer) == SL_STATUS_OK) {
         if (sli_si91x_sockets[i]->recv_data_callback != NULL) {
-          sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+          sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
           sl_si91x_socket_metadata_t *receive_data = (sl_si91x_socket_metadata_t *)packet->data;
           // Call the receive callback function with the received data
           sli_si91x_sockets[i]->recv_data_callback(i,
@@ -1876,7 +2020,7 @@ void sli_si91x_process_ble_events()
   // Process Bluetooth (BLE) events in the queue
   while (sli_si91x_host_queue_status(&cmd_queues[SLI_SI91X_BT_CMD].event_queue) != 0) {
     if (sli_si91x_remove_from_queue(&cmd_queues[SLI_SI91X_BT_CMD].event_queue, &buffer) == SL_STATUS_OK) {
-      sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+      sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
       // Handle Bluetooth response and free the buffer
       rsi_driver_process_bt_resp_handler(packet);
       sli_si91x_host_free_buffer(buffer);
@@ -1892,7 +2036,7 @@ uint32_t sli_wifi_command_engine_wait_for_event(uint32_t event_mask, uint32_t ti
 
 uint32_t sli_wifi_command_engine_set_event(uint32_t event_mask)
 {
-  sli_si91x_set_event(event_mask);
+  sli_wifi_set_event(event_mask);
   return 0;
 }
 
@@ -1902,7 +2046,7 @@ void sli_wifi_handle_event(uint32_t *event)
   // Wake device, if needed
   if ((current_performance_profile != HIGH_PERFORMANCE)) {
     while (sli_si91x_req_wakeup() != SL_STATUS_OK) {
-      osDelay(1);
+      osDelay(SLI_SYSTEM_MS_TO_TICKS(1));
     }
   }
 
@@ -1947,13 +2091,14 @@ sl_status_t sli_create_generic_rx_packet_from_params(sli_si91x_queue_packet_t **
                                           sizeof(sli_si91x_queue_packet_t),
                                           SLI_WIFI_ALLOCATE_COMMAND_BUFFER_WAIT_TIME);
   if (status != SL_STATUS_OK) {
-    SL_DEBUG_LOG("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
-    BREAKPOINT();
+    SL_PRINT_STRING_ERROR("\r\n HEAP EXHAUSTED DURING ALLOCATION \r\n");
+    sli_command_engine_status_queue_enqueue_and_set_event(SL_STATUS_ALLOCATION_FAILED);
+    return SL_STATUS_ALLOCATION_FAILED;
   }
 
   *packet_buffer = buffer;
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, &temp);
+  packet = sli_wifi_host_get_buffer_data(buffer, 0, &temp);
   if (packet == NULL) {
     return SL_STATUS_NOT_AVAILABLE;
   }
@@ -1998,9 +2143,9 @@ static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
   // Handle cases where a general TX flush might be needed due to connection changes.
   // Check if the condition necessitates a general TX Wi-Fi queue flush.
   bool is_general_tx_queue_flush_needed =
-    (packet->command == SLI_WLAN_RSP_JOIN || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
+    (packet->command == SLI_WIFI_RSP_JOIN || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
      || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
-     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+     || (packet->command == SLI_WIFI_RSP_DISCONNECT
          && (current_operation_mode == SL_SI91X_CLIENT_MODE || current_operation_mode == SL_SI91X_ENTERPRISE_CLIENT_MODE
              || current_operation_mode == SL_SI91X_TRANSCEIVER_MODE
              || current_operation_mode == SL_SI91X_TRANSMIT_TEST_MODE
@@ -2022,7 +2167,7 @@ static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
   uint8_t vap_id_for_flush = SL_WIFI_CLIENT_VAP_ID;
 
   // In concurrent mode with an AP stop command, use the AP VAP ID for the flush.
-  if (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->command == SLI_WLAN_RSP_AP_STOP) {
+  if (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->command == SLI_WIFI_RSP_AP_STOP) {
     vap_id_for_flush = SL_WIFI_AP_VAP_ID;
   }
   // Flush all pending socket commands for the determined VAP ID.
@@ -2039,24 +2184,24 @@ static void sli_handle_tx_flush(const sli_si91x_queue_packet_t *data,
 void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet)
 {
   // Retrieve the current operation mode (e.g., client, AP, concurrent).
-  sl_wifi_operation_mode_t current_operation_mode = sli_get_opermode();
+  sl_wifi_operation_mode_t current_operation_mode = sli_wifi_get_opermode();
 
   // Determine if a Wi-Fi client is disconnected from the access point.
   // This includes cases where the device is operating as an access point (AP mode)
   // or in concurrent mode where the AP VAP ID is relevant.
   bool is_client_disconnected_from_ap =
     (packet->command == SLI_WLAN_RSP_CLIENT_DISCONNECTED
-     || (packet->command == SLI_WLAN_RSP_DISCONNECT
+     || (packet->command == SLI_WIFI_RSP_DISCONNECT
          && (current_operation_mode == SL_SI91X_ACCESS_POINT_MODE
              || (current_operation_mode == SL_SI91X_CONCURRENT_MODE && packet->desc[7] == SL_WIFI_AP_VAP_ID))));
 
   // Determine if a TX flush is required.
   // This is true for scenarios such as join failures, IP address changes, and disconnections.
-  bool is_tx_flush_required = (((packet->command == SLI_WLAN_RSP_JOIN) && (data->frame_status != SL_STATUS_OK))
+  bool is_tx_flush_required = (((packet->command == SLI_WIFI_RSP_JOIN) && (data->frame_status != SL_STATUS_OK))
                                || packet->command == SLI_WLAN_RSP_IPV4_CHANGE
                                || packet->command == SLI_WLAN_RSP_IPCONFV4 || packet->command == SLI_WLAN_RSP_IPCONFV6
-                               || packet->command == SLI_WLAN_RSP_DISCONNECT
-                               || packet->command == SLI_WLAN_RSP_AP_STOP);
+                               || packet->command == SLI_WIFI_RSP_DISCONNECT
+                               || packet->command == SLI_WIFI_RSP_AP_STOP);
 
   // Handle the scenario where a Wi-Fi client disconnects from the AP.
   if (is_client_disconnected_from_ap) {

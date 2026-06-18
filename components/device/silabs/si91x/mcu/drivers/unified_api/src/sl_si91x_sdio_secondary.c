@@ -38,10 +38,10 @@
 /*******************************************************************************
  ***************************  DEFINES / MACROS   ********************************
  ******************************************************************************/
-#define SDIO_SECONDARY_RELEASE_VERSION 0 // SDIO Secondary Release version
-#define SDIO_SECONDARY_SQA_VERSION     0 // SDIO Secondary SQA version
-#define SDIO_SECONDARY_DEV_VERSION     2 // SDIO Secondary Developer version
-
+#define SDIO_SECONDARY_RELEASE_VERSION 0    // SDIO Secondary Release version
+#define SDIO_SECONDARY_SQA_VERSION     0    // SDIO Secondary SQA version
+#define SDIO_SECONDARY_DEV_VERSION     2    // SDIO Secondary Developer version
+#define MAX_DESCRIPTOR_SIZE            4095 // Maximum DMA transfer size per descriptor (12-bit field)
 /*******************************************************************************
  ******************************   VARIABLES   **********************************
  ******************************************************************************/
@@ -123,14 +123,40 @@ void GPDMA_Handler(void)
  ******************************************************************************/
 void SDIO_Handler(void)
 {
-  uint8_t events = 0;
+  uint8_t events       = 0;
+  uint32_t intr_status = SDIO->SDIO_INTR_FN1_STATUS_CLEAR_REG;
 
-  // clear the command53 write interrupt
-  sl_si91x_sdio_secondary_clear_interrupts(BIT(0));
+  // Handle receive event
+  if (intr_status & HOST_INTR_RECEIVE_EVENT) {
+    sl_si91x_sdio_secondary_clear_interrupts(SL_SDIO_WR_INT_MSK);
+    events |= HOST_INTR_RECEIVE_EVENT;
+  }
 
-  events |= HOST_INTR_RECEIVE_EVENT;
+  // Handle send event (can happen simultaneously)
+  if (intr_status & HOST_INTR_SEND_EVENT) {
+    sl_si91x_sdio_secondary_clear_interrupts(SL_SDIO_RD_INT_MSK);
+    events |= HOST_INTR_SEND_EVENT;
+  }
 
-  user_callback(events);
+  // Handle CMD52 event (can happen simultaneously)
+  if (intr_status & HOST_INTR_CMD52_EVENT) {
+    sl_si91x_sdio_secondary_clear_interrupts(SL_SDIO_CMD52_INT_MSK);
+    events |= HOST_INTR_CMD52_EVENT;
+  }
+
+  // Handle error events
+  if (intr_status & HOST_INTR_ERROR_EVENT) // Check if this event exists in your defines
+  {
+    sl_si91x_sdio_secondary_clear_interrupts(SL_SDIO_ERROR_INT_MSK); // Define this mask
+    events |= HOST_INTR_ERROR_EVENT;
+  }
+  // Call user callback only if events are present
+  if (events != 0) {
+    user_callback(events);
+  } else {
+    // Handle unknown events - no recognized events, clear all interrupts as safety measure
+    sl_si91x_sdio_secondary_clear_interrupts(0xFF); // or appropriate mask
+  }
 }
 
 /*******************************************************************************
@@ -145,6 +171,8 @@ void GPDMATransferComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_DESC_T *p
   (void)pTranDesc;
   (void)GPDMAHandle_p;
   user_gpdma_callback((uint8_t)dmaCh);
+  // Re-enable SDIO interrupts after transfer completion
+  sl_si91x_sdio_secondary_set_interrupts(SL_SDIO_WR_INT_UNMSK | SL_SDIO_RD_INT_UNMSK | SL_SDIO_CMD52_INT_UNMSK);
 }
 
 /*******************************************************************************
@@ -197,51 +225,84 @@ void GPDMATransferDescFetchComplete(RSI_GPDMA_HANDLE_T GPDMAHandle_p, RSI_GPDMA_
  ******************************************************************************/
 void sl_si91x_fill_rx_descriptors(uint8_t *data_buf)
 {
-  uint32_t j;
   RSI_GPDMA_DESC_T *pPrevDesc;
-  uint32_t no_of_desc = 0;
+  uint32_t no_of_desc      = 0;
+  uint32_t block_len       = 0;
+  uint32_t block_cnt       = 0;
+  uint32_t total_bytes     = 0;
+  uint32_t remaining_bytes = 0;
+  uint32_t current_offset  = 0;
 
-  // Get the SDIO block count
-  no_of_desc = sl_si91x_sdio_secondary_get_block_cnt();
+  // Get the SDIO block count and block length from the last received CMD53
+  block_cnt   = sl_si91x_sdio_secondary_get_block_cnt();
+  block_len   = sl_si91x_sdio_secondary_get_block_len();
+  total_bytes = block_cnt * block_len;
 
-  pPrevDesc = NULL;
-  for (j = 0; j < no_of_desc; j++) {
+  // Calculate the minimum number of descriptors needed to transfer all data
+  // Each descriptor can handle up to 4095 bytes, so we divide total bytes
+  // and round up if there's a remainder
+  no_of_desc = total_bytes / MAX_DESCRIPTOR_SIZE;
+  if (total_bytes % MAX_DESCRIPTOR_SIZE != 0) {
+    no_of_desc++;
+  }
+  remaining_bytes = total_bytes;
 
-    // Channel Control Config
-    rx_XferCfg.chnlCtrlConfig.transSize        = (sl_si91x_sdio_secondary_get_block_len() & 0xfff);
-    rx_XferCfg.chnlCtrlConfig.transType        = PERIPHERAL_MEMORY;
-    rx_XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
-    rx_XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
-    rx_XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
-    rx_XferCfg.chnlCtrlConfig.destDataWidth    = DST_8_DATA_WIDTH; //DST_8_DATA_WIDTH;
-    rx_XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_32_DATA_WIDTH;
-    rx_XferCfg.chnlCtrlConfig.srcAlign         = 0;
-    rx_XferCfg.chnlCtrlConfig.linkListOn       = 1;
-    rx_XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
-    rx_XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
-    rx_XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
-    rx_XferCfg.chnlCtrlConfig.retryOnErr       = 0;
-    rx_XferCfg.chnlCtrlConfig.linkInterrupt    = 0;
-    rx_XferCfg.chnlCtrlConfig.srcFifoMode      = 1;
-    rx_XferCfg.chnlCtrlConfig.dstFifoMode      = 0;
+  // Configure channel control settings (common for all descriptors)
+  // These settings are set once outside the loop for better performance
+  pPrevDesc                                  = NULL;
+  rx_XferCfg.chnlCtrlConfig.transType        = PERIPHERAL_MEMORY;
+  rx_XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
+  rx_XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
+  rx_XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
+  rx_XferCfg.chnlCtrlConfig.destDataWidth    = DST_8_DATA_WIDTH; //DST_8_DATA_WIDTH;
+  rx_XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_32_DATA_WIDTH;
+  rx_XferCfg.chnlCtrlConfig.srcAlign         = 0;
+  rx_XferCfg.chnlCtrlConfig.linkListOn       = 1;
+  rx_XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
+  rx_XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
+  rx_XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
+  rx_XferCfg.chnlCtrlConfig.retryOnErr       = 0;
+  rx_XferCfg.chnlCtrlConfig.linkInterrupt    = 0;
+  rx_XferCfg.chnlCtrlConfig.srcFifoMode      = 1;
+  rx_XferCfg.chnlCtrlConfig.dstFifoMode      = 0;
 
-    // Misc Channel Config
-    rx_XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_4;
-    rx_XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_4;
-    rx_XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_4;
-    rx_XferCfg.miscChnlCtrlConfig.destChannelId = 0;
-    rx_XferCfg.miscChnlCtrlConfig.srcChannelId  = 30;
-    rx_XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
-    rx_XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
-    rx_XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
+  // Misc Channel Config
+  rx_XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_4;
+  rx_XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_4;
+  rx_XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_4;
+  rx_XferCfg.miscChnlCtrlConfig.destChannelId = 0;
+  rx_XferCfg.miscChnlCtrlConfig.srcChannelId  = 30;
+  rx_XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
+  rx_XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
+  rx_XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
 
-    rx_XferCfg.dest = (data_buf + (j * sl_si91x_sdio_secondary_get_block_len()));
-    rx_XferCfg.src  = (uint32_t *)(RX_SOURCE_ADDR);
+  // Create descriptor chain - each descriptor handles up to 4095 bytes
+  for (uint32_t j = 0; j < no_of_desc; j++) {
+    // Calculate transfer size for this descriptor (either max size or remaining bytes)
+    uint32_t transfer_size = (remaining_bytes > MAX_DESCRIPTOR_SIZE) ? MAX_DESCRIPTOR_SIZE : remaining_bytes;
+
+    // Set the transfer size for this specific descriptor
+    rx_XferCfg.chnlCtrlConfig.transSize = (transfer_size & 0xfff);
+
+    // Set destination address (offset into the user buffer)
+    rx_XferCfg.dest = (data_buf + current_offset);
+
+    // Set source address (SDIO RX FIFO - same for all descriptors)
+    rx_XferCfg.src = (uint32_t *)(RX_SOURCE_ADDR);
+
+    // Build the descriptor and link it to the previous one
     if (RSI_GPDMA_BuildDescriptors(GPDMAHandle, &rx_XferCfg, &rx_GPDMADesc[j], pPrevDesc) != RSI_OK) {
     }
+
+    // Update the previous descriptor pointer for the next iteration
     pPrevDesc = &rx_GPDMADesc[j];
+
+    // Update offset and remaining bytes for next descriptor
+    current_offset += transfer_size;
+    remaining_bytes -= transfer_size;
   }
-  // Assigning pointer to next descriptor link in a chain with NULL
+
+  // Mark the end of the descriptor chain
   rx_GPDMADesc[no_of_desc - 1].pNextLink = NULL;
 }
 
@@ -254,51 +315,81 @@ void sl_si91x_fill_rx_descriptors(uint8_t *data_buf)
  ******************************************************************************/
 void sl_si91x_fill_tx_descriptors(uint8_t *data_buff, uint8_t num_of_blocks)
 {
-  uint32_t j;
   RSI_GPDMA_DESC_T *pPrevDesc;
-  uint32_t no_of_desc = 0;
   RSI_GPDMA_DESC_T XferCfg;
+  uint32_t no_of_desc      = 0;
+  uint32_t total_bytes     = 0;
+  uint32_t remaining_bytes = 0;
+  uint32_t current_offset  = 0;
 
-  no_of_desc = num_of_blocks;
+  // Calculate total bytes to transfer based on number of blocks
+  total_bytes = num_of_blocks * TX_TRANSFER_BLOCK_SIZE;
 
+  // Calculate the minimum number of descriptors needed to transfer all data
+  // Each descriptor can handle up to 4095 bytes, so we divide total bytes
+  // and round up if there's a remainder
+  no_of_desc = total_bytes / MAX_DESCRIPTOR_SIZE;
+  if (total_bytes % MAX_DESCRIPTOR_SIZE != 0) {
+    no_of_desc++;
+  }
+  remaining_bytes = total_bytes;
+
+  // Configure channel control settings (common for all descriptors)
+  // These settings are set once outside the loop for better performance
+  XferCfg.chnlCtrlConfig.transType        = MEMORY_PERIPHERAL;
+  XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
+  XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
+  XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
+  XferCfg.chnlCtrlConfig.destDataWidth    = DST_32_DATA_WIDTH;
+  XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_8_DATA_WIDTH;
+  XferCfg.chnlCtrlConfig.srcAlign         = 0;
+  XferCfg.chnlCtrlConfig.linkListOn       = 1;
+  XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
+  XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
+  XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
+  XferCfg.chnlCtrlConfig.retryOnErr       = 0;
+  XferCfg.chnlCtrlConfig.linkInterrupt    = 1;
+  XferCfg.chnlCtrlConfig.srcFifoMode      = 0;
+  XferCfg.chnlCtrlConfig.dstFifoMode      = 1;
+
+  // Misc Channel Config (set once for all descriptors)
+  XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_8;
+  XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_8;
+  XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_8;
+  XferCfg.miscChnlCtrlConfig.destChannelId = 31;
+  XferCfg.miscChnlCtrlConfig.srcChannelId  = 0;
+  XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
+  XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
+  XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
+
+  // Create descriptor chain - each descriptor handles up to 4095 bytes
   pPrevDesc = NULL;
-  for (j = 0; j < no_of_desc; j++) {
-    // Channel Control Config
-    XferCfg.chnlCtrlConfig.transSize        = TX_TRANSFER_BLOCK_SIZE;
-    XferCfg.chnlCtrlConfig.transType        = MEMORY_PERIPHERAL;
-    XferCfg.chnlCtrlConfig.dmaFlwCtrl       = DMA_FLW_CTRL;
-    XferCfg.chnlCtrlConfig.mastrIfFetchSel  = MASTER0_FETCH_IFSEL;
-    XferCfg.chnlCtrlConfig.mastrIfSendSel   = MASTER0_SEND_IFSEL;
-    XferCfg.chnlCtrlConfig.destDataWidth    = DST_32_DATA_WIDTH;
-    XferCfg.chnlCtrlConfig.srcDataWidth     = SRC_8_DATA_WIDTH;
-    XferCfg.chnlCtrlConfig.srcAlign         = 0;
-    XferCfg.chnlCtrlConfig.linkListOn       = 1;
-    XferCfg.chnlCtrlConfig.linkListMstrSel  = LINK_MASTER_0_FTCH;
-    XferCfg.chnlCtrlConfig.srcAddContiguous = 0;
-    XferCfg.chnlCtrlConfig.dstAddContiguous = 0;
-    XferCfg.chnlCtrlConfig.retryOnErr       = 0;
-    XferCfg.chnlCtrlConfig.linkInterrupt    = 1;
-    XferCfg.chnlCtrlConfig.srcFifoMode      = 0;
-    XferCfg.chnlCtrlConfig.dstFifoMode      = 1;
+  for (uint32_t j = 0; j < no_of_desc; j++) {
+    // Calculate transfer size for this descriptor (either max size or remaining bytes)
+    uint32_t transfer_size = (remaining_bytes > MAX_DESCRIPTOR_SIZE) ? MAX_DESCRIPTOR_SIZE : remaining_bytes;
 
-    // Misc Channel Config
-    XferCfg.miscChnlCtrlConfig.ahbBurstSize  = AHBBURST_SIZE_8;
-    XferCfg.miscChnlCtrlConfig.destDataBurst = DST_BURST_SIZE_8;
-    XferCfg.miscChnlCtrlConfig.srcDataBurst  = SRC_BURST_SIZE_8;
-    XferCfg.miscChnlCtrlConfig.destChannelId = 31;
-    XferCfg.miscChnlCtrlConfig.srcChannelId  = 0;
-    XferCfg.miscChnlCtrlConfig.dmaProt       = 0;
-    XferCfg.miscChnlCtrlConfig.memoryFillEn  = 0;
-    XferCfg.miscChnlCtrlConfig.memoryOneFill = 0;
+    // Set the transfer size for this specific descriptor
+    XferCfg.chnlCtrlConfig.transSize = transfer_size;
 
+    // Set destination address (SDIO TX FIFO - same for all descriptors)
     XferCfg.dest = (uint32_t *)(TX_SOURCE_ADDR);
-    XferCfg.src  = (data_buff + (j * TX_TRANSFER_BLOCK_SIZE));
-    // Build the descriptor parameters
+
+    // Set source address (offset into the user buffer)
+    XferCfg.src = (data_buff + current_offset);
+
+    // Build the descriptor and link it to the previous one
     if (RSI_GPDMA_BuildDescriptors(GPDMAHandle, &XferCfg, &GPDMADesc[j], pPrevDesc) != RSI_OK) {
     }
+
+    // Update the previous descriptor pointer for the next iteration
     pPrevDesc = &GPDMADesc[j];
+
+    // Update offset and remaining bytes for next descriptor
+    current_offset += transfer_size;
+    remaining_bytes -= transfer_size;
   }
-  // Assigning pointer to next descriptor link in a chain with NULL
+
+  // Mark the end of the descriptor chain
   GPDMADesc[no_of_desc - 1].pNextLink = NULL;
 }
 
@@ -527,7 +618,17 @@ void sl_si91x_sdio_secondary_receive(uint8_t *data_buf)
   // Trigger channel
   RSI_GPDMA_DMAChannelTrigger(GPDMAHandle, GPDMA_CHNL1);
   // Enable the SDIO write interrupt
-  sl_si91x_sdio_secondary_set_interrupts(SL_SDIO_WR_INT_UNMSK);
+  // sl_si91x_sdio_secondary_set_interrupts(SL_SDIO_WR_INT_UNMSK);
+}
+
+/*******************************************************************************
+ * This API is used to request permission to send data to the host/primary device.
+ * It signals the host that data is ready for transmission.
+ ******************************************************************************/
+void sl_si91x_sdio_secondary_request_to_send(void)
+{
+  // Raise interrupt to host
+  M4_HOST_INTR_STATUS_REG = BIT(3);
 }
 
 /*******************************************************************************
@@ -541,9 +642,6 @@ void sl_si91x_sdio_secondary_send(uint8_t num_of_blocks, uint8_t *data_buf)
 
   // Program number of blocks
   sl_si91x_sdio_secondary_set_tx_blocks(num_of_blocks);
-
-  // Raise interrupt to host
-  M4_HOST_INTR_STATUS_REG = BIT(3);
 
   // Trigger channel
   RSI_GPDMA_DMAChannelTrigger(GPDMAHandle, GPDMA_CHNL0);

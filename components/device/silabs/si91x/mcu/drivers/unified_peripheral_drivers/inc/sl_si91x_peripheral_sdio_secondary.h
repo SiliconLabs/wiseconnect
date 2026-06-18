@@ -98,6 +98,8 @@ extern "C" {
 #define SL_SDIO_CRC_ERR_INT_MSK BIT(5) ///< This bit is used to mask CRC error interrupt.
 #define SL_SDIO_ABORT_INT_MSK   BIT(6) ///< This bit is used to mask abort interrupt.
 #define SL_SDIO_TOUT_INT_MSK    BIT(7) ///< This bit is used to mask "read FIFO wait time over" interrupt.
+#define SL_SDIO_ERROR_INT_MSK \
+  (SL_SDIO_CRC_ERR_INT_MSK | SL_SDIO_ABORT_INT_MSK | SL_SDIO_TOUT_INT_MSK) ///< Combined error interrupt mask.
 
 // @brief SDIO Function1 interrupt unmask bits.
 #define SL_SDIO_WR_INT_UNMSK      BIT(0) ///< This bit is used to unmask CMD53 write interrupt.
@@ -108,6 +110,8 @@ extern "C" {
 #define SL_SDIO_CRC_ERR_INT_UNMSK BIT(5) ///< This bit is used to unmask CRC error interrupt.
 #define SL_SDIO_ABORT_INT_UNMSK   BIT(6) ///< This bit is used to unmask abort interrupt.
 #define SL_SDIO_TOUT_INT_UNMSK    BIT(7) ///< This bit is used to unmask "read FIFO wait time over" interrupt.
+#define SL_SDIO_ERROR_INT_UNMSK \
+  (SL_SDIO_CRC_ERR_INT_UNMSK | SL_SDIO_ABORT_INT_UNMSK | SL_SDIO_TOUT_INT_UNMSK) ///< Combined error interrupt unmask.
 
 /***************************************************************************/
 /**

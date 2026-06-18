@@ -96,7 +96,7 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define SO_TIMESTAMP	0x0800		///< Timestamps received datagram traffic. This option is not supported in the current release.
 #define SO_BINDANY	0x1000		///< Allows binding to any address. This option is not supported in the current release.
 #define SO_ZEROIZE	0x2000		///< Zeroes out all mbufs sent over the socket. This option is not supported in the current release.
-#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 32.
+#define SO_MAX_RETRANSMISSION_TIMEOUT_VALUE 0x3012 ///< Configures max retransmission timeout value. The option value associated with this option name should be a power of 2 between 1 and 128.
 /*
  * Additional options, not kept in so_options.
  */
@@ -129,6 +129,7 @@ typedef	__sa_family_t	sa_family_t;	/* sockaddr address family type */
 #define SL_SO_MSS                      0x102A  ///< Sets the Maximum Segment Size (MSS) for a socket.
 #define SL_SO_SOCK_VAP_ID              0x102B  ///< Sets the VAP ID for a socket.
 #define SL_SO_MAXRETRY                 0x102C  ///< Sets the maximum number of retries for a socket.
+#define SL_SO_VERIFY_DOMAIN_NAME       0x102D  ///< Sets expected domain name for TLS certificate verification.
 /** @} */
 
 /*
@@ -592,6 +593,7 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   - @ref SL_SO_HIGH_PERFORMANCE_SOCKET
  *   - @ref SL_SO_TLS_SNI
  *   - @ref SL_SO_TLS_ALPN
+ *   - @ref SL_SO_VERIFY_DOMAIN_NAME
  *  
  * @param[in] option_value
  *   A pointer to the buffer containing the value for the option. Most socket-level options utilize an `int` argument for `option_value`. 
@@ -608,6 +610,7 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   | @ref SL_SO_HIGH_PERFORMANCE_SOCKET                | BIT(7)                               | Set high performance socket                                                                                                |
  *   | @ref SL_SO_TLS_SNI                                | sl_si91x_socket_type_length_value_t  | Server name indication for the socket                                                                                      |
  *   | @ref SL_SO_TLS_ALPN                               | sl_si91x_socket_type_length_value_t  | Application layer protocol negotiation for the socket                                                                      |
+ *   | @ref SL_SO_VERIFY_DOMAIN_NAME                     | uint8_t *                            | Expected domain name for TLS certificate verification; firmware uses this for server certificate CN/SAN check.             |
  * 
  * @param[in] option_length
  *   The length of the option data, in bytes, pointed to by `option_value`.
@@ -616,7 +619,7 @@ ssize_t sendto(int socket_id, const void *buf, size_t buf_len, int flags, const 
  *   Returns 0 on successful completion. Returns -1 on error and sets the global variable `errno` to indicate the error.
  * 
  * @note 
- *   The options `SL_SO_CERT_INDEX`, `SL_SO_HIGH_PERFORMANCE_SOCKET`, `SL_SO_TLS_SNI`, and `SL_SO_TLS_ALPN` are Silicon Labs specific options.
+ *   The options `SL_SO_CERT_INDEX`, `SL_SO_HIGH_PERFORMANCE_SOCKET`, `SL_SO_TLS_SNI`, `SL_SO_TLS_ALPN`, and `SL_SO_VERIFY_DOMAIN_NAME` are Silicon Labs specific options.
  * 	 This function is used before the socket is connected.
  ******************************************************************************/
 int setsockopt(int socket_id, int option_level, int option_name, const void *option_value, socklen_t option_length);

@@ -127,7 +127,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssTouchClock(uint32_t src_clk_mux, uint32_t
     case ULP_TOUCH_REF_CLK:
       ulpss_touch_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_TOUCH_32KHZ_RO_CLK:
+    case ULP_TOUCH_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_touch_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_TOUCH_32KHZ_RC_CLK:
@@ -139,7 +139,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssTouchClock(uint32_t src_clk_mux, uint32_t
     case ULP_TOUCH_MHZ_RC_CLK:
       ulpss_touch_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_TOUCH_20MHZ_RO_CLK:
+    case ULP_TOUCH_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_touch_src_clk = system_clocks.ro_20mhz_clock;
       break;
     case ULP_TOUCH_ULP_SOC_CLK:
@@ -164,7 +164,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssAuxClock(uint32_t src_clk_mux)
     case ULP_AUX_REF_CLK:
       ulpss_aux_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_AUX_32KHZ_RO_CLK:
+    case ULP_AUX_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_aux_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_AUX_32KHZ_RC_CLK:
@@ -176,7 +176,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssAuxClock(uint32_t src_clk_mux)
     case ULP_AUX_MHZ_RC_CLK:
       ulpss_aux_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_AUX_20MHZ_RO_CLK:
+    case ULP_AUX_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_aux_src_clk = system_clocks.ro_20mhz_clock;
       break;
     case ULP_AUX_ULP_SOC_CLK:
@@ -203,7 +203,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssTimerClock(uint32_t src_clk_mux)
     case ULP_TIMER_REF_CLK:
       ulpss_timer_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_TIMER_32KHZ_RO_CLK:
+    case ULP_TIMER_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_timer_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_TIMER_32KHZ_RC_CLK:
@@ -215,7 +215,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssTimerClock(uint32_t src_clk_mux)
     case ULP_TIMER_MHZ_RC_CLK:
       ulpss_timer_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_TIMER_20MHZ_RO_CLK:
+    case ULP_TIMER_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_timer_src_clk = system_clocks.ro_20mhz_clock;
       break;
     case ULP_TIMER_ULP_SOC_CLK:
@@ -236,7 +236,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssUartClock(uint32_t src_clk_mux, uint32_t 
     case ULP_UART_REF_CLK:
       ulpss_uart_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_UART_ULP_32KHZ_RO_CLK:
+    case ULP_UART_ULP_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_uart_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_UART_ULP_32KHZ_RC_CLK:
@@ -248,7 +248,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssUartClock(uint32_t src_clk_mux, uint32_t 
     case ULP_UART_ULP_MHZ_RC_CLK:
       ulpss_uart_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_UART_ULP_20MHZ_RO_CLK:
+    case ULP_UART_ULP_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_uart_src_clk = system_clocks.ro_20mhz_clock;
       break;
     case ULP_UART_SOC_CLK:
@@ -276,7 +276,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssI2sClock(uint32_t src_clk_mux, uint32_t d
     case ULP_I2S_REF_CLK:
       ulpss_i2s_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_I2S_ULP_32KHZ_RO_CLK:
+    case ULP_I2S_ULP_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_i2s_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_I2S_ULP_32KHZ_RC_CLK:
@@ -288,7 +288,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssI2sClock(uint32_t src_clk_mux, uint32_t d
     case ULP_I2S_ULP_MHZ_RC_CLK:
       ulpss_i2s_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_I2S_ULP_20MHZ_RO_CLK:
+    case ULP_I2S_ULP_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_i2s_src_clk = system_clocks.ro_20mhz_clock;
       break;
     default:
@@ -310,7 +310,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssSsiClock(uint32_t src_clk_mux, uint32_t d
     case ULP_SSI_REF_CLK:
       ulpss_ssi_src_clk = system_clocks.ulpss_ref_clk;
       break;
-    case ULP_SSI_ULP_32KHZ_RO_CLK:
+    case ULP_SSI_ULP_32KHZ_RO_CLK: /*!< 32KHZ RO clock not supported*/
       ulpss_ssi_src_clk = system_clocks.ro_32khz_clock;
       break;
     case ULP_SSI_ULP_32KHZ_RC_CLK:
@@ -322,7 +322,7 @@ STATIC INLINE uint32_t RSI_CLK_GetUlpssSsiClock(uint32_t src_clk_mux, uint32_t d
     case ULP_SSI_ULP_MHZ_RC_CLK:
       ulpss_ssi_src_clk = system_clocks.rc_mhz_clock;
       break;
-    case ULP_SSI_ULP_20MHZ_RO_CLK:
+    case ULP_SSI_ULP_20MHZ_RO_CLK: /*!< 20MHZ RO clock not supported*/
       ulpss_ssi_src_clk = system_clocks.ro_20mhz_clock;
       break;
     case ULP_SSI_SOC_CLK:
@@ -523,7 +523,7 @@ STATIC INLINE uint32_t RSI_CLK_GetQspiClock(uint32_t src_clk_mux,
 
   return qspi_src_clk;
 }
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
 STATIC INLINE uint32_t RSI_CLK_GetCciClock(uint32_t src_clk_mux, uint32_t div_fac)
 {
   uint32_t cci_src_clk = 0;
@@ -762,7 +762,7 @@ uint32_t RSI_CLK_GetBaseClock(PERI_CLKS_T peri_src)
       src_clk     = RSI_CLK_GetCtClock(src_clk_mux, div_fac);
       break;
 
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
     case M4_SD_MEM:
       src_clk_mux = M4CLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_SEL;
       div_fac     = M4CLK->SD_MEM_CLOCK_REG_b.SD_MEM_INTF_CLK_DIV_FAC;

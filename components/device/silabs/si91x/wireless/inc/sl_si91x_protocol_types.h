@@ -47,14 +47,11 @@
 #define SLI_PSK_LEN                  64
 #define SLI_MAC_ADDR_LEN             6
 
-// A macro to define the size of array in sl_si91x_socket_info_response_t to hold socket data.
-#define SL_SI91X_SOCKET_INFO_RESPONSE_SOCKETS_COUNT 10
+// Maximum length of the domain name for TLS certificate verification
+#define SLI_SI91X_MAX_DOMAIN_NAME_LENGTH 256
 
 // Maximum Access points that can be scanned
 #define SLI_AP_SCANNED_MAX 11
-
-// Maximum number of stations associated when running as an AP
-#define SLI_SI91X_MAX_STATIONS 16
 
 // Quick reference: Bit 3 -> DHCPv6 client, Bit 5 -> DHCPv6 server, Bit 17 -> TCP_IP_FEAT_IPV6
 // Details: https://docs.silabs.com/rs9116-wiseconnect/latest/wifibt-wc-sapi-reference/opermode#rsi-tcp-ip-feature-bit-map
@@ -93,7 +90,7 @@
 // Websocket max subprotocol length
 #define SLI_WEBS_MAX_SUBPROTOCOL_LENGTH 51
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA 256
 #else
 #define SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA 64
@@ -104,9 +101,6 @@
 #define SLI_SI91X_DNS_RESPONSE_MAX_ENTRIES 10
 
 #define SLI_SI91X_MAX_CERT_SEND_SIZE 1400
-
-// User gain table related
-#define SLI_MAX_GAIN_TABLE_SIZE_WITH_SU_TB 160
 
 /** NOTE: For power save related info
  * https://docs.silabs.com/rs9116/wiseconnect/rs9116w-wifi-at-command-prm/latest/wlan-commands#rsi-pwmode----power-mode
@@ -127,16 +121,10 @@
 #define SLI_M4_BASED_DEEP_SLEEP 10
 #endif
 
-#define SLI_DEFAULT_MONITOR_INTERVAL 50
-#define SLI_DEFAULT_DTIM_SKIP        0
-#define SLI_DEFAULT_DTIM_ALIGNMENT   0
+#define SLI_DEFAULT_DTIM_SKIP      0
+#define SLI_DEFAULT_DTIM_ALIGNMENT 0
 
-#define SLI_LP_MODE                       0
-#define SLI_ULP_WITH_RAM_RETENTION        1
-#define SLI_ULP_WITHOUT_RAM_RET_RETENTION 2
-
-#define SLI_MAX_PSP  0
-#define SLI_FAST_PSP 1
+#define SLI_LP_MODE 0
 
 /****************************** POWER RELATED DEFINES END ***********************************/
 
@@ -150,9 +138,7 @@
 //**************************** Macros for WPS Method request START *********************************/
 
 #define SLI_SI91X_SET_WPS_METHOD_PUSH_BUTTON 0
-#define SLI_SI91X_SET_WPS_METHOD_PIN         1
 #define SLI_SI91X_SET_WPS_VALIDATE_PIN       0
-#define SLI_SI91X_SET_WPS_GENERATE_PIN       1
 #define SLI_SI91X_WPS_PIN_LEN                8
 
 //**************************** Macros for WPS Method request END ***********************************/
@@ -247,75 +233,6 @@
 typedef enum { SLI_NONE, SLI_TKIP, SLI_CCMP } sli_si91x_encryption_mode_t;
 //! @endcond
 
-/// Set region command request structure
-typedef struct {
-  /// Enable or disable set region from user: 1-take from user configuration,0-Take from Beacons
-  uint8_t set_region_code_from_user_cmd;
-
-  /// region code(1-US,2-EU,3-JP,4-World Domain,5-KR)
-  uint8_t region_code;
-
-  /// module type (0- Without on board antenna, 1- With on board antenna)
-  uint16_t module_type;
-} sli_si91x_set_region_request_t;
-
-/// Set region in AP mode command request structure
-typedef struct {
-  /// Enable or disable set region from user: 1-take from user configuration, 0-Take US or EU or JP
-  uint8_t set_region_code_from_user_cmd;
-
-  /// region code(1-US,2-EU,3-JP)
-  uint8_t country_code[SLI_SI91X_COUNTRY_CODE_LENGTH];
-
-  /// No of rules
-  uint32_t no_of_rules;
-
-  /// Channel information
-  struct {
-    uint8_t first_channel;  ///< First channel
-    uint8_t no_of_channels; ///< Number of channels
-    uint8_t max_tx_power;   ///< Max Tx power
-  } channel_info[SLI_SI91X_MAX_POSSIBLE_CHANNEL];
-} sli_si91x_set_region_ap_request_t;
-
-/// Scan command request structure
-typedef struct {
-  uint8_t channel[4];             ///< RF channel to scan, 0=All, 1-14 for 2.4 GHz channels 1-14
-  uint8_t ssid[SLI_SSID_LEN];     ///< SSID to scan, 0=All
-  uint8_t pscan_bitmap[4];        ///< Pscan bitmap
-  uint8_t _reserved;              ///< Reserved
-  uint8_t scan_feature_bitmap;    ///< Scan feature bitmap
-  uint8_t channel_bit_map_2_4[2]; ///< Channel bit map for 2.4GHz
-  uint8_t channel_bit_map_5[4];   ///< Channel bit map for 5GHz
-} sli_si91x_req_scan_t;
-
-/// bg scan command request structure
-typedef struct {
-  /// enable or disable BG scan
-  uint16_t bgscan_enable;
-
-  /// Is it instant bgscan or normal bgscan
-  uint16_t enable_instant_bgscan;
-
-  /// bg scan threshold value
-  uint16_t bgscan_threshold;
-
-  /// tolerance threshold
-  uint16_t rssi_tolerance_threshold;
-
-  /// periodicity
-  uint16_t bgscan_periodicity;
-
-  /// active scan duration
-  uint16_t active_scan_duration;
-
-  /// passive scan duration
-  uint16_t passive_scan_duration;
-
-  /// multi probe
-  uint8_t multi_probe;
-} sli_si91x_req_bg_scan_t;
-
 /// Scan information response structure
 typedef struct {
   uint8_t rf_channel;              ///< channel number of the scanned AP
@@ -333,39 +250,6 @@ typedef struct {
   uint8_t reserved[4];                                 ///< Reserved
   sli_si91x_scan_info_t scan_info[SLI_AP_SCANNED_MAX]; ///< scanned access points information
 } sli_si91x_rsp_scan_t;
-
-/// Antenna select command request structure
-typedef struct {
-  uint8_t antenna_value; ///< Antenna value to set
-
-  uint8_t gain_2g; ///< Antenna 2G gain value
-
-  uint8_t gain_5g; ///< Antenna 5G gain value
-
-} sli_si91x_antenna_select_t;
-
-/// PSK command request  structure
-typedef struct {
-  uint8_t type;                    ///< psk type , 1-psk alone, 2-pmk, 3-generate pmk from psk
-  uint8_t psk_or_pmk[SLI_PSK_LEN]; ///< psk or pmk
-  uint8_t ap_ssid[SLI_SSID_LEN];   ///< access point ssid: used for generation pmk
-} sli_si91x_req_psk_t;
-
-/// Enterprise configuration command request structure
-typedef struct {
-  uint8_t eap_method[32]; ///< EAP method
-
-  uint8_t inner_method[32]; ///< Inner method
-
-  uint8_t user_identity[64]; ///< Username
-
-  uint8_t password[128]; ///< Password
-
-  int8_t okc_enable[4]; ///< Opportunistic key caching enable
-
-  uint8_t private_key_password[82]; ///< Private key password for encrypted private keys
-
-} sli_si91x_req_eap_config_t;
 
 /// Set certificate information structure
 typedef struct {
@@ -388,50 +272,6 @@ typedef struct {
   sli_si91x_cert_info_t cert_info;                   ///< certificate information structure
   uint8_t certificate[SLI_SI91X_MAX_CERT_SEND_SIZE]; ///< certificate
 } sli_si91x_req_set_certificate_t;
-
-/// join command request  structure
-#pragma pack(1)
-typedef struct {
-  /// reserved bytes:Can be used for security Type
-  uint8_t reserved1;
-
-  /// 0- Open, 1-WPA, 2-WPA2,6-MIXED_MODE, 7-WPA3, 8-WP3_Transition
-  uint8_t security_type;
-
-  /// data rate, 0=auto, 1=1 Mbps, 2=2 Mbps, 3=5.5Mbps, 4=11 Mbps, 12=54 Mbps
-  uint8_t data_rate;
-
-  /// transmit power level, 0=low (6-9 dBm), 1=medium (10-14 dBm, 2=high (15-17 dBm)
-  uint8_t power_level;
-
-  /// pre-shared key, 63-byte string , last character is NULL
-  uint8_t psk[SLI_PSK_LEN];
-
-  /// ssid of access point to join to, 34-byte string
-  uint8_t ssid[SLI_SSID_LEN];
-
-  /// feature bitmap for join
-  uint8_t join_feature_bitmap;
-
-  /// reserved bytes
-  uint8_t reserved2[1];
-
-  /// Multiply the listen interval by the configured value in the association request. Default is 1, max recommended is 10. Higher values may cause interoperability issues.
-  uint8_t listen_interval_multiplier;
-
-  /// length of ssid given
-  uint8_t ssid_len;
-
-  /// listen interval
-  uint32_t listen_interval;
-
-  /// vap id, 0 - station mode, 1 - AP mode
-  uint8_t vap_id;
-
-  /// join bssid for mac based join
-  uint8_t join_bssid[6];
-} sli_si91x_join_request_t;
-#pragma pack()
 
 /// IPV4 ipconfig command request  structure
 typedef struct {
@@ -557,43 +397,6 @@ typedef struct {
 } sl_si91x_module_rtc_time_t;
 /** @} */
 
-/** \addtogroup SL_SI91X_TYPES
- * @{
- * */
-/// si91x Specific Wireless information
-typedef struct {
-
-  uint16_t
-    wlan_state; ///< WLAN state: 1 = connected, 0 = disconnected in station mode; number of stations connected in AP mode.
-
-  uint16_t channel_number; ///< Channel number of connected AP in station mode; channel number of the module in AP mode
-                           ///<
-                           ///< **Wi-Fi Channel Number Range (1–14):**
-  ///< - **Channels 1–11:** Commonly used in most countries, including the United States (default range).
-  ///< - **Channels 12–13:** Permitted in Europe and several other regions.
-  ///< - **Channel 14:** Exclusively allowed in Japan and rarely used elsewhere.
-
-  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected AP in station mode; SSID of the module in AP mode
-
-  uint8_t mac_address[6]; ///< MAC address of the module
-
-  uint8_t sec_type; ///< Security type of connected AP is supported in station mode, but not in AP mode.
-                    ///< Refer sl_wifi_security_t for possible values of Security type
-
-  uint8_t psk_pmk[64]; ///< PSK for AP mode, PMK for station mode
-
-  uint8_t ipv4_address[4]; ///< Module IPv4 Address
-
-  uint8_t ipv6_address[16]; ///< Module IPv6 Address
-
-  uint8_t bssid[6]; ///< BSSID address of connected AP in station mode; not supported in AP mode
-
-  uint8_t
-    wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B) in station mode, not supported in AP mode
-
-} sl_si91x_rsp_wireless_info_t;
-/** @} */
-
 ///< socket create command request structure
 #pragma pack(1)
 typedef struct {
@@ -606,7 +409,7 @@ typedef struct {
     uint8_t ipv6_address[16]; ///<  remote IPv6 Address
   } dest_ip_addr;             ///< Destination IP address
   uint16_t max_count;         ///< maximum no of LTCP sockets on same port
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   uint16_t tos; ///< type of service
 
 #else
@@ -614,7 +417,7 @@ typedef struct {
 
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   uint32_t ssl_bitmap; ///< ssl version select bit map
 
 #else
@@ -630,7 +433,7 @@ typedef struct {
   uint8_t vap_id;                                      ///< VAPID
   uint8_t socket_cert_inx;                             ///< socket cert inx
   uint32_t ssl_ciphers_bitmap;                         ///< ssl ciphers bitmap
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   uint32_t ssl_ext_ciphers_bitmap;          ///< ssl extended ciphers bitmap
   uint8_t max_retransmission_timeout_value; ///< max retransmission timeout value
 #endif
@@ -639,11 +442,12 @@ typedef struct {
   uint16_t no_of_tls_extensions;                                    ///< number of TLS extensions
   uint16_t total_extension_length;                                  ///< total extension length
   uint8_t tls_extension_data[SLI_SI91X_MAX_SIZE_OF_EXTENSION_DATA]; ///< TLS extension data
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   uint16_t recv_buff_len; ///< receive buffer length
 #endif
   uint32_t reserved;                                              ///< reserved
   uint8_t webs_subprotocol_name[SLI_WEBS_MAX_SUBPROTOCOL_LENGTH]; ///< web socket subprotocol name
+  uint8_t domain_name[SLI_SI91X_MAX_DOMAIN_NAME_LENGTH];          ///< Domain name for SNI or Host header
 } sli_si91x_socket_create_request_t;
 #pragma pack()
 
@@ -741,52 +545,6 @@ typedef struct {
 } sli_si91x_rsp_ltcp_est_t;
 #pragma pack()
 
-/// disassociate command request structure
-#pragma pack(1)
-typedef struct {
-  /// 0- Module in Client mode, 1- AP mode
-  uint16_t mode_flag;
-
-  /// client MAC address, Ignored/Reserved in case of client mode
-  sl_mac_address_t client_mac_address;
-} sli_si91x_disassociation_request_t;
-#pragma pack()
-
-/// Access point configuration parameters
-#pragma pack(1)
-typedef struct {
-  /// channel number of the access point
-  uint16_t channel;
-
-  /// ssid of the AP to be created
-  uint8_t ssid[SLI_SSID_LEN];
-
-  /// security type of the Access point
-  uint8_t security_type;
-
-  /// encryption mode
-  uint8_t encryption_mode;
-
-  /// password in case of security mode
-  uint8_t psk[SL_WIFI_MAX_PMK_LENGTH];
-
-  /// Beacon interval of the access point in milliseconds. Allowed values are integers in the range of 100 to 1000 in multiples of 100.
-  uint16_t beacon_interval;
-
-  /// DTIM period of the access point
-  uint16_t dtim_period;
-
-  /// This is the bitmap to enable AP keep alive functionality and to select the keep alive type.
-  uint8_t ap_keepalive_type;
-
-  /// Keep alive time after which AP will disconnect the station if there are no wireless exchanges from station to AP.
-  uint8_t ap_keepalive_period;
-
-  /// Number of clients supported
-  uint16_t max_sta_support;
-} sli_si91x_ap_config_request;
-#pragma pack()
-
 /// Internal SiWx91x Socket information query
 /// @note: This is internal structure and should not be used by the applicatiom. This is identical to sl_si91x_sock_info_query_t and, would be cleaned to have single structure in future.
 typedef struct {
@@ -868,55 +626,6 @@ typedef struct {
 } sli_si91x_network_params_response_t;
 #pragma pack()
 
-/// Si91x specific station information
-typedef struct {
-  uint8_t ip_version[2]; ///< IP version if the connected client
-  uint8_t mac[6];        ///< Mac Address of the connected client
-  union {
-    uint8_t ipv4_address[4];  ///< IPv4 address of the connected client
-    uint8_t ipv6_address[16]; ///< IPv6 address of the connected client
-
-  } ip_address; ///< IP address
-} sli_si91x_station_info_t;
-
-/// go paramas response structure
-#pragma pack(1)
-typedef struct {
-  /// SSID of the P2p GO
-  uint8_t ssid[SLI_SSID_LEN];
-
-  /// BSSID of the P2p GO
-  uint8_t mac_address[6];
-
-  /// Operating channel of the GO
-  uint8_t channel_number[2];
-
-  /// PSK of the GO
-  uint8_t psk[64];
-
-  /// IPv4 Address of the GO
-  uint8_t ipv4_address[4];
-
-  /// IPv6 Address of the GO
-  uint8_t ipv6_address[16];
-
-  /// Number of stations Connected to GO
-  uint8_t sta_count[2];
-
-  /// Station information
-  sli_si91x_station_info_t sta_info[SLI_SI91X_MAX_STATIONS];
-} sli_si91x_client_info_response;
-#pragma pack()
-
-/// per stats command request structure
-typedef struct {
-  /// 0 - start , 1 -stop
-  uint8_t start[2];
-
-  /// channel number
-  uint8_t channel[2];
-} sli_si91x_req_rx_stats_t;
-
 /// Si91x specific sockt send data parameters
 typedef struct {
   uint8_t sock_fd; ///< Socket identifier
@@ -957,33 +666,6 @@ typedef struct {
   uint8_t afe_type;         ///< AFE Type.
   uint32_t feature_enables; ///< Feature Enables.
 } sli_si91x_feature_frame_request;
-
-/// structure for power save request
-typedef struct {
-  /// power mode to set
-  uint8_t power_mode;
-
-  /// set LP/ULP/ULP-without RAM retention
-  uint8_t ulp_mode_enable;
-
-  /// set DTIM aligment required
-  // 0 - module wakes up at beacon which is just before or equal to listen_interval
-  // 1 - module wakes up at DTIM beacon which is just before or equal to listen_interval
-  uint8_t dtim_aligned_type;
-
-  /// Set PSP type, 0-Max PSP, 1- FAST PSP, 2-APSD
-  uint8_t psp_type;
-
-  /// Monitor interval for the FAST PSP mode
-  // default is 50 ms, and this parameter is valid for FAST PSP only
-  uint16_t monitor_interval;
-  /// Number of DTIMs to skip
-  uint8_t num_of_dtim_skip;
-  /// Listen interval
-  uint16_t listen_interval;
-  /// Wake up for the next beacon if the number of missed beacons exceeds the limit. The default value is 1, with a recommended maximum value of 10. Higher values may cause interoperability issues.
-  uint8_t beacon_miss_ignore_limit;
-} sli_si91x_power_save_request_t;
 
 /// DNS query request structure
 typedef struct {
@@ -1135,25 +817,6 @@ typedef struct {
   } multicast_address;        ///< Multicast address
 } sli_si91x_req_multicast_t;
 
-/// Si91x specific WPS method request
-typedef struct {
-  /// wps method: 0 - push button, 1 - pin method
-  uint16_t wps_method;
-
-  /// If 0 - validate given pin, 1 - generate new pin
-  uint16_t generate_pin;
-
-  /// wps pin for validation
-  uint8_t wps_pin[SLI_SI91X_WPS_PIN_LEN];
-} sli_si91x_wps_method_request_t;
-
-/// Si91x specific roam parameters request
-typedef struct {
-  uint32_t roam_enable;     ///< Enable or disable roaming
-  uint32_t roam_threshold;  ///< roaming threshold
-  uint32_t roam_hysteresis; ///< roaming hysteresis
-} sli_si91x_req_roam_params_t;
-
 /// Ping Request Frame
 typedef struct {
   /// ip version
@@ -1191,7 +854,10 @@ typedef struct {
 } sli_si91x_http_client_request_t;
 
 //! SNI for embedded sockets structure
-#define SI91X_SNI_FOR_HTTPS 1
+typedef enum {
+  SI91X_SNI_FOR_HTTPS = 1, ///< SNI target: HTTPS
+  SI91X_SNI_FOR_MQTT  = 2  ///< SNI target: MQTT
+} sli_si91x_sni_target_protocol_t;
 
 /// Si91x specific SNI for embedded socket request
 typedef struct si91x_sni_for_embedded_socket_request_s {
@@ -1271,47 +937,6 @@ typedef struct {
   uint32_t data_len;     ///< Data length
 } sli_si91x_http_put_pkt_server_rsp_t;
 
-/// Si91x specific WLAN filter broadcast request
-typedef struct {
-  uint8_t beacon_drop_threshold[2];       ///< Beacon drop threshold
-  uint8_t filter_bcast_in_tim;            ///< Filter broadcast in TIM
-  uint8_t filter_bcast_tim_till_next_cmd; ///< Filter broadcast TIM till next command
-} sli_si91x_request_wlan_filter_broadcast_t;
-
-//! user configurable gain table structure
-typedef struct {
-  uint8_t band;               ///< band value
-  uint8_t bandwidth;          ///< bandwidth value
-  uint16_t size;              ///< payload size
-  uint8_t x_offset;           ///< X: bump up offset for 52 tone RU
-  uint8_t y_offset;           ///< Y: bump up offset for 106 tone RU
-  uint8_t gain_table_version; ///< 0: Old gain table, 1:New gain table
-  uint8_t reserved;           ///< Reserved
-  uint8_t gain_table[];       ///< payload
-} sli_si91x_gain_table_info_t;
-
-/// Si91x specific 11AX configuration parameters
-typedef struct {
-  uint8_t guard_interval; ///< Period of time inserted between two packets in wireless transmission. Range : 0 - 3
-  uint8_t nominal_pe;     ///< Nominal Packet extension Range: 0 - 2
-  uint8_t dcm_enable;     ///< Enable or disable dual carrier modulation (DCM). 0 - Disable DCM, 1 - Enable DCM
-  uint8_t ldpc_enable;    ///< Enable or disable low-density parity-check (LDPC). 0 - Disable LDPC, 1 - Enable LDPC
-  uint8_t
-    ng_cb_enable; ///< Enable or disable non-contiguous channel bonding (NG CB). 0 - Disable NG CB, 1 - Enable NG CB
-  uint8_t ng_cb_values; ///< Values of non-contiguous channel bonding (NG CB). Range: 0x00 - 0x11
-  uint8_t
-    uora_enable; ///< Enable or disable uplink orthogonal frequency division multiple random access (UORA). 0 - Disable uora, 1 - Enable uora.
-  uint8_t
-    trigger_rsp_ind; ///< Trigger_Response_Indication. BIT(0) ? Trigger Response For BE, BIT(1) ? Trigger Response For BK, BIT(2) ? Trigger Response For VI, BIT(3) ? Trigger Response For VO
-  uint8_t ipps_valid_value;   ///< IPPS valid value
-  uint8_t tx_only_on_ap_trig; ///< Reserved for future use
-  uint8_t twt_support;        ///< Enable or Disable TWT. 0 - Disable TWT, 1 - Enable TWT.
-  uint8_t
-    config_er_su; ///< Extended Range Single User. 0 - NO ER_SU support, 1 - Use ER_SU rates along with Non_ER_SU rates, 2 - Use ER_SU rates only
-  uint8_t beamformee_support; ///< Flag indicating Beamformee support.
-                              /// *        0: Enabled, 1: Disable SU (Single User), 2 : Disable MU (Multi User).
-} sli_si91x_11ax_config_params_t;
-
 /// Si91x specific ram dump
 typedef struct {
   uint32_t address; ///< Address
@@ -1332,7 +957,8 @@ typedef enum {
 #if defined(SL_SI91X_SIDE_BAND_CRYPTO) || defined(DOXYGEN)
   SL_SI91X_ENABLE_SIDE_BAND = 7, ///< Enables side-band crypto processing if the feature is enabled.
 #endif
-  SL_SI91X_READ_FROM_COMMON_FLASH = 8, ///< Reads data from the common flash memory
+  SL_SI91X_READ_FROM_COMMON_FLASH       = 8, ///< Reads data from the common flash memory
+  SL_SI91X_SET_TIMESTAMP_MEMORY_ADDRESS = 11 ///< Sets the memory address for timestamp storage
 } sl_si91x_ta_m4_commands_t;
 /** @} */
 
@@ -1392,10 +1018,10 @@ typedef struct {
  * */
 
 /// Si91x specific TWT response
-typedef sl_wifi_twt_response_t sl_si91x_twt_response_t;
+typedef sl_wifi_twt_response_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_twt_response_t;
 
 /// Si91x specific Wi-Fi TX test info
-typedef sl_wifi_request_tx_test_info_t sl_si91x_request_tx_test_info_t;
+typedef sl_wifi_request_tx_test_info_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_request_tx_test_info_t;
 
 /** @} */
 
@@ -1468,7 +1094,7 @@ typedef struct {
   int8_t
     gain_offset_ch14; ///< gain_offset_channel-14 - gain_offset in dBm that is applied for transmissions in channel-14.
 
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   /// RSI EVM Data
   struct sli_evm_data_t {
     int8_t evm_offset[5]; ///< Evm offset
@@ -1572,23 +1198,14 @@ typedef struct {
   uint16_t efuse_read_data_len;
 } sl_si91x_efuse_read_t;
 
-/// Si91x specific rejoin parameters
-typedef struct {
-  uint32_t max_retry_attempts; ///< Maximum number of retries before indicating join failure.
-  uint32_t scan_interval;      ///< Scan interval between each retry.
-  uint32_t
-    beacon_missed_count; ///< Number of missed beacons that will trigger rejoin. Minimum value of beacon_missed_count is 40.
-  uint32_t first_time_retry_enable; ///< Retry enable or disable for first time joining.
-} sli_si91x_rejoin_params_t;
-
 /** \addtogroup SL_SI91X_TYPES
  * @{
  * */
 /// Si91x specific Wi-Fi asynchronous statistics
-typedef sl_wifi_async_stats_response_t sl_si91x_async_stats_response_t;
+typedef sl_wifi_async_stats_response_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_async_stats_response_t;
 
 /// Si917 specific Wi-Fi advance statistics
-typedef sl_wifi_advanced_stats_response_t sl_si91x_advance_stats_response_t;
+typedef sl_wifi_advanced_stats_response_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_advance_stats_response_t;
 /** @} */
 
 /// Debug log structure
@@ -1809,7 +1426,7 @@ typedef struct {
   uint16_t total_msg_length;
   uint16_t current_chunk_length;
   uint32_t encrypt_decryption;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;
@@ -1842,7 +1459,7 @@ typedef struct {
   uint8_t hmac_sha_flags;
   uint16_t total_length;
   uint16_t current_chunk_length;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;
@@ -1870,7 +1487,7 @@ typedef struct {
   uint16_t current_chunk_length;            ///< Current chunk length
   uint16_t ad_length;                       ///< AD length
   uint32_t tag_length;                      ///< Tag length
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_key_descriptor_t key_info;      ///< Key info
 #else
   uint32_t key_length;                   ///< Key length
@@ -1890,7 +1507,7 @@ typedef struct {
   uint16_t current_chunk_length;
   uint16_t ad_length;
   uint16_t dma_use;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   uint32_t gcm_mode;
   sli_si91x_key_descriptor_t key_info;
 #else
@@ -1912,7 +1529,7 @@ typedef struct {
   uint16_t encrypt_decryption;
   uint32_t dma_use;
   uint8_t nonce[SL_SI91X_IV_SIZE];
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_key_descriptor_t key_info;
 #else
   uint8_t key_chacha[SL_SI91X_KEY_BUFFER_SIZE];
@@ -1934,7 +1551,7 @@ typedef struct {
   uint8_t signature_length;
   uint16_t current_chunk_length;
   uint16_t msg_len;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_key_descriptor_t key_info;
 #else
   uint32_t key_length;
@@ -2003,8 +1620,16 @@ typedef struct {
   uint16_t total_msg_length;     ///< Total message length
   uint32_t msg[NONCE_DATA_SIZE]; ///< Message
 } sli_si91x_rsi_token_req_t;
-
 #endif
+
+typedef struct sli_net_mdns_result_s {
+  uint16_t query_type; ///< Type of DNS query (e.g., A, AAAA, SRV, TXT)
+  uint16_t port;       ///< Port number associated with the service
+  uint32_t ttl;        ///< Time-to-live for the DNS record (in seconds)
+  uint32_t txt_count;  ///< Number of TXT records in the response
+  uint32_t addr_count; ///< Number of IP addresses in the response
+  uint8_t data[];      ///< Flexible array member holding TXT and address data
+} sli_net_mdns_response_t;
 //! @endcond
 
 /// Request timeout Structure
@@ -2012,12 +1637,6 @@ typedef struct {
   uint32_t timeout_bitmap; ///< Timeout bitmap
   uint16_t timeout_value;  ///< Timeout value
 } sli_si91x_request_timeout_t;
-
-/// High throughputs enable command
-typedef struct {
-  uint16_t mode_11n_enable; ///< 11n mode enable
-  uint16_t ht_caps_bitmap;  ///< HT caps bitmap
-} sli_si91x_request_ap_high_throughput_capability_t;
 
 /// Access point disconnect response structure
 #pragma pack(1)

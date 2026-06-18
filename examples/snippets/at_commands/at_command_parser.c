@@ -28,12 +28,14 @@
  *
  ******************************************************************************/
 #include "console.h"
+#include "sl_ieee802_types.h"
 #include "sl_constants.h"
 #include "sl_status.h"
+#include "sl_string.h"
+#include "sl_utility.h"
 #include <stdbool.h>
 #include <string.h>
 #include <strings.h>
-#include "sl_string.h"
 
 /******************************************************
  *                    Constants
@@ -70,9 +72,18 @@ static sl_status_t console_find_at_command(char **string,
 
 static bool escape(char *i, const char *end);
 
+static inline uint8_t at_command_parse_enum_arg(const char *line, const char *const *options);
+
+static sl_status_t at_command_strtoul(unsigned long *out_val, const char *str, int base);
+
+static sl_status_t at_command_parse_arg(console_argument_type_t type, char *line, uint32_t *arg_result);
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
+
+extern const arg_list_t console_argument_types[];
+extern const value_list_t console_argument_values[];
 
 /******************************************************
  *               Function Definitions
@@ -146,10 +157,15 @@ sl_status_t console_find_at_command(char **string,
 
 static bool escape(char *i, const char *end)
 {
+  if (i + 1 >= end) {
+    // No next character
+    return false;
+  }
+
   // Check if next character is one of the escaped ones
   if (i[1] == '"' || i[1] == '{' || i[1] == '\\') {
     // Next input matches, so shift array
-    memmove(i, i + 1, (size_t)(end - i));
+    memmove(i, i + 1, (size_t)(end - i - 1));
     return true;
   } else {
     // Unknown sequence
@@ -169,11 +185,11 @@ static sl_status_t at_command_tokenize(char *start,
   char *i = start;
 
   // Ignore preceding space or null
-  while (*i == ' ' || *i == '\0') {
+  while (i < end && (*i == ' ' || *i == '\0')) {
     ++i;
-    if (i >= end) {
-      return SL_STATUS_FAIL;
-    }
+  }
+  if (i >= end) {
+    return SL_STATUS_FAIL;
   }
   *token = i;
   while (i < end) {
@@ -195,7 +211,7 @@ static sl_status_t at_command_tokenize(char *start,
 
       // Loop through input to find end character
       i++;
-      while (*i != end_char) {
+      while (i < end && *i != end_char) {
         if (*i == '\\') {
           // Next character should be escaped
           if (!escape(i, end)) {
@@ -205,20 +221,20 @@ static sl_status_t at_command_tokenize(char *start,
           --end;
         }
         ++i;
-        if (i >= end) {
-          // End character not found, return error
-          return SL_STATUS_INVALID_PARAMETER;
-        }
+      }
+      if (i >= end) {
+        // End character not found, return error
+        return SL_STATUS_INVALID_PARAMETER;
       }
       // Verify that next character is comma or end of string
-      if (i[1] != ',' && i[1] != '\0' && &i[1] != end) {
+      if ((i + 1 < end) && (i[1] != ',') && (i[1] != '\0')) {
         return SL_STATUS_INVALID_PARAMETER;
       }
       // Remove " from string end
       if (end_char == '"') {
         *i = '\0';
         // Remove comma incase it is followed by "
-        if (i[1] == ',') {
+        if ((i + 1 < end) && (i[1] == ',')) {
           i[1]       = '\0';
           *token_end = i + 1;
         } else {
@@ -248,6 +264,105 @@ static sl_status_t at_command_tokenize(char *start,
   }
 
   *token_end = i;
+  return SL_STATUS_OK;
+}
+
+static inline uint8_t at_command_parse_enum_arg(const char *line, const char *const *options)
+{
+  for (uint8_t a = 0; options[a] != NULL; ++a) {
+    if (strcmp(line, options[a]) == 0) {
+      return a;
+    }
+  }
+  return 0xFF;
+}
+
+static sl_status_t at_command_strtoul(unsigned long *out_val, const char *str, int base)
+{
+  if (out_val == NULL) {
+    return SL_STATUS_COMMAND_IS_INVALID;
+  }
+
+  if ((str == NULL) || (*str == '\0')) {
+    *out_val = 0;
+    return SL_STATUS_OK;
+  }
+
+  char *end         = NULL;
+  unsigned long val = strtoul(str, &end, base);
+
+  if ((end == str) || (*end != '\0')) {
+    return SL_STATUS_COMMAND_IS_INVALID;
+  }
+
+  *out_val = val;
+  return SL_STATUS_OK;
+}
+
+static sl_status_t at_command_parse_arg(console_argument_type_t type, char *line, uint32_t *arg_result)
+{
+  if (type == CONSOLE_ARG_NONE) {
+    *arg_result = 0;
+    return SL_STATUS_OK;
+  }
+
+  if (type & CONSOLE_ARG_ENUM) {
+    uint8_t enum_index  = type & CONSOLE_ARG_ENUM_INDEX_MASK;
+    uint8_t value_index = at_command_parse_enum_arg(line, console_argument_types[enum_index]);
+    if (value_index == 0xFF) {
+      return SL_STATUS_COMMAND_IS_INVALID;
+    }
+    if (console_argument_values[enum_index] == NULL) {
+      *arg_result = value_index;
+    } else {
+      *arg_result = console_argument_values[enum_index][value_index];
+    }
+    return SL_STATUS_OK;
+  }
+
+  // Otherwise parse standard arg types
+  switch (type & CONSOLE_ARG_ENUM_INDEX_MASK) {
+    case CONSOLE_ARG_UINT:
+      return at_command_strtoul(arg_result, line, 0);
+
+    case CONSOLE_ARG_INT:
+      return at_command_strtoul(arg_result, line, 0);
+
+    case CONSOLE_ARG_STRING:
+      *arg_result = (uint32_t)line;
+      break;
+
+    case CONSOLE_ARG_MAC_ADDRESS: {
+      sl_mac_address_t temp_mac = { 0 };
+      sl_status_t status        = convert_string_to_mac_address(line, &temp_mac);
+      if (status == SL_STATUS_OK) {
+        memcpy(line, &temp_mac, sizeof(temp_mac));
+        *arg_result = (uint32_t)line;
+      }
+
+      return status;
+    }
+
+    case CONSOLE_ARG_IP_ADDRESS: {
+      sl_ipv4_address_t temp_ip = { 0 }; // Write the converted value back into the line
+      sl_status_t status        = convert_string_to_sl_ipv4_address(line, &temp_ip);
+      if (status == SL_STATUS_OK) {
+        *arg_result = temp_ip.value;
+      }
+
+      return status;
+    }
+
+    case CONSOLE_ARG_HEX: {
+      if (line[0] == '0' && line[1] == 'x') {
+        line += 2;
+      }
+      return at_command_strtoul(arg_result, line, 16);
+    }
+
+    default:
+      return SL_STATUS_COMMAND_IS_INVALID;
+  }
   return SL_STATUS_OK;
 }
 
@@ -335,7 +450,7 @@ sl_status_t console_parse_at_command(char *command_line,
         status =
           at_command_tokenize(command_line, command_line_end, &token, &command_line, SL_CONSOLE_TOKENIZE_ON_SPACE);
         if (status == SL_STATUS_OK) {
-          status = console_parse_arg(argument_list[a + 1], token, &args->arg[arg_number]);
+          status = at_command_parse_arg(argument_list[a + 1], token, &args->arg[arg_number]);
           if (status != SL_STATUS_OK) {
             return status;
           }
@@ -355,9 +470,12 @@ sl_status_t console_parse_at_command(char *command_line,
       }
     }
 
-    status = console_parse_arg(type, token, &args->arg[arg_count]);
+    status = at_command_parse_arg(type, token, &args->arg[arg_count]);
     if ((status == SL_STATUS_OK) && (token[0] != 0)) {
       args->bitmap |= (1 << arg_count);
+    }
+    if (status != SL_STATUS_OK) {
+      return status;
     }
     ++arg_index;
     ++arg_count;

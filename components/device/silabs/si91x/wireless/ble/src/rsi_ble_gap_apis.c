@@ -1592,6 +1592,42 @@ int32_t rsi_ble_vendor_rf_type(uint8_t ble_power_index)
 }
 
 /**
+ * @fn         int32_t rsi_ble_acceptlist_on_type(uint8_t enable,
+ *                                                uint8_t ad_type,
+ *                                                uint8_t value_length,
+ *                                                const uint8_t *value)
+ * @brief      Vendor-specific command to set the acceptlist filter based on
+ *             advertising data type, length, and value. This is a blocking API.
+ * @param[in]  enable - enable/disable
+ * @param[in]  ad_type - Advertising data type to filter \n
+ *                       Currently only supports: \n
+ *                       0x08 - Shortened Local Name \n
+ *                       0x09 - Complete Local Name
+ * @param[in]  value_length - Length of the value to compare
+ * @param[in]  value - Value to compare
+ * @return     0 - Success \n
+ *             Non-Zero Value - Failure
+ * @note       This API currently supports filtering only on device name advertising data types (0x08 and 0x09). \n
+ *             Other advertising data types are not supported by this vendor-specific command.
+ */
+int32_t rsi_ble_acceptlist_on_type(uint8_t enable, uint8_t ad_type, uint8_t value_length, const uint8_t *value)
+{
+  rsi_ble_req_acceptlist_on_type_t req;
+  memset(&req, 0, sizeof(req));
+
+  req.opcode[0] = (BLE_VENDOR_ACCEPTLIST_ON_TYPE & 0xFF);
+  req.opcode[1] = ((BLE_VENDOR_ACCEPTLIST_ON_TYPE >> 8) & 0xFF);
+
+  req.enable       = enable;
+  req.ad_type      = ad_type;
+  req.value_length = value_length;
+  if ((value != NULL) && (value_length > 0)) {
+    memcpy(req.value, value, value_length);
+  }
+
+  return rsi_bt_driver_send_cmd(RSI_BT_VENDOR_SPECIFIC, &req, NULL);
+}
+/**
  * @fn         int32_t rsi_ble_accept_list_using_adv_data(uint8_t enable,
  *                                                    uint8_t data_compare_index,
  *                                                    uint8_t len_for_compare_data,
@@ -1777,8 +1813,7 @@ int32_t rsi_ble_start_encryption(uint8_t *remote_dev_address, uint16_t ediv, con
  *              0x4E0C	Command disallowed \n 
  *              0x4046 	Invalid Arguments \n 
  *              0x4D04	BLE not connected \n 
- *              0x4D14	BLE parameter out of mandatory range \n
- *              0x4D15  Unsuported power index for 915
+ *              0x4D14	BLE parameter out of mandatory range 
  * @note        Refer to the Status Codes section for the above error codes at [wiseconnect-status-codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes).
  *
  */

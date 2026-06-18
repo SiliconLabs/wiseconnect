@@ -1,5 +1,5 @@
 id: sl_si91x_crypto_utility
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Utility folder for crypto APIs
 label: Crypto - Utility

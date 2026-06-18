@@ -54,8 +54,8 @@
    + ((RSI_ZIGB_CMD_LEN + sizeof(void *)) * RSI_ZIGB_TX_POOL_PKT_COUNT))
 
 // Max packet length of common command responses
-//changed cmd len for crypto and PUF
-#if defined(SLI_PUF_ENABLE) || (defined RSI_CRYPTO_ENABLE)
+//changed cmd len for crypto
+#if defined RSI_CRYPTO_ENABLE
 #define RSI_COMMON_CMD_LEN 1600
 #else
 #define RSI_COMMON_CMD_LEN 100
@@ -254,22 +254,6 @@ typedef enum rsi_common_cmd_response_e {
   RSI_COMMON_RSP_TA_M4_COMMANDS        = 0xB0,
   RSI_COMMON_RSP_DEBUG_LOG             = 0x26
 
-#ifdef SLI_PUF_ENABLE
-  ,
-  RSI_COMMON_RSP_PUF_ENROLL      = 0xD0,
-  RSI_COMMON_RSP_PUF_DIS_ENROLL  = 0xD1,
-  RSI_COMMON_RSP_PUF_START       = 0xD2,
-  RSI_COMMON_RSP_PUF_SET_KEY     = 0xD3,
-  RSI_COMMON_RSP_PUF_DIS_SET_KEY = 0xD4,
-  RSI_COMMON_RSP_PUF_GET_KEY     = 0xD5,
-  RSI_COMMON_RSP_PUF_DIS_GET_KEY = 0xD6,
-  RSI_COMMON_RSP_PUF_LOAD_KEY    = 0xD7,
-  RSI_COMMON_RSP_AES_ENCRYPT     = 0xD8,
-  RSI_COMMON_RSP_AES_DECRYPT     = 0xD9,
-  RSI_COMMON_RSP_AES_MAC         = 0xDA,
-  RSI_COMMON_RSP_PUF_INTR_KEY    = 0xCE
-#endif
-
 #ifdef RSI_WAC_MFI_ENABLE
   ,
   RSI_COMMON_RSP_IAP_GET_CERTIFICATE   = 0xB6,
@@ -294,10 +278,6 @@ typedef enum rsi_common_cmd_response_e {
   ,
   RSI_COMMON_RSP_GPIO_CONFIG = 0x28
 #endif
-#ifdef FW_LOGGING_ENABLE
-  ,
-  RSI_COMMON_RSP_DEVICE_LOGGING_INIT = 0x82
-#endif
 } rsi_common_cmd_response_t;
 
 // enumeration for command request used in common control block
@@ -318,22 +298,6 @@ typedef enum rsi_common_cmd_request_e {
   RSI_COMMON_REQ_IAP_GET_CERTIFICATE   = 0xB6,
   RSI_COMMON_REQ_IAP_INIT              = 0xB7,
   RSI_COMMON_REQ_IAP_GENERATE_SIGATURE = 0xB8
-#endif
-
-#ifdef SLI_PUF_ENABLE
-  ,
-  RSI_COMMON_REQ_PUF_ENROLL      = 0xD0,
-  RSI_COMMON_REQ_PUF_DIS_ENROLL  = 0xD1,
-  RSI_COMMON_REQ_PUF_START       = 0xD2,
-  RSI_COMMON_REQ_PUF_SET_KEY     = 0xD3,
-  RSI_COMMON_REQ_PUF_DIS_SET_KEY = 0xD4,
-  RSI_COMMON_REQ_PUF_GET_KEY     = 0xD5,
-  RSI_COMMON_REQ_PUF_DIS_GET_KEY = 0xD6,
-  RSI_COMMON_REQ_PUF_LOAD_KEY    = 0xD7,
-  RSI_COMMON_REQ_AES_ENCRYPT     = 0xD8,
-  RSI_COMMON_REQ_AES_DECRYPT     = 0xD9,
-  RSI_COMMON_REQ_AES_MAC         = 0xDA,
-  RSI_COMMON_REQ_PUF_INTR_KEY    = 0xCE
 #endif
   // Reusing RSI_WLAN_REQ_FW_VERSION as RSI_COMMON_REQ_FW_VERSION
   ,
@@ -356,24 +320,7 @@ typedef enum rsi_common_cmd_request_e {
   ,
   RSI_COMMON_REQ_GPIO_CONFIG = 0x28
 #endif
-#ifdef FW_LOGGING_ENABLE
-  ,
-  RSI_COMMON_REQ_DEVICE_LOGGING_INIT = 0x82
-#endif
-
 } rsi_common_cmd_request_t;
-
-#ifdef SLI_PUF_ENABLE
-// enumeration for Common control block for PUF state machine
-typedef enum rsi_puf_state_e {
-  RSI_PUF_STATE_NONE = 0,
-  RSI_PUF_STATE_ENROLLED,
-  RSI_PUF_STATE_STARTED,
-  RSI_PUF_STATE_SET_KEY,
-  RSI_PUF_STATE_KEY_LOADED,
-  RSI_PUF_STATE_DISABLED
-} rsi_puf_state_t;
-#endif
 
 #ifdef SLI_SI91X_MCU_INTERFACE
 /// Managing interactions between the Trusted Application (TA) and the M4 core
@@ -383,7 +330,7 @@ typedef enum ta_m4_commands_e {
   SL_SI91X_READ_TA_REGISTER            = 3, ///< Reads the value from a Trusted Application (TA) register
   SL_SI91X_WRITE_TA_REGISTER           = 4, ///< Writes a specified value to a TA register
   SL_SI91X_ENABLE_XTAL                 = 5, ///< Signals the NWP to configure clock switching between 1.3V and 3.3V
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   SL_SI91X_WRITE_TO_COMMON_FLASH = 6, ///< //Writes data to the common flash memory
 #endif
 } sl_si91x_ta_m4_commands_t;
@@ -397,7 +344,7 @@ typedef struct ta_m4_handshake_param {
     input_data; ///< Input data. In this input data first byte is reserved for enable(1) or Disable(0) sub_cmd of this structure.
 } sli_si91x_ta_m4_handshake_parameters_t;
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
 #define RSI_MAX_CHUNK_SIZE 1400
 
 // TA2M4 handshake request structure.
@@ -516,10 +463,6 @@ typedef struct rsi_common_cb_s {
   // buffer length given by application to driver
   uint32_t app_buffer_length;
 
-#ifdef SLI_PUF_ENABLE
-  // PUF state variable
-  volatile rsi_puf_state_t puf_state;
-#endif
 #ifdef SLI_SI91X_MCU_INTERFACE
   efuse_ipmu_t *ipmu_calib_data_cb;
 #endif
@@ -530,9 +473,6 @@ typedef struct rsi_common_cb_s {
   rsi_semaphore_handle_t wakeup_gpio_sem;
 #endif
   uint8_t sync_mode;
-#ifdef FW_LOGGING_ENABLE
-  void (*sl_fw_log_callback)(uint8_t *log_message, uint16_t log_message_length);
-#endif
 } rsi_common_cb_t;
 
 typedef enum {
@@ -579,10 +519,7 @@ typedef struct rsi_driver_cb_non_rom {
   uint32_t rom_version_info;
   uint32_t tx_mask_event;
   rsi_mutex_handle_t tx_mutex;
-#ifdef SAPI_LOGGING_ENABLE
-  rsi_mutex_handle_t logging_mutex;
-#endif
-#if defined(SL_SI91X_PRINT_DBG_LOG) || defined(FW_LOGGING_ENABLE)
+#if defined(SL_SI91X_PRINT_DBG_LOG)
   rsi_mutex_handle_t debug_prints_mutex;
 #endif
   rsi_semaphore_handle_t nwk_sem;

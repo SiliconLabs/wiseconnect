@@ -99,7 +99,7 @@ extern "C" {
 #ifndef SL_PWM_OUT_CHANNEL3_PERIPHERAL_NO
 #define SL_PWM_OUT_CHANNEL3_PERIPHERAL_NO 3
 #endif
-#warning "PWM  peripheral is not configured. Please configure the PWM pins according to the board connections."
+
 // PWM_CH3 3H on ULP_GPIO_7/GPIO_71
 #ifndef SL_PWM_OUT_CHANNEL3_3H_PORT
 #define SL_PWM_OUT_CHANNEL3_3H_PORT ULP
@@ -130,7 +130,7 @@ extern "C" {
 #ifndef SL_PWM_CHANNEL3_PERIPHERAL
 #define SL_PWM_CHANNEL3_PERIPHERAL PWM
 #endif
-#warning "PWM  peripheral is not configured. Please configure the PWM pins according to the board connections."
+
 // PWM FAULTA on GPIO_25
 #ifndef SL_PWM_CHANNEL3_FAULTA_PORT
 #define SL_PWM_CHANNEL3_FAULTA_PORT HP
@@ -283,46 +283,12 @@ extern "C" {
 #define SL_PWM_CHANNEL_3_MUX SL_SI91X_PWM_TMR_EXT_TRIG_2_MUX
 #define SL_PWM_CHANNEL_3_PAD SL_SI91X_PWM_TMR_EXT_TRIG_2_PAD
 #endif
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-// PWM channel number for CHANNEL_0 instance
-#define SL_PWM_CHANNEL_3_OUTPUT_CHANNEL 0
-#define SL_PWM_CHANNEL_3_PORT_L         0
-#define SL_PWM_CHANNEL_3_PORT_H         0
-#define SL_PWM_CHANNEL_3_PIN_L          SL_SI91X_PWM_3L_PIN
-#define SL_PWM_CHANNEL_3_PIN_H          SL_SI91X_PWM_3H_PIN
-#define SL_PWM_CHANNEL_3_MUX_L          SL_SI91X_PWM_3L_MUX
-#define SL_PWM_CHANNEL_3_MUX_H          SL_SI91X_PWM_3H_MUX
-#define SL_PWM_CHANNEL_3_PAD_L          SL_SI91X_PWM_3L_PAD
-#define SL_PWM_CHANNEL_3_PAD_H          SL_SI91X_PWM_3H_PAD
-// PWM Fault Pin set resolution
-#if (SL_PWM_CHANNEL_3_EVENT == 0)
-#define SL_PWM_CHANNEL_3_PORT 0
-#define SL_PWM_CHANNEL_3_PIN  SL_SI91X_PWM_FAULTA_PIN
-#define SL_PWM_CHANNEL_3_MUX  0
-#define SL_PWM_CHANNEL_3_PAD  SL_SI91X_PWM_FAULTA_PAD
-#endif
-#if (SL_PWM_CHANNEL_3_EVENT == 2)
-#define SL_PWM_CHANNEL_3_PORT 0
-#define SL_PWM_CHANNEL_3_PIN  SL_SI91X_PWM_FAULTB_PIN
-#define SL_PWM_CHANNEL_3_MUX  SL_SI91X_PWM_FAULTB_MUX
-#define SL_PWM_CHANNEL_3_PAD  SL_SI91X_PWM_FAULTB_PAD
-#endif
 
-#if (SL_PWM_CHANNEL_3_EVENT == 3)
-#define SL_PWM_CHANNEL_3_PORT 0
-#define SL_PWM_CHANNEL_3_PIN  SL_SI91X_PWM_TMR_EXT_TRIG_1_PIN
-#define SL_PWM_CHANNEL_3_MUX  SL_SI91X_PWM_TMR_EXT_TRIG_1_MUX
-#define SL_PWM_CHANNEL_3_PAD  SL_SI91X_PWM_TMR_EXT_TRIG_1_PAD
-#endif
+#warning \
+  "PWM Channel 3 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
 
-#if (SL_PWM_CHANNEL_3_EVENT == 4)
-#define SL_PWM_CHANNEL_3_PORT 0
-#define SL_PWM_CHANNEL_3_PIN  SL_SI91X_PWM_TMR_EXT_TRIG_2_PIN
-#define SL_PWM_CHANNEL_3_MUX  SL_SI91X_PWM_TMR_EXT_TRIG_2_MUX
-#define SL_PWM_CHANNEL_3_PAD  SL_SI91X_PWM_TMR_EXT_TRIG_2_PAD
-#endif
-#endif
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

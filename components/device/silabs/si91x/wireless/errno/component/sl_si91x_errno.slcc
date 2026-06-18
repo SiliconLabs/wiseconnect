@@ -1,6 +1,6 @@
 id: sl_si91x_errno
 label: SL errno
-package: platform
+package: wifi
 description: >
   Enables thread-safe errno
 category: Device|Si91x|MCU|Service

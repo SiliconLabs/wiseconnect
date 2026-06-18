@@ -28,7 +28,7 @@ Primary aspects are:
  * Configurable resource usage(JSON tokens, MQTT subscription handlers, etc…)
  * Can be ported to a different RTOS, uses wrappers for OS specific functions
 
-For more information on the Architecture of the SDK refer [here](http://aws-iot-device-sdk-embedded-c-docs.s3-website-us-east-1.amazonaws.com/index.html)
+For more information on the Architecture of the SDK refer to [link name](http://aws-iot-device-sdk-embedded-c-docs.s3-website-us-east-1.amazonaws.com/index.html)
 
 ## Collection of Metrics
 Beginning with Release v2.2.0 of the SDK, AWS collects usage metrics indicating which language and version of the SDK is being used. This allows us to prioritize our resources towards addressing issues faster in SDKs that see the most and is an important data point. However, we do understand that not all customers would want to report this data by default. In that case, the sending of usage metrics can be easily disabled by the user by setting the `DISABLE_METRICS` flag to true in the

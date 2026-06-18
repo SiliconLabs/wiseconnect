@@ -1,6 +1,6 @@
 id: sl_hrng
 label: HRNG - Hardware Random Number Generator
-package: platform
+package: platform_siwx91x
 description: The HRNG driver enables the generation of true random and pseudo-random numbers. 
   It supports secure applications requiring high-quality randomness, such as cryptographic functions. 
   The driver offers APIs for starting, stopping, and retrieving random data from the HRNG peripheral. 

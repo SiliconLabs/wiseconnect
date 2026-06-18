@@ -40,23 +40,23 @@
 #include "sl_si91x_core_utilities.h"
 #include <stdbool.h>
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 // Define a bit mask for DHCP unicast offer
 #define SL_SI91X_DHCP_UNICAST_OFFER ((uint32_t)1U << 3)
 
 // Global variable indicating if the device is initialized
 extern bool device_initialized;
 
-sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
-                                           uint8_t virtual_ap_id,
-                                           const uint32_t timeout)
+sl_status_t sli_net_configure_ip_address(sl_net_ip_configuration_t *ip_config,
+                                         uint8_t virtual_ap_id,
+                                         const uint32_t timeout)
 {
   sl_status_t status                       = SL_STATUS_INVALID_PARAMETER;
   sli_si91x_req_ipv4_params_t ip_req       = { 0 };
   sli_si91x_req_ipv6_params_t ipv6_request = { 0 };
   sl_wifi_system_packet_t *packet;
   sl_wifi_buffer_t *buffer = NULL;
-  uint32_t wait_time       = (timeout ? SL_SI91X_WAIT_FOR_RESPONSE(timeout) : SLI_SI91X_RETURN_IMMEDIATELY);
+  uint32_t wait_time       = (timeout ? SLI_WIFI_WAIT_FOR_RESPONSE(timeout) : SLI_WIFI_RETURN_IMMEDIATELY);
 
   // Check if the device is initialized
   if (!device_initialized) {
@@ -79,7 +79,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
     ip_req.vap_id = virtual_ap_id;
 
     if (SL_IP_MANAGEMENT_STATIC_IP == ip_config->mode) {
-      ip_req.dhcp_mode = SL_SI91X_STATIC;
+      ip_req.dhcp_mode = SLI_NET_STATIC_IP;
       // Fill IP address
       memcpy(ip_req.ipaddress, ip_config->ip.v4.ip_address.bytes, 4);
 
@@ -89,12 +89,12 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
       // Fill gateway
       memcpy(ip_req.gateway, ip_config->ip.v4.gateway.bytes, 4);
     } else {
-      ip_req.dhcp_mode = (SL_SI91X_DHCP | SL_SI91X_DHCP_UNICAST_OFFER);
+      ip_req.dhcp_mode = (SLI_NET_DHCP | SL_SI91X_DHCP_UNICAST_OFFER);
     }
 
     if (NULL != ip_config->host_name) {
       // Enable DHCP hostname option and copy the hostname
-      ip_req.dhcp_mode |= SL_SI91X_DHCP_HOSTNAME;
+      ip_req.dhcp_mode |= SLI_NET_DHCP_HOSTNAME;
       memcpy(ip_req.hostname, ip_config->host_name, sizeof(ip_req.hostname));
     }
 
@@ -120,7 +120,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
 
     // Verify the status and return it
     VERIFY_STATUS_AND_RETURN(status);
-    packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
     if (SL_IP_MANAGEMENT_DHCP == ip_config->mode) {
       // Extract DHCP response data if in DHCP mode
@@ -145,10 +145,10 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
       // Set IPv6 mode to static
       memcpy(&ipv6_request.ipaddr6, ip_config->ip.v6.global_address.bytes, SL_IPV6_ADDRESS_LENGTH);
       memcpy(&ipv6_request.gateway6, ip_config->ip.v6.gateway.bytes, SL_IPV6_ADDRESS_LENGTH);
-      ipv6_request.mode[0] = SL_SI91X_STATIC;
+      ipv6_request.mode[0] = SLI_NET_STATIC_IP;
     } else {
       // Set IPv6 mode to dynamic
-      ipv6_request.mode[0] = (SL_SI91X_DHCP | SL_SI91X_DHCP_UNICAST_OFFER);
+      ipv6_request.mode[0] = (SLI_NET_DHCP | SL_SI91X_DHCP_UNICAST_OFFER);
     }
 
     // Send the IPv6 configuration request to SI91X driver
@@ -168,7 +168,7 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
     VERIFY_STATUS_AND_RETURN(status);
 
     // Extract the IPv6 configuration response data
-    packet                                           = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+    packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
     const sli_si91x_rsp_ipv6_params_t *ipv6_response = (sli_si91x_rsp_ipv6_params_t *)packet->data;
 
     // Copy the IPv6 addresses to the address structure
@@ -191,5 +191,5 @@ sl_status_t sli_si91x_configure_ip_address(sl_net_ip_configuration_t *ip_config,
 
 sl_status_t sl_si91x_configure_ip_address(sl_net_ip_configuration_t *address, uint8_t virtual_ap_id)
 {
-  return sli_si91x_configure_ip_address(address, virtual_ap_id, SLI_SI91X_WAIT_FOR_EVER);
+  return sli_net_configure_ip_address(address, virtual_ap_id, SLI_WIFI_WAIT_FOR_EVER);
 }

@@ -64,20 +64,20 @@ static const sl_wifi_device_configuration_t client_configuration = {
   .region_code = US,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION
 #ifdef SLI_SI91X_MCU_INTERFACE
-                                       | SL_SI91X_FEAT_WPS_DISABLE
+                                       | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map = (
 #ifdef SLI_SI91X_MCU_INTERFACE
                      SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
                      SL_SI91X_RAM_LEVEL_NWP_ALL_AVAILABLE
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                      ),
@@ -135,9 +135,8 @@ static sl_status_t cmac_compute(void);
 /******************************************************
 *               Function Definitions
 ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -183,7 +182,7 @@ sl_status_t gcm_encryption(void)
   config_gcm.ad              = additional_data;
   config_gcm.ad_length       = sizeof(additional_data);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
   config_gcm.gcm_mode    = SL_SI91X_GCM_MODE;
   size_t key_buffer_size = sizeof(key);
 
@@ -260,7 +259,7 @@ sl_status_t gcm_decryption(void)
   config_gcm.nonce_length    = sizeof(nonce);
   config_gcm.ad              = additional_data;
   config_gcm.ad_length       = sizeof(additional_data);
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
   config_gcm.gcm_mode    = SL_SI91X_GCM_MODE;
   size_t key_buffer_size = sizeof(key);
   switch (key_buffer_size) {
@@ -315,7 +314,7 @@ sl_status_t gcm_decryption(void)
 sl_status_t cmac_compute(void)
 {
   sl_status_t status = SL_STATUS_FAIL;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#ifdef SLI_SI917B0
   sl_si91x_gcm_config_t config_cmac;
   memset(&config_cmac, 0, sizeof(sl_si91x_gcm_config_t));
   config_cmac.gcm_mode     = SL_SI91X_CMAC_MODE;

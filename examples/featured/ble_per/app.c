@@ -268,10 +268,10 @@ static const sl_wifi_device_configuration_t config = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+  .boot_config = { .oper_mode = SL_SI91X_TRANSMIT_TEST_MODE,
                    .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
+                   .feature_bit_map = (SL_WIFI_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
                    .feature_bit_map            = RSI_FEATURE_BIT_MAP,
 #endif
@@ -280,10 +280,12 @@ static const sl_wifi_device_configuration_t config = {
 #else
                    .tcp_ip_feature_bit_map     = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
 #endif
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+                     (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
+#endif
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP),
 #ifdef RSI_PROCESS_MAX_RX_DATA
@@ -478,6 +480,9 @@ void ble_per(void *unused)
     rsi_ble_per_tx.pll_mode                     = PLL_MODE_0;
     rsi_ble_per_tx.rf_type                      = BLE_INTERNAL_RF;
     rsi_ble_per_tx.rf_chain                     = BT_HP_CHAIN_BIT;
+
+    rsi_uint32_to_4bytes(rsi_ble_per_tx.num_pkts, NUM_PKTS);
+
     //! start the Transmit PER functionality
     status = rsi_ble_per_transmit(&rsi_ble_per_tx);
     if (status != RSI_SUCCESS) {

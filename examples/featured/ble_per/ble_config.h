@@ -75,11 +75,7 @@
 #define RSI_BLE_STOP_ADV 0x00
 
 //! BLE Tx Power Index On Air
-#ifdef SLI_SI915
-#define RSI_BLE_PWR_INX 75 //  HP chain for 915
-#else
 #define RSI_BLE_PWR_INX 30
-#endif
 
 //! BLE Active H/w Pwr Features
 #define BLE_DISABLE_DUTY_CYCLING 0
@@ -187,7 +183,7 @@
 #define RSI_TCP_IP_FEATURE_BIT_MAP   0 //! TCP/IP feature select bitmap for selecting TCP/IP features
 #define RSI_EXT_TCPIP_FEATURE_BITMAP 0
 
-#define RSI_CUSTOM_FEATURE_BIT_MAP SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID //! To set custom feature select bit map
+#define RSI_CUSTOM_FEATURE_BIT_MAP SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID //! To set custom feature select bit map
 
 #define RSI_BT_FEATURE_BITMAP     (SL_SI91X_BT_RF_TYPE | SL_SI91X_ENABLE_BLE_PROTOCOL)
 #define RSI_CONFIG_FEATURE_BITMAP 0

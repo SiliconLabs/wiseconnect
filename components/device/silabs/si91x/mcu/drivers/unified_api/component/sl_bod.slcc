@@ -1,6 +1,6 @@
 id: sl_bod
 label: BOD
-package: platform
+package: platform_siwx91x
 description: This application demonstrates how to set up and use the BOD. In this application we can configure the threshold value of BOD.
 category: Device|Si91x|MCU|Peripheral
 quality: production

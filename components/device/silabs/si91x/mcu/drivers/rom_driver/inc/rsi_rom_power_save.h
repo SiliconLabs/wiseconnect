@@ -128,13 +128,13 @@ STATIC INLINE rsi_error_t RSI_PS_PowerStateChangePs4toPs2(ULP_MODE_T enCtxSel,
     if (M4RamRetEnable) {
       MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= HPSRAM_RET_ULP_MODE_EN;
       MCU_FSM->MCU_FSM_SLEEP_CTRLS_AND_WAKEUP_MODE |= M4SS_RAM_RETENTION_MODE_EN;
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
       M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
       for (uint8_t x = 0; x < 10; x++) {
         __ASM("NOP");
       }
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
       M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
     }
@@ -180,7 +180,7 @@ STATIC INLINE void RSI_PS_ClrWkpUpStatus(uint32_t wakeUpIntrClear)
 #endif
 }
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 
 STATIC INLINE void RSI_PS_RetentionSleepConfig_bypass(uint32_t stack_address,
                                                       uint32_t jump_cb_address,
@@ -314,7 +314,7 @@ STATIC INLINE void RSI_PS_RetentionSleepConfig(uint32_t stack_address,
                                                uint32_t mode)
 {
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   //!write magic numbers in retention ram content ulp memory start ,end addresses (work around for jtag mode powersave)
   RETEN_RAM_CONTENT_START_LOCATION = 0xBEAFBEAF;
   RETEN_RAM_CONTENT_END_LOCATION   = 0xBEADBEAD;

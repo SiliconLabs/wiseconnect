@@ -42,7 +42,7 @@
 
 // include certificates
 #include "aws_starfield_ca.pem.h"
-#include "azure_baltimore_ca.pem.h"
+#include "silabs_dgcert_ca.pem.h"
 #include "cacert.pem.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -180,14 +180,14 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .region_code = US,
   .boot_config = { .oper_mode              = SL_SI91X_CLIENT_MODE,
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .feature_bit_map        = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
-                   .custom_feature_bit_map = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map = SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID,
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -219,6 +219,7 @@ volatile sl_status_t callback_status = SL_STATUS_OK;
 void application_start(const void *unused);
 sl_status_t http_otaf_app();
 static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
                                                    uint16_t *data,
                                                    uint32_t data_length,
                                                    void *arg);
@@ -229,9 +230,8 @@ static sl_status_t clear_and_load_certificates_in_flash(void);
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -246,8 +246,8 @@ sl_status_t clear_and_load_certificates_in_flash(void)
   cert        = (void *)aws_starfield_ca;
   cert_length = (sizeof(aws_starfield_ca) - 1);
 #elif AZURE_ENABLE
-  cert        = (void *)azure_baltimore_ca;
-  cert_length = (sizeof(azure_baltimore_ca) - 1);
+  cert        = (void *)silabs_dgcert_ca;
+  cert_length = (sizeof(silabs_dgcert_ca) - 1);
 #else
   cert        = (uint8_t *)cacert;
   cert_length = (sizeof(cacert) - 1);
@@ -268,17 +268,22 @@ sl_status_t clear_and_load_certificates_in_flash(void)
 }
 #endif
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
+
   app_state = WLAN_UNCONNECTED_STATE;
 
   printf("\r\nIn Join CB\r\n");
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     printf("F: Initiating rejoin %lu bytes payload\n", result_length);
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   return SL_STATUS_OK;
 }
@@ -329,10 +334,10 @@ void application_start(const void *unused)
         app_state = WLAN_UNCONNECTED_STATE;
       } break;
       case WLAN_UNCONNECTED_STATE: {
-        sl_wifi_set_join_callback(join_callback_handler, NULL);
+        sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
         //! Bring up client interface
         status = sl_net_up(SL_NET_WIFI_CLIENT_INTERFACE, SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID);
-        if (status != SL_STATUS_OK) {
+        if (status != SL_STATUS_OK && status != SL_STATUS_SI91X_SCAN_ISSUED_IN_ASSOCIATED_STATE) {
           printf("\r\nFailed to bring Wi-Fi client interface up: 0x%lX\r\n", status);
           app_state = WLAN_UNCONNECTED_STATE;
           break;
@@ -347,9 +352,9 @@ void application_start(const void *unused)
         print_firmware_version(&version);
 #endif
 
-        sl_wifi_set_callback(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
-                             (sl_wifi_callback_function_t)&http_fw_update_response_handler,
-                             NULL);
+        sl_wifi_set_callback_v2(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
+                                (sl_wifi_callback_function_v2_t)&http_fw_update_response_handler,
+                                NULL);
 
 #if defined(AWS_ENABLE) || defined(AZURE_ENABLE)
         do {
@@ -447,6 +452,7 @@ void application_start(const void *unused)
 }
 
 static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
                                                    uint16_t *data,
                                                    uint32_t data_length,
                                                    void *arg)
@@ -454,9 +460,10 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(data);
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
+
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     response = false;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   response = true;
   return SL_STATUS_OK;

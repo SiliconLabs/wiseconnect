@@ -1,5 +1,5 @@
 id: sl_si91x_psa_sha
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of mbedTls PSA crypto SHA API
 label: PSA SHA

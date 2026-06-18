@@ -1,7 +1,7 @@
 !!omap
 - id: brd2911a
 - label: BRD2911A
-- package: platform
+- package: platform_siwx91x
 - description: Board support for BRD2911A.
 - category: Board|Radio Board
 - quality: production

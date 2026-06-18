@@ -1,10 +1,11 @@
 project_name: wifi_power_save_deep_sleep_uart_ncp
-package: wifi
+package: wifi_app
 quality: production
 label: Wi-Fi - Powersave Deep Sleep (UART NCP)
 category: Example|Wi-Fi
-description: |
-  Enable power save deep sleep profile with SiWx91x
+description: 'Enable power save deep sleep profile with SiWx91x
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -12,12 +13,6 @@ filter:
 - name: Project Difficulty
   value:
   - Beginner
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: app.c
 include:
@@ -35,26 +30,19 @@ component:
 - id: iostream_rtt
 - id: iostream_stdlib_config
 - id: uartdrv_usart
-  instance: [exp]
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+  instance:
+  - exp
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: sl_si91x_uart_bus
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: sl_si91x_basic_buffers
-  from: wiseconnect3_sdk
 toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+- option: gcc_compiler_option
+  value: -Wall -Werror
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'
@@ -62,11 +50,10 @@ configuration:
   value: '1'
 - name: configTOTAL_HEAP_SIZE
   value: '51200'
-- name: configTIMER_TASK_PRIORITY 
+- name: configTIMER_TASK_PRIORITY
   value: '55'
 readme:
 - path: readme.md
-
 other_file:
 - path: resources/readme/setup_soc_ncp.png
 - path: resources/readme/application_prints_soc.png
@@ -80,8 +67,15 @@ other_file:
 - path: resources/readme/stm32_setup.png
 - path: resources/readme/set_ram_level_1.png
 - path: resources/readme/set_ram_level_2.png
-
 ui_hints:
   highlight:
   - path: readme.md
     focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

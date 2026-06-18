@@ -13,7 +13,6 @@
  */
 
 #include "console.h"
-#include "sl_board_configuration.h"
 #include <stdint.h>
 #include <string.h>
 #include <sl_string.h>

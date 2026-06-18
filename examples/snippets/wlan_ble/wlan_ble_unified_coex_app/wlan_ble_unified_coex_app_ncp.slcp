@@ -1,10 +1,11 @@
 project_name: wlan_ble_unified_coex_app_ncp
-package: ble
-quality: alpha
+package: multi_protocol_siwx91x_app
+quality: production
 label: Unified app for Bluetooth and Wifi NCP
 category: Example|BLE
-description: >
-  Bluetooth Low energy supporting 8Peripheral/2Central connections with Coex.
+description: 'Bluetooth Low energy supporting 8Peripheral/2Central connections with Coex.
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -12,12 +13,6 @@ filter:
 - name: Project Difficulty
   value:
   - Advanced
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: app.c
 - path: root_auto_gen.c
@@ -32,12 +27,17 @@ source:
 - path: utils/event_loop.c
 - path: utils/rsi_common_utils.c
 - path: wifi/wifi_app.c
+- path: wifi/wifi_tcp_app.c
+- path: btdm_logging_framework/debug_logs_event_hdlr_auto_gen.c
+- path: btdm_logging_framework/debug_logs_task.c
+- path: btdm_logging_framework/debug_logs_user_event_hdlrs.c
 include:
 - path: .
   file_list:
   - path: app.h
   - path: ble_config.h
   - path: wifi/wifi_app_config.h
+  - path: wifi/wifi_tcp_app_config.h
 - path: ble
   file_list:
   - path: ble_cmd_hdlr_auto_gen.h
@@ -55,41 +55,33 @@ include:
   - path: generic_command_handling.h
   - path: rsi_common_utils.h
   - path: event_loop.h
+- path: btdm_logging_framework
+  file_list:
+  - path: debug_logs_event_hdlr_auto_gen.h
 component:
 - id: sl_main
 - id: freertos
 - id: freertos_heap_4
 - id: device_init
 - id: spidrv
-  instance: [exp]
+  instance:
+  - exp
 - id: iostream_retarget_stdio
 - id: iostream_recommended_stream
 - id: iostream_stdlib_config
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: sl_si91x_spi_bus
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: ble
-  from: wiseconnect3_sdk
 - id: aws_sdk
-  from: wiseconnect3_sdk
 - id: sl_si91x_asynchronous_socket
-  from: wiseconnect3_sdk
 - id: sl_si91x_mem_pool_buffers_with_quota
-  from: wiseconnect3_sdk
 - id: bsd_socket
-  from: wiseconnect3_sdk
-toolchain_settings: 
+toolchain_settings:
 - option: gcc_linker_option
   value: -u _printf_float
 configuration:
@@ -97,7 +89,7 @@ configuration:
   value: '1'
 - name: configTOTAL_HEAP_SIZE
   value: '51200'
-- name: configTIMER_TASK_PRIORITY 
+- name: configTIMER_TASK_PRIORITY
   value: '55'
 - name: configUSE_POSIX_ERRNO
   value: '1'
@@ -119,3 +111,11 @@ ui_hints:
   highlight:
   - path: readme.md
     focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

@@ -1,6 +1,6 @@
 id: sl_dma
 label: DMA
-package: platform
+package: platform_siwx91x
 description: >
   Direct Memory Access (DMA) is a process of transferring data from  memory to memory, 
   peripehral to memory, memory to peripheral to another without the direct involvement 

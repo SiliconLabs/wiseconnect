@@ -82,11 +82,9 @@
 
 #define RTE_USART0 1
 
-#define RTE_USART0_CLK_SRC      USART_ULPREFCLK
 #define RTE_USART0_CLK_DIV_FACT 1
 #define RTE_USART0_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
-#define RTE_USART_MODE            0 //!Usart mode macros
 #define RTE_CONTINUOUS_CLOCK_MODE 0
 
 #define RTE_USART0_LOOPBACK   0
@@ -597,7 +595,6 @@
 // <i> Configuration settings for Driver_UART1 in component ::CMSIS Driver:USART
 #define RTE_UART1 1
 
-#define RTE_UART1_CLK_SRC      USART_ULPREFCLK
 #define RTE_UART1_CLK_DIV_FACT 1
 #define RTE_UART1_FRAC_DIV_SEL USART_FRACTIONAL_DIVIDER
 
@@ -899,7 +896,6 @@
 // <i> Configuration settings for Driver_ULP_UART in component ::CMSIS Driver:USART
 #define RTE_ULP_UART 1
 
-#define RTE_ULP_UART_CLK_SRC      ULP_UART_REF_CLK
 #define RTE_ULP_UART_CLK_DIV_FACT 0
 #define RTE_ULP_UART_FRAC_SEL     USART_FRACTIONAL_DIVIDER
 
@@ -1138,6 +1134,50 @@
 #endif
 
 //   </e>
+
+// <e> MCU_CLK_OUT (MCU Clock Output) [MCU_CLK_OUT]
+// <i> Configuration settings for MCU_CLK_OUT in clock manager
+#define RTE_MCU_CLK_OUT 1
+
+// <o> MCU_CLK_OUT_PIN <0=>GPIO_11 <1=>GPIO_12 <2=>GPIO_15
+#ifndef MCU_CLK_OUT_GPIO_LOC
+#define RTE_MCU_CLK_OUT_PORT_ID 0
+#if (RTE_MCU_CLK_OUT_PORT_ID == 0)
+#define RTE_MCU_CLK_OUT_PORT HP
+#define RTE_MCU_CLK_OUT_PIN  11
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE12
+#define RTE_MCU_CLK_OUT_PAD  6
+#elif (RTE_MCU_CLK_OUT_PORT_ID == 1)
+#define RTE_MCU_CLK_OUT_PORT HP
+#define RTE_MCU_CLK_OUT_PIN  12
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE8
+#define RTE_MCU_CLK_OUT_PAD  7
+#elif (RTE_MCU_CLK_OUT_PORT_ID == 2)
+#define RTE_MCU_CLK_OUT_PORT HP
+#define RTE_MCU_CLK_OUT_PIN  15
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE8
+#define RTE_MCU_CLK_OUT_PAD  8
+#else
+#error "Invalid MCU_CLK_OUT_PIN Pin Configuration!"
+#endif
+#else
+//Pintool data
+#define RTE_MCU_CLK_OUT_PORT HP
+#define RTE_MCU_CLK_OUT_PIN  MCU_CLK_OUT_GPIO_PIN
+#if (MCU_CLK_OUT_GPIO_LOC == 0)
+#define RTE_MCU_CLK_OUT_PAD  6
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE12
+#endif
+#if (MCU_CLK_OUT_GPIO_LOC == 1)
+#define RTE_MCU_CLK_OUT_PAD  7
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE8
+#endif
+#if (MCU_CLK_OUT_GPIO_LOC == 2)
+#define RTE_MCU_CLK_OUT_PAD  8
+#define RTE_MCU_CLK_OUT_MODE EGPIO_PIN_MUX_MODE8
+#endif
+//Pintool data
+#endif
 
 // <e> SSI_MASTER (Serial Peripheral Interface 1) [Driver_SSI_MASTER]
 // <i> Configuration settings for Driver_SSI_MASTER in component ::CMSIS Driver:SPI
@@ -4835,7 +4875,7 @@
 
 //QEI_IDX <0=>GPIO_8 <1=>GPIO_25 <2=>GPIO_46 <3=>GPIO_31 <4=>GPIO_52 <5=>GPIO_68 <6=>GPIO_64 <7=>GPIO_72
 #ifndef QEI_IDX_LOC
-#define RTE_QEI_IDX_PORT_ID 3
+#define RTE_QEI_IDX_PORT_ID 1
 
 #if (RTE_QEI_IDX_PORT_ID == 0)
 #define RTE_QEI_IDX_PORT HP
@@ -4929,9 +4969,9 @@
 //QEI_PHA <0=>GPIO_9 <1=>GPIO_26 <2=>GPIO_47 <3=>GPIO_32 <4=>GPIO_53 <5=>GPIO_69 <6=>GPIO_65 <7=>GPIO_73
 #ifndef QEI_PHA_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_QEI_PHA_PORT_ID 3
+#define RTE_QEI_PHA_PORT_ID 1
 #else
-#define RTE_QEI_PHA_PORT_ID 5
+#define RTE_QEI_PHA_PORT_ID 1
 #endif
 
 #if (RTE_QEI_PHA_PORT_ID == 0)
@@ -5026,9 +5066,9 @@
 //QEI_PHB <0=>GPIO_10 <1=>GPIO_27 <1=>GPIO_48 <1=>GPIO_33 <1=>GPIO_56 <1=>GPIO_70 <7=>GPIO_74
 #ifndef QEI_PHB_LOC
 #ifdef SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
-#define RTE_QEI_PHB_PORT_ID 5
+#define RTE_QEI_PHB_PORT_ID 1
 #else
-#define RTE_QEI_PHB_PORT_ID 4
+#define RTE_QEI_PHB_PORT_ID 1
 #endif
 
 #if (RTE_QEI_PHB_PORT_ID == 0)

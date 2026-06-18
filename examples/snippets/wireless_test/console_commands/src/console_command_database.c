@@ -236,6 +236,30 @@ static const console_descriptive_command_t _wifi_assert_command = { .description
                                                                     .handler       = sl_wifi_assert_command_handler,
                                                                     .argument_list = { CONSOLE_ARG_END } };
 
+extern sl_status_t wifi_config_pll_mode_handler(console_args_t *arguments);
+static const char *_wifi_config_pll_mode_arg_help[] = {
+  "PLL mode (pll_mode_20mhz or pll_mode_40mhz)",
+};
+
+static const console_descriptive_command_t _wifi_config_pll_mode_command = {
+  .description   = "Configure WiFi PLL mode (pll_mode_20mhz: 20MHz, pll_mode_40mhz: 40MHz)",
+  .argument_help = _wifi_config_pll_mode_arg_help,
+  .handler       = wifi_config_pll_mode_handler,
+  .argument_list = { CONSOLE_ENUM_ARG(wifi_pll_mode), CONSOLE_ARG_END }
+};
+
+extern sl_status_t wifi_config_power_chain_handler(console_args_t *arguments);
+static const char *_wifi_config_power_chain_arg_help[] = {
+  "Power chain (hp_chain or lp_chain)",
+};
+
+static const console_descriptive_command_t _wifi_config_power_chain_command = {
+  .description   = "Configure WiFi power chain (hp_chain: High Power, lp_chain: Low Power)",
+  .argument_help = _wifi_config_power_chain_arg_help,
+  .handler       = wifi_config_power_chain_handler,
+  .argument_list = { CONSOLE_ENUM_ARG(wifi_power_chain), CONSOLE_ARG_END }
+};
+
 extern sl_status_t wifi_bsd_get_host_by_name_handler(console_args_t *arguments);
 static const char *_wifi_bsd_get_host_by_name_arg_help[] = {
   0,
@@ -1643,6 +1667,8 @@ const console_database_t console_command_database = { CONSOLE_DATABASE_ENTRIES(
   { "thread", &_thread_command },
   { "wifi_11ax_config", &_wifi_11ax_config_command },
   { "wifi_assert", &_wifi_assert_command },
+  { "wifi_config_pll_mode", &_wifi_config_pll_mode_command },
+  { "wifi_config_power_chain", &_wifi_config_power_chain_command },
   { "wifi_bsd_get_host_by_name", &_wifi_bsd_get_host_by_name_command },
   { "wifi_bsd_get_peer_name", &_wifi_bsd_get_peer_name_command },
   { "wifi_bsd_get_sock_name", &_wifi_bsd_get_sock_name_command },

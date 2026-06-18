@@ -1,7 +1,7 @@
 !!omap
 - id: brd2605a
 - label: BRD2605A
-- package: platform
+- package: platform_siwx91x
 - description: Board support for BRD2605A.
 - category: Board|Radio Board
 - quality: production

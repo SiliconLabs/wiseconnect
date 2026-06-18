@@ -14,8 +14,7 @@
     - [Project Creation](#project-creation)
       - [SoC Mode](#soc-mode)
       - [NCP Mode](#ncp-mode)
-    - [Setup for application prints](#setup-for-application-prints)
-      - [SoC Mode](#soc-mode-1)
+    - [Tera Term Setup (for NCP and SoC Modes)](#tera-term-setup---for-ncp-and-soc-modes)
   - [Application Configuration Parameters](#application-configuration-parameters)
     - [Configuring the WLAN task](#configuring-the-wlan-task)
     - [Configuring the BLE task](#configuring-the-ble-task)
@@ -75,7 +74,10 @@ Before running the application, the user will need the following things to setup
 - Embedded Development Environment
 
   - For Silicon Labs EFx32, use the latest version of [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)
-  - Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the android smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+  - Download and install the Silicon Labs [Simplicity Connect App(formerly EFR Connect App)](https://www.silabs.com/developers/simplicity-connect-mobile-app ) in the Android/iOS smart phones for testing BLE applications. Users can also use their choice of BLE apps available in Android/iOS smart phones.
+  - Other BLE mobile apps for testing:
+    - [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp) (Android and iOS)
+    - [Light Blue](https://apps.apple.com/us/app/lightblue/id557428110) (iOS)
   - Download Open SSL for windows from below link,  
      [http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip](http://ufpr.dl.sourceforge.net/project/gnuwin32/openssl/0.9.8h-1/openssl-0.9.8h-1-bin.zip)
 
@@ -89,14 +91,14 @@ Before running the application, the user will need the following things to setup
 
    ![](resources/readme/setup_ncp.png)
 
-Follow the [Getting Started with Wiseconnect3 SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
+Follow the [Getting Started with WiSeConnect SDK](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) guide to set up the hardware connections and Simplicity Studio IDE.
 
 ## Getting Started
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -115,13 +117,11 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
      ![Soc Board detection](resources/readme/socboarddetection111.png)
 
-   - Studio should detect your board. Your board will be shown here. Click on the board detected and go to **EXAMPLE PROJECTS & DEMOS** section.  
+   - Ensure the latest Simplicity SDK (formerly Gecko SDK) along with the WiSeConnect extension is added to Simplicity Studio.
 
-   - Filter for Bluetooth examples from the Simplicity SDK (formerly Gecko SDK) added. For this, check the *Bluetooth* checkbox under **Wireless Technology** and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
+   - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save(SoC)* application.
 
-     ![](resources/readme/create_project1.png)
-
-   - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'
+   - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
 
      ![](resources/readme/create_project2.png)
 
@@ -133,33 +133,15 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
      ![](resources/readme/efr32.png)
 
-   - Ensure the latest Simplicity SDK (formerly Gecko SDK) along with the WiSeConnect 3 extension is added to Simplicity Studio.
+   - Ensure the latest Simplicity SDK (formerly Gecko SDK) along with the WiSeConnect extension is added to Simplicity Studio.
 
-   - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save* application.
+   - Go to the 'EXAMPLE PROJECT & DEMOS' tab and select *Wi-Fi Coex - Wi-Fi Client BLE Power Save(NCP)* application.
 
    - Click 'Create'. The "New Project Wizard" window appears. Click 'Finish'.
 
     ![creation_final](resources/readme/create_project2.png)
 
-### Setup for application prints
-
-#### SoC Mode
-
-  You can use either of the below USB to UART converters for application prints.
-
-1. Set up using USB to UART converter board.
-
-   - Connect Tx (Pin-6) to P27 on WSTK
-   - Connect GND (Pin 8 or 10) to GND on WSTK
-   ![](resources/readme/usb_to_uart_1.png)
-
-2. Set up using USB to UART converter cable.
-
-   - Connect RX (Pin 5) of TTL convertor to P27 on WSTK
-   - Connect GND (Pin1) of TTL convertor to GND on WSTK
-   ![](resources/readme/usb_to_uart_2.png)
-
-**Tera Term setup - for NCP and SoC modes**
+## Tera Term Setup (for NCP and SoC Modes)
 
 1. Open the Tera Term tool.
 
@@ -309,7 +291,7 @@ ble_config.h files are already set with the above desired configuration for this
    #define BLE_ADVERTISE_ONLY                            0
    ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Build and Test the Application
 
@@ -332,13 +314,13 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
    ![build_project](resources/readme/build_example.png)
 
-- Successful build output will show as below.
+- After the build completes successfully, you will see a message in the console indicating the build was successful.
 
 #### NCP Mode
 
    ![build_project](resources/readme/build_example.png)
 
-- Successful build output will show as below.
+- After the build completes successfully, you will see a message in the console indicating the build was successful.
 
 ### Loading the Application Image
 

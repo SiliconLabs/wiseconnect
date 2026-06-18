@@ -148,6 +148,9 @@
 // $[QEI]
 // [QEI]$
 
+// $[SDIO]
+// [SDIO]$
+
 // $[HSPI_SECONDARY]
 // [HSPI_SECONDARY]$
 

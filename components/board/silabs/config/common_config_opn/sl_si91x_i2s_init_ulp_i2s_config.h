@@ -78,7 +78,6 @@ extern "C" {
 #ifndef SL_ULP_I2S_PERIPHERAL
 #define SL_ULP_I2S_PERIPHERAL ULP_I2S
 #endif
-#warning "I2S peripheral is not configured. Please configure the I2S pins according to the board connections."
 
 // ULP_I2S SCLK on ULP_GPIO_7/GPIO_71
 #ifndef SL_ULP_I2S_SCLK_PORT
@@ -125,7 +124,12 @@ extern "C" {
 #endif
 // [I2S_ULP_SL_ULP_I2S]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "ULP I2S peripheral pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

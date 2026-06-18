@@ -1,6 +1,6 @@
 id: sl_si91x_fw_fallback
 label: Firmware Fallback
-package: platform
+package: platform_siwx91x
 description: >
   Si91x Firmware Fallback Hub API.
 category: Device|Si91x|MCU|Service

@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * GCC Linker script for Silicon Labs devices
+ * GCC/CMake Linker script for Silicon Labs devices
  *******************************************************************************
  * # License
  * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
@@ -113,20 +113,20 @@ SECTIONS
 		{%- if not power_manager_ps2 %}
 			{%- if ram_execution %}
      	  	KEEP(*(.reset_handler))
-			*(EXCLUDE_FILE(*sl_si91x_bus.o *sl_si91x_driver.o *sli_wifi_command_engine.o *sli_si91x_wifi_event_handler.o *rsi_deepsleep_soc.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *UDMA.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *croutine.o *event_groups.o *list.o *queue.o *stream_buffer.o *tasks.o *timers.o *cmsis_os2.o *freertos_umm_malloc_host.o *malloc_buffers.o *sl_rsi_utility.o *port.o *heap_*.o) .text*)
+			*(EXCLUDE_FILE(*/sl_si91x_bus.* */sl_si91x_driver.* */sli_wifi_command_engine.* */sli_si91x_wifi_event_handler.* */rsi_deepsleep_soc.* */rsi_hal_mcu_m4_ram.* */rsi_hal_mcu_m4_rom.* */UDMA.* */sl_sleeptimer.* */sl_sleeptimer_hal_si91x_sysrtc.* */rsi_sysrtc.* */sl_si91x_low_power_tickless_mode.* */croutine.* */event_groups.* */list.* */queue.* */stream_buffer.* */tasks.* */timers.* */cmsis_os2.* */freertos_umm_malloc_host.* */malloc_buffers.* */sl_rsi_utility.* */port.* */heap_4.*) .text*)
 		{% else %}	
 		{%- if rte_components %}
 			{% if sl_si91x_power_manager_present%}
-		    *(EXCLUDE_FILE(*UDMA.o *tasks.o *rsi_deepsleep_soc.o ).text*)        
+		  *(EXCLUDE_FILE(*/UDMA.* */tasks.* */rsi_deepsleep_soc.* ).text*)
 			 KEEP(*(.init))
 			 KEEP(*(.fini))
 			 {% else %}
-		  	*(EXCLUDE_FILE(*UDMA.o *tasks.o).text*)        
+		  *(EXCLUDE_FILE(*/UDMA.* */tasks.*).text*)
 			 KEEP(*(.init))
 			 KEEP(*(.fini))
 			{% endif %}	
 		{% else %}
-		  *(EXCLUDE_FILE(*UDMA.o).text*)        
+		  *(EXCLUDE_FILE(*/UDMA.*).text*)        
 			 KEEP(*(.init))
 			 KEEP(*(.fini))
     	{% endif %}
@@ -135,31 +135,34 @@ SECTIONS
 
 		{% if power_manager_ps2 %}
  		  	{% if wdt_manager %}
-		  *(EXCLUDE_FILE( *sl_si91x_wdt_manager.o *sl_si91x_watchdog_timer.o *rsi_wwdt.o *cmsis_gcc.o *cmsis_os2.o *sl_wifi.o *timers.o *heap_4.o *list.o *sl_si91x_m4_ps.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o *sli_si91x_power_manager_wakeup_init.o *sl_si91x_power_manager_wakeup_handler.o *sl_si91x_clock_manager.o *sli_si91x_clock_manager.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *sl_core_cortexm.o *UDMA.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in sdc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
+		  *(EXCLUDE_FILE( */sl_si91x_wdt_manager.* */sl_si91x_watchdog_timer.* */rsi_wwdt.* */cmsis_gcc.* */cmsis_os2.* */sl_wifi.* */sli_wifi_power_profile.* */timers.* */heap_4.* */list.* */sl_si91x_m4_ps.* */port.* */queue.* */sl_rsi_utility.* */tasks.* */rsi_hal_mcu_m4_ram.* */rsi_hal_mcu_m4_rom.* */clock_update.* */rsi_deepsleep_soc.* */rsi_egpio.* */rsi_ipmu.* */ipmu_apis.* */rsi_pll.* */rsi_power_save.* */rsi_ps_ram_func.* */rsi_system_config.* */rsi_time_period.* */rsi_ulpss_clk.* */system_si91x.* */sl_slist.* */strcmp.* */sl_si91x_power_manager.* */sli_si91x_power_manager.* */sl_si91x_power_manager_handler.* */sl_si91x_power_manager_debug.* */sli_si91x_power_manager_wakeup_init.* */sl_si91x_power_manager_wakeup_handler.* */sl_si91x_clock_manager.* */sli_si91x_clock_manager.* */sl_sleeptimer.* */sl_sleeptimer_hal_si91x_sysrtc.* */rsi_sysrtc.* */sl_si91x_low_power_tickless_mode.* */sl_core_cortexm.* */UDMA.* {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in sdc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 	    		{% else %}
-		  *(EXCLUDE_FILE(  *cmsis_gcc.o *cmsis_os2.o *sl_wifi.o *timers.o *heap_4.o *list.o *sl_si91x_m4_ps.o *port.o *queue.o *sl_rsi_utility.o *tasks.o *rsi_hal_mcu_m4_ram.o *rsi_hal_mcu_m4_rom.o *clock_update.o *rsi_deepsleep_soc.o *rsi_egpio.o *rsi_ipmu.o *ipmu_apis.o *rsi_pll.o *rsi_power_save.o *rsi_ps_ram_func.o *rsi_system_config.o *rsi_time_period.o *rsi_ulpss_clk.o *system_si91x.o *sl_slist.o *strcmp.o *sl_si91x_power_manager.o *sli_si91x_power_manager.o *sl_si91x_power_manager_handler.o *sl_si91x_power_manager_debug.o *sli_si91x_power_manager_wakeup_init.o *sl_si91x_power_manager_wakeup_handler.o *sl_si91x_clock_manager.o *sli_si91x_clock_manager.o *sl_sleeptimer.o *sl_sleeptimer_hal_si91x_sysrtc.o *rsi_sysrtc.o *sl_si91x_low_power_tickless_mode.o *sl_core_cortexm.o *UDMA.o {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in sdc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
+		  *(EXCLUDE_FILE(  */cmsis_gcc.* */cmsis_os2.* */sl_wifi.* */sli_wifi_power_profile.* */timers.* */heap_4.* */list.* */sl_si91x_m4_ps.* */port.* */queue.* */sl_rsi_utility.* */tasks.* */rsi_hal_mcu_m4_ram.* */rsi_hal_mcu_m4_rom.* */clock_update.* */rsi_deepsleep_soc.* */rsi_egpio.* */rsi_ipmu.* */ipmu_apis.* */rsi_pll.* */rsi_power_save.* */rsi_ps_ram_func.* */rsi_system_config.* */rsi_time_period.* */rsi_ulpss_clk.* */system_si91x.* */sl_slist.* */strcmp.* */sl_si91x_power_manager.* */sli_si91x_power_manager.* */sl_si91x_power_manager_handler.* */sl_si91x_power_manager_debug.* */sli_si91x_power_manager_wakeup_init.* */sl_si91x_power_manager_wakeup_handler.* */sl_si91x_clock_manager.* */sli_si91x_clock_manager.* */sl_sleeptimer.* */sl_sleeptimer_hal_si91x_sysrtc.* */rsi_sysrtc.* */sl_si91x_low_power_tickless_mode.* */sl_core_cortexm.* */UDMA.* {% for c in debug_ps2 %}*{{c}} {% endfor %}{% for c in calendar_ps2 %}*{{c}} {% endfor %}{% for c in ulp_timer_ps2 %}*{{c}} {% endfor %}{% for c in wdt_ps2 %}*{{c}} {% endfor %}{% for c in adc_ps2 %}*{{c}} {% endfor %}{% for c in sdc_ps2 %}*{{c}} {% endfor %}{% for c in bod_ps2 %}*{{c}} {% endfor %}{% for c in comparator_ps2 %}*{{c}} {% endfor %}{% for c in cts_ps2 %}*{{c}} {% endfor %}{% for c in dac_ps2 %}*{{c}} {% endfor %}{% for c in dma_ps2 %}*{{c}} {% endfor %}{% for c in gpio_ps2 %}*{{c}} {% endfor %}{% for c in i2c_ps2 %}*{{c}} {% endfor %}{% for c in i2s_ps2 %}*{{c}} {% endfor %}{% for c in ir_ps2 %}*{{c}} {% endfor %}{% for c in ssi_ps2 %}*{{c}} {% endfor %}{% for c in sysrtc_ps2 %}*{{c}} {% endfor %}{% for c in usart_ps2 %}*{{c}} {% endfor %}{% for c in user_files_ps2 %}*{{c}} {% endfor %}) .text*)
 		{% endif %}	
 		{% endif %}	
-
-		/* .ctors */
-		*crtbegin.o(.ctors)
-		*crtbegin?.o(.ctors)
-		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+		
+		{%- if not power_manager_ps2 %}
+		/* Align before rodata for flash line efficiency */
+		. = ALIGN(32);
+		*(.rodata*)
+		*(.rodata.*)
+		{%- endif %}
+		
+        /* .ctors */
+		*/crtbegin.*(.ctors)
+		*/crtbegin?.*(.ctors)
+		*(EXCLUDE_FILE(*/crtend?.* */crtend.*) .ctors)
 		*(SORT(.ctors.*))
 		*(.ctors)
 		
 		/* .dtors */
-		*crtbegin.o(.dtors)
-		*crtbegin?.o(.dtors)
-		*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+		*/crtbegin.*(.dtors)
+		*/crtbegin?.*(.dtors)
+		*(EXCLUDE_FILE(*/crtend?.* */crtend.*) .dtors)
 		*(SORT(.dtors.*))
 		*(.dtors)
-		
-		{%- if not power_manager_ps2 %}
-		*(.rodata*)
-		{%- endif %}
-		
-		KEEP(*(.eh_fram e*))
+
+		KEEP(*(.eh_frame*))
 					
 	{%- if flash_present %}			
 	} > rom 
@@ -214,39 +217,39 @@ SECTIONS
 		KEEP(*(.init))
 		KEEP(*(.fini))
 		*(.data*)
-		*rsi_hal_mcu_m4_ram.o(.text*)
-		*rsi_hal_mcu_m4_rom.o(.text*)
-		*sl_si91x_driver.o(.text*)
-		*sl_si91x_bus.o(.text*)
-		*UDMA.o(.text*)
-		*sl_sleeptimer.o(.text*)
-		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
-		*rsi_sysrtc.o(.text*)
-		*sl_si91x_low_power_tickless_mode.o(.text*)
-		*sli_si91x_wifi_event_handler.o(.text*)
-		*sli_wifi_command_engine.o(.text*)
-		*rsi_deepsleep_soc.o(.text*)
-		*croutine.o(.text*)
-		*event_groups.o(.text*)
-		*list.o(.text*)
-		*queue.o(.text*)
-		*cmsis_os2.o(.text*)
-		*stream_buffer.o(.text*)
-		*tasks.o(.text*)
-		*timers.o(.text*)
-		*freertos_umm_malloc_host.o(.text*)
-		*malloc_buffers.o(.text*)
-		*sl_rsi_utility.o(.text*)
-		*port.o(.text*)
-		*heap_*.o(.text*)
+		*/rsi_hal_mcu_m4_ram.*(.text*)
+		*/rsi_hal_mcu_m4_rom.*(.text*)
+		*/sl_si91x_driver.*(.text*)
+		*/sl_si91x_bus.*(.text*)
+		*/UDMA.*(.text*)
+		*/sl_sleeptimer.*(.text*)
+		*/sl_sleeptimer_hal_si91x_sysrtc.*(.text*)
+		*/rsi_sysrtc.*(.text*)
+		*/sl_si91x_low_power_tickless_mode.*(.text*)
+		*/sli_si91x_wifi_event_handler.*(.text*)
+		*/sli_wifi_command_engine.*(.text*)
+		*/rsi_deepsleep_soc.*(.text*)
+		*/croutine.*(.text*)
+		*/event_groups.*(.text*)
+		*/list.*(.text*)
+		*/queue.*(.text*)
+		*/cmsis_os2.*(.text*)
+		*/stream_buffer.*(.text*)
+		*/tasks.*(.text*)
+		*/timers.*(.text*)
+		*/freertos_umm_malloc_host.*(.text*)
+		*/malloc_buffers.*(.text*)
+		*/sl_rsi_utility.*(.text*)
+		*/port.*(.text*)
+		*/heap_4.*(.text*)
 		{%- else %}
 		*(.data*)
-		*UDMA.o(.text*)
+		*/UDMA.*(.text*)
 		{% if sl_si91x_power_manager_present%}
-		*rsi_deepsleep_soc.o(.text*)
+		*/rsi_deepsleep_soc.*(.text*)
 		{% endif %}	
 		{%- if rte_components %}
-		*tasks.o(.text*)
+		*/tasks.*(.text*)
 		{% endif %}
 		{% endif %}
 		{% endif %}
@@ -256,52 +259,53 @@ SECTIONS
 		*(.rodata*)
 		KEEP(*(.init))
 		KEEP(*(.fini))
-		{% if wdt_manager%}
-		*sl_si91x_wdt_manager.o(.text*)
-		*sl_si91x_watchdog_timer.o(.text*) 
-		*rsi_wwdt.o(.text*)		
-	        {% endif %}
-		*cmsis_gcc.o(.text*)
-		*cmsis_os2.o(.text*)
-		*port.o(.text*)
-		*queue.o(.text*)
-		*sl_rsi_utility.o(.text*)
-		*tasks.o(.text*)
-		*clock_update.o(.text*)
-		*rsi_deepsleep_soc.o(.text*)
-		*rsi_hal_mcu_m4_rom.o(.text*)
-		*rsi_hal_mcu_m4_ram.o(.text*)
-		*rsi_egpio.o(.text*)
-		*rsi_ipmu.o(.text*)
-		*ipmu_apis.o(.text*)
-		*rsi_pll.o(.text*)
-		*rsi_power_save.o(.text*)
-		*rsi_ps_ram_func.o(.text*)
-		*rsi_system_config.o(.text*)
-		*rsi_time_period.o(.text*)
-		*rsi_ulpss_clk.o(.text*)
-		*system_si91x.o(.text*)
-		*sl_slist.o(.text*)
-		*strcmp.o(.text*)
-		*sl_wifi.o(.text*)
-		*timers.o(.text*)
-		*heap_4.o(.text*)
-		*list.o(.text*)
-		*sl_si91x_m4_ps.o(.text*)
-		*sl_si91x_power_manager.o(.text*)
-		*sli_si91x_power_manager.o(.text*)
-		*sl_si91x_power_manager_handler.o(.text*)
-		*sl_si91x_power_manager_debug.o(.text*)
-		*sli_si91x_power_manager_wakeup_init.o(.text*)
-		*sl_si91x_power_manager_wakeup_handler.o(.text*)
-		*sl_si91x_clock_manager.o(.text*)
-		*sli_si91x_clock_manager.o(.text*)
-		*sl_sleeptimer.o(.text*)
-		*sl_sleeptimer_hal_si91x_sysrtc.o(.text*) 
-		*rsi_sysrtc.o(.text*)
-		*sl_si91x_low_power_tickless_mode.o(.text*)
-		*sl_core_cortexm.o(.text*)
-		*UDMA.o(.text*)
+	{% if wdt_manager%}
+	*/sl_si91x_wdt_manager.*(.text*)
+	*/sl_si91x_watchdog_timer.*(.text*)
+	*/rsi_wwdt.*(.text*)
+        {% endif %}
+		*/cmsis_gcc.*(.text*)
+		*/cmsis_os2.*(.text*)
+		*/port.*(.text*)
+		*/queue.*(.text*)
+		*/sl_rsi_utility.*(.text*)
+		*/tasks.*(.text*)
+		*/clock_update.*(.text*)
+		*/rsi_deepsleep_soc.*(.text*)
+		*/rsi_hal_mcu_m4_rom.*(.text*)
+		*/rsi_hal_mcu_m4_ram.*(.text*)
+		*/rsi_egpio.*(.text*)
+		*/rsi_ipmu.*(.text*)
+		*/ipmu_apis.*(.text*)
+		*/rsi_pll.*(.text*)
+		*/rsi_power_save.*(.text*)
+		*/rsi_ps_ram_func.*(.text*)
+		*/rsi_system_config.*(.text*)
+		*/rsi_time_period.*(.text*)
+		*/rsi_ulpss_clk.*(.text*)
+		*/system_si91x.*(.text*)
+		*/sl_slist.*(.text*)
+		*/strcmp.*(.text*)
+		*/sl_wifi.*(.text*)
+		*/sli_wifi_power_profile.*(.text*)
+		*/timers.*(.text*)
+		*/heap_4.*(.text*)
+		*/list.*(.text*)
+		*/sl_si91x_m4_ps.*(.text*)
+		*/sl_si91x_power_manager.*(.text*)
+		*/sli_si91x_power_manager.*(.text*)
+		*/sl_si91x_power_manager_handler.*(.text*)
+		*/sl_si91x_power_manager_debug.*(.text*)
+		*/sli_si91x_power_manager_wakeup_init.*(.text*)
+		*/sl_si91x_power_manager_wakeup_handler.*(.text*)
+		*/sl_si91x_clock_manager.*(.text*)
+		*/sli_si91x_clock_manager.*(.text*)
+		*/sl_sleeptimer.*(.text*)
+		*/sl_sleeptimer_hal_si91x_sysrtc.*(.text*)
+		*/rsi_sysrtc.*(.text*)
+		*/sl_si91x_low_power_tickless_mode.*(.text*)
+		*/sl_core_cortexm.*(.text*)
+		*/UDMA.*(.text*)
 		{% for c in debug_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in calendar_ps2 %}*{{c}}(.text*)
 		{% endfor %}{% for c in ulp_timer_ps2 %}*{{c}}(.text*)
@@ -379,6 +383,24 @@ SECTIONS
 		__StackTop = .;
 		PROVIDE(__stack = __StackTop);			
 	} > ram
+	/* RAM overflow detection */
+	__current_ram_used = . - ORIGIN(ram);
+	__ram_total = LENGTH(ram);
+	__ram_remaining = __ram_total - __current_ram_used;
+	
+	/* Check for RAM overflow */
+	ASSERT((. <= (ORIGIN(ram) + LENGTH(ram))), "RAM OVERFLOW: RAM usage exceeds available memory region")
+	
+	/* Check minimum heap space */
+	ASSERT((__ram_remaining >= 1024), "WARNING: Less than 1KB RAM left for heap - application may run out of dynamic memory")
+	
+	/* Check stack overlap */
+	ASSERT((__StackLimit >= __bss_end__), "CRITICAL: Stack overlaps with BSS section - increase RAM or reduce static allocation")
+	
+	/* End of RAM overflow detection section */
+	/* Overflow guard symbols derived from MEMORY (no hard-coding) */
+    __ram_start__ = ORIGIN(ram);
+    __ram_end__   = ORIGIN(ram) + LENGTH(ram);
   	.heap (COPY):
   	{
 		__HeapBase = .;
@@ -386,12 +408,13 @@ SECTIONS
 		end = __end__;
 		_end = __end__;
 		KEEP(*(.heap*))
-		. = ORIGIN(ram) + LENGTH(ram);
-		__HeapLimit = .;			
+		__HeapLimit = ORIGIN(ram) + LENGTH(ram);   /* end of RAM */
   	} > ram
  
 	__heap_size = __HeapLimit - __HeapBase;
 
+	/* Final heap validation */
+	ASSERT((__heap_size >= 0), "CRITICAL: Heap region is invalid (negative size) - stack and heap are overlapping")
 
 {%- if flash_present %}
 {%- if udma_enable %}
@@ -407,9 +430,26 @@ SECTIONS
 {%- endif %}	
 {% endif %}
 
+{%- if si91x_platform_core %}
+  .log_fmt (INFO):
+	{
+		. = ALIGN(4);
+		__log_start__ = .;
+		*(.log_fmt*)
+		. = ALIGN(4);
+		__log_end__ = .;		
+	{%- if flash_present %}			
+	} > rom 
+	{%- else %}			
+	} > ram 
+	{% endif %}
+{% endif %}
+
+
 {%- if flash_present %}
 {%- if nvm3_enable %}
-  __ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
+  /* Only when nvm3_enable: compute the end of the app/NVM3 RAM window */
+  __app_ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
   {%- if app_flash_size >= nvm3_app_max_flash_size %}
    __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % nvm3_app_max_flash_size }};
    {%- else %}
@@ -465,4 +505,6 @@ SECTIONS
  
 {%- endif %}  /* littlefs_enable */
 {%- endif %}  /* Flash Present */
+
+ASSERT(__etext <= (ORIGIN(rom) + LENGTH(rom)), "ERROR: Flash overflow code/data exceed ROM region - code and constants will not fit in flash")
 }

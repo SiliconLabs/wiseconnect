@@ -19,11 +19,11 @@
 
 ## Purpose/Scope
 
-This application demonstrates the PWM (Pulse Width Modulation) to generate a periodic pulse waveform, which is useful in motor control and power control applications.
+This application demonstrates the Pulse Width Modulation (PWM) to generate a periodic pulse waveform, which is useful in motor control and power control applications.
 
 ## Overview
 
-- Supports up to eight PWM outputs with four duty cycle generators. The output pins are grouped in pairs to facilitate driving the low side and high side of a power half bridge. For more details on PWM outputs, see the block diagram in HRM.
+- Supports up to eight PWM outputs with four duty cycle generators. The output pins are grouped in pairs to facilitate driving the low side and high side of a power half bridge.
 - Complementary and Independent output modes are supported.
 - Dead time insertion in Complementary mode.
 - Manual override option for PWM output pins. Output pin polarity is programmable.
@@ -33,45 +33,52 @@ This application demonstrates the PWM (Pulse Width Modulation) to generate a per
 ## About Example Code
 
 - This example demonstrates the generation of periodic pulse waveform with 50% duty cycle and frequency of 25Khz.
-- Four macros are present (that is, DEAD_TIME, OVERRIDE, FAULT).
+- Four macros are present (that is, DEAD_TIME, OVERRIDE, FAULT, and SVT).
 - If **DEAD_TIME** is enabled:
   - DEAD_TIME: To perform correct status change of the power switches in the inverter leg, a PWM generator should insert a small amount of time between required switching edges for top and bottom switch. This time is called dead-time.
   - Dead time mode is applied only in complementary mode.
     - Complementary mode: In Complementary PWM mode, PWM waveform output incorporates dead time (anti-short periods) to prevent overlap between the positive and anti phases.
     - Independent Mode: In Independent PWM Output mode, the PWM outputs (PWMxH and PWMxL) are phase shifted relative to each other.
-  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init).
-  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
-  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
-  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
-  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
-  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
-  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init).
+  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
+  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
+  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
+  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
+  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
+  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Please refer below for Dead Time Insertion
+    - Center Aligned :- Configure DT_COUNTER_A as 0x0
+    ![Figure: Center Aligned](resources/readme/Center_Edge_Aligned.png)
+    - Lead Edge Aligned :- Configure DT_COUNTER_A as 0x1
+    ![Figure: Lead Edge Aligned](resources/readme/Lead_Edge_Aligned.png)
+    - Tail Edge Aligned :- Configure DT_COUNTER_A as 0x10
+    ![Figure: Tail Edge Aligned](resources/readme/Tail_Edge_Aligned.png)
 - If **OVERRIDE** is enabled:
   - OVERRIDE: While overriding PWM outputs, the channel counters continue to run, only the PWM outputs are forced to user-defined values.
-  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API.
-  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
-  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
-  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
-  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
-  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
-  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API.
+  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
+  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
+  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
+  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
+  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
+  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
 - If **FAULT** is enabled:
   - FAULT: There are two fault pins, FAULTxA and FAULTxB, associated with the MCPWM (Motor Control Pulse Width Modulation) module. When asserted, these pins can optionally drive each of the PWM I/O pins to a defined state.
-  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API, [sl_Si91x_pwm_fault_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-fault-init) API.
-  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
-  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
-  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
-  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
-  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
+  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API, [sl_Si91x_pwm_fault_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-fault-init) API.
+  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
+  - Set the base timer mode using [sl_si91x_pwm_set_base_timer_mode()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-base-timer-mode) API.
+  - Set the duty cycle using [sl_si91x_pwm_set_duty_cycle()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-duty-cycle) API.
+  - Set the base time period control using [sl_si91x_pwm_control_period()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-period) API.
+  - Register callbacks using [sl_si91x_pwm_register_callback()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-register-callback) API.
   - Change the event generated to fault A/B flags.
-  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
 - If the user wants to work without UC configuration, they can use their own macros and structure configuration and pass it directly in the application.
 - If **SVT** is enabled:
-  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API. Initialize Special Event Trigger based GPIO pin.
-  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
-  - Enable the special event trigger using [sl_si91x_pwm_control_special_event_trigger()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-special-event-trigger) API.
-  - Set the configuration for special event trigger using [sl_si91x_pwm_trigger_special_event()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-trigger-special-event) API.
-  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
+  - Initialize the PWM using [sl_si91x_pwm_init()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-init) API. Initialize Special Event Trigger based GPIO pin.
+  - Set the configuration using [sl_si91x_pwm_set_configuration()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-set-configuration) API.
+  - Enable the special event trigger using [sl_si91x_pwm_control_special_event_trigger()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-control-special-event-trigger) API.
+  - Set the configuration for special event trigger using [sl_si91x_pwm_trigger_special_event()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-trigger-special-event) API.
+  - Start PWM using [sl_si91x_pwm_start()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/pwm#sl-si91x-pwm-start) API.
   
 >**Note:**
 >
@@ -85,14 +92,14 @@ This application demonstrates the PWM (Pulse Width Modulation) to generate a per
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-ek2708a-explorer-kit)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output) section in the *WiSeConnect Developer's Guide*.
+  - For serial console setup instructions, see the [Console Input and Output](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output) section in the *WiSeConnect Developer's Guide*.
 
 ### Setup Diagram
 
@@ -102,11 +109,11 @@ This application demonstrates the PWM (Pulse Width Modulation) to generate a per
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -172,38 +179,35 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - PWM channel-0 pin configuration.
 
-  | Description  | GPIO    | 917 Breakout pin | 915 Breakout pin | Explorer kit Breakout pin |
-  | ------------ | ------- | ---------------- | ---------------  | ------------------------- |
-  | PWM_H        | GPIO_7  |     P20          |    EXP_15        |            [SCL]          |
-  | PWM_L        | GPIO_6  |     P19          |    EXP_16        |            [SDA]          |
+  | Description  | GPIO    | 917 Breakout pin |  Explorer kit Breakout pin |
+  | ------------ | ------- | ---------------- | -------------------------- |
+  | PWM_H        | GPIO_7  |        P20       |            [SCL]           |
+  | PWM_L        | GPIO_6  |        P19       |            [SDA]           |
 
 - PWM channel-1 pin configuration.
 
-  | Description   | GPIO    | 917 Breakout pin | 915 Breakout pin |
-  | ------------- | ------- | ---------------- | ---------------- |
-  | PWM_H         | GPIO_9  |     F9           |     F9           |
-  | PWM_L         | GPIO_8  |     F8           |     F8           |
+  | Description   | GPIO    | 917 Breakout pin |
+  | ------------- | ------- | ---------------- |
+  | PWM_H         | GPIO_9  |     F9           |
+  | PWM_L         | GPIO_8  |     F8           |
 
 - PWM channel-2 pin configuration.
 
-  | Description   | GPIO    | 917 Breakout pin | 915 Breakout pin |
-  | ------------- | ------- | ---------------- | ---------------  |
-  | PWM_H         | GPIO_11 |     F13          | EXP_5            |
-  | PWM_L         | GPIO_10 |     F11          | F10              |
+  | Description   | GPIO    | 917 Breakout pin |
+  | ------------- | ------- | ---------------- |
+  | PWM_H         | GPIO_11 |     F13          |
+  | PWM_L         | GPIO_10 |     F11          |
 
 - PWM channel-3 pin configuration.
 
-  | Description   | GPIO        | 917 Breakout pin | 915 Breakout pin | Explorer kit Breakout pin|
-  | ------------- | -------     | ---------------- | ---------------- | ------------------------ |
-  | PWM_H         | ULP_GPIO_7  |       P12        |      F6          |          [TX]            |
-  | PWM_L         | ULP_GPIO_6  |       P13        |      F7          |          [RX]            |
+  | Description   | GPIO        | 917 Breakout pin | Explorer kit Breakout pin|
+  | ------------- | ----------- | ---------------- | ------------------------ |
+  | PWM_H         | ULP_GPIO_7  |EXP_15            |          [TX]            |
+  | PWM_L         | ULP_GPIO_6  |EXP_16            |          [RX]            |
 
->**Note:** Make sure pin configuration are set in the `RTE_Device_xxx.h` file:
+>**Note:** Make sure pin configuration are set in the `RTE_Device_917.h` file:
 >
 > - SiWx917: RTE_Device_917.h (path: /$project/config/RTE_Device_917.h)
-> - SiWx915: RTE_Device_915.h (path: /$project/config/RTE_Device_915.h)
-
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -219,5 +223,6 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    ![Figure: output2](resources/readme/output2.png)
 
 > **Note:**
+>
 > - Use [sl_si91x_clock_manager_m4_set_core_clk()](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-services/clock-manager#sl-si91x-clock-manager-m4-set-core-clk) API to set system core clock  to 32MHz to achieve PWM frequency between 500Hz to 2700Hz.
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

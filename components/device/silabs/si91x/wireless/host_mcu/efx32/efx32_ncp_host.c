@@ -37,7 +37,7 @@
 #define PACKET_PENDING_INT_PRI            3
 #define SLI_SPI_ASYNC_TRANSFER_TIMEOUT_MS 1000
 #define SLI_SPI_SYNC_TRANSFER_MAX_BYTES   16
-#define SLI_SPI_BIT_RATE                  12500000
+#define SLI_SPI_BIT_RATE                  9500000
 
 #ifdef SL_NCP_UART_INTERFACE
 #define NCP_RX_IRQ USART0_RX_IRQn
@@ -333,17 +333,17 @@ Ecode_t sli_si91x_spidrv_mtransfer_async(SPIDRV_Handle_t handle,
 
 void sl_si91x_host_set_sleep_indicator(void)
 {
-  GPIO_PinOutSet(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN);
+  GPIO_PinOutSet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN);
 }
 
 void sl_si91x_host_clear_sleep_indicator(void)
 {
-  GPIO_PinOutClear(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN);
+  GPIO_PinOutClear(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN);
 }
 
 uint32_t sl_si91x_host_get_wake_indicator(void)
 {
-  return GPIO_PinInGet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN);
+  return GPIO_PinInGet(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN);
 }
 
 sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
@@ -373,8 +373,8 @@ sl_status_t sl_si91x_host_init(const sl_si91x_host_init_configuration_t *config)
   GPIO_PinModeSet(SI91X_NCP_RESET_PORT, SI91X_NCP_RESET_PIN, gpioModeWiredAnd, 0);
 
   // Configure interrupt, sleep and wake confirmation pins
-  GPIO_PinModeSet(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN, gpioModeWiredOrPullDown, 1);
-  GPIO_PinModeSet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN, gpioModeWiredOrPullDown, 0);
+  GPIO_PinModeSet(SI91X_NCP_SLEEP_CONFIRM_PORT, SI91X_NCP_SLEEP_CONFIRM_PIN, gpioModeInputPull, 0);
+  GPIO_PinModeSet(SI91X_NCP_WAKE_INDICATOR_PORT, SI91X_NCP_WAKE_INDICATOR_PIN, gpioModeWiredOrPullDown, 1);
 
   return SL_STATUS_OK;
 }
@@ -440,7 +440,8 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
       == sli_si91x_spidrv_mtransfer_async(SLI_SPI_HANDLE, tx_buffer, rx_buffer, buffer_length, sli_spi_dma_callback)) {
     // Wait for the transfer to complete
     if (osSemaphoreAcquire(transfer_done_semaphore, SLI_SPI_ASYNC_TRANSFER_TIMEOUT_MS) != osOK) {
-      BREAKPOINT();
+      osMutexRelease(ncp_transfer_mutex);
+      return SL_STATUS_BUS_ERROR;
     }
   }
 
@@ -481,7 +482,8 @@ sl_status_t sl_si91x_host_uart_transfer(const void *tx_buffer, void *rx_buffer, 
                                NULL);
 
       if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
-        BREAKPOINT();
+        osMutexRelease(ncp_transfer_mutex);
+        return SL_STATUS_BUS_ERROR;
       }
     }
   }

@@ -36,14 +36,22 @@ extern "C" {
 #endif
 #include "lfs.h"
 #include "rsi_qspi_proto.h"
+#include "sl_status.h"
 
 // flash page size
 #define LITTLEFS_FLASH_PAGE_SIZE 256
 // Default memory allocated for littlefs
 #define LITTLEFS_DEFAULT_MEM_SIZE 524288
 
-#define QSPI_OK    (0)                                                        // QSPI operation success
-#define QSPI_ERROR (1)                                                        // Error In qspi Opearation
+#define QSPI_OK                (0) // QSPI operation success
+#define QSPI_ERROR             (1) // Error In qspi Opearation
+#define SL_MAX_FILENAME_LENGTH 32  // Maximum file name length to save space.Usercan have till LFS_NAME_MAX
+
+//File Structure
+typedef struct sl_lfs_files {
+  bool is_dir;
+  char filename[SL_MAX_FILENAME_LENGTH];
+} sl_si91x_littefs_dir_entry;
 /***************************************************************************/ /**
  * @brief get the qspi default configs.
  * @details This function containts the default Configurations for QSPI module
@@ -155,6 +163,23 @@ int si91x_block_device_lock(const struct lfs_config *c);
  * @return 0 - QSPI_OK on success.
  ******************************************************************************/
 int si91x_block_device_unlock(const struct lfs_config *c);
+
+/***************************************************************************/ /**
+ * @brief List and count files in Directory.
+ * @details List the files in Directory.Also counts the files in the Directory.
+ *
+ * @param[in] littlefs filesystem type
+ * @param[in] Path of Directory
+ * @param[out] List of files
+ * @param[out] Count of files
+ * @param[in] Size of Array
+ * @return SL_STATUS_OK  for Success and SL_STATUS_FAIL for Failure
+ ******************************************************************************/
+sl_status_t sl_si91x_littefs_dir_list(lfs_t *lfs,
+                                      const char *path,
+                                      sl_si91x_littefs_dir_entry *entries,
+                                      int *entries_count,
+                                      int entries_buffer_array_size);
 
 #ifdef __cplusplus
 }

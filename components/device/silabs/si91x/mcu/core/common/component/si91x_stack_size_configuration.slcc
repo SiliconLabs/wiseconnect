@@ -1,5 +1,5 @@
 id: si91x_stack_size_configuration
-package: wiseconnect3_sdk
+package: platform_siwx91x
 description: >
   This component provides configuration of the stack and
   heap for supported toolchains for SiW91x devices.

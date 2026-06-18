@@ -49,6 +49,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/debug.h"
+#include "psa/crypto.h"
 
 
 //Application level variables for QOS1. Extern these variables in the application for QOS1.
@@ -87,6 +88,7 @@ osSemaphoreId_t select_sem;
 ******************************************************/
 volatile int dns_resolved=0;
 static ip_addr_t dns_query_response = { 0 };
+static uint8_t psa_crypto_initialized = 0;
 
 mbedtls_ctr_drbg_context ctr_drbg;
 mbedtls_entropy_context entropy;
@@ -363,6 +365,18 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *params)
   status = sli_si91x_connect_to_network(pNetwork, &dns_query_response, pNetwork->tlsConnectParams.DestinationPort, SLI_CLIENT_PORT);
   if (status != SUCCESS) {
     return status;
+  }
+
+  // Initialize PSA crypto (required for sisdk mbedTLS components)
+  if (!psa_crypto_initialized) {
+    status = psa_crypto_init();
+    if (status != PSA_SUCCESS) {
+      printf("\r\n[TLS] PSA crypto init failed: %ld\r\n", status);
+      // Continue anyway as some platforms may not need it
+    } else {
+      printf("\r\n[TLS] PSA crypto init SUCCESS\r\n");
+      psa_crypto_initialized = 1;
+    }
   }
 
   // Initialize mbedTLS entropy and random number generator

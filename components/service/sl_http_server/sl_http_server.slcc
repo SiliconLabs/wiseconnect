@@ -1,5 +1,5 @@
 id: sl_http_server
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The HTTP Server provides an API to start a HTTP Server service
 label: HTTP Server

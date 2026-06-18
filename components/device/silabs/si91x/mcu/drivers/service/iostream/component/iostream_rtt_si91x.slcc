@@ -1,5 +1,5 @@
 id: iostream_rtt_si91x
-package: platform
+package: platform_siwx91x
 label: "IO Stream:SI91X RTT"
 description: >
   Instantiate the driver for using IO Stream over RTT peripheral.

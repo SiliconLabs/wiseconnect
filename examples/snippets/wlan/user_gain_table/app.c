@@ -108,7 +108,7 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-sl_si91x_request_tx_test_info_t tx_test_info = {
+sl_wifi_request_tx_test_info_t tx_test_info = {
   .enable      = 1,
   .power       = 127,
   .rate        = rate,
@@ -116,7 +116,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .mode        = 0,
   .channel     = 1,
   .aggr_enable = 0,
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -152,9 +152,8 @@ static void application_start(void *argument);
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 

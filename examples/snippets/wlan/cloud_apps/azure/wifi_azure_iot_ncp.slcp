@@ -1,86 +1,68 @@
 project_name: wifi_azure_iot_ncp
-package: wifi
+package: wifi_app
 quality: production
 label: Wi-Fi - Azure IoT MQTT Client (NCP)
 category: Example|Wi-Fi
-description: |
-   Application connects to azure cloud.
-filter:
--  name: Wireless Technology
-   value:
-   - Wi-Fi
--  name: Project Difficulty
-   value:
-   - Beginner
-sdk:
-   id: simplicity_sdk
-   version:  "2025.6.1"
-sdk_extension:
--  id: wiseconnect3_sdk
-   version: 3.5.2
-source:
--  path: app.c
-include:
+description: 'Application connects to azure cloud.
 
--  path: .
-   file_list:
-   -  path: app.h
-   -  path: demo_config.h
-   -  path: transport_tls_socket.h
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+- name: Project Difficulty
+  value:
+  - Beginner
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: demo_config.h
+  - path: transport_tls_socket.h
 define:
--  name: SL_SI91X_PRINT_DBG_LOG
--  name: azureiotconfigKEEP_ALIVE_TIMEOUT_SECONDS
-   value: '600'
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: azureiotconfigKEEP_ALIVE_TIMEOUT_SECONDS
+  value: '600'
 component:
-  - id: sl_main
-  - id: freertos
-  - id: freertos_heap_4
-  - id: device_init
-  - id: spidrv
-    instance: [exp]
-  - id: iostream_retarget_stdio
-  - id: iostream_recommended_stream
-  - id: iostream_stdlib_config
-  - id: wiseconnect3_common
-    from: wiseconnect3_sdk
-  - id: wifi
-    from: wiseconnect3_sdk
-  - id: sl_si91x_internal_stack
-    from: wiseconnect3_sdk
-  - id: wifi_resources
-    from: wiseconnect3_sdk
-  - id: sl_si91x_spi_bus
-    from: wiseconnect3_sdk
-  - id: sl_si91x_hmac
-    from: wiseconnect3_sdk
-  - id: sl_si91x_crypto
-    from: wiseconnect3_sdk
-  - id: sl_si91x_wrap
-    from: wiseconnect3_sdk
-  - id: network_manager
-    from: wiseconnect3_sdk
-  - id: basic_network_config_manager
-    from: wiseconnect3_sdk
-  - id: sl_si91x_asynchronous_socket
-    from: wiseconnect3_sdk
-  - id: azure_freertos_middleware
-    from: wiseconnect3_sdk
-  - id: sl_si91x_basic_buffers
-    from: wiseconnect3_sdk
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: device_init
+- id: spidrv
+  instance:
+  - exp
+- id: iostream_retarget_stdio
+- id: iostream_recommended_stream
+- id: iostream_stdlib_config
+- id: wiseconnect_common
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: wifi_resources
+- id: sl_si91x_spi_bus
+- id: sl_si91x_hmac
+- id: sl_si91x_crypto
+- id: sl_si91x_wrap
+- id: network_manager
+- id: basic_network_config_manager
+- id: sl_si91x_asynchronous_socket
+- id: azure_freertos_middleware
+- id: sl_si91x_basic_buffers
 toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+- option: gcc_compiler_option
+  value: -Wall -Werror
 configuration:
--  name: SL_BOARD_ENABLE_VCOM
-   value: '1'
--  name: configUSE_POSIX_ERRNO
-   value: '1'
--  name: configTOTAL_HEAP_SIZE
-   value: '51200'
--  name: configTIMER_TASK_PRIORITY 
-   value: '55'
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: configUSE_POSIX_ERRNO
+  value: '1'
+- name: configTOTAL_HEAP_SIZE
+  value: '51200'
+- name: configTIMER_TASK_PRIORITY
+  value: '55'
 readme:
--  path: readme.md
+- path: readme.md
 other_file:
 - path: resources/readme/azureaccountcreatea.png
 - path: resources/readme/azureaccountcreateb.png
@@ -139,6 +121,14 @@ other_file:
 - path: resources/readme/energy_profiler_step_2.png
 - path: resources/readme/energy_profiler_step_3.png
 ui_hints:
-   highlight:
-   -  path: readme.md
-      focus: true
+  highlight:
+  - path: readme.md
+    focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

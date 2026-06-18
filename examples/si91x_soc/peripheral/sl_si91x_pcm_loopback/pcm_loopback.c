@@ -51,7 +51,6 @@ static sl_i2s_handle_t pcm_handle = NULL;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static int32_t clock_configuration_pll(void);
 static void callback_event(uint32_t event);
 static void compare_loop_back_data(void);
 static void remove_pcm_frame_offset(pcm_data_size_t data_buffer[PCM_BUFFER_SIZE + FRAME_OFFSET]);
@@ -74,12 +73,7 @@ void pcm_example_init(void)
     pcm_data_out[i] = (uint16_t)i;
   }
   do {
-    // Configure PLL and switch M4 clock to PLL clock for speed operations
-    if (clock_configuration_pll()) {
-      DEBUGOUT("PLL configuration fail\r\n");
-      break;
-    }
-    DEBUGOUT("PLL configuration success\r\n");
+
     //Initialize PCM peripheral and store driver handle in pcm_driver_handle
     status = sl_si91x_pcm_init(PCM_INSTANCE, &pcm_handle);
     if (status != SL_STATUS_OK) {
@@ -147,18 +141,6 @@ void pcm_example_process_action(void)
     pcm_send_complete    = 0;
     pcm_receive_complete = 0;
   }
-}
-
-/*******************************************************************************
- * Function to configure PLL for high speed operations
- ******************************************************************************/
-static int32_t clock_configuration_pll(void)
-{
-  int32 status = 0;
-  do {
-
-  } while (false);
-  return status;
 }
 
 /*******************************************************************************

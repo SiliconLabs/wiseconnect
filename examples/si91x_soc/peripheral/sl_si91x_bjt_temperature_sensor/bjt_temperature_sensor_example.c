@@ -1,6 +1,7 @@
 /***************************************************************************/ /**
 * @file bjt_temperature_sensor_example.c
-* @brief BJT Temperature Sensor example
+* @brief BJT Temperature Sensor example - demonstrates die temperature measurement
+*        using the internal BJT temperature-dependent voltage source
 *******************************************************************************
 * # License
 * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -21,6 +22,7 @@
 /*******************************************************************************
 ***************************  Defines / Macros  ********************************
 ******************************************************************************/
+
 /*******************************************************************************
 **********************  Local Function prototypes   ***************************
 ******************************************************************************/
@@ -28,6 +30,12 @@
 /*******************************************************************************
  *************************** GLOBAL VARIABLES   *******************************
  ******************************************************************************/
+
+// Temperature sensor configuration structures
+// These are defined in the driver with specific values required for temperature measurement:
+// - ADC Channel 0 (hardwired to BJT sensor output)
+// - OPAMP1 unity gain (required for accurate voltage buffering)
+// - Static ADC mode (single conversion per reading)
 extern adc_config_t sl_bjt_config;
 extern adc_ch_config_t sl_bjt_channel_config;
 
@@ -46,9 +54,13 @@ void bjt_temperature_sensor_example_init(void)
     DEBUGOUT("sl_si91x_bjt_temp_init: Error Code : %lu \n", status);
     return;
   }
-  /* Due to calling trim_efuse API on BJT Temperature sensor init in driver
-     * it will change the clock frequency, if we are not initialize the debug
-     * again it will print the garbage data in console output */
+  /* Calling sl_si91x_bjt_temperature_sensor_init() changes the frequency of
+   * the M4SS_REF_CLK during eFuse calibration data access. This clock is also 
+   * used by the debug subsystem for SWV (Serial Wire Viewer) output timing.
+   * It is necessary to call DEBUGINIT() a second time to reconfigure the debug
+   * subsystem's clock prescaler to match the new clock frequency, otherwise 
+   * DEBUGOUT() prints will have corrupted characters due to incorrect bit timing.
+   */
   DEBUGINIT();
   DEBUGOUT("BJT temperature sensor Initialization Success\n");
 }

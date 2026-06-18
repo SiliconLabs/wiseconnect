@@ -14,7 +14,7 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-
+#include "sli_wifi_utility.h"
 #include "sl_wifi_constants.h"
 #include "sl_si91x_host_interface.h"
 #include "sl_board_configuration.h"
@@ -68,7 +68,7 @@ static bool sli_dma_callback(unsigned int channel, unsigned int sequenceNo, void
 static void gpio_interrupt(uint8_t interrupt_number)
 {
   UNUSED_PARAMETER(interrupt_number);
-  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_wifi_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
   //  GPIO_IntClear(0xAAAA);
 }
 
@@ -261,7 +261,8 @@ sl_status_t sl_si91x_host_spi_transfer(const void *tx_buffer, void *rx_buffer, u
   DMADRV_LdmaStartTransfer(tx_ldma_channel, &ldmaTXConfig, ldmaTXDescriptor, NULL, NULL);
 
   if (osSemaphoreAcquire(transfer_done_semaphore, 1000) != osOK) {
-    BREAKPOINT();
+    osMutexRelease(spi_transfer_mutex);
+    return SL_STATUS_BUS_ERROR;
   }
 
   osMutexRelease(spi_transfer_mutex);

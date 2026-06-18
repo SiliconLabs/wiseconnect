@@ -1,6 +1,6 @@
 id: ssi_ulp_component
 label: PM ULP SSI
-package: platform
+package: platform_siwx91x
 description: >
   ULP SSI component will enable  SSI in the low-power mode. It moves all the peripheral dependencies to RAM. 
   It also installs the peripheral component if already not installed.
@@ -22,17 +22,17 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: ssi_ps2
-    value: sl_si91x_ssi.o
+    value: sl_si91x_ssi.*
   - name: ssi_ps2
-    value: rsi_spi.o
+    value: rsi_spi.*
   - name: ssi_ps2
-    value: SPI.o
+    value: SPI.*
   - name: ssi_ps2
-    value: memcpy*.o
+    value: memcpy.*
   - name: ssi_ps2
-    value: UDMA.o
+    value: UDMA.*
   - name: ssi_ps2
-    value: rsi_udma.o
+    value: rsi_udma.*
   - name: ssi_ps2
-    value: rsi_udma_wrapper.o
+    value: rsi_udma_wrapper.*
 

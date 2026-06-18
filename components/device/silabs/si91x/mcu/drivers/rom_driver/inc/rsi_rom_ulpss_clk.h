@@ -311,11 +311,9 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpDynClkDisable(ULPCLK_Type *pULPCLK, uint3
  * @param[in]	  clkType    : To select the clock as dynamic or static clock. See the #CLK_ENABLE_T for more info
  * @param[in]	  clkSource : Value of clock source to select as Ulp SSI clock. Please refer #ULP_SSI_CLK_SELECT_T for more info
  *              -  0: \ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *              -  1: \ref ulp_32khz_ro_clk
  *              -  2: \ref ulp_32khz_rc_clk
  *              -  3: \ref ulp_32khz_xtal_clk  #refer NOTE
  *              -  4: \ref ulp_mhz_rc_clk
- *              -  5: \ref ulp_20mhz_ro_clk
  *              -  6: \ref soc_clk             #refer NOTE
  * @param[in]   divFactor : To divide the clock
  * @return 		  returns 0 \ref RSI_OK on success ,Error code on failure
@@ -345,11 +343,9 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpSsiClkConfig(ULPCLK_Type *pULPCLK,
  * @param[in]   pULPCLK    : Pointer to the ulp clock register instance
  * @param[in]	  clkSource : Value of clock source to select as I2S clock. Please refer #ULP_SSI_CLK_SELECT_T for more info
  *               - 0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *               - 1: \ref ulp_32khz_ro_clk
  *               - 2: \ref ulp_32khz_rc_clk
  *               - 3: \ref ulp_32khz_xtal_clk     #refer NOTE
  *               - 4: \ref ulp_mhz_rc_clk
- *               - 5: \ref ulp_20mhz_ro_clk
  *               - 6: \ref soc_clk                #refer NOTE
  *               - 7: \ref ulp_doubler_clk
  *               - 8: \ref I2S PLL
@@ -383,11 +379,9 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpI2sClkConfig(ULPCLK_Type *pULPCLK,
  *               -  0: Swallow Divider output is selected
  * @param[in]	  clkSource : Value of clock source to select as processor clock
  *               -  0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *               -  1: \ref ulp_32khz_ro_clk
  *               -  2: \ref ulp_32khz_rc_clk
  *               -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
  *               -  4: \ref ulp_mhz_rc_clk
- *               -  5: \ref ulp_20mhz_ro_clk
  *               -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
@@ -420,11 +414,9 @@ STATIC INLINE rsi_error_t RSI_ULPSS_UlpUartClkConfig(ULPCLK_Type *pULPCLK,
  *                 -  0: Disables
  * @param[in]	   clkSource     : Value of clock source to select as Timer clock. Please refer #ULP_TIMER_CLK_SELECT_T for possible values
  *                -  0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
- *                -  4: \ref ulp_mhz_rc_clk
- *                -  5: \ref ulp_20mhz_ro_clk
+ *                -  4: \ref ulp_mhz_rc_clk    
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
  * @param[in]    skipSwitchTime : To skip the switching of timer clk.
@@ -474,11 +466,9 @@ STATIC INLINE rsi_error_t RSI_ULPSS_TimerClkDisable(ULPCLK_Type *pULPCLK)
  * @param[in]	   clkType   : To select the clock as dynamic or static clock. See the #CLK_ENABLE_T for more info
  * @param[in]	   clkSource : Value of clock source to select as AUX clock. Please refer #ULP_AUX_CLK_SELECT_T for more info
  *                -  0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *                -  1: \ref ulp_32khz_ro_clk
  *                -  2: \ref ulp_32khz_rc_clk
  *                -  3: \ref ulp_32khz_xtal_clk     #refer NOTE
  *                -  4: \ref ulp_mhz_rc_clk
- *                -  5: \ref ulp_20mhz_ro_clk
  *                -  6: \ref soc_clk                #refer NOTE
  *                -  7: \ref ulp_doubler_clk
  *                -  8: \ref I2S PLL
@@ -507,7 +497,6 @@ STATIC INLINE rsi_error_t RSI_ULPSS_AuxClkConfig(ULPCLK_Type *pULPCLK,
  * @brief		     This API is used to configure the VAD clock source
  * @param[in]    pULPCLK    : Pointer to the ulp clock register instance
  * @param[in]	   clkSource : Value of clock source to select as vad clock. Please refer #ULP_VAD_CLK_SELECT_T for more info
- *               -  0: \ref ulp_32khz_ro_clk
  *               -  1: \ref ulp_32khz_rc_clk
  *               -  2: \ref ulp_32khz_xtal_clk        #refer NOTE
  *	              \n NOTE: In order to enable the XTAL CLK source need to configure the NPSS_GPIO pins
@@ -516,7 +505,6 @@ STATIC INLINE rsi_error_t RSI_ULPSS_AuxClkConfig(ULPCLK_Type *pULPCLK,
  *               -  0: ulpss processor clock     #refer NOTE
  *               -  1: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
  *               -  2: \ref ulp_mhz_rc_clk
- *               -  3: \ref ulp_20mhz_ro_clk
  *               -  4: \ref soc_clk                 #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure
@@ -544,12 +532,10 @@ STATIC INLINE rsi_error_t RSI_ULPSS_VadClkConfig(ULPCLK_Type *pULPCLK,
  * @brief		     This API is used to configure the Touch clock source
  * @param[in]    pULPCLK    : Pointer to the ulp clock register instance
  * @param[in]	   clkSource : Value of clock source to select as Touch clock. Please refer #ULP_TOUCH_CLK_SELECT_T for more info.
- *                         -  0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)
- *                         -  1: \ref ulp_32khz_ro_clk
+ *                         -  0: \ref ref_clk (output of dynamic clock mux for different possible ref_clk sources)  
  *                         -  2: \ref ulp_32khz_rc_clk
  *                         -  3: \ref ulp_32khz_xtal_clk    #refer NOTE
  *                         -  4: \ref ulp_mhz_rc_clk
- *                         -  5: \ref ulp_20mhz_ro_clk
  *                         -  6: \ref soc_clk               #refer NOTE
  * @param[in]    divFactor : To divide the clock
  * @return 		   returns 0 \ref RSI_OK on success ,Error code on failure

@@ -1,5 +1,5 @@
 id: sl_si91x_ecdsa
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the ECDSA APIs
 label: ECDSA

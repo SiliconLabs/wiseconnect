@@ -1,6 +1,6 @@
 id: sl_bjt_temperature_sensor
 label: BJT Temperature Sensor
-package: platform
+package: platform_siwx91x
 description: >
   By taking use of its temperature-dependent characteristics, a Bipolar Junction Transistor (BJT)
   can be utilized as a temperature sensor.

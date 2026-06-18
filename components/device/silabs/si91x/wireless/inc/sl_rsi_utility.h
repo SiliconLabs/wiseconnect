@@ -44,8 +44,16 @@
 #include "sl_si91x_driver.h"
 #include "sl_wifi_device.h"
 #include "sl_si91x_types.h"
+#include "sli_wifi_types.h"
 
 //! @cond Doxygen_Suppress
+
+/// Internal structure for representing a TLS extension
+typedef struct {
+  uint16_t type;   ///< Specifies the TLS extension type.
+  uint16_t length; ///< Length of the value[] field.
+  uint8_t value[]; ///< Data corresponding to the specified extension type.
+} sli_si91x_tls_extension_info_t;
 
 /// Low Transmit Power Threshold for Wi-Fi.
 #define SLI_SI91X_LOW_TRANSMIT_POWER_THRESHOLD 6
@@ -75,25 +83,9 @@
 #define SL_SI91X_EVENT_HANDLER_STACK_SIZE 1536
 #endif
 typedef bool (*sli_si91x_wifi_buffer_comparator)(const sl_wifi_buffer_t *buffer, const void *userdata);
-
-typedef struct {
-  sl_wifi_performance_profile_v2_t wifi_performance_profile;
-  sl_bt_performance_profile_t bt_performance_profile;
-  sl_wifi_system_coex_mode_t coex_mode;
-} sli_si91x_performance_profile_t;
-
-/// Efuse data information
-typedef union {
-  uint8_t mfg_sw_version; ///< Manufacturing PTE software version
-  uint16_t pte_crc;       ///< PTE CRC value
-} sli_si91x_efuse_data_t;
-
 typedef uint32_t sl_si91x_host_timestamp_t;
 
 void sli_handle_wifi_beacon(sl_wifi_system_packet_t *packet);
-sl_status_t sli_wifi_get_stored_scan_results(sl_wifi_interface_t interface,
-                                             sl_wifi_extended_scan_result_parameters_t *extended_scan_parameters);
-void sli_wifi_flush_scan_results_database(void);
 
 typedef void (*sli_si91x_host_atomic_action_function_t)(void *user_data);
 typedef uint8_t (*sli_si91x_compare_function_t)(sl_wifi_buffer_t *node, void *user_data);
@@ -111,33 +103,10 @@ extern volatile uint8_t tx_socket_command_command_in_flight_queues_status;
 
 /* Function converts NWP client info to SDK client info */
 sl_status_t sli_convert_si91x_wifi_client_info(sl_wifi_client_info_response_t *client_info_response,
-                                               const sli_si91x_client_info_response *sli_si91x_client_info_response);
+                                               const sli_wifi_client_info_response *sli_wifi_client_info_response);
 
 /* Function converts NWP events to SDK events */
-sl_wifi_event_t sli_convert_si91x_event_to_sl_wifi_event(sli_wlan_cmd_response_t command, uint16_t frame_status);
-
-/* Function used to update the variable that stores the wifi rate */
-sl_status_t sli_save_sl_wifi_rate(sl_wifi_rate_t transfer_rate);
-
-/* Function used to retrieve the wifi rate */
-sl_status_t sli_get_saved_sl_wifi_rate(sl_wifi_rate_t *transfer_rate);
-
-/* Function used to set wifi rate to default value of 1 Mbps */
-void sli_reset_sl_wifi_rate();
-
-/* Function used to retrieve protocol and transfer rate */
-sl_status_t sli_get_rate_protocol_and_data_rate(const uint8_t data_rate,
-                                                sl_wifi_rate_protocol_t *rate_protocol,
-                                                sl_wifi_rate_t *transfer_rate);
-
-/* Function used to update the access point configuration */
-sl_status_t sli_save_ap_configuration(const sl_wifi_ap_configuration_t *wifi_ap_configuration);
-
-/* Function used to retrieve the access point configuration */
-sl_status_t sli_get_saved_ap_configuration(sl_wifi_ap_configuration_t *wifi_ap_confuguration);
-
-/* Function used to destroy the current access point configuration */
-void sli_reset_ap_configuration();
+sl_wifi_event_t sli_convert_si91x_event_to_sl_wifi_event(uint32_t command, uint16_t frame_status);
 
 /* Function used to set whether tcp auto close is enabled or disabled */
 void sli_save_tcp_auto_close_choice(bool is_tcp_auto_close_enabled);
@@ -156,20 +125,8 @@ bool sli_get_card_ready_required();
 /* Function used to set the maximum transmission power */
 void sli_save_max_tx_power(uint8_t max_scan_tx_power, uint8_t max_join_tx_power);
 
-/* Function used to set the RTS threshold */
-void sli_save_rts_threshold(uint16_t rts_threshold);
-
-/* Function used to save the MFP mode */
-sl_status_t sli_save_mfp_mode(const sl_wifi_mfp_config_t *mfp_config);
-
 /* Function used to get maximum transmission power */
 sl_wifi_max_tx_power_t sli_get_max_tx_power();
-
-/* Function used to get RTS threshold */
-sl_wifi_rts_threshold_t sli_get_rts_threshold();
-
-/* Function used to get MFP mode */
-sl_wifi_mfp_config_t sli_get_mfp_mode();
 
 /* Function used to set maximum transmission power to default value(31 dBm) */
 void sli_reset_max_tx_power();
@@ -186,9 +143,6 @@ void sli_save_bt_current_performance_profile(const sl_bt_performance_profile_t *
 /* Function used to retrieve bluetooth performance profile */
 void sli_get_bt_current_performance_profile(sl_bt_performance_profile_t *profile);
 
-/* Function used to retrieve the coex performance profile */
-void sli_get_coex_performance_profile(sl_wifi_system_performance_profile_t *profile);
-
 /* Function used to zero out the coex performance profile */
 void sli_reset_coex_current_performance_profile(void);
 
@@ -197,17 +151,6 @@ void sli_save_boot_configuration(const sl_wifi_system_boot_configuration_t *boot
 
 /* Function used to retrieve the boot configuration */
 void sli_get_saved_boot_configuration(sl_wifi_system_boot_configuration_t *boot_configuration);
-
-/* Function used to update the coex mode */
-void sli_save_coex_mode(sl_wifi_system_coex_mode_t coex_mode);
-
-/* Function used to retrieve the coex mode */
-sl_wifi_system_coex_mode_t sli_get_coex_mode(void);
-
-/* Function converts SDK encryption mode to NWP supported mode */
-sl_status_t sli_convert_sl_wifi_to_sl_si91x_encryption(sl_wifi_encryption_t encryption_mode,
-                                                       uint8_t *encryption_request);
-
 /***************************************************************************/ /**
  * @brief
  *   Initializes new task register index for storing firmware status.
@@ -228,14 +171,14 @@ sl_status_t sli_fw_status_storage_index_init(void);
  * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] efuse_data
- *   @ref sli_si91x_efuse_data_t object that contains the Manufacturing software version.
+ *   @ref sli_wifi_efuse_data_t object that contains the Manufacturing software version.
  *   efuse_data_type which holds the type of efuse data to be read.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  * @note
  *   This API is not supported in the current release.
  ******************************************************************************/
-sl_status_t sli_si91x_get_flash_efuse_data(sli_si91x_efuse_data_t *efuse_data, uint8_t efuse_data_type);
+sl_status_t sli_si91x_get_flash_efuse_data(sli_wifi_efuse_data_t *efuse_data, uint8_t efuse_data_type);
 
 /***************************************************************************/ /**
  * @brief
@@ -244,11 +187,11 @@ sl_status_t sli_si91x_get_flash_efuse_data(sli_si91x_efuse_data_t *efuse_data, u
  * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] efuse_data
- *   @ref sli_si91x_efuse_data_t object that contains the Manufacturing software version.
+ *   @ref sli_wifi_efuse_data_t object that contains the Manufacturing software version.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-void sli_si91x_get_efuse_data(sli_si91x_efuse_data_t *efuse_data);
+void sli_si91x_get_efuse_data(sli_wifi_efuse_data_t *efuse_data);
 
 /***************************************************************************/ /**
  * @brief
@@ -257,11 +200,11 @@ void sli_si91x_get_efuse_data(sli_si91x_efuse_data_t *efuse_data);
  * - 
  *   @ref sl_wifi_init should be called before this API.
  * @param[out] efuse_data
- *   @ref sli_si91x_efuse_data_t object that contains the Manufacturing software version.
+ *   @ref sli_wifi_efuse_data_t object that contains the Manufacturing software version.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
  ******************************************************************************/
-void sli_si91x_set_efuse_data(const sli_si91x_efuse_data_t *efuse_data);
+void sli_si91x_set_efuse_data(const sli_wifi_efuse_data_t *efuse_data);
 
 /**
  * A utility function to convert dBm value to si91x specific power value
@@ -307,6 +250,90 @@ sl_status_t sli_si91x_host_allocate_buffer(sl_wifi_buffer_t **buffer,
                                            sl_wifi_buffer_type_t type,
                                            uint32_t buffer_size,
                                            uint32_t wait_duration_ms);
+
+// Helper functions for command packet processing
+/**
+ * @brief Set flags for command packet based on wait period and command type
+ * @param command Command type
+ * @param wait_period Wait period configuration
+ * @param data_buffer Pointer to data buffer (can be NULL)
+ * @return Flags for the command packet
+ */
+uint8_t sli_set_command_packet_flags(uint32_t command, sli_wifi_wait_period_t wait_period, const void *data_buffer);
+
+/**
+ * @brief Configure command packet node properties
+ * @param node Pointer to the queue packet node
+ * @param buffer Host packet buffer
+ * @param command_type Command type
+ * @param flags Packet flags
+ * @param sdk_context SDK context
+ * @param wait_period Wait period configuration
+ */
+void sli_configure_command_packet_node(sli_si91x_queue_packet_t *node,
+                                       sl_wifi_buffer_t *buffer,
+                                       sli_wifi_command_type_t command_type,
+                                       uint8_t flags,
+                                       void *sdk_context,
+                                       sli_wifi_wait_period_t wait_period);
+
+/**
+ * @brief Enqueue command packet to the appropriate queue
+ * @param command_type Command type
+ * @param queue_packet Queue packet buffer
+ * @param buffer Host packet buffer
+ * @param packet_id Packet ID
+ * @return Status of the operation
+ */
+sl_status_t sli_enqueue_command_packet(sli_wifi_command_type_t command_type,
+                                       sl_wifi_buffer_t *queue_packet,
+                                       sl_wifi_buffer_t *buffer,
+                                       uint8_t packet_id);
+
+/**
+ * @brief Handle command response and cleanup
+ * @param command_type Command type
+ * @param wait_period Wait period configuration
+ * @param packet_id Packet ID
+ * @param data_buffer Pointer to data buffer (can be NULL)
+ * @param response Pointer to response buffer
+ * @return Status of the operation
+ */
+sl_status_t sli_handle_command_response(sli_wifi_command_type_t command_type,
+                                        sli_wifi_wait_period_t wait_period,
+                                        uint8_t packet_id,
+                                        void **data_buffer,
+                                        sl_wifi_buffer_t **response);
+
+/**
+ * @brief Configure command packet node properties for SI91X driver
+ * @param node Pointer to the queue packet node
+ * @param buffer Host packet buffer
+ * @param command_type Command type
+ * @param flags Packet flags
+ * @param sdk_context SDK context
+ * @param wait_period Wait period configuration
+ */
+void sli_configure_si91x_command_packet_node(sli_si91x_queue_packet_t *node,
+                                             sl_wifi_buffer_t *buffer,
+                                             sli_wifi_command_type_t command_type,
+                                             uint8_t flags,
+                                             void *sdk_context,
+                                             sli_wifi_wait_period_t wait_period);
+
+/**
+ * @brief Enqueue command packet to the appropriate queue for SI91X driver
+ * @param command_type Command type
+ * @param queue_packet Queue packet buffer
+ * @param buffer Host packet buffer
+ * @param packet_id Packet ID
+ * @return Status of the operation
+ */
+sl_status_t sli_enqueue_si91x_command_packet(sli_wifi_command_type_t command_type,
+                                             sl_wifi_buffer_t *queue_packet,
+                                             sl_wifi_buffer_t *buffer,
+                                             uint8_t packet_id);
+
 //! @endcond
 
 /** \addtogroup EXTERNAL_HOST_INTERFACE_FUNCTIONS
@@ -341,36 +368,36 @@ void *sl_si91x_host_get_buffer_data(sl_wifi_buffer_t *buffer, uint16_t offset, u
 void sli_si91x_host_free_buffer(sl_wifi_buffer_t *buffer);
 
 /* Function enqueues response into corresponding response queue */
-sl_status_t sli_si91x_add_to_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
+sl_status_t sli_si91x_add_to_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t *buffer);
 
 /* Function dequeues responses from Asynch response queues */
-sl_status_t sli_si91x_remove_from_queue(sli_si91x_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
+sl_status_t sli_si91x_remove_from_queue(sli_wifi_buffer_queue_t *queue, sl_wifi_buffer_t **buffer);
 
 /* Function used to flush the pending TX packets from the specified queue */
-sl_status_t sli_si91x_flush_nodes_from_queue(sli_si91x_command_queue_t *queue,
+sl_status_t sli_si91x_flush_nodes_from_queue(sli_wifi_command_queue_t *queue,
                                              sli_si91x_node_free_function_t node_free_function);
 
 /* Function used to remove the buffer from the specified queue by using comparator */
-sl_status_t sli_si91x_remove_buffer_from_queue_by_comparator(sli_si91x_buffer_queue_t *queue,
-                                                             const void *user_data,
-                                                             sli_si91x_wifi_buffer_comparator comparator,
-                                                             sl_wifi_buffer_t **buffer);
+sl_status_t sli_wifi_remove_buffer_from_queue_by_comparator(sli_wifi_buffer_queue_t *queue,
+                                                            const void *user_data,
+                                                            sli_si91x_wifi_buffer_comparator comparator,
+                                                            sl_wifi_buffer_t **buffer);
 
 sl_status_t sli_si91x_flush_all_tx_wifi_queues(uint16_t frame_status);
 
 /* Function used to flush all the pending TX packets from the specified queue */
-sl_status_t sli_si91x_flush_queue_based_on_type(sli_si91x_command_queue_t *queue,
+sl_status_t sli_si91x_flush_queue_based_on_type(sli_wifi_command_queue_t *queue,
                                                 uint32_t event_mask,
                                                 uint16_t frame_status,
                                                 sli_si91x_compare_function_t compare_function,
                                                 void *user_data);
 
 /* Function used to check whether queue is empty or not */
-uint32_t sli_si91x_host_queue_status(const sli_si91x_buffer_queue_t *queue);
+uint32_t sli_si91x_host_queue_status(const sli_wifi_buffer_queue_t *queue);
 
 // These aren't host APIs. These should go into a wifi bus API header
 /* Function used to set buffer pointer to point to specified memory address */
-sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, uint8_t *buffer);
+sl_status_t sl_si91x_bus_read_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
 
 /* Function used to set specified memory address to point to buffer */
 sl_status_t sl_si91x_bus_write_memory(uint32_t addr, uint16_t length, const uint8_t *buffer);
@@ -410,26 +437,6 @@ void sli_si91x_bus_rx_done_handler(void);
 
 /*==============================================*/
 /**
- * @brief       Calculate crc for a given byte and accumulate crc.
- * @param[in]   crc8_din   -  crc byte input  
- * @param[in]   crc8_state - accumulated crc  
- * @param[in]   end        - last byte crc  
- * @return      crc value  
- *
- */
-uint8_t sli_lmac_crc8_c(uint8_t crc8_din, uint8_t crc8_state, uint8_t end);
-
-/*==============================================*/
-/**
- * @brief      Calculate 6-bit hash value for given mac address. 
- * @param[in]  mac - pointer to mac address  
- * @return     6-bit Hash value
- *
- */
-uint8_t sli_multicast_mac_hash(const uint8_t *mac);
-
-/*==============================================*/
-/**
  * @brief       Sends boot instructions to WiFi module
  * @param[in]   uint8 type, type of the insruction to perform
  * @param[in]   uint32 *data, pointer to data which is to be read/write
@@ -462,20 +469,7 @@ sl_status_t sli_si91x_bus_set_interrupt_mask(uint32_t mask);
 /* Function used to initialize SPI interface on ULP wakeup */
 void sli_si91x_ulp_wakeup_init(void);
 
-/**
- * @brief 
- *  Function used to obtain wifi credential type like EsAP,PMK,etc..
- * @param id 
- *  Credential ID as identified by [sl_wifi_credential_id_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-types#sl-wifi-credential-id-t).
- * @param type 
- *  It specifies type of credential.
- * @param cred 
- *  Pointer to store the wifi credential information of type [sl_wifi_credential_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-credential-t)
- * @return sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details. 
- */
-sl_status_t sli_si91x_host_get_credentials(sl_wifi_credential_id_t id, uint8_t type, sl_wifi_credential_t *cred);
-
-sli_si91x_command_queue_t *sli_si91x_get_command_queue(sli_si91x_command_type_t type);
+sli_wifi_command_queue_t *sli_si91x_get_command_queue(sli_wifi_command_type_t type);
 
 bool sli_si91x_get_flash_command_status();
 
@@ -570,18 +564,18 @@ sl_status_t sli_si91x_flush_socket_data_queues_based_on_queue_type(uint8_t index
  * - The function uses atomic operations to ensure that the queue is safely manipulated in multi-threaded environments.
  * - The function resets the queue to an empty state after flushing all packets.
  */
-sl_status_t sli_si91x_flush_generic_data_queues(sli_si91x_buffer_queue_t *tx_data_queue);
+sl_status_t sli_si91x_flush_generic_data_queues(sli_wifi_buffer_queue_t *tx_data_queue);
 
 /***************************************************************************/ /**
  * @brief
  *   Retrieves the current status of the TX command.
  *
  * @details
- *   This function returns a status flag indicating whether a TX (transmit) command is currently in progress or completed.
- *   Use this function to determine if the system is ready to send a new TX command or if a previous command is still pending.
+ *   This function returns the current status flag indicating whether a TX (transmit) command is in progress or completed.
+ *   It is typically used to check if the system is ready to send a new TX command or if a previous command is still pending.
  *
  * @return
- *   Returns `true` if a TX command is in progress; `false` otherwise.
+ *   Returns `true` if a TX command is in progress, `false` otherwise.
  ******************************************************************************/
 bool sli_si91x_get_tx_command_status(void);
 
@@ -597,5 +591,79 @@ bool sli_si91x_get_tx_command_status(void);
  *   Set to `true` to indicate a TX command is in progress, or `false` to indicate it is completed.
  ******************************************************************************/
 void sli_si91x_update_tx_command_status(bool flag);
+
+/**
+ * @brief Flushes a transmit (TX) packet from the Wi-Fi command queue.
+ *
+ * This function removes a specified TX packet from the command queue, performs any necessary cleanup,
+ * and updates the queue state based on the provided frame status and event mask.
+ *
+ * @param[in,out] queue           Pointer to the Wi-Fi command queue structure.
+ * @param[in]     current_packet  Pointer to the current TX packet buffer to be flushed.
+ * @param[in]     queue_node      Pointer to the queue node associated with the packet.
+ * @param[in]     frame_status    Status code indicating the result or reason for flushing the packet.
+ * @param[in]     event_mask      Bitmask specifying which events to trigger or handle during the flush operation.
+ */
+void sli_flush_tx_packet(sli_wifi_command_queue_t *queue,
+                         sl_wifi_buffer_t *current_packet,
+                         sli_si91x_queue_packet_t *queue_node,
+                         uint16_t frame_status,
+                         uint32_t event_mask);
+
+#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
+/**
+ * @brief 
+ *    Configures the Server Name Indication (SNI) extension for a socket.
+ *
+ *  @details
+ *    This function sets up the SNI extension, which is used in TLS communication
+ *    to specify the hostname of the server the client intends to connect to. It prepares
+ *    the necessary request structure and initiates the configuration process for the
+ *    embedded socket.
+ *
+ * @param[in] sni_extension 
+ *    Pointer to the SNI extension data of type `sl_si91x_socket_type_length_value_t`.
+ *    This structure contains the type, length, and value of the SNI extension.
+ * @param[in] sni_target_protocol
+ *    SNI target type (e.g., HTTPS or MQTT).
+ *
+ * @return sl_status_t
+ *    - SL_STATUS_OK: Operation completed successfully.
+ *    - SL_STATUS_WOULD_OVERFLOW: The SNI extension size exceeds the allowed limit.
+ *    - Other error codes: Refer to [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) 
+ *      and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details. 
+ */
+sl_status_t sli_si91x_set_sni_for_embedded_socket(const sli_si91x_tls_extension_info_t *sni_extension,
+                                                  sli_si91x_sni_target_protocol_t sni_target_protocol);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Configure SNI (Server Name Indication) extension for TLS connection.
+ *
+ * @details
+ *   This function configures the SNI extension for embedded socket TLS connections.
+ *   It can either use a pre-configured SNI extension structure or create one from
+ *   a hostname string. Callers using public socket types should convert to internal
+ *   sli_si91x_tls_extension_info_t before calling this function.
+ *
+ * @param[in] sni_extension
+ *   Pointer to internal SNI extension structure. Can be NULL if using hostname.
+ *
+ * @param[in] host_name
+ *   Hostname string to create SNI extension from. Can be NULL if using sni_extension.
+ *
+ * @param[in] sni_target_protocol
+ *   Specifies the protocol type (HTTP/HTTPS/MQTT) for which SNI is configured.
+ *
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ *   - SL_STATUS_OK: SNI configured successfully
+ *   - SL_STATUS_ALLOCATION_FAILED: Memory allocation failed
+ *   - Other error codes from underlying API calls
+ ******************************************************************************/
+sl_status_t sli_configure_sni(const sli_si91x_tls_extension_info_t *sni_extension,
+                              const uint8_t *host_name,
+                              sli_si91x_sni_target_protocol_t sni_target_protocol);
+#endif
 
 #endif // _SL_RSI_UTILITY_H_

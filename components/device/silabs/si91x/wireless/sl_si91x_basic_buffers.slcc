@@ -1,5 +1,5 @@
 id: sl_si91x_basic_buffers
-package: wiseconnect3_sdk
+package: wifi
 description: >
   This component implements a malloc-based buffer system for the Si91x
 label: Basic Buffer Manager

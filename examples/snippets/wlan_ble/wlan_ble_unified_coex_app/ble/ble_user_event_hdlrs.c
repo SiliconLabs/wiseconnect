@@ -914,6 +914,10 @@ void rsi_ble_on_data_transmit(uint8_t ble_conn_id)
 #endif
 
         more_data_state_beta[ble_conn_id].data_transmit = 1;
+        LOG_PRINT_D("\r\n more_data_state_beta  for conn %d\n", ble_conn_id);
+      } else if ((status == SL_STATUS_SI91X_ERROR_BLE_HW_BUF_OVERFLOW)) {
+        more_data_state_beta[ble_conn_id].data_transmit = 1;
+        LOG_PRINT_D("\r\n BUFFER OVRFLW more_data_state_beta  for conn %d\n", ble_conn_id);
       } else if (status == RSI_ERROR_IN_BUFFER_ALLOCATION) //! TO-DO, add proper error code
       {
         printf("\r\n cannot transmit %d bytes in small buffer configuration mode -conn%d\n",
@@ -954,6 +958,11 @@ void rsi_ble_on_data_transmit(uint8_t ble_conn_id)
                       ble_conn_id);
 #endif
           more_data_state_beta[ble_conn_id].data_transmit = 1;
+          LOG_PRINT_D("\r\n more_data_state_beta  for conn %d\n", ble_conn_id);
+        } else if ((status == SL_STATUS_SI91X_ERROR_BLE_HW_BUF_OVERFLOW)) {
+          more_data_state_beta[ble_conn_id].data_transmit = 1;
+
+          LOG_PRINT_D("\r\n BUFFER OVRFLW more_data_state_beta  for conn %d\n", ble_conn_id);
         } else if (status == RSI_ERROR_IN_BUFFER_ALLOCATION) //! TO-DO, add proper error code
         {
           printf("\r\n cannot transmit %d bytes in small buffer configuration mode -conn%d\n",
@@ -1007,6 +1016,10 @@ void rsi_ble_on_data_transmit(uint8_t ble_conn_id)
           LOG_PRINT_D("\r\n more_data_state_beta  for conn %d\n", ble_conn_id);
 
           return;
+        } else if ((status == SL_STATUS_SI91X_ERROR_BLE_HW_BUF_OVERFLOW)) {
+          more_data_state_beta[ble_conn_id].data_transmit = 1;
+
+          LOG_PRINT_D("\r\n BUFFER OVRFLW more_data_state_beta  for conn %d\n", ble_conn_id);
         } else if (status == RSI_ERROR_IN_BUFFER_ALLOCATION) //! TO-DO, add proper error code
         {
           printf("\r\n cannot transmit %d bytes in small buffer configuration mode -conn%d\n",

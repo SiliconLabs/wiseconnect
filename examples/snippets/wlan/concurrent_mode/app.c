@@ -100,6 +100,10 @@
 
 #define SL_HIGH_PERFORMANCE_SOCKET BIT(7)
 #define LISTEN_ON_AP_INTERFACE     0
+
+// Enable vendor-specific Information Elements (IEs) feature.
+#define SL_WIFI_ENABLE_VENDOR_IE 0
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -220,17 +224,24 @@ void receive_data_from_tcp_client(void);
 void send_data_to_tcp_server(void);
 void receive_data_from_udp_client(void);
 void send_data_to_udp_server(void);
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 static void application_start(void *argument);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -326,8 +337,8 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi AP interface init\r\n");
 
-  sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
 
   status = sl_wifi_get_channel(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, &client_channel);
   if (status != SL_STATUS_OK) {
@@ -367,6 +378,78 @@ static void application_start(void *argument)
   }
   printf("\r\nAP started\r\n");
 
+#if SL_WIFI_ENABLE_VENDOR_IE
+  // -------------------------------
+  // Adding 2 new vendor-specific IE
+  // -------------------------------
+  uint8_t fw_unique_id1       = 0;
+  uint8_t vendor_ie_buffer1[] = {
+    0xDD,             // Element ID for vendor-specific IE, always same
+    0x05,             // Length of the following bytes (OUI + Data)
+    0xAA, 0xBB, 0xCC, // OUI (Organizationally Unique Identifier)
+    0x01, 0xEE        // vendor-specific data
+  };
+  sl_wifi_vendor_ie_t vendor_ie1 = { 0 };
+  vendor_ie1.unique_id = SL_WIFI_VENDOR_IE_AUTO_ASSIGN; // While adding new vendor-specific IE use the auto-assign ID.
+  vendor_ie1.mgmt_frame_bitmap = SL_WIFI_VENDOR_IE_IN_BEACON | SL_WIFI_VENDOR_IE_IN_PROBE_RESP
+                                 | SL_WIFI_VENDOR_IE_IN_ASSOC_RESP;
+  vendor_ie1.ie_buffer_length = sizeof(vendor_ie_buffer1);
+  vendor_ie1.ie_buffer        = vendor_ie_buffer1;
+
+  status = sl_wifi_add_vendor_ie(&vendor_ie1, &fw_unique_id1);
+  if (status == SL_STATUS_OK) {
+    printf("vendor-specific IE added with unique ID: %d\n", fw_unique_id1);
+  } else {
+    printf("Failed to add vendor-specific IE: 0x%lx\n", status);
+  }
+
+  uint8_t fw_unique_id2       = 0;
+  uint8_t vendor_ie_buffer2[] = {
+    0xDD,             // Element ID for vendor-specific IE, always same
+    0x06,             // Length of the following bytes (OUI + Data)
+    0x12, 0x34, 0x56, // OUI (Organizationally Unique Identifier)
+    0x02, 0xAB, 0xCD  // vendor-specific data
+  };
+  sl_wifi_vendor_ie_t vendor_ie2 = { 0 };
+  vendor_ie2.unique_id = SL_WIFI_VENDOR_IE_AUTO_ASSIGN; // While adding new vendor-specific IE use the auto-assign ID.
+  vendor_ie2.mgmt_frame_bitmap = SL_WIFI_VENDOR_IE_IN_PROBE_REQ | SL_WIFI_VENDOR_IE_IN_ASSOC_REQ;
+  vendor_ie2.ie_buffer_length  = sizeof(vendor_ie_buffer2);
+  vendor_ie2.ie_buffer         = vendor_ie_buffer2;
+  status                       = sl_wifi_add_vendor_ie(&vendor_ie2, &fw_unique_id2);
+  if (status == SL_STATUS_OK) {
+    printf("vendor-specific IE added with unique ID: %d\n", fw_unique_id2);
+  } else {
+    printf("Failed to add vendor-specific IE: 0x%lx\n", status);
+  }
+
+  // -------------------------------
+  // Updating/replacing existing vendor-specific IE
+  // -------------------------------
+  uint8_t vendor_ie_buffer3[] = {
+    0xDD,                  // Element ID for vendor-specific IE, always same
+    0x07,                  // Length of the following bytes (OUI + Data)
+    0x50, 0x6F, 0x9A,      // OUI (Organizationally Unique Identifier)
+    0x09, 0x02, 0x02, 0x00 // vendor-specific data
+  };
+
+  // Updating the existing vendor IE using vendor_ie2.
+  // While updating existing vendor-specific IE use the fw given unique id.
+  vendor_ie2.unique_id         = fw_unique_id2;
+  vendor_ie2.mgmt_frame_bitmap = SL_WIFI_VENDOR_IE_IN_PROBE_REQ | SL_WIFI_VENDOR_IE_IN_ASSOC_REQ;
+  vendor_ie2.ie_buffer_length  = sizeof(vendor_ie_buffer3);
+  vendor_ie2.ie_buffer         = vendor_ie_buffer3;
+
+  // calling sl_wifi_add_vendor_ie with existing unique ID will replace the existing vendor IE in FW.
+  status = sl_wifi_add_vendor_ie(&vendor_ie2, &fw_unique_id2);
+
+  if (status == SL_STATUS_OK) {
+    printf("vendor-specific IE with unique ID: %d updated.\n", fw_unique_id2);
+  } else {
+    printf("Failed to add vendor-specific IE: 0x%lx\n", status);
+  }
+
+#endif
+
   for (size_t i = 0; i < sizeof(data_buffer); i++)
     data_buffer[i] = 'A' + (i % 26);
 
@@ -387,6 +470,19 @@ static void application_start(void *argument)
       printf("Invalid Throughput test");
   }
 
+#if SL_WIFI_ENABLE_VENDOR_IE
+  // -------------------------------
+  // Removing vendor-specific IE
+  // -------------------------------
+  // Calling sl_wifi_remove_vendor_ie with existing unique ID will remove the existing vendor IE from FW.
+  status = sl_wifi_remove_vendor_ie(fw_unique_id1);
+  if (status == SL_STATUS_OK) {
+    printf("vendor-specific IE removed successfully.\n");
+  } else {
+    printf("Failed to remove vendor-specific IE: 0x%lx\n", status);
+  }
+#endif
+
   while (1) {
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
     // Let the CPU go to sleep if the system allows it.
@@ -397,11 +493,18 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -410,15 +513,34 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
   printf("\n");
+
+#if SL_WIFI_ENABLE_VENDOR_IE
+  // -------------------------------
+  // Remove all vendor-specific IEs
+  // -------------------------------
+  sl_status_t remove_status = sl_wifi_remove_all_vendor_ie();
+  if (remove_status == SL_STATUS_OK) {
+    printf("All vendor-specific IEs removed successfully.\n");
+  } else {
+    printf("Failed to remove all vendor-specific IEs: 0x%lx\n", remove_status);
+  }
+#endif
 
   return SL_STATUS_OK;
 }

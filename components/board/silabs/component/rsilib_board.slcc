@@ -1,6 +1,6 @@
 id: rsilib_board
 label: Si91x SoC Board Configurations
-package: platform
+package: platform_siwx91x
 description: >
   Provides selections of valid hardware configuration for the Si91x SoC boards.
 category: Board|Configuration

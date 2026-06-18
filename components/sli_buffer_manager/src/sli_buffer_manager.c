@@ -304,7 +304,8 @@ static sl_status_t sli_buffer_manager_free_a_common_mempool_from_queue(
 
   // Loop until we find the required node or we reached the head again.
   while (current_node != common_pool_handler && current_node != common_mempool_queue.head) {
-    current_node = (sli_buffer_manager_mempool_handler_t *)current_node->next.node;
+    previous_node = current_node;
+    current_node  = (sli_buffer_manager_mempool_handler_t *)current_node->next.node;
   }
 
   if (current_node != common_pool_handler) {

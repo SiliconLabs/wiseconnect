@@ -41,15 +41,13 @@
 
 #define AUTO_JOIN_RETRY_COUNT 3 ///< Number of retries for auto-join.
 
-#define NETWORK_MANAGER_CONNECT_CMD         BIT(0) ///< Command to connect the network manager.
-#define NETWORK_MANAGER_DISCONNECT_CMD      BIT(1) ///< Command to disconnect the network manager.
-#define NETWORK_MANAGER_CONNECT_FAILURE_CMD BIT(2) ///< Command for network manager connection failure.
-
 #define AUTO_JOIN_SUCCESS_FLAG 0x01 ///< Flag indicating auto-join success.
 #define AUTO_JOIN_FAILURE_FLAG 0x02 ///< Flag indicating auto-join failure.
 
 /// Interface Type Selection
 #define SL_NET_INTERFACE_TYPE(x) (x & NETWORK_INTERFACE_TYPE_MASK)
+
+#define SL_NET_MAX_MAC_ADDR_LENGTH 6 ///< Length of the MAC address for network interfaces.
 
 /** \addtogroup SL_NET_CONSTANTS Constants
  * @{ */
@@ -75,7 +73,14 @@ typedef enum {
   SL_NET_BLUETOOTH_INTERFACE     = (5 << 3),                       ///< Bluetooth Interface (not currently supported)
   SL_NET_ZWAVE_INTERFACE         = (6 << 3),                       ///< Z-Wave Interface (not currently supported)
 } sl_net_interface_t;
+
+/// This macro sets the wait period bit flag to indicate infinite wait time for network API calls.
+#define SL_NET_WAIT_FOREVER (1 << 31)
+
 /** @} */
+
+///Maximum number of network interfaces supported
+#define SL_NET_INTERFACE_MAX (SL_NET_WIFI_AP_2_INTERFACE + 1)
 
 ///Max Client Interfaces
 #define MAX_NET_CLIENT_INTERFACES 2
@@ -110,6 +115,10 @@ typedef enum {
   SL_NET_DHCP_NOTIFICATION_EVENT, ///< Event triggered when a DHCP notification is received.
   SL_NET_IP_ADDRESS_CHANGE_EVENT, ///< Event triggered when there is a DHCP IP address change.
   SL_NET_AUTO_JOIN_EVENT, ///< Event triggered when the auto-join process starts, is in progress, or is completed.
+  SL_NET_CONNECT_EVENT, ///< Event triggered when Wi-Fi connection completes (status: SL_STATUS_OK=success, else=specific error code). @note ONLY for @ref sl_net_up_async().
+  SL_NET_IP_CONFIG_EVENT, ///< Event triggered when IP configuration completes (status: SL_STATUS_OK=success, else=specific error code). @note ONLY for @ref sl_net_up_async().
+  SL_NET_MDNS_EVENT,      ///< Event triggered when an mDNS query response is received.
+  SL_NET_MDNS_STOP_EVENT, ///< Event triggered when the mDNS service is stopped.
   SL_NET_EVENT_COUNT      ///< Represents the maximum count of events. Used internally by the SDK.
 } sl_net_event_t;
 
@@ -315,4 +324,24 @@ typedef enum {
  * The valid values for x is only 0.
  */
 #define SL_NET_HTTP_CLIENT_CREDENTIAL_ID(x) (SL_NET_HTTP_CLIENT_CREDENTIAL_START + x)
+
+/**
+ * @brief Network Manager Thread Stack Size Configuration
+ * 
+ * Default value of 3072 bytes.
+ * To use a custom value, define SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE in the preprocessor settings of the project.
+ */
+#ifndef SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE
+#define SL_NET_NETWORK_MANAGER_THREAD_STACK_SIZE 3072
+#endif
+
+/**
+ * @brief Network Manager Thread Priority Configuration
+ * 
+ * Default value is osPriorityNormal.
+ * To use a custom value, define SL_NET_NETWORK_MANAGER_THREAD_PRIORITY in the preprocessor settings of the project.
+ */
+#ifndef SL_NET_NETWORK_MANAGER_THREAD_PRIORITY
+#define SL_NET_NETWORK_MANAGER_THREAD_PRIORITY osPriorityNormal
+#endif
 /** @} */

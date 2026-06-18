@@ -19,7 +19,8 @@
     - [TCP Tx Throughput](#tcp-tx-throughput)
     - [TCP Rx Throughput](#tcp-rx-throughput)
     - [TLS Tx Throughput](#tls-tx-throughput)
-  - [TLS Rx Throughput](#tls-rx-throughput)
+    - [TLS Rx Throughput](#tls-rx-throughput)
+  - [Throughput Values](#throughput-values)
   - [Application Output](#application-output)
 
 ## Purpose/Scope
@@ -71,7 +72,7 @@ In this application, the SiWx91x connects to a Wi-Fi access point, obtains an IP
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -137,7 +138,7 @@ The application can be configured to suit user requirements and development envi
     #define TEST_TIMEOUT      10000         // Throughput test timeout in ms
     ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -219,6 +220,21 @@ To measure TLS RX throughput, configure the SiWx91x as a TLS client and open a T
 **The SSL_tx_throughput_v6.py script works only with Python version 2.**  
 
 The SiWx91x, which is configured as a UDP/TCP/TLS server/client, connects to the iPerf server/client and sends/receives data for configured intervals. While module is transmitting/receiving the data, application prints the throughput numbers in serial console.
+
+## Throughput Values
+
+The following throughput values were measured for each test case:
+
+| Test Case         | Throughput (Mbps) |
+|-------------------|-------------------|
+| UDP Tx Throughput | 63                |
+| UDP Rx Throughput | 62                |
+| TCP Tx Throughput | 54.1              |
+| TCP Rx Throughput | 50.3              |
+| TLS Tx Throughput | 22                |
+| TLS Rx Throughput | 10                |
+
+> **Note:** These values were measured in a shielded room. Throughput may vary in other environments due to external interference and network conditions.
 
 ## Application Output
 

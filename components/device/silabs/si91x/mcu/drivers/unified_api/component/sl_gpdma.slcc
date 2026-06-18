@@ -1,6 +1,6 @@
 id: sl_gpdma
 label: GPDMA
-package: platform
+package: platform_siwx91x
 description: >
   GPDMA is a process of transferring data from memory to memory, peripehral to memory, memory to peripheral to another without the direct involvement of the processor (CPU). The main benefit of using GPDMA is more efficient data movement in the embedded system.
   Offering simple memory to memory transfer, peripheral to memory and memory to peripheral transfer functions.

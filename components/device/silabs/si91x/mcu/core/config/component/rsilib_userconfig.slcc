@@ -1,6 +1,6 @@
 id: rsilib_userconfig
 label: RSI User Configuration
-package: platform
+package: platform_siwx91x
 description: >
   Provides user configurable definitions for the Si91x.
 category: Device|Si91x|MCU|Core

@@ -1,6 +1,6 @@
 id: sl_power_manager
 label: Power Manager
-package: platform
+package: platform_siwx91x
 description: >
   Initiates the Power Manager (PM) component to manage the MCU's power usage. 
   The system is initially set to PS3 power-save mode. The PM also allows the user to 

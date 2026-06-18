@@ -1,6 +1,6 @@
 id: board_configuration_headers
 label: Board Configuration Header Files
-package: platform
+package: platform_siwx91x
 quality: production
 metadata:
   sbom:
@@ -18,13 +18,7 @@ requires:
     condition: [freertos]
 config_file:
 - path: config/RTE_Device_917.h
-  unless: 
-    - device_family_siwg915
   file_id: RTE_Device_917
-- path: config/RTE_Device_915.h
-  condition: 
-    - device_family_siwg915
-  file_id: RTE_Device_915
 - path: config/sl_board_configuration.h
   file_id: sl_board_configuration
 - path: config/sl_board_control.h

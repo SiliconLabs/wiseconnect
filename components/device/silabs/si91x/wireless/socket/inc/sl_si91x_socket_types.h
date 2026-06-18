@@ -30,6 +30,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "sli_wifi_types.h"
 #include "sl_si91x_types.h"
 #include "cmsis_os2.h" // CMSIS RTOS2
 #ifdef SLI_SI91X_NETWORK_DUAL_STACK
@@ -277,7 +278,7 @@ typedef struct {
     disconnect_reason; ///< BSD socket disconnection reasons, applicable only when the socket state is DISCONNECTED.
   sli_si91x_tls_extensions_t tls_extensions; ///< TLS Extension
   bool is_waiting_on_ack;                    ///< Boolean flag to check if socket is waiting for an ack.
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   uint32_t ssl_bitmap;                       ///< SSL bitmap
   uint32_t max_retransmission_timeout_value; ///< Max retransmission timeout value
   uint32_t tos;                              ///< TOS
@@ -292,9 +293,10 @@ typedef struct {
   osEventFlagsId_t socket_events;                                          ///< Event Flags for sockets
   int32_t client_id;                                                       ///< Client Socket Id for accept
   uint8_t socket_bitmap;                                                   ///< Socket Bitmap
-  uint8_t data_buffer_count;               ///< Number of queued data buffers allocated by this socket
-  uint8_t data_buffer_limit;               ///< Maximum number of queued data buffers permitted for this socket
-  sli_si91x_command_queue_t command_queue; ///< Command queue
-  sli_si91x_buffer_queue_t tx_data_queue;  ///< Transmit data queue
-  sli_si91x_buffer_queue_t rx_data_queue;  ///< Receive data queue
+  uint8_t data_buffer_count;              ///< Number of queued data buffers allocated by this socket
+  uint8_t data_buffer_limit;              ///< Maximum number of queued data buffers permitted for this socket
+  sli_wifi_command_queue_t command_queue; ///< Command queue
+  sli_wifi_buffer_queue_t tx_data_queue;  ///< Transmit data queue
+  sli_wifi_buffer_queue_t rx_data_queue;  ///< Receive data queue
+  uint8_t *domain_name;                   ///< Expected domain name for TLS certificate verification
 } sli_si91x_socket_t;

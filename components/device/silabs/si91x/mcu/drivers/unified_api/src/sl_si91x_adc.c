@@ -74,6 +74,7 @@
  ******************************************************************************/
 static sl_adc_callback_t user_callback = NULL;
 static uint8_t num_of_channels_enabled;
+static uint8_t ping_pong_memory_read[4] = { ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE };
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
@@ -205,8 +206,8 @@ sl_status_t sl_si91x_adc_init(sl_adc_channel_config_t adc_channel_config, sl_adc
  ******************************************************************************/
 float sl_si91x_adc_get_chip_voltage(void)
 {
-  volatile float chip_volt = 0;
-  float max_ip_volt_scdc   = (float)2.4;
+  float chip_volt        = 0;
+  float max_ip_volt_scdc = (float)2.4;
   //Get the input voltage of chip.
   chip_volt = RSI_BOD_SoftTriggerGetBatteryStatus();
   //If input to chip less than 2.4V then switch input voltage supply from SCDC to HPLDO
@@ -486,8 +487,7 @@ sl_status_t sl_si91x_adc_read_data(sl_adc_channel_config_t adc_channel_config, u
 {
   sl_status_t status;
   rsi_error_t error_status;
-  uint8_t data_process                    = 0;
-  static uint8_t ping_pong_memory_read[4] = { ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE, ADC_PING_ENABLE };
+  uint8_t data_process = 0;
 
   // Validate channel number.
   if (channel_num >= MAXIMUM_CHANNEL_ID) {
@@ -868,6 +868,8 @@ sl_status_t sl_si91x_adc_deinit(sl_adc_config_t adc_config)
   }
   // NULL the user callback function.
   user_callback = NULL;
+  // Reset ping_pong_memory_read array to ADC_PING_ENABLE
+  memset(ping_pong_memory_read, ADC_PING_ENABLE, sizeof(ping_pong_memory_read));
   return status;
 }
 

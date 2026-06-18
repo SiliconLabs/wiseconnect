@@ -1,5 +1,5 @@
 id: azure_freertos_middleware
-package: wiseconnect3_sdk
+package: wifi
 description: >
   AZURE IoT Device SDK for Embedded C
 label: AZURE FreeRTOS Middleware

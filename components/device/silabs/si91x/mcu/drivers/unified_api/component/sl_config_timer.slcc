@@ -1,6 +1,6 @@
 id: sl_config_timer
 label: Config Timer
-package: platform
+package: platform_siwx91x
 description: >
   Configurable timers driver can be used for modulated signal output, event capture on
   the GPIOs in input mode, and clock and event counting.

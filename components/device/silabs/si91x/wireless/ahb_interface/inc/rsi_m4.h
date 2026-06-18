@@ -42,7 +42,7 @@
 #define M4_ISR_IRQ 74
 
 #define TA_MEMORY_OFFSET_ADDRESS 0x00400000
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define M4_MEMORY_OFFSET_ADDRESS 0x00500000
 #else
 #define M4_MEMORY_OFFSET_ADDRESS 0x00200000
@@ -105,7 +105,7 @@
 #define RX_BUFFER_VALID          BIT(1)
 #define TX_PKT_PENDING_INTERRUPT BIT(2)
 #define UPGRADE_M4_IMAGE         BIT(5)
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define M4_WAITING_FOR_TA_TO_WR_ON_FLASH BIT(6)
 #endif
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
@@ -121,7 +121,7 @@
 #define M4_IMAGE_UPGRADATION_PENDING_INTERRUPT BIT(4)
 //! This interrupt is raised by NWP to M4 when there is a TX packet from M4 to read
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 //! This interrupt is raised by NWP to M4 when there is a flash write request from M4 to NWP in common flash mode
 #define TA_WRITING_ON_COMM_FLASH BIT(5)
 #endif
@@ -134,7 +134,7 @@
 //! This interrupt is received from TA when SLI_WIFI_BUFFER_FULL is clear in TA
 #define TA_RSI_BUFFER_FULL_CLEAR_EVENT BIT(8)
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 //! Option value for m4 app from flash to ram API
 #define UPGRADE_M4_IMAGE_OTA    1
 #define TA_WRITES_ON_COMM_FLASH 2

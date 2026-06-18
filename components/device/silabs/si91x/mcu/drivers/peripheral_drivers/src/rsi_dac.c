@@ -99,7 +99,7 @@ uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc
   } else {
     //Set the DAC threshold value
     RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP, DAC_FIFO_THR);
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
     // Configure the DAC control parameter
     RSI_DAC_Config(AUX_ADC_DAC_COMP, operation_mode, ENABLE, DISABLE, ENABLE);
 #else
@@ -112,7 +112,7 @@ uint32_t DAC_Init(uint8_t operation_mode, uint32_t sampling_rate, daccallbacFunc
   }
 
 #ifndef SL_SI91X_DAC
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
   //Configure DAC output on AGPIO4
   DAC_PinMux(0);
 #else
@@ -165,7 +165,7 @@ rsi_error_t DAC_Start(uint8_t operation_mode)
 {
   // FIFO mode enable
   if (operation_mode) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP, operation_mode);
     NVIC_EnableIRQ(ADC_IRQn);
 #endif
@@ -283,7 +283,7 @@ uint32_t dac_set_clock(uint32_t sampl_rate)
 rsi_error_t DAC_PinMux(uint8_t pin_sel)
 {
   if (pin_sel) {
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
     RSI_EGPIO_UlpPadReceiverDisable(DAC_OUT_AGPIO15); //REN disable
     // Configure ULP_GPIO15 in analog mode
     RSI_EGPIO_SetPinMux(EGPIO1, 0, DAC_OUT_AGPIO15, EGPIO_PIN_MUX_MODE7);
@@ -356,7 +356,7 @@ rsi_error_t RSI_DAC_Config(AUX_ADC_DAC_COMP_Type *pstcDAC,
   if (static_fifo_mode == 0) {
     pstcDAC->AUXDAC_CONIG_1_b.AUXDAC_DYN_EN = 1U;
   }
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   if (static_fifo_mode == 1) {
     pstcDAC->AUXDAC_CTRL_1_b.DAC_FIFO_AEMPTY_THRESHOLD = 0;
     pstcDAC->AUXDAC_CONIG_1_b.AUXDAC_DYN_EN            = 1U;
@@ -454,7 +454,7 @@ rsi_error_t RSI_DAC_WriteData(AUX_ADC_DAC_COMP_Type *pstcDAC,
       data++;
     }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     pstcDAC->AUXDAC_DATA_REG_b.AUXDAC_DATA = (unsigned int)((*data) & 0x03FF);
     data++;
 #endif
@@ -649,7 +649,7 @@ rsi_error_t RSI_DAC_SetFifoThreshold(AUX_ADC_DAC_COMP_Type *pstcDAC, uint32_t fi
 rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 #endif
 /// @endcond
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 
   /*==============================================*/
   /**
@@ -667,7 +667,7 @@ rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_EMPTY_INTR_MASK  = 0;
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_AEMPTY_INTR_MASK = 0;
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /// @cond PRIVATE
   if (oper_mode == STATIC_MODE_EN) {
     pstcDAC->INTR_MASK_REG_b.DAC_STATIC_MODE_DATA_INTR_MASK = 0;
@@ -693,7 +693,7 @@ rsi_error_t RSI_DAC_InterruptUnMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
 #endif
 /// @endcond
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 
   /*==============================================*/
   /**
@@ -711,7 +711,7 @@ rsi_error_t RSI_DAC_InterruptMask(AUX_ADC_DAC_COMP_Type *pstcDAC)
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_EMPTY_INTR_MASK  = 1;
   pstcDAC->INTR_MASK_REG_b.DAC_FIFO_AEMPTY_INTR_MASK = 1;
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /// @cond PRIVATE
   if (oper_mode == STATIC_MODE_EN) {
     pstcDAC->INTR_MASK_REG_b.DAC_STATIC_MODE_DATA_INTR_MASK = 1;
@@ -737,7 +737,7 @@ rsi_error_t RSI_DAC_InterruptClr(const AUX_ADC_DAC_COMP_Type *pstcDAC)
 #ifdef CHIP_9118
   pstcDAC->AUXDAC_CTRL_1_b.DAC_FIFO_FLUSH = 1U;
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   int32_t dac_data_read = 0;
   dac_data_read         = pstcDAC->AUXDAC_DATA_REG_b.AUXDAC_DATA;
 #endif

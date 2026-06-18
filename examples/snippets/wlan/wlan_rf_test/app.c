@@ -60,15 +60,15 @@ static const sl_wifi_device_configuration_t transmit_test_configuration = {
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
 #ifdef SLI_SI91X_MCU_INTERFACE
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_WPS_DISABLE),
 #else
-                     (SL_SI91X_FEAT_SECURITY_OPEN),
+                     (SL_WIFI_FEAT_SECURITY_OPEN),
 #endif
                    .tcp_ip_feature_bit_map =
                      (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
-                   .custom_feature_bit_map     = SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID,
+                   .custom_feature_bit_map     = SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID,
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -100,7 +100,7 @@ static uint8_t stats_count = 0;
 #endif
 volatile sl_status_t callback_status = SL_STATUS_OK;
 
-sl_si91x_request_tx_test_info_t tx_test_info = {
+sl_wifi_request_tx_test_info_t tx_test_info = {
   .enable      = 1,
   .power       = 127,
   .rate        = rate,
@@ -109,7 +109,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .channel     = 1,
   .aggr_enable = 0,
   .no_of_pkts  = 0,
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -150,16 +150,19 @@ uint16_t total_crc_fail = 0;
 
 static void application_start(void *argument);
 #if RECEIVE_STATS
-static sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *result, uint32_t result_length, void *arg);
+static sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *result,
+                                              uint32_t result_length,
+                                              void *arg);
 #endif
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -177,7 +180,7 @@ static void application_start(void *argument)
 
 #if RECEIVE_STATS
   // Register WLAN receive stats call back handler
-  sl_wifi_set_stats_callback(wifi_stats_receive_handler, NULL);
+  sl_wifi_set_stats_callback_v2(wifi_stats_receive_handler, NULL);
 #endif
 
   status = sl_wifi_set_antenna(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_ANTENNA_INTERNAL);
@@ -259,17 +262,21 @@ static void application_start(void *argument)
 }
 
 #if RECEIVE_STATS
-sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event, void *reponse, uint32_t result_length, void *arg)
+sl_status_t wifi_stats_receive_handler(sl_wifi_event_t event,
+                                       sl_status_t status_code,
+                                       void *reponse,
+                                       uint32_t result_length,
+                                       void *arg)
 {
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)reponse;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
 
   if (event == SL_WIFI_STATS_ASYNC_EVENT) {
-    sl_si91x_async_stats_response_t *result = (sl_si91x_async_stats_response_t *)reponse;
+    sl_wifi_async_stats_response_t *result = (sl_wifi_async_stats_response_t *)reponse;
 
     printf("\r\n%s: WIFI STATS Recieved packet# %d\n", __func__, stats_count);
     printf("stats : crc_pass %d, crc_fail %d, cal_rssi :%d\n", result->crc_pass, result->crc_fail, result->cal_rssi);

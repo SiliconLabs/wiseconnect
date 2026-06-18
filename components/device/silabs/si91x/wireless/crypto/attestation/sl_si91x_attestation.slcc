@@ -1,5 +1,5 @@
 id: sl_si91x_attestation
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the ATTESTATION API
 label: ATTESTATION

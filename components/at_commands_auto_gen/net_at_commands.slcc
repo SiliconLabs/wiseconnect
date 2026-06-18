@@ -1,5 +1,5 @@
 id: net_at_commands
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Network AT commands
 category: Service| AT Commands Autogen| Network AT commands

@@ -50,9 +50,11 @@ static void ulp_timer_callback(void);
 /*******************************************************************************
  **********************  Local variables   ************************************
  ******************************************************************************/
-static sl_si91x_gpio_pin_config_t sl_gpio_pin7_config = { { SL_SI91X_GPIO_7_PORT, SL_SI91X_GPIO_7_PIN }, GPIO_OUTPUT };
-static sl_si91x_gpio_pin_config_t sl_gpio_pin8_config = { { SL_SI91X_GPIO_8_PORT, SL_SI91X_GPIO_8_PIN }, GPIO_OUTPUT };
-static sl_si91x_gpio_pin_config_t sl_gpio_pin9_config = { { SL_SI91X_GPIO_9_PORT, SL_SI91X_GPIO_9_PIN }, GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin29_config = { { SL_SI91X_GPIO_29_PORT, SL_SI91X_GPIO_29_PIN },
+                                                           GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin30_config = { { SL_SI91X_GPIO_30_PORT, SL_SI91X_GPIO_30_PIN },
+                                                           GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin6_config  = { { SL_SI91X_GPIO_6_PORT, SL_SI91X_GPIO_6_PIN }, GPIO_OUTPUT };
 /*******************************************************************************
 **************************   GLOBAL FUNCTIONS   *******************************
 ******************************************************************************/
@@ -62,13 +64,13 @@ static sl_si91x_gpio_pin_config_t sl_gpio_pin9_config = { { SL_SI91X_GPIO_9_PORT
  ******************************************************************************/
 static void qei_stimulus_pin_mux_init(void)
 {
-  sl_gpio_set_configuration(sl_gpio_pin7_config);
-  sl_gpio_set_configuration(sl_gpio_pin8_config);
-  sl_gpio_set_configuration(sl_gpio_pin9_config);
+  sl_gpio_set_configuration(sl_gpio_pin29_config);
+  sl_gpio_set_configuration(sl_gpio_pin30_config);
+  sl_gpio_set_configuration(sl_gpio_pin6_config);
 
-  sl_gpio_driver_clear_pin(&sl_gpio_pin7_config.port_pin);
-  sl_gpio_driver_set_pin(&sl_gpio_pin8_config.port_pin);
-  sl_gpio_driver_clear_pin(&sl_gpio_pin9_config.port_pin);
+  sl_gpio_driver_clear_pin(&sl_gpio_pin29_config.port_pin);
+  sl_gpio_driver_set_pin(&sl_gpio_pin30_config.port_pin);
+  sl_gpio_driver_clear_pin(&sl_gpio_pin6_config.port_pin);
 }
 
 /*******************************************************************************
@@ -82,25 +84,25 @@ static void qei_emulate_phase_and_index_signals(void)
     y = 1;
     if (x == 0) {
       x = 1;
-      sl_gpio_driver_set_pin(&sl_gpio_pin7_config.port_pin);
+      sl_gpio_driver_set_pin(&sl_gpio_pin29_config.port_pin);
     } else {
       x = 0;
-      sl_gpio_driver_clear_pin(&sl_gpio_pin7_config.port_pin);
+      sl_gpio_driver_clear_pin(&sl_gpio_pin29_config.port_pin);
     }
   } else {
     y = 0;
     if (x == 0) {
       x = 0;
       index_count++;
-      sl_gpio_driver_clear_pin(&sl_gpio_pin8_config.port_pin);
+      sl_gpio_driver_clear_pin(&sl_gpio_pin30_config.port_pin);
       if (index_count > QEI_IDX_REVOLUTIONS) {
         index_count = 0;
-        sl_gpio_driver_set_pin(&sl_gpio_pin9_config.port_pin);
+        sl_gpio_driver_set_pin(&sl_gpio_pin6_config.port_pin);
       }
     } else {
       x = 1;
-      sl_gpio_driver_set_pin(&sl_gpio_pin8_config.port_pin);
-      sl_gpio_driver_clear_pin(&sl_gpio_pin9_config.port_pin);
+      sl_gpio_driver_set_pin(&sl_gpio_pin30_config.port_pin);
+      sl_gpio_driver_clear_pin(&sl_gpio_pin6_config.port_pin);
     }
   }
 }

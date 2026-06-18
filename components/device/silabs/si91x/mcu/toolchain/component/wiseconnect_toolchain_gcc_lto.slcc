@@ -1,6 +1,6 @@
 id: wiseconnect_toolchain_gcc_lto
 label: Enable Link time optimization (LTO) for WiSeConnect
-package: platform
+package: platform_siwx91x
 description: Enable Link time optimization for WiSeConnect
 category: Platform|Toolchain
 quality: evaluation

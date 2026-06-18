@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 
 #if defined(SLI_SI91X_MCU_COMMON_FLASH_MODE)
 
@@ -75,7 +75,7 @@ extern "C" {
 
 #endif // SLI_SI91X_MCU_COMMON_FLASH_MODE
 
-#endif // SLI_SI917 || SLI_SI915
+#endif // SLI_SI917
 
 #ifdef __cplusplus
 }

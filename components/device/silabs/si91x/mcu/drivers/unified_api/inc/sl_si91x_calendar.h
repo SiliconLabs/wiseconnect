@@ -38,6 +38,7 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_power_save.h"
 #include "rsi_rtc.h"
+#include "base_types.h"
 
 /***************************************************************************/
 /**
@@ -146,7 +147,7 @@ typedef struct {
  *
  * For more information on the status documentation, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type);
+sl_status_t sl_si91x_calendar_set_configuration(sl_calendar_clock_t clock_type) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -222,7 +223,8 @@ sl_status_t sl_si91x_calendar_get_date_time(sl_calendar_datetime_config_t *confi
  *
  * For more information on the status documentation, please refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *clock_calibration_config);
+sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *clock_calibration_config)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -237,7 +239,8 @@ sl_status_t sl_si91x_calendar_rcclk_calibration(clock_calibration_config_t *cloc
  *
  * For more information on the status documentation, please refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
-sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *clock_calibration_config);
+sl_status_t sl_si91x_calendar_roclk_calibration(clock_calibration_config_t *clock_calibration_config)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/
 /**
@@ -597,9 +600,7 @@ __STATIC_INLINE void sl_si91x_calendar_rtc_stop(void)
  * @details This function initiates the calibration for Calendar clocks. 
  * It is mandatory to call this function before calling RO clock calibration or
  * RC clock calibration function.
- * 
- * @post \ref sl_si91x_calendar_rcclk_calibration \n
- *       \ref sl_si91x_calendar_roclk_calibration \n
+ *
  ******************************************************************************/
 __STATIC_INLINE void sl_si91x_calendar_calibration_init(void)
 {

@@ -33,7 +33,7 @@ To use this application, the following hardware, software, and project setup are
 
 - Simplicity Studio
 - Serial console setup
-  - For serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - For Serial Console setup instructions, refer to [link name](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -43,24 +43,23 @@ To use this application, the following hardware, software, and project setup are
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
 ## Application Build Environment
 
 ### Application Configuration Parameters
-
-  - The threshold and slot values can be configured in [`bod_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_bod/bod_example.h). Alternatively, the slot value and blackout feature can be updated through the UC configuration.
+  - The threshold and slot values can be configured in [`bod_example.h`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/peripheral/sl_si91x_bod/bod_example.h). Alternatively, the slot value and blackout feature can be updated through the UC configuration.
     ```
     #define SL_BOD_DEFAULT_SLOT_VALUE 2  ///< Default BOD Slot value
     #define SL_BOD_DEFAULT_THRESHOLD 2.7f ///< Default BOD threshold value
     ```
-  - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in [`sl_si91x_bod.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_bod.h`).
+  - Battery voltage ranges can be customized for improved battery status monitoring by modifying the configurations in [`sl_si91x_bod.h`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/components/device/silabs/si91x/mcu/drivers/unified_api/inc/sl_si91x_bod.h`).
 
     ```
     #define SL_BOD_MAX_BATTERY_VOLTAGE 3.3f ///< Maximum battery voltage for Brown-Out Detector (BOD)
@@ -78,13 +77,13 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
     - **Slot Value:** Sets how often the comparator checks the BOD value. In automatic mode, up to six voltage comparisons (cmp_[1-5]_en and button_wakeup_en) are performed in sequence during each slot interval. Adjust this option to control the comparison frequency and interval.
       - Slot value effects are only observable in low-power (sleep) modes. In active mode, power consumption differences are minimal. For noticeable results, test with higher slot values to further reduce sleep current.
 
-    - **Enable Black-Out Monitor:** When enabled, the system will automatically reset if the VMCU voltage falls below 1.65 V.
+    - **Enable Black-Out Monitor:** When enabled, the system will automatically reset if the VMCU voltage falls below 1.65V.
 
     - **Automatic Mode:** In this mode, up to six voltage comparisons can be performed consecutively within each slot interval. All enabled comparisons (cmp_[1-5]_en and button_wakeup_en) are checked in sequence during each slot.
 
     - **Manual Mode:** In manual mode, only a single comparison is performed repeatedly. You can select which comparison to use by setting the `manual_cmp_mux_sel` parameter and enabling the corresponding `cmp_en` signal.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 - Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:

@@ -27,10 +27,21 @@ This application shows how to update the M4 firmware of a device via Wi-Fi by do
 This process allows the device to update its software over the air (OTA) without needing a physical connection.
 
 >**Note:**
->A/B firmware update functionality requires a special MBR to be preloaded on the device. Ensure these components are correctly loaded before running this example.
 >This feature doesnot support sleep wakeup functionality from M4 Updater.
 
 ## Prerequisites/Setup Requirements
+
+### MBR Provisioning
+
+> **Note:** Refer to UG625: SiWG917 Firmware Fallback User Guide before executing the reference examples.
+
+Before using the A/B firmware fallback feature, the fallback profile must be enabled in the MBR on the device.
+
+To enable firmware fallback for the devices using default MBR, use `commander manufacturing provision --mbr default --profile fallback -d <OPN>` command in the Simplicity Commander CLI tool.
+
+To confirm the firmware fallback feature is enabled on the device, use `commander readmem --range 0x4000091:+1` command in the Simplicity Commander CLI tool and confirm the value to be 1.
+
+For more details on firmware fallback feature enablement and usage, refer to UG625: SiWG917 Firmware Fallback User Guide.
 
 ### Hardware Requirements  
 
@@ -60,7 +71,7 @@ This process allows the device to update its software over the air (OTA) without
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -71,7 +82,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 The application can be configured to suit your requirements and development environment.
 
-In the Project Explorer pane, expand the **config** folder and open the [`sl_net_default_values.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/resources/defaults/sl_net_default_values.h) file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
+In the Project Explorer pane, expand the **config** folder and open the [`sl_net_default_values.h`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/resources/defaults/sl_net_default_values.h) file. Configure the following parameters to enable your Silicon Labs Wi-Fi device to connect to your Wi-Fi network.
 
 ### STA Instance-related Parameters
 
@@ -95,7 +106,7 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-- SL_APP_TOGGLE_SLOT_INFO controls firmware slot switching when Wi-Fi fails. By default (0), the device stays on the current slot. Setting it to 1 enables automatic switching to the alternate firmware slot if Wi-Fi cannot connect.
+- SL_APP_TOGGLE_SLOT_INFO controls firmware slot switching when WiFi fails. By default (0), the device stays on the current slot. Setting it to 1 enables automatic switching to the alternate firmware slot if WiFi cannot connect.
 
   ```c
   #define SL_APP_TOGGLE_SLOT_INFO 0 
@@ -113,6 +124,19 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
       - 0: Disable firmware slot updates.
       - 1: Enable firmware slot updates.
 
+- Combined Image Support is controlled by the following macro:
+
+  ```c
+  #define SL_APP_COMBINED_IMAGE_SUPPORT 0 
+  ```
+
+  - Purpose: Enables or disables support for processing multiple firmware images in sequence (combined image update). When enabled, the application can handle two images (e.g., M4 and NWP) in a single update session.
+    - Default Value: 0 (Disabled)
+    - Possible Values:
+      - 0: Disable combined image support. Process only a single firmware image per update session.
+      - 1: Enable combined image support. Process multiple images sequentially, updating slot information after each image and maintaining the socket connection between images.
+    - **Note:** When enabled, the socket connection remains open between images to allow downloading the second image. The socket is closed only after all images are processed.
+
 - Debug Logging Configuration
   - The **DISABLE_AB_DEBUG_LOGS** macro controls whether debug logs are enabled or disabled in the A/B Firmware Fallback module. By default, debug logs are disabled.
 
@@ -120,7 +144,7 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
     #define DISABLE_AB_DEBUG_LOGS 1 
     ```
 
-  - The macro is defined in the following file:  [`components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c)
+  - The macro is defined in the following file:  [`components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/components/device/silabs/si91x/mcu/drivers/service/firmware_fallback/src/sl_si91x_fw_fallback.c)
 
 - Encryption and Fallback Slot Configuration
   - The **SL_SI91X_FALLBACK_SLOT_ENCRYPTION** macro enables sleep/wakeup support and is part of the SPL "FW fallback" feature. Enable this macro only when Encrypted XIP of M4 is enabled. Define it in your project's preprocessor settings.
@@ -166,7 +190,7 @@ In the Project Explorer pane, expand the **config** folder and open the [`sl_net
   #define SERVER_IP_ADDRESS  "192.168.0.100"  // Server IP address 
   ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -177,7 +201,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 To establish the TCP server with firmware file on remote PC, follow the steps below:
 
- 1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
+ 1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk/tree/v4.0.1-content-for-docs/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
  
  2. For Updater image OTA Copy the upadter TCP server application [firmware_update_tcp_server_for_updater.c] provided with the application source to a Linux PC connected to the Wi-Fi access point.
 

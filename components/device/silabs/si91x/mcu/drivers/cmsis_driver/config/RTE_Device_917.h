@@ -40,11 +40,9 @@
 
 #define RTE_USART0                         1
 
-#define RTE_USART0_CLK_SRC                 USART_INTFPLLCLK
 #define RTE_USART0_CLK_DIV_FACT            1
 #define RTE_USART0_FRAC_DIV_SEL            USART_FRACTIONAL_DIVIDER
 
-#define RTE_USART_MODE                     0        //!Usart mode macros
 #define RTE_CONTINUOUS_CLOCK_MODE          0
 
 #define RTE_USART0_LOOPBACK                0
@@ -410,7 +408,6 @@
 // <i> Configuration settings for Driver_UART1 in component ::CMSIS Driver:USART
 #define RTE_UART1                          1
 
-#define RTE_UART1_CLK_SRC                  USART_INTFPLLCLK
 #define RTE_UART1_CLK_DIV_FACT             1
 #define RTE_UART1_FRAC_DIV_SEL             USART_FRACTIONAL_DIVIDER
 
@@ -662,7 +659,6 @@
 // <i> Configuration settings for Driver_ULP_UART in component ::CMSIS Driver:USART
 #define RTE_ULP_UART                       1
 
-#define RTE_ULP_UART_CLK_SRC               ULP_UART_REF_CLK
 #define RTE_ULP_UART_CLK_DIV_FACT          0
 #define RTE_ULP_UART_FRAC_SEL              USART_FRACTIONAL_DIVIDER
   

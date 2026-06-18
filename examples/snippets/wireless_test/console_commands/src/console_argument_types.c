@@ -65,6 +65,8 @@ const char *wifi_init_mode_type[]   = { "ap",  "apsta",         "ble_coex", "cli
 const char *wifi_init_region_type[] = { "default", "us", "eu", "jp", "world", "kr", "sg", "cn", NULL };
 const char *ble_user_gain_table_region_type[] = { "FCC", "ETSI", "TELEC", "WORLD_WIDE", "KCC", NULL };
 const char *wifi_interface_type[]             = { "ap", "ap_5g", "client", "client_5g", NULL };
+const char *wifi_pll_mode_type[]              = { "pll_mode_20mhz", "pll_mode_40mhz", NULL };
+const char *wifi_power_chain_type[]           = { "hp_chain", "lp_chain", NULL };
 const char *wifi_security_type[]              = { "open",
                                                   "wep",
                                                   "wpa",
@@ -112,6 +114,8 @@ const arg_list_t console_argument_types[] = {
   [CONSOLE_TYPE(wifi_init_region)]                = wifi_init_region_type,
   [CONSOLE_TYPE(ble_user_gain_table_region)]      = ble_user_gain_table_region_type,
   [CONSOLE_TYPE(wifi_interface)]                  = wifi_interface_type,
+  [CONSOLE_TYPE(wifi_pll_mode)]                   = wifi_pll_mode_type,
+  [CONSOLE_TYPE(wifi_power_chain)]                = wifi_power_chain_type,
   [CONSOLE_TYPE(wifi_security)]                   = wifi_security_type,
   [CONSOLE_TYPE(wps_mode)]                        = wps_mode_type,
 };
@@ -191,6 +195,8 @@ const value_list_t console_argument_values[] = {
                                                                    SL_WIFI_AP_5GHZ_INTERFACE,
                                                                    SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
                                                                    SL_WIFI_CLIENT_5GHZ_INTERFACE },
+  [CONSOLE_TYPE(wifi_pll_mode)]              = (const uint32_t[]){ SL_WIFI_PLL_MODE_20MHZ, SL_WIFI_PLL_MODE_40MHZ },
+  [CONSOLE_TYPE(wifi_power_chain)]           = (const uint32_t[]){ SL_WIFI_HP_CHAIN, SL_WIFI_LP_CHAIN },
   [CONSOLE_TYPE(wifi_security)]              = (const uint32_t[]){ SL_WIFI_OPEN,
                                                                    SL_WIFI_WEP,
                                                                    SL_WIFI_WPA,

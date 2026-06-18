@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "sl_cmsis_utility.h"
 #include "app.h"
 #include "stdio.h"
 
@@ -247,7 +248,7 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    osDelay(SLI_SYSTEM_MS_TO_TICKS(1));
   }
   /* USER CODE END 5 */
 }

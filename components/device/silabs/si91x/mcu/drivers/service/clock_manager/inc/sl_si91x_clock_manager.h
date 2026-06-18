@@ -38,6 +38,12 @@ extern "C" {
 #include "sl_status.h"
 #include "rsi_pll.h"
 
+#ifdef SL_SI91X_MCU_CLK_OUT_CONFIG
+#include "sl_si91x_clock_manager_mcu_clk_out_config.h"
+#endif
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+#include "sl_driver_gpio.h"
+#endif
 /***************************************************************************/
 /**
  * @addtogroup  CLOCK-MANAGER Clock Manager
@@ -51,6 +57,35 @@ extern "C" {
 #define PLL_REF_CLK_VAL_XTAL (40000000UL)  ///< PLL reference clock frequency value of XTAL CLK
 #define MAX_PLL_FREQUENCY    (180000000UL) ///< Max PLL frequency is 180MHz
 // -----------------------------------------------------------------------------------
+
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+/***************************************************************************/
+/**
+ * @brief Enumeration for MCU Clock output source selection.
+ *
+ * @details This enumeration defines the various clock sources that can be selected for the MCU Clock output.
+ */
+typedef enum {
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_GATED      = 0,  ///< Output Clock is Gated.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_RC_32MHZ   = 1,  ///< High Frequency RC Clock source.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_XTAL       = 2,  ///< XTAL Clock source.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_RC_32KHZ   = 7,  ///< Low Frequency RC Clock source.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_XTAL_32KHZ = 8,  ///< Low Frequency XTAL Clock source.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_INTF_PLL   = 10, ///< Interface PLL Clock.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_SOC_PLL    = 13, ///< SoC PLL Clock.
+  SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_I2S_PLL    = 14, ///< I2S PLL Clock.
+} sl_clock_manager_mcu_clk_out_sel_t;
+
+/**
+ * @brief Structure to hold the parameters for configuring the external MCU clock output.
+ */
+typedef struct {
+  sl_si91x_gpio_pin_config_t pin_config;         // Port of the GPIO pin
+  sl_clock_manager_mcu_clk_out_sel_t clk_source; // Clock source selection
+  uint8_t div_factor;                            // Clock division factor
+} sl_si91x_clock_manager_mcu_clk_out_config_t;
+
+#endif
 
 /***************************************************************************/
 /**
@@ -81,6 +116,34 @@ typedef M4_SOC_CLK_SRC_SEL_T sl_si91x_m4_soc_clk_src_sel_t;
  * For more information on status codes, refer to [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_clock_manager_init(void);
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+/***************************************************************************/
+/**
+ * @brief Configures the MCU Clock output on a specified GPIO pin.
+ *
+ * @details Sets up a GPIO pin to output a selected clock signal with optional frequency division.
+ * If SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_GATED is selected, the clock output is disabled.
+ *
+ * @param[in] gpio_pin_config  GPIO pin configuration structure specifying the pin to use.
+ *                             Only GPIO_11, GPIO_12, or GPIO_15 are supported.
+ * @param[in] mcu_clk_out_sel  Clock source selection for MCU Clock output generation.
+ * @param[in] div_factor       Division factor for the clock output.
+ *                             - 0: Divider is bypassed.
+ *                             - (> 0): clk_out = clk_in / (div_factor * 2).
+ *
+ * @return sl_status_t Status code indicating the result:
+ *   - SL_STATUS_OK if the configuration was successful.
+ *   - SL_STATUS_INVALID_PARAMETER if an invalid GPIO pin, clock source, or division factor is provided.
+ *   - SL_STATUS_INITIALIZATION_FAILED if the selected clock is not present.
+ *   - Corresponding error code on other failures.
+ *
+ * @note Ensure that the selected clock source is available and that div_factor is
+ *       within the valid range of 0x00-0x3F (6 bits) to prevent operational issues.
+ ***************************************************************************/
+sl_status_t sl_si91x_clock_manager_mcu_clk_out(sl_si91x_gpio_pin_config_t gpio_pin_config,
+                                               sl_clock_manager_mcu_clk_out_sel_t mcu_clk_out_sel,
+                                               uint32_t div_factor);
+#endif
 
 /***************************************************************************/
 /**
@@ -99,7 +162,7 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
 
 /***************************************************************************/
 /**
- * @brief To set the selected PLL (Phase-Locked Loop) clock to the desired frequency.
+ * @brief To set the selected Phase-Locked Loop (PLL) clock to the desired frequency.
  * 
  * @param[in] pll_type Enum specifying the type of PLL to configure.
  * @param[in] pll_freq Desired frequency for the PLL clock (in MHz).

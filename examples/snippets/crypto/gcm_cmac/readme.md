@@ -45,7 +45,7 @@ This application demonstrates the following:
 
 Refer the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- Install Studio and WiSeConnect 3 extension
+- Install Studio and WiSeConnectxtension
 - Connect your device to the computer
 - Upgrade your connectivity firmware
 - Create a Studio project
@@ -77,7 +77,7 @@ Open `app.c` file and configure the following parameters accordingly
 
 - After filling the appropriate **sl_si91x_gcm_config_t** configuration, `sl_si91x_gcm()` stores the output in the provided encrypted_buffer/decrypted_buffer in case of GCM Mode or stores the output in the provided mac buffer in case of CMAC Mode.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

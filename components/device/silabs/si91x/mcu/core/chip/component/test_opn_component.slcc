@@ -1,7 +1,7 @@
 !!omap
 - id: test_opn
 - label: OPN testing component for internal use only
-- package: platform
+- package: platform_siwx91x
 - quality: production
 - metadata:
     sbom:

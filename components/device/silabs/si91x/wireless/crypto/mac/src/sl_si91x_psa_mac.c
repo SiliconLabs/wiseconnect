@@ -130,7 +130,7 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
     config.msg_length             = input_length;
     config.msg                    = input;
     config.hmac_mode              = hmac_sha_mode;
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
     /* Fetch key type from attributes */
     psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
     if (location == 0) {
@@ -152,7 +152,7 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
 
     si91x_status = sl_si91x_hmac(&config, mac);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
     free(config.key_config.B0.key);
 #else
     free(config.key_config.A0.key);
@@ -172,7 +172,7 @@ psa_status_t sli_si91x_crypto_mac_compute(const psa_key_attributes_t *attributes
 
 #endif                                   // SLI_PSA_DRIVER_FEATURE_HMAC
 #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) // SLI_PSA_DRIVER_FEATURE_CMAC
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   if (PSA_ALG_FULL_LENGTH_MAC(alg) == PSA_ALG_CMAC) {
     size_t digest_length = PSA_MAC_TRUNCATED_LENGTH(alg);
     if (digest_length == 0) {

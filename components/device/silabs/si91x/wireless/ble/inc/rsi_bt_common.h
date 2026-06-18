@@ -275,6 +275,9 @@ typedef struct rsi_remote_ble_info_s {
   uint8_t cmd_in_use;
   /** Flag for checking expected remote response for each procedure */
   uint16_t expected_resp;
+
+#define SMALL_BUFF_MODE 0
+#define BIG_BUFF_MODE   1
   /** Buffer config mode */
   uint8_t mode;
   /** Mutex handle for avail_buf_info update */
@@ -331,6 +334,10 @@ typedef struct rsi_bt_cb_s {
   uint8_t remote_ble_index;
   /** Driver BT control block asynchronous status */
   volatile int32_t async_status;
+  /**to track total number of available data buffers not based on individual connections*/
+  uint8_t ble_buff_total_avail_cnt;
+  /** Mutex handle for avail_buf_info update */
+  osMutexId_t ble_buff_total_mutex;
 } rsi_bt_cb_t;
 
 // Set local name command structure
@@ -504,13 +511,74 @@ typedef struct rsi_bt_set_local_bd_addr_s {
  * @brief Structure for updating gain table offset or max power in Bluetooth commands.
  */
 typedef struct rsi_bt_cmd_update_gain_table_offset_or_maxpower_s {
-  /** node id (0 - BLE, 1 - BT) */
+  /** Node id 
+   *  * 0 - BLE
+  */
   uint8_t node_id;
-  /** gain table request type (0 - max power update, 1 - offset update) */
+  /** Request type to select appropriate gain table
+   *  * 0 - Update gain table with max power values
+   *  * 1 - Update gain table with offset values
+  */
   uint8_t update_gain_table_type;
-  /** gain table payload length */
+  /** 
+  * * Gain table payload length 
+  */
   uint8_t payload_len;
-  /** gain table payload data */
+  /** 
+  *   * The Gain table payload data consists of channel Tx power values for different regions in the format mentioned below. 
+  *   * The Gain table holding maximum Tx power values: (Each entry in the table is 1 byte.)
+  *       @code
+  *        <TABLE NAME>[] = {
+  *            <REGION NAME 1>, <MAX POWER>,
+  *            <REGION NAME 2>, <MAX POWER>,
+  *            .
+  *            .
+  *            <REGION NAME N>, <MAX POWER>
+  *        };
+  *       @endcode
+  * 
+  *   * The Gain table with offset values: (Each entry in the table is 1 byte.)
+  *      @code
+  *       <TABLE NAME>[] = {
+  *         <Number Of Regions - 'r'>,
+  *           <REGION NAME 1>, <Number Of Channels - 'n'>,
+  *             <cha_num_1>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             <cha_num_2>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             .
+  *             .
+  *             <cha_num_n>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *           <REGION NAME 2>, <Number Of Channels - 'n'>,
+  *             <cha_num_1>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             <cha_num_2>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             .
+  *             .
+  *             <cha_num_n>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *           .
+  *           .
+  *           <REGION NAME r>, <Number Of Channels - 'n'>,
+  *             <cha_num_1>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             <cha_num_2>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *             .
+  *             .
+  *             <cha_num_n>,	<1Mbps_offset>,	<2Mbps_offset>, <125kbps_offset>, <500kbps_offset>
+  *       };
+  *      @endcode
+  * 
+  *   * Supported Region names: FCC, ETSI, TELEC, WORLDWIDE, and KCC.
+  *   * The following table lists the regions and their corresponding values to pass:
+  * 
+  *      | Value | Region     |
+  *      |-------|------------|
+  *      | 0     | FCC        |
+  *      | 1     | ETSI       |
+  *      | 2     | TELEC      |
+  *      | 3     | WORLDWIDE  |
+  *      | 4     | KCC        |
+  * 
+  *   * If Tx power varies by channel, specify the number of applicable channels and provide the Tx power value for each channel. For channels that do not require a change, use channel 255 with a Tx power offset of 0.
+  * 
+  * @note When using user gain tables, define gain tables for both the high-power (HP) chain and the low-power (LP) chain at **0 dBm** and **8 dBm**. Use the **ble_per** application as a reference implementation.
+  */
   uint8_t payload[128];
 } rsi_bt_cmd_update_gain_table_offset_or_maxpower_t;
 /** @} */
@@ -518,7 +586,7 @@ typedef struct rsi_bt_cmd_update_gain_table_offset_or_maxpower_s {
  * * BT/BLE common function declarations
  * ******************************************************/
 void rsi_bt_set_status(rsi_bt_cb_t *bt_cb, int32_t status);
-void rsi_bt_common_tx_done(sl_wifi_system_packet_t *pkt);
+void rsi_bt_common_tx_done(const sl_wifi_system_packet_t *pkt, int32_t status);
 int8_t rsi_bt_cb_init(rsi_bt_cb_t *bt_cb, uint16_t protocol_type);
 int32_t rsi_bt_driver_send_cmd(uint16_t cmd, void *cmd_struct, void *resp);
 uint16_t rsi_bt_global_cb_init(struct rsi_driver_cb_s *driver_cb, uint8_t *buffer);

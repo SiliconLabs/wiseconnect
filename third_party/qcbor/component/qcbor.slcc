@@ -1,6 +1,6 @@
 id: qcbor
 label: QCBOR
-package: third_party
+package: wifi
 description: >
   QCBOR is a Concise Binary Object Representation (CBOR) encoder/decoder library
 category: Third Party

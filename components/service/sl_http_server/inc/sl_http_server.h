@@ -246,6 +246,35 @@ sl_status_t sl_http_server_send_response(sl_http_server_t *handle, sl_http_serve
  *   - SL_STATUS_FAIL: Failed to send the data chunk.
  */
 sl_status_t sl_http_server_write_data(sl_http_server_t *handle, uint8_t *data, uint32_t data_length);
+
+/***************************************************************************/ /**
+ * @brief 
+ *     Binds the HTTP server to a specific network interface.
+ *
+ * @details
+ *    This function sets the network interface for the HTTP server based on the 
+ *    provided interface identifier. It defaults to the client interface and 
+ *    adjusts the interface if the operation mode is concurrent.
+ *
+ * @note
+ *    If this function not called, the HTTP server defaults to using the Access Point (AP) interface in concurrent mode. In standalone mode, it uses the respective mode as the default interface.
+ *    It should be called before @ref sl_http_server_start to configure the desired interface.
+ *
+ * @note 
+ *    If the operation mode is concurrent, the function checks the provided 
+ *    interface and sets the appropriate network interface identifier.
+ *
+ * @param[in] interface 
+ *    The network interface identifier. Possible values:
+ *    - SL_NET_WIFI_CLIENT_INTERFACE: Client interface.
+ *    - SL_NET_WIFI_AP_INTERFACE: Access Point interface.
+ *
+ * @return 
+ *    sl_status_t Status of the operation:
+ *    - SL_STATUS_OK: Operation successful.
+ *    - SL_STATUS_INVALID_PARAMETER: Invalid interface provided.
+ */
+sl_status_t sl_http_server_bind_interface(sl_net_interface_t interface);
 /** @} */
 
 #endif //SL_HTTP_SERVER_H

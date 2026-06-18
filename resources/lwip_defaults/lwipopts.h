@@ -27,41 +27,6 @@
  */
 #define NO_SYS 0
 
-/* ---------- Memory options ---------- */
-/* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
-   lwIP is compiled. 4 byte alignment -> define MEM_ALIGNMENT to 4, 2
-   byte alignment -> define MEM_ALIGNMENT to 2. */
-#define MEM_ALIGNMENT 4
-
-/* MEM_SIZE: the size of the heap memory. If the application will send
-a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE (3 * 1024)
-
-/* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application sends a lot of data out of ROM (or other static memory), this should be set high. */
-#define MEMP_NUM_PBUF 10
-
-/* MEMP_NUM_UDP_PCB: the number of UDP protocol control blocks. One per active UDP "connection". */
-#define MEMP_NUM_UDP_PCB 6
-
-/* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP connections. */
-#define MEMP_NUM_TCP_PCB 10
-
-/* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN 5
-
-/* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP segments. */
-#define MEMP_NUM_TCP_SEG 8
-
-/* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active timeouts. */
-#define MEMP_NUM_SYS_TIMEOUT 10
-
-/* ---------- Pbuf options ---------- */
-/* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE 8
-
-/* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
-#define PBUF_POOL_BUFSIZE 1524 + 16
-
 /* ---------- NETIF API Support ---------- */
 #define LWIP_NETIF_API 1
 
@@ -72,7 +37,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define LWIP_IPV6 0
 #endif
 
-/* ---------- ARP Supoort ---------- */
+/* ---------- ARP Support ---------- */
 #ifndef LWIP_ARP
 #define LWIP_ARP (LWIP_IPV4)
 #endif
@@ -82,7 +47,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define LWIP_ICMP (LWIP_IPV4)
 #endif
 
-/* ---------- IGMP Supoort ---------- */
+/* ---------- IGMP Support ---------- */
 #ifndef LWIP_IGMP
 #define LWIP_IGMP (LWIP_IPV4)
 #endif
@@ -133,6 +98,39 @@ a lot of data that needs to be copied, this should be set high. */
 /* ---------- link callback options ---------- */
 /* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface whenever the link changes (i.e., link down) */
 #define LWIP_NETIF_LINK_CALLBACK 1
+
+/* ---------- Memory options ---------- */
+/* MEM_ALIGNMENT: Set this value to the CPU alignment used when compiling lwIP. 4 byte alignment -> define MEM_ALIGNMENT to 4, 2
+   byte alignment -> define MEM_ALIGNMENT to 2. */
+#define MEM_ALIGNMENT 4
+
+/* MEM_SIZE: The size of the heap memory. If the application sends large amounts of data that must be copied, set this value higher. */
+#define MEM_SIZE (3 * 1024)
+
+/* MEMP_NUM_PBUF: The number of memp struct pbufs. If the application sends a lot of data out of ROM (or other static memory), set this value higher. */
+#define MEMP_NUM_PBUF 10
+
+/* MEMP_NUM_UDP_PCB: The number of UDP protocol control blocks. One per active UDP "connection". */
+#define MEMP_NUM_UDP_PCB 6
+
+/* MEMP_NUM_TCP_PCB: The number of simultaneously active TCP connections. */
+#define MEMP_NUM_TCP_PCB 10
+
+/* MEMP_NUM_TCP_PCB_LISTEN: The number of listening TCP connections. */
+#define MEMP_NUM_TCP_PCB_LISTEN 5
+
+/* MEMP_NUM_TCP_SEG: The number of simultaneously queued TCP segments. */
+#define MEMP_NUM_TCP_SEG 8
+
+/* MEMP_NUM_SYS_TIMEOUT: The number of simultaneously active timeouts. */
+#define MEMP_NUM_SYS_TIMEOUT (10 + LWIP_IPV6)
+
+/* ---------- Pbuf options ---------- */
+/* PBUF_POOL_SIZE: The number of buffers in the pbuf pool. */
+#define PBUF_POOL_SIZE 8
+
+/* PBUF_POOL_BUFSIZE: The size of each pbuf in the pbuf pool. */
+#define PBUF_POOL_BUFSIZE 1524 + 16
 
 /*
    --------------------------------------

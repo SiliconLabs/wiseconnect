@@ -76,7 +76,7 @@ extern "C" {
 #ifndef SL_I2C1_PERIPHERAL_NO
 #define SL_I2C1_PERIPHERAL_NO 1
 #endif
-#warning "I2C peripheral is not configured. Please configure the I2C pins according to the board connections."
+
 // I2C1 SCL on GPIO_54
 #ifndef SL_I2C1_SCL_PORT
 #define SL_I2C1_SCL_PORT HP
@@ -112,20 +112,13 @@ extern "C" {
 #define SL_I2C_I2C1_SDA_MUX  SL_SI91X_I2C1_SDA_MUX
 #define SL_I2C_I2C1_SDA_PAD  SL_SI91X_I2C1_SDA_PAD
 #define SL_I2C_I2C1_SDA_REN  SL_SI91X_I2C1_SDA_REN
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
-#else
-#define SL_I2C_I2C1_SCL_PORT HP
-#define SL_I2C_I2C1_SCL_PIN  54
-#define SL_I2C_I2C1_SCL_MUX  SL_SI91X_I2C1_SCL_MUX
-#define SL_I2C_I2C1_SCL_PAD  SL_SI91X_I2C1_SCL_PAD
-#define SL_I2C_I2C1_SCL_REN  SL_SI91X_I2C1_SCL_REN
 
-#define SL_I2C_I2C1_SDA_PORT HP
-#define SL_I2C_I2C1_SDA_PIN  55
-#define SL_I2C_I2C1_SDA_MUX  SL_SI91X_I2C1_SDA_MUX
-#define SL_I2C_I2C1_SDA_PAD  SL_SI91X_I2C1_SDA_PAD
-#define SL_I2C_I2C1_SDA_REN  SL_SI91X_I2C1_SDA_REN
-#endif
+#else
+
+#warning \
+  "I2C1 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

@@ -78,7 +78,7 @@ The application configures the TWT session and enables associated power save mod
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project ](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -130,7 +130,7 @@ The application can be configured to suit user requirements and development envi
 - MQTT_BROKER_IP refers to remote peer IP address (Windows PC1) on which MQTT server is running. This needs to be configured at mqtt_broker_configuration variable declaration.
 
      ```c
-     .ip         = SL_IPV4_ADDRESS(192, 168, 1, 0)
+     .ip         = SL_IPV4_ADDRESS(192, 168, 1, 13)
      ```
 
 - CLIENT_PORT port refers to the device MQTT client port number.
@@ -142,13 +142,19 @@ The application can be configured to suit user requirements and development envi
 - CLIENT_ID refers to the unique ID with which the MQTT client connects to MQTT broker/server.
 
      ```c
-     #define clientID "WIFI-SDK-MQTT-CLIENT"
+     #define CLIENT_ID "WIFI-SDK-MQTT-CLIENT"
      ```
 
 - TOPIC_TO_BE_SUBSCRIBED refers to the topic to which MQTT client is supposed to subscribe to.
 
      ```c
-     #define TOPIC_TO_BE_SUBSCRIBED  "THERMOSTAT-DATA"
+     #define TOPIC_TO_BE_SUBSCRIBED  "THERMOSTAT-DATA\0"
+     ```
+
+- QOS_OF_SUBSCRIPTION indicates quality of service level for subscription.
+
+     ```c
+     #define QOS_OF_SUBSCRIPTION    SL_MQTT_QOS_LEVEL_1
      ```
 
 - PUBLISH_TOPIC refers to the topic to which MQTT client is supposed to publish on.
@@ -184,7 +190,7 @@ The application can be configured to suit user requirements and development envi
 - IS_CLEAN_SESSION indicates whether this connection is a new one or a continuation of last session.
 
      ```c
-     #define IS_CLEAN_SESSION 0
+     #define IS_CLEAN_SESSION 1
      ```
 
 - LAST_WILL_TOPIC Topic of last will message.
@@ -220,7 +226,7 @@ The application can be configured to suit user requirements and development envi
 - KEEP_ALIVE_INTERVAL client keep alive period in seconds.
 
      ```c
-     #define KEEP_ALIVE_INTERVAL                       100
+     #define KEEP_ALIVE_INTERVAL                       2000
      ```
 
 - MQTT_CONNECT_TIMEOUT Timeout for broker connection in milliseconds
@@ -246,20 +252,6 @@ The application can be configured to suit user requirements and development envi
      ```c
      #define PASSWORD "password"
      ```
-
-- Power save configuration.
-
-     - By default, the application is configured without power save.
-
-          ```c
-          #define ENABLE_NWP_POWER_SAVE 0
-          ```
-
-     - If you want to run the application in power save, modify the macro below.
-
-          ```c
-          #define ENABLE_NWP_POWER_SAVE 1
-          ```
 
      > Note: 
      >
@@ -320,14 +312,13 @@ The application can be configured to suit user requirements and development envi
      - The following are the default macro settings. Do not change these values as it may affect the working of the algorithm. 
 
      ```c
-     #define DEVICE_AVG_THROUGHPUT                20000    // Kbps
-     #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0        // in percentage
-     #define TWT_TOLERABLE_DEVIATION              10       // in percentage
+     #define DEVICE_AVERAGE_THROUGHPUT            20000
+     #define ESTIMATE_EXTRA_WAKE_DURATION_PERCENT 0
+     #define TWT_TOLERABLE_DEVIATION              10
      #define TWT_DEFAULT_WAKE_INTERVAL_MS         1024     // in milli seconds
-     #define TWT_DEFAULT_WAKE_DURATION_MS         16       // in milli seconds
-     #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6 hrs in milli seconds
-     #define MAX_BEACON_WAKE_UP_AFTER_SP \
-     2 // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
+     #define TWT_DEFAULT_WAKE_DURATION_MS         8        // in milli seconds
+     #define MAX_TX_AND_RX_LATENCY_LIMIT          22118400 // 6hrs in milli seconds
+     #define MAX_BEACON_WAKE_UP_AFTER_SP          2        // The number of beacons after the service period completion for which the module wakes up and listens for any pending RX.
      ```
 
      >**Note** : 
@@ -486,7 +477,7 @@ In Tickless Mode, the device enters sleep based on the idle time set by the sche
 
 - **Wireless Wakeup**: The device can also be awakened by a wireless signal. If this signal is triggered before the idle time set by the scheduler, the device will wake up in response to it.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -593,4 +584,4 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
   ![Figure: Energy Profiler Output](resources/readme/outputs_2.png)
 
-**NOTE**: The average current consumption may vary based on the environment, the above image is for reference.
+>**Note**: The average current consumption may vary based on the environment, the above image is for reference.

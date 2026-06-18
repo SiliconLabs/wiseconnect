@@ -1,6 +1,6 @@
 id: sleeptimer_si91x
 label: Sleep Timer for Si91x
-package: platform
+package: platform_siwx91x
 description: >
   The Si91x Sleeptimer  driver provides software timers and delays using a low-frequency 
   real-time clock peripheral. Sleep Timer uses one Hardware Timer and creates multiple software timer instances.

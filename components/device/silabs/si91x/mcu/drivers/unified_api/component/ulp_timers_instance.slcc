@@ -1,6 +1,6 @@
 id: ulp_timers_instance
 label: ULP Timer
-package: platform
+package: platform_siwx91x
 description: >
   ULP Timer will works in ultra low power mode and is designed to consume very little power in comparison
   to regular timers. It allows a microcontroller to wake up periodically, perform a task, and then return 
@@ -14,6 +14,7 @@ description: >
     - Timer Direction
 
   ULP Timer Supports instances.
+  Instances created must be named as timer0, timer1, timer2, timer3.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

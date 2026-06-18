@@ -1,5 +1,5 @@
 id: sl_si91x_rgb_led_917
-package: platform
+package: platform_siwx91x
 label: RGB LED
 description: >
   The Simple RGB LED Driver provides an implementation of RGB LED API. 

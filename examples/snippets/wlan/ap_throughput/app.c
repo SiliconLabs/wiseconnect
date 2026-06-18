@@ -43,6 +43,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_wifi_callback_framework.h"
 #include "app.h"
+#include "sl_si91x_core_utilities.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
@@ -170,13 +171,13 @@ static const sl_wifi_device_configuration_t throughput_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_ACCESS_POINT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_WIFI_FEAT_WPS_DISABLE),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_SERVER | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -210,8 +211,16 @@ void send_data_to_tcp_server(void);
 void receive_data_from_tls_server(void);
 void send_data_to_tls_server(void);
 void ap_throughput(void);
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
 static void application_start(void *argument);
 static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t test_timeout);
 
@@ -286,8 +295,8 @@ static void application_start(void *argument)
   }
   printf("\r\nWi-Fi AP initialization success");
 
-  sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
 
   // Get firmware version
   status = sl_wifi_get_firmware_version(&firmware_version);
@@ -569,13 +578,21 @@ void receive_data_from_tcp_client(void)
   // Recieve data
   printf("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with BSD error:%d\r\n", errno);
-      close(server_socket);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -591,8 +608,8 @@ void receive_data_from_tcp_client(void)
   measure_and_print_throughput(total_bytes_received, (now - start));
 
   // Close socket
-  close(server_socket);
   close(client_socket);
+  close(server_socket);
 
 #endif
 }
@@ -689,6 +706,7 @@ void receive_data_from_udp_client(void)
   // Close socket
   close(client_socket);
 #else
+  sl_status_t status            = SL_STATUS_OK;
   int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
 
@@ -718,10 +736,20 @@ void receive_data_from_udp_client(void)
   while (total_bytes_received < BYTES_TO_RECEIVE) {
     read_bytes = recvfrom(client_socket, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with BSD error: %d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
+
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
@@ -857,12 +885,21 @@ void receive_data_from_tls_server(void)
   int read_bytes = 1;
 
   // Receive data
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with BSD error:%d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -951,11 +988,18 @@ void send_data_to_tls_server(void)
   close(client_socket);
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -965,11 +1009,18 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);

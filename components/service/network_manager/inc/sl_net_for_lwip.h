@@ -54,3 +54,23 @@ typedef struct {
 /// extern variables
 extern sl_net_wifi_lwip_interface_api_t wifi_client;
 //! @endcond
+
+/**
+ * @brief Start asynchronous IP configuration for a network interface (LWIP stack).
+ *
+ * @details
+ * Initiates IP configuration (static or DHCP) for the specified interface.
+ * For static IP, the function completes synchronously and returns SL_STATUS_OK.
+ * For DHCP, the function starts monitoring and returns SL_STATUS_IN_PROGRESS.
+ * Completion is notified via SL_NET_IP_CONFIG_EVENT callback.
+ *
+ * @param[in] interface   Network interface for IP configuration.
+ * @param[in] profile_id  Profile identifier containing IP configuration settings.
+ *
+ * @return sl_status_t
+ *         - SL_STATUS_OK: Static IP configured successfully
+ *         - SL_STATUS_IN_PROGRESS: DHCP configuration started, monitoring in progress
+ *         - SL_STATUS_FAIL: Failed to retrieve profile or start IP configuration
+ *         - SL_STATUS_NOT_INITIALIZED: Network context not initialized
+ */
+sl_status_t sli_start_async_ip_config(sl_net_interface_t interface, sl_net_profile_id_t profile_id);

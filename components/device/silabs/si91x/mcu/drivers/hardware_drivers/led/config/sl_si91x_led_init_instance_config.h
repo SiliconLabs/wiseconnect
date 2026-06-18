@@ -9,10 +9,8 @@
 #ifndef SL_SI91X_LED_INIT_INST_CONFIG_H
 #define SL_SI91X_LED_INIT_INST_CONFIG_H
 
-#warning "Simple LED Driver GPIO pins not configured-Appropriate pins should be selected for OPN"
-
 #if USER_CONFIGURATION_ENABLE
-#if defined(SL_SI91X_ACX_MODULE) || defined(SLI_SI915)
+#if defined(SL_SI91X_ACX_MODULE)
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_LED_0
 // $[GPIO_SL_SI91X_LED_0]
@@ -45,5 +43,10 @@
 #define SL_LED_LED1_PORT   RTE_LED1_PORT
 #define SL_LED_LED1_NUMBER RTE_LED1_NUMBER
 #endif // SL_SI91X_ACX_MODULE
+#else
+
+#warning \
+  "LED pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the then configure the pins as per the Custom board."
+
 #endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_LED_INIT_INST_CONFIG_H

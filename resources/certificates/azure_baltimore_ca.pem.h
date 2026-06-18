@@ -1,3 +1,25 @@
+/*
+ * DEPRECATION NOTICE: Baltimore CyberTrust Root certificate
+ *
+ * Azure IoT Hub and Device Provisioning Service (DPS) are migrating from the Baltimore CyberTrust Root (expires 2025)
+ * to the DigiCert Global Root G2. As of September 30, 2024, all IoT Hub, IoT Central, and DPS resources require
+ * DigiCert Global Root G2 and Microsoft RSA Root Certificate Authority 2017 in device certificate stores.
+ *
+ * Devices using only this Baltimore root will lose connectivity after migration.
+ * 
+ * Required action:
+ * - Add DigiCert Global Root G2 and Microsoft RSA Root Certificate Authority 2017 certificates to your devices.
+ *   These root certificates are required to maintain secure connectivity to Azure IoT Hub, IoT Central, and Device Provisioning Service (DPS) after the migration from the Baltimore CyberTrust Root.
+ *   You can download these certificates from the Azure Certificate Authority details page.
+ *
+ * - Do not pin intermediate or leaf certificates; always use public root certificates for TLS server validation.
+ *   Pinning to intermediate or leaf certificates can cause connectivity loss if Azure rotates or updates their intermediate CAs.
+ *   Using public roots ensures your devices remain connected regardless of changes to intermediate or leaf certificates.
+ *
+ * For more information and best practices, see:
+ *   https://learn.microsoft.com/azure/iot-hub/migrate-tls-certificate
+ * 
+ */
 unsigned char azure_baltimore_ca[] = {
   '-',  '-', '-',  '-', '-', 'B', 'E', 'G',  'I', 'N', ' ', 'C', 'E',  'R', 'T',  'I', 'F', 'I',  'C', 'A',
   'T',  'E', '-',  '-', '-', '-', '-', '\n', 'M', 'I', 'I', 'D', 'd',  'z', 'C',  'C', 'A', 'l',  '+', 'g',

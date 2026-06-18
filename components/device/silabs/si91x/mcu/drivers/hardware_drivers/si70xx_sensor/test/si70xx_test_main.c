@@ -310,11 +310,12 @@ void test_si70xx_start_no_hold_measure_rh_or_temp(void)
   TEST_ASSERT_EQUAL_HEX(SL_STATUS_INVALID_PARAMETER, status);
   UnityPrintf("Testing with invalid parameter successfully \n");
 
-  //  UnityPrintf("Testing with correct parameter \n");
-  //  mock_type = SL_HUMIDITY;
-  //  status = sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(SI70XX_I2C_INSTANCE, SI70XX_SLAVE_ADDR, mock_type, &mock_data);
-  //  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
-  //  UnityPrintf("Si70xx no-hold measure RH or Temp started successfully \n");
+  UnityPrintf("Testing with correct parameter \n");
+  mock_type = SL_HUMIDITY;
+  status =
+    sl_si91x_si70xx_start_no_hold_measure_rh_or_temp(SI70XX_I2C_INSTANCE, SI70XX_SLAVE_ADDR, mock_type, &mock_data);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Si70xx no-hold measure RH or Temp started successfully \n");
 
   UnityPrintf("Si70xx Start No-Hold Measure RH or Temp completed \n");
 }

@@ -27,7 +27,7 @@
  *
  ******************************************************************************/
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 //! This file should be in RAM
 #include "sl_device.h"
 

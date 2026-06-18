@@ -1,5 +1,5 @@
 id: at_power_manager
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Power Manager AT commands
 category: Service| AT Commands Autogen| Power Manager AT commands

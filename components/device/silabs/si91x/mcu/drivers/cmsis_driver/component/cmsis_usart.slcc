@@ -1,6 +1,6 @@
 id: cmsis_usart
 label: CMSIS USART
-package: platform
+package: platform_siwx91x
 description: >
   Universal Synchronous Asynchronous Receiver Transmitter Driver API's
 category: Device|Si91x|MCU|Internal|CMSIS Drivers

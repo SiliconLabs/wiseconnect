@@ -76,11 +76,7 @@
 #define RSI_BLE_STOP_ADV 0x00
 
 //! BLE Tx Power Index On Air
-#ifdef SLI_SI915
-#define RSI_BLE_PWR_INX 75 //  HP chain for Si915
-#else
 #define RSI_BLE_PWR_INX 30
-#endif
 
 //! BLE Active H/w Pwr Features
 #define BLE_DISABLE_DUTY_CYCLING 0

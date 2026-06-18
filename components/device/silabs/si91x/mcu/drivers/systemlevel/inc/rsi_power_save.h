@@ -53,7 +53,7 @@ extern "C" {
 #define M4SS_PWRGATE_ULP_IID      BIT(14)
 #define M4SS_PWRGATE_ULP_SDIO_SPI BIT(11)
 #define M4SS_PWRGATE_ULP_RPDMA    BIT(9)
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define M4SS_PWRGATE_ULP_EFUSE_PERI   BIT(4)
 #define M4SS_PWRGATE_ULP_QSPI_ICACHE  BIT(13)
 #define M4SS_PWRGATE_ULP_M4_DEBUG_FPU BIT(17)
@@ -124,7 +124,7 @@ extern "C" {
 #define ALARM_BASED_WAKEUP    BIT(26)
 #define SDCSS_BASED_WAKEUP    BIT(25)
 #define ULPSS_BASED_WAKEUP    BIT(24)
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 #define WAKEIF_BASED_WAKEUP BIT(22)
 #else
 #define SYSRTC_BASED_WAKEUP BIT(22)
@@ -291,7 +291,7 @@ extern "C" {
 #define BGPMU_SLEEP_EN_R BIT(16)
 
 /*Retention sleep configurations*/
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 
 //!PSRAM only initialized upon wakeup and it branches to PSRAM
 #define SL_SI91X_MCU_WAKEUP_PSRAM_MODE 1
@@ -323,7 +323,11 @@ extern "C" {
 
 typedef enum FSM_CLK { FSM_NO_CLOCK = 0, FSM_20MHZ_RO = 1, FSM_MHZ_RC = 2, FSM_40MHZ_XTAL = 4 } FSM_CLK_T;
 
-typedef enum AON_CLK { KHZ_RO_CLK_SEL = 1, KHZ_RC_CLK_SEL = 2, KHZ_XTAL_CLK_SEL = 4 } AON_CLK_T;
+typedef enum AON_CLK {
+  KHZ_RO_CLK_SEL   = 1, /* RO clock is not supported */
+  KHZ_RC_CLK_SEL   = 2,
+  KHZ_XTAL_CLK_SEL = 4
+} AON_CLK_T;
 
 /*Ship modes*/
 typedef enum SHUT_DOWN_WKP_MODE {
@@ -448,7 +452,7 @@ typedef enum NPSS_COMPARATOR {
 
 #define NWP_FSM_SLEEP_WAKEUP_MODES *(volatile uint32_t *)0x41300100
 #define COUNT_TICK_ENABLE          0x1
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define MCURET_BOOTSTATUS_REG *(volatile uint32_t *)(MCU_NPSS_BASE_ADDR + 0x604)
 #define KEY_SIZE_IN_DWORDS    8
 
@@ -602,7 +606,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps4tops2(ULP_MODE_T enCtxSel,
   /*PMU off delay */
   MCU_FSM->MCU_FSM_POWER_CTRL_AND_DELAY_b.PS2_PMU_LDO_OFF_DELAY = PMU_LDO_OFF_DELAY;
 
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   /*Bridge clock disable*/
   ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP2M4_A2A_BRDG_CLK_EN_b = 0;
 #endif
@@ -678,7 +682,7 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
   /*Disable ulp mode isolation */
   BATT_FF->M4_ULP_MODE_CONFIG &= ~0x3F;
 
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   /*Disables clock to ULP-M4SS AHB-AHB Bridge since the MCU is in PS2 state logically*/
   ULPCLK->ULP_TA_CLK_GEN_REG_b.ULP2M4_A2A_BRDG_CLK_EN_b = 1;
 #endif
@@ -695,13 +699,13 @@ STATIC INLINE rsi_error_t ps_power_state_change_ps2_to_Ps4(uint32_t PmuBuckTurnO
 
   /* enabling the RETN_LDO LP MODE  */
   RSI_IPMU_RetnLdoLpmode();
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   M4CLK->CLK_ENABLE_SET_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
   for (x = 0; x < 200; x++) {
     __ASM("NOP");
   }
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   M4CLK->CLK_ENABLE_CLR_REG1_b.M4SS_UM_CLK_STATIC_EN_b = 0x1;
 #endif
   return RSI_OK;
@@ -1140,7 +1144,7 @@ STATIC INLINE void RSI_PS_PmuGoodTimeDurationConfig(uint8_t pmuDuration)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_PMU_POWERGOOD_DURATION_COUNT =
     (unsigned int)(pmuDuration & 0x1F);
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_PMU_POWERGOOD_DURATION_COUNT =
     (unsigned int)(pmuDuration & 0x7F);
 #endif
@@ -1159,7 +1163,7 @@ STATIC INLINE void RSI_PS_XtalGoodTimeDurationConfig(uint8_t xtalDuration)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_XTAL_GOODTIME_DURATION_COUNT =
     (unsigned int)(xtalDuration & 0x1F);
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   MCU_FSM->MCU_FSM_XTAL_AND_PMU_GOOD_COUNT_REG_b.MCUFSM_XTAL_GOODTIME_DURATION_COUNT =
     (unsigned int)(xtalDuration & 0x7F);
 #endif

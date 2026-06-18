@@ -34,11 +34,12 @@
 #include "sl_constants.h"
 #include "sl_si91x_driver.h"
 #include "sl_utility.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 static sl_status_t sli_si91x_get_size_from_ecdh_mode(sl_si91x_ecdh_mode_t ecdh_mode, uint8_t *size)
 {
   switch (ecdh_mode) {
@@ -64,7 +65,7 @@ static void sli_si91x_ecdh_get_data_from_buffer(sl_wifi_buffer_t *buffer, uint8_
   uint16_t offset                       = 0;
   const sl_wifi_system_packet_t *packet = NULL;
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   result = packet->data;
   memcpy(rx, result, SL_SI91X_ECDH_MAX_VECTOR_SIZE);
   offset += SL_SI91X_ECDH_MAX_VECTOR_SIZE;
@@ -145,7 +146,7 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  sizeof(sli_si91x_ecdh_add_sub_request_t),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
@@ -154,10 +155,10 @@ static sl_status_t sli_si91x_ecdh_add_sub(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          sizeof(sli_si91x_ecdh_add_sub_request_t),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -281,7 +282,7 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_ecdh_mul_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
@@ -290,10 +291,10 @@ sl_status_t sl_si91x_ecdh_point_multiplication(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          (sizeof(sli_si91x_ecdh_mul_request_t)),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -383,7 +384,7 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_ecdh_double_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
@@ -392,10 +393,10 @@ sl_status_t sl_si91x_ecdh_point_double(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          (sizeof(sli_si91x_ecdh_double_request_t)),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -481,7 +482,7 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_ecdh_affine_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   if (status != SL_STATUS_OK) {
     free(request);
     if (buffer != NULL)
@@ -490,10 +491,10 @@ sl_status_t sl_si91x_ecdh_point_affine(sl_si91x_ecdh_mode_t ecdh_mode,
   VERIFY_STATUS_AND_RETURN(status);
 #else
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          (sizeof(sli_si91x_ecdh_affine_request_t)),
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {

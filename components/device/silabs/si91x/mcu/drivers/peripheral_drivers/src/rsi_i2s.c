@@ -43,6 +43,88 @@
 #define I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX \
   49 // Maximum pin number for specific range of HP pins to act as ULP pins
 
+/*****************************************************************************
+ * Private types/enumerations/variables
+ ****************************************************************************/
+static const uint32_t i2s_pll_freq[] = { 256000,  512000,   768000,   1024000,  1411200, 2048000, 2822400,
+                                         3072000, 4096000,  4233600,  4608000,  5644800, 6144000, 8467200,
+                                         9216000, 11289600, 12288000, 18432000, 24576000 };
+
+#define I2S_PLL_FREQ_COUNT (sizeof(i2s_pll_freq) / sizeof(i2s_pll_freq[0]))
+// Fixed post-divider of 2
+#define I2S_FIXED_POST_DIV 2U
+
+/*****************************************************************************
+ * Private functions
+ ****************************************************************************/
+static uint8_t I2S_get_freq_div_factor(uint32_t req_freq_hz, uint32_t *clk_source_freq_hz);
+
+/**
+ * @brief Calculate the I2S divider for a requested output frequency.
+ *
+ * Chooses a PLL source that is an integer multiple of @p req_freq_hz,
+ * then returns divider = (source / req_freq_hz) / I2S_FIXED_POST_DIV.
+ *
+ * Search order is from highest PLL source to lowest, which is typically
+ * preferred for clock quality. The function only returns a divider that
+ * fits into 8 bits. On failure, returns 0 and sets *clk_source_hz = 0.
+ *
+ * @param[in]  req_freq_hz    Requested I2S clock frequency in Hz
+ *                            (e.g., 352800 for 0.3528 MHz).
+ * @param[out] clk_source_hz  Selected PLL source frequency in Hz.
+ *
+ * @return Divider (8-bit) or 0 if no exact, representable solution exists.
+ */
+static uint8_t I2S_get_freq_div_factor(uint32_t req_freq_hz, uint32_t *clk_source_hz)
+{
+  if (clk_source_hz == NULL || req_freq_hz == 0U) {
+    if (clk_source_hz) {
+      *clk_source_hz = 0U;
+    }
+    return 0U;
+  }
+
+  /* Search from highest source down to lowest to prefer cleaner clocking */
+  for (int i = (int)I2S_PLL_FREQ_COUNT - 1; i >= 0; --i) {
+    const uint32_t src = i2s_pll_freq[i];
+
+    /* Exact multiple only (change to nearest-fit if you later allow tolerance) */
+    if ((src % req_freq_hz) != 0U) {
+      continue;
+    }
+
+    const uint32_t pre_div = src / req_freq_hz;
+    uint32_t div;
+
+    if (pre_div == 1U) {
+      /* PLL source matches requested frequency exactly; set divider = 0 to bypass and avoid post-divider */
+      div = 0U;
+    } else {
+      /* If pre_div is odd, the fixed post-divider cannot produce the requested frequency exactly */
+      if (pre_div & 1U) {
+        continue;
+      }
+      div = pre_div / I2S_FIXED_POST_DIV;
+    }
+
+    if (div > I2S_MAX_CLK_DIVISION_FACTOR) {
+      /* Not representable in hardware (6 bits)—try next source */
+      continue;
+    }
+
+    *clk_source_hz = src;
+    return (uint8_t)div;
+  }
+
+  /* No valid exact solution found */
+  *clk_source_hz = 0U;
+  return 0U;
+}
+
+/*****************************************************************************
+ * Public functions
+ ****************************************************************************/
+
 /** @addtogroup SOC17
 * @{
 */
@@ -276,7 +358,7 @@ int32_t I2S_Control(uint32_t control,
       }
       if (i2s->reg == I2S1) {
 /* sets master mode for I2S1(ULPSS)*/
-#ifndef I2S_LOOP_BACK
+#ifndef I2S1_LOOP_BACK
         ULPCLK->ULP_I2S_CLK_GEN_REG_b.ULP_I2S_MASTER_SLAVE_MODE_b = 0;
 #endif
       }
@@ -383,14 +465,20 @@ int32_t I2S_Control(uint32_t control,
     // As per standard I2S bit clock frequency calculation
     bit_freq = (data_bits * 2 * arg2);
     if (i2s->reg == I2S0) {
+      uint8_t div_fac = I2S_get_freq_div_factor(bit_freq, &bit_freq);
+      if (bit_freq == 0) {
+        // Error: Could not find valid PLL source/divider for requested audio frequency
+        return ARM_SAI_ERROR_AUDIO_FREQ;
+      }
+      // div_fac == 0 is valid: means PLL bypass (source == requested frequency)
       RSI_CLK_SetI2sPllFreq(M4CLK, bit_freq, 40000000);
-      RSI_CLK_I2sClkConfig(M4CLK, I2S_PLLCLK, 0);
+      RSI_CLK_I2sClkConfig(M4CLK, I2S_PLLCLK, div_fac);
       RSI_CLK_PeripheralClkEnable(M4CLK, I2SM_CLK, ENABLE_STATIC_CLK);
     }
     if (i2s->reg == I2S1) {
       if (i2s->clk->clk_src == ULP_I2S_REF_CLK) {
         val = system_clocks.ulpss_ref_clk / bit_freq;
-        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val);
+        RSI_ULPSS_UlpI2sClkConfig(ULPCLK, ULP_I2S_REF_CLK, (uint16_t)val / 2);
       }
       if (i2s->clk->clk_src == ULP_I2S_ULP_MHZ_RC_CLK) {
         val = system_clocks.rc_mhz_clock / bit_freq;
@@ -563,11 +651,12 @@ void I2S1_PinMux(I2S_RESOURCES *i2s)
     RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN));
     RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, (uint8_t)(i2s->io.sclk->pin - GPIO_MAX_PIN), i2s->io.sclk->mode);
   } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_PadReceiverEnable((uint8_t)(i2s->io.sclk->pin));
     RSI_EGPIO_SetPinMux(EGPIO, i2s->io.sclk->port, i2s->io.sclk->pin, EGPIO_PIN_MUX_MODE9);
     if (i2s->io.sclk->pad_sel != 0) {
       RSI_EGPIO_PadSelectionEnable(i2s->io.sclk->pad_sel);
     }
-    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.sclk->port, i2s->io.sclk->pin, 0);
+
     if (i2s->io.sclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
         && i2s->io.sclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
       RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 38), i2s->io.sclk->mode);
@@ -575,18 +664,18 @@ void I2S1_PinMux(I2S_RESOURCES *i2s)
       RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.sclk->pin - 8), i2s->io.sclk->mode);
     }
   }
-
-  // WSCLK
+  // for WSCLK
   //if the pin is ULP_GPIO then set the pin mode for direct ULP_GPIO.
   if (i2s->io.wsclk->pin >= GPIO_MAX_PIN) {
     RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN));
     RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, (uint8_t)(i2s->io.wsclk->pin - GPIO_MAX_PIN), i2s->io.wsclk->mode);
   } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_PadReceiverEnable((uint8_t)(i2s->io.wsclk->pin));
     RSI_EGPIO_SetPinMux(EGPIO, i2s->io.wsclk->port, i2s->io.wsclk->pin, EGPIO_PIN_MUX_MODE9);
     if (i2s->io.wsclk->pad_sel != 0) {
       RSI_EGPIO_PadSelectionEnable(i2s->io.wsclk->pad_sel);
     }
-    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.wsclk->port, i2s->io.wsclk->pin, 0);
+
     if (i2s->io.wsclk->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
         && i2s->io.wsclk->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
       RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.wsclk->pin - 38), i2s->io.wsclk->mode);
@@ -601,11 +690,12 @@ void I2S1_PinMux(I2S_RESOURCES *i2s)
     RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN));
     RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, (uint8_t)(i2s->io.dout0->pin - GPIO_MAX_PIN), i2s->io.dout0->mode);
   } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_PadReceiverEnable((uint8_t)(i2s->io.dout0->pin));
     RSI_EGPIO_SetPinMux(EGPIO, i2s->io.dout0->port, i2s->io.dout0->pin, EGPIO_PIN_MUX_MODE9);
     if (i2s->io.dout0->pad_sel != 0) {
       RSI_EGPIO_PadSelectionEnable(i2s->io.dout0->pad_sel);
     }
-    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.dout0->port, i2s->io.dout0->pin, 0);
+
     if (i2s->io.dout0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
         && i2s->io.dout0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
       RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.dout0->pin - 38), i2s->io.dout0->mode);
@@ -620,12 +710,12 @@ void I2S1_PinMux(I2S_RESOURCES *i2s)
     RSI_EGPIO_UlpPadReceiverEnable((uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN));
     RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, (uint8_t)(i2s->io.din0->pin - GPIO_MAX_PIN), i2s->io.din0->mode);
   } else { // if the pin is SoC GPIO then set the HP GPIO mode to ULP_PERI_ON_SOC_PIN_MODE.
+    RSI_EGPIO_PadReceiverEnable((uint8_t)(i2s->io.din0->pin));
     RSI_EGPIO_SetPinMux(EGPIO, i2s->io.din0->port, i2s->io.din0->pin, EGPIO_PIN_MUX_MODE9);
     if (i2s->io.din0->pad_sel != 0) {
       RSI_EGPIO_PadSelectionEnable(i2s->io.din0->pad_sel);
     }
-    RSI_EGPIO_PadReceiverEnable(i2s->io.din0->pin);
-    RSI_EGPIO_SetPinMux(EGPIO1, i2s->io.din0->port, i2s->io.din0->pin, 0);
+
     if (i2s->io.din0->pin >= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MIN
         && i2s->io.din0->pin <= I2S_ULP_PERI_ON_SOC_GPIO_SPECIFIC_RANGE_MAX) {
       RSI_EGPIO_UlpSocGpioMode(ULPCLK, (i2s->io.din0->pin - 38), i2s->io.din0->mode);
@@ -653,7 +743,7 @@ void i2s_chnl_Init(ARM_SAI_SignalEvent_t cb_event, I2S_RESOURCES *i2s)
   i2s->info->status.tx_busy      = 0U;
   i2s->info->status.tx_underflow = 0U;
   if (i2s->reg == I2S0) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI3);
@@ -990,7 +1080,14 @@ int32_t I2S_Send(const void *data,
         UDMAx_ChannelEnable(i2s->dma_tx->channel, udma, udmaHandle);
         UDMAx_DMAEnable(udma, udmaHandle);
 #ifdef I2S_LOOP_BACK
-        i2s->reg->I2S_IRER_b.RXEN = 0x1;
+        if (i2s->reg == I2S0) {
+          i2s->reg->I2S_IRER_b.RXEN = 0x1;
+        }
+#endif
+#ifdef I2S1_LOOP_BACK
+        if (i2s->reg == I2S1) {
+          i2s->reg->I2S_IRER_b.RXEN = 0x1;
+        }
 #endif
         i2s->reg->I2S_ITER_b.TXEN = 0x1;
         if (i2s->info->tx.master) {
@@ -1133,13 +1230,26 @@ int32_t I2S_Receive(void *data,
         return ARM_DRIVER_ERROR;
       }
       i2s->reg->CHANNEL_CONFIG[i2s->xfer_chnl].I2S_RER_b.RXCHEN = 0x1;
+// Only enable RXEN for the correct instance and avoid duplicate writes
 #ifndef I2S_LOOP_BACK
-      i2s->reg->I2S_IRER_b.RXEN = 0x1;
+      if (i2s->reg == I2S0) {
+        i2s->reg->I2S_IRER_b.RXEN = 0x1;
+      }
+#endif
+#ifndef I2S1_LOOP_BACK
+      if (i2s->reg == I2S1) {
+        i2s->reg->I2S_IRER_b.RXEN = 0x1;
+      }
 #endif
       UDMAx_ChannelEnable(i2s->dma_rx->channel, udma, udmaHandle);
       UDMAx_DMAEnable(udma, udmaHandle);
 #ifndef I2S_LOOP_BACK
-      if (i2s->info->rx.master) {
+      if (i2s->reg == I2S0 && i2s->info->rx.master) {
+        i2s->reg->I2S_CER_b.CLKEN = ENABLE; //RX_Clock is not required in Loopback connections.
+      }
+#endif
+#ifndef I2S1_LOOP_BACK
+      if (i2s->reg == I2S1 && i2s->info->rx.master) {
         i2s->reg->I2S_CER_b.CLKEN = ENABLE; //RX_Clock is not required in Loopback connections.
       }
 #endif

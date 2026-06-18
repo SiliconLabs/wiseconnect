@@ -215,7 +215,7 @@ sl_status_t sl_si91x_sdc_config(sl_si91x_sdc_config_t *sdc_general_config)
   if (number_of_channels == 3 || number_of_channels > 4 || number_of_channels == 0) {
     return SL_STATUS_INVALID_PARAMETER;
   }
-  if ((sdc_config->sample_threshold * number_of_channels) > 15) {
+  if ((sdc_config->sample_threshold * number_of_channels) > 14) {
     return SL_STATUS_INVALID_PARAMETER;
   }
   if (sdc_config->sampling_interval > 1023) {

@@ -1,11 +1,13 @@
 project_name: wifi_wlan_throughput_v6_ncp
-package: wifi
+package: wifi_app
 quality: production
 label: Wi-Fi - Throughput IPv6 (NCP)
 category: Example|Wi-Fi
-description: |
-  Start a Wi-Fi client and transmits/receives data to measure WLAN
+description: 'Start a Wi-Fi client and transmits/receives data to measure WLAN
+
   UDP/TCP/TLS throughput performance using a remote iPerf client/server
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -13,12 +15,6 @@ filter:
 - name: Project Difficulty
   value:
   - Beginner
-sdk:
-  id: simplicity_sdk
-  version:  "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: app.c
 include:
@@ -34,30 +30,21 @@ component:
 - id: freertos_heap_4
 - id: device_init
 - id: spidrv
-  instance: [exp]
+  instance:
+  - exp
 - id: iostream_retarget_stdio
 - id: iostream_recommended_stream
 - id: iostream_stdlib_config
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: sl_si91x_spi_bus
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: bsd_socket
-  from: wiseconnect3_sdk
 - id: sl_si91x_asynchronous_socket
-  from: wiseconnect3_sdk
 - id: sl_si91x_basic_buffers
-  from: wiseconnect3_sdk
 toolchain_settings:
 - option: gcc_linker_option
   value: -u _printf_float
@@ -70,7 +57,7 @@ configuration:
   value: '1'
 - name: configTOTAL_HEAP_SIZE
   value: '51200'
-- name: configTIMER_TASK_PRIORITY 
+- name: configTIMER_TASK_PRIORITY
   value: '55'
 readme:
 - path: readme.md
@@ -86,3 +73,11 @@ ui_hints:
   highlight:
   - path: readme.md
     focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

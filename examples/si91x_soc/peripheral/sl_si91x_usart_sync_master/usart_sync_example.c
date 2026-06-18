@@ -85,7 +85,7 @@ void usart_sync_example_init(void)
     // Register user callback function
     status = sl_si91x_usart_multiple_instance_register_event_callback(USART_0, usart_callback_event);
     if (status != SL_STATUS_OK) {
-      DEBUGOUT("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
+      DEBUGOUT("sl_si91x_usart_multiple_instance_register_event_callback: Error Code : %lu \n", status);
       break;
     }
     sl_si91x_usart_get_configurations(USART_0, &get_config);

@@ -1,6 +1,6 @@
 id: wireless_wakeup_ulp_component
 label: PM UULP Wireless Wakeup
-package: platform
+package: platform_siwx91x
 description: >
   As this is a NPSS peripheral, it also contributes to the wakeup source handler 
   if the wakeup source config component is installed. It initializes the wakeup source as per the

@@ -39,7 +39,6 @@ extern "C" {
 #include "sl_pcm_instances.h"
 #else
 #include "sl_si91x_pcm.h"
-#include "sl_"
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
@@ -55,12 +54,6 @@ extern "C" {
 //   <32=> 32 bit
 // <i> Default: 16
 #define SL_PCM0_RESOLUTION       16
-
-// <o SL_PCM0_CHANNEL> PCM0 Channel
-//   <0=> Channel 0
-//   <1=> Channel 1
-// <i> Default: 0
-#define SL_PCM0_CHANNEL          0
 
 // <o SL_PCM0_SAMPLING_RATE> PCM0 Sampling Rate
 //   <SL_PCM_SAMPLING_RATE_8000=>   8kHz

@@ -37,6 +37,7 @@
 // <h>Analog Comparator Configuration
 
 #define SL_ANALOG_COMPARATOR_COMPARATOR1 1
+#define SL_ANALOG_COMPARATOR1_PIN_INPUT  1
 
 // <o SL_ANALOG_COMPARATOR1_NON_INVERTING_INPUT> Non-inverting Input
 //   <SL_COMPARATOR_EXTERNAL_GPIO_INPUT_0=> External Input-0
@@ -77,7 +78,7 @@
 #ifndef SL_COMP1_PERIPHERAL
 #define SL_COMP1_PERIPHERAL COMP1
 #endif
-#warning "Analog Comparator peripheral is not configured. Please configure the pins according to the board connections."
+
 // COMP1 COMP_P1 on ULP_GPIO_5/GPIO_69
 #ifndef SL_COMP1_COMP_P1_PORT
 #define SL_COMP1_COMP_P1_PORT ULP
@@ -103,18 +104,15 @@
 // <<< sl:end pin_tool >>>
 
 #if (SL_ANALOG_COMPARATOR1_NON_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR1_NON_INVERTING_PIN_INPUT SL_COMP1_P1_LOC - 1
+#define SL_ANALOG_COMPARATOR1_NON_INVERTING_PIN_INPUT SL_ANALOG_COMPARATOR1_PIN_INPUT
 #endif
 #if (SL_ANALOG_COMPARATOR1_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR1_INVERTING_PIN_INPUT SL_COMP1_N1_LOC - 2
+#define SL_ANALOG_COMPARATOR1_INVERTING_PIN_INPUT SL_ANALOG_COMPARATOR1_PIN_INPUT
 #endif
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-#if (SL_ANALOG_COMPARATOR1_NON_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR1_NON_INVERTING_PIN_INPUT 2
-#endif
-#if (SL_ANALOG_COMPARATOR1_INVERTING_INPUT == SL_COMPARATOR_EXTERNAL_GPIO_INPUT_1)
-#define SL_ANALOG_COMPARATOR1_INVERTING_PIN_INPUT 3
-#endif
-#endif
+
+#warning \
+  "Analog Comparator 1 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_ANALOG_COMPARATOR_COMPARATOR1_CONFIG_H

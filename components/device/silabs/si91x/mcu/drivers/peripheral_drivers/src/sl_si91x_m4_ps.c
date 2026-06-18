@@ -79,7 +79,7 @@
 #define WIRELESS_WAKEUP_IRQHandler_Priority 8
 
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
 #define IVT_OFFSET_ADDR 0x8172000 /*<!Application IVT location VTOR offset for B0>  */
 #else
@@ -91,7 +91,7 @@
 #else
 #define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset for dual flash A0 and B0>  */
 #endif
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define WKP_RAM_USAGE_LOCATION 0x24061EFC /*<!Bootloader RAM usage location upon wake up  for B0 */
 #else
 #define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
@@ -383,6 +383,7 @@ bool sli_si91x_ta_packet_initiated_to_m4(void)
   }
   return sli_p2p_status;
 }
+#endif // #if (SL_SI91X_TICKLESS_MODE  == 1)
 /**************************************************************************
  * @fn           sli_si91x_m4_ta_wakeup_configurations(void)
  * @brief        It is essential to properly configure the NWP and M4 status registers 
@@ -398,7 +399,7 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
   //indicate M4 buffer availability to NWP
   M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   //! Unmask the P2P interrupts
   unmask_ta_interrupt(TX_PKT_TRANSFER_DONE_INTERRUPT | RX_PKT_TRANSFER_DONE_INTERRUPT | TA_WRITING_ON_COMM_FLASH
                       | NWP_DEINIT_IN_COMM_FLASH
@@ -411,5 +412,4 @@ void sli_si91x_m4_ta_wakeup_configurations(void)
   );
 #endif
 }
-#endif // #if (SL_SI91X_TICKLESS_MODE  == 1)
 #endif

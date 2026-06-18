@@ -347,6 +347,26 @@ typedef enum {
 } sl_pwm_override_value_t;
 
 /***************************************************************************/
+
+/**
+ * @brief Enumeration for PWM Interrupt Events.
+ *
+ * @details This enumeration defines the possible states for the Interrupt Events in the PWM module.
+ */
+typedef enum {
+  SL_RISE_TIME_PERIOD_MATCH_CH0 = 1,   ///< Event for 0th channel without considering postscaler
+  SL_TIME_PERIOD_MATCH_CH0      = 2,   ///< Event for 0th channel which considering postscaler
+  SL_FAULT_A                    = 4,   ///< Fault A pin Event
+  SL_FAULT_B                    = 8,   ///< Fault B pin Event
+  SL_RISE_TIME_PERIOD_MATCH_CH1 = 16,  ///< Event for 1st channel without considering postscaler
+  SL_TIME_PERIOD_MATCH_CH1      = 32,  ///< Event for 1st channel which considering postscaler
+  SL_RISE_TIME_PERIOD_MATCH_CH2 = 64,  ///< Event for 2nd channel without considering postscaler
+  SL_TIME_PERIOD_MATCH_CH2      = 128, ///< Event for 2nd channel which considering postscaler
+  SL_RISE_TIME_PERIOD_MATCH_CH3 = 256, ///< Event for 3rd channel without considering postscaler
+  SL_TIME_PERIOD_MATCH_CH3      = 512, ///< Event for 3rd channel which considering postscaler
+} sl_pwm_interrupt_event_t;
+
+/***************************************************************************/
 /**
  * @brief PWM enable external triggering.
  *

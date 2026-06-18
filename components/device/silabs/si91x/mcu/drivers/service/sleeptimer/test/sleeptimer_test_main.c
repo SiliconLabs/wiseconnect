@@ -257,17 +257,14 @@ void test_sleeptimer_is_timer_running(void)
   UnityPrintf("Testing Sleeptimer is running \n");
   sl_status_t status;
   bool is_running = false;
-
   UnityPrintf("Testing with null parameters \n");
   status = sl_sleeptimer_is_timer_running(NULL, &is_running);
   TEST_ASSERT_EQUAL_HEX(SL_STATUS_NULL_POINTER, status);
   UnityPrintf("Testing null parameter successfully \n");
-
   UnityPrintf("Testing with null parameters \n");
   status = sl_sleeptimer_is_timer_running(&test_timer, NULL);
   TEST_ASSERT_EQUAL_HEX(SL_STATUS_NULL_POINTER, status);
   UnityPrintf("Testing null parameter successfully \n");
-
   UnityPrintf("Testing with correct parameters \n");
   status = sl_sleeptimer_is_timer_running(&test_timer, &is_running);
   TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
@@ -683,6 +680,7 @@ void test_sleeptimer_restart_periodic_timer_ms(void)
 
   UnityPrintf("Sleeptimer restarts periodic timer ms test completed \n");
 }
+
 /***************************************************************************/ /**
  * Sleeptimer timeout callback.
  ******************************************************************************/

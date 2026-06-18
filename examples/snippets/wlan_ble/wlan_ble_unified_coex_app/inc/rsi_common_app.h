@@ -26,11 +26,17 @@ int32_t ble_ext_scan_enable(void);
 
 //! To enable WLAN task
 #define WLAN_TASK_ENABLE 0
-
+#define TCP_APP          1
+#define MQTT_APP         2
+#define WIFI_APP         MQTT_APP
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
 #define ENABLE_NWP_POWER_SAVE 1 //! Set to 1 for powersave mode
+
+#define BTDM_DEBUG_LOGGING  0
+#define MAX_FILE_SIZE       (10000 * 1024) // Configurable maximum file size in bytes
+#define FILE_SIZE_TOLERANCE 240            // Tolerance in bytes to avoid data loss
 
 /*=======================================================================*/
 

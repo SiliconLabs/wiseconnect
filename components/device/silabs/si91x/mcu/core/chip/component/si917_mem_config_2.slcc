@@ -1,6 +1,6 @@
 id: si91x_mem_config_2
 label: 'MEMORY_MCU_MEDIUM_WIRELESS_MEDIUM'
-package: platform
+package: platform_siwx91x
 description: >
   Provides RAM memory configuration option 2 for the Si91x, namely EXT_FEAT_416K_M4SS_256K.
   This memory split provides sufficient RAM split to enable medium feature sets on both

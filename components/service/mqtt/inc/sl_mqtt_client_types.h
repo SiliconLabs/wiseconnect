@@ -34,6 +34,7 @@
 #include "sl_net_constants.h"
 #include "sl_ip_types.h"
 #include "sl_wifi_device.h"
+#include "sl_si91x_socket_utility.h"
 
 typedef enum MQTTStatus {
   MQTTSuccess = 0,     /**< Function completed successfully. */
@@ -165,7 +166,8 @@ typedef enum {
   SL_MQTT_TLS_TLSV_1_2     = BIT(3), ///< Enable TLS version 1.2 for MQTT.
   SL_MQTT_TLS_TLSV_1_3     = BIT(4), ///< Enable TLS version 1.3 for MQTT.
   SL_MQTT_TLS_CERT_INDEX_1 = BIT(5), ///< Use certificate index 1 for MQTT.
-  SL_MQTT_TLS_CERT_INDEX_2 = BIT(6)  ///< Use certificate index 2 for MQTT.
+  SL_MQTT_TLS_CERT_INDEX_2 = BIT(6), ///< Use certificate index 2 for MQTT.
+  SL_MQTT_TLS_SNI_ENABLE   = BIT(7)  ///< Enable Server Name Indication (SNI) extension for MQTT.
 } sl_mqtt_tls_flag_t;
 
 /** @} */
@@ -215,9 +217,10 @@ typedef struct {
 /**
  * @brief 
  *   MQTT Client broker information structure.
- * 
  * @details
  *   This structure holds the information required to connect to an MQTT broker, that includes the broker's IP address, port number, connection encryption status, connection timeout, keep-alive interval, and keep-alive retries.
+ * @note 
+ *   This structure will be deprecated in a future release. Instead, use the [sl-mqtt-broker-v2-t](../wiseconnect-api-reference-guide-mqtt/sl-mqtt-broker-v2-t) structure. This structure is retained for backward compatibility.
  */
 typedef struct {
   sl_ip_address_t ip; ///< IP address of the broker.
@@ -230,6 +233,37 @@ typedef struct {
 } sl_mqtt_broker_t;
 
 /**
+ * @brief
+ *   MQTT Client broker information structure v2.
+ *
+ * @details
+ *   This structure holds the information required to connect to an MQTT broker, including:
+ *   - Broker's IP address and port
+ *   - MQTT broker hostname
+ *   - Connection encryption status
+ *   - Connection timeout, keep-alive interval, and keep-alive retries
+ *   - SNI support: enable/disable and SNI hostname
+ *
+ *   @note
+ *   - The `host_name` field is reserved for future support of MQTT broker hostname.
+ *   - The `sni_host_name` field is used for Server Name Indication (SNI) when connecting over TLS. This is required for AWS IoT and similar brokers.
+ *   - If SNI is enabled (`enable_sni` is true), `sni_host_name` must be provided and will be programmed into the firmware before connecting.
+ *   - For non-TLS connections, SNI fields are ignored.
+ */
+typedef struct {
+  sl_ip_address_t ip; ///< IP address of the broker.
+  uint8_t *host_name; ///< MQTT broker hostname (not currently supported).
+  uint16_t port;      ///< Port number of the broker.
+  bool
+    is_connection_encrypted; ///< Indicates if the connection is encrypted. This field will be deprecated in future releases. Use `tls_flags` in @ref sl_mqtt_client_configuration_t instead.
+  uint16_t connect_timeout;  ///< MQTT connection timeout in milliseconds.
+  uint16_t keep_alive_interval; ///< Keep-alive interval of the MQTT connection in seconds.
+  uint16_t keep_alive_retries;  ///< Number of MQTT ping retries.
+  bool enable_sni;              ///< Enable or disable SNI extension in MQTT.
+  uint8_t *sni_host_name;       ///< Hostname to use in SNI (required for TLS/SNI connections; e.g., AWS IoT).
+} sl_mqtt_broker_v2_t;
+
+/**
  * @brief 
  *   MQTT Client credentials structure.
  * 
@@ -240,7 +274,7 @@ typedef struct {
   uint16_t
     username_length; ///< Length of the username. It should not exceed 120 bytes which includes NULL termination character.
   uint16_t
-    password_length; ///< Length of the password. It should not exceed 60 bytes which includes NULL termination character.
+    password_length; ///< Length of the password. It should not exceed 512 bytes which includes NULL termination character.
   uint8_t data[];    ///< Flexible array to store both the username and password.
 } sl_mqtt_client_credentials_t;
 

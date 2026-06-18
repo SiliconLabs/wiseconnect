@@ -112,26 +112,26 @@ typedef enum {
   SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_9,   ///< Time delay of 16 milliseconds
   SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_10,  ///< Time delay of 32 milliseconds
   SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_11,  ///< Time delay of 64 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_12,  ///< Time delay of 128 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_13,  ///< Time delay of 256 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_14,  ///< Time delay of 512 milliseconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_15,  ///< Time delay of 1.024 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_16,  ///< Time delay of 2.048 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_17,  ///< Time delay of 4.096 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_18,  ///< Time delay of 8.192 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_19,  ///< Time delay of 16.384 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_20,  ///< Time delay of 32.768 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_21,  ///< Time delay of 65.536 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_22,  ///< Time delay of 131.072 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_23,  ///< Time delay of 262.144 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_24,  ///< Time delay of 524.288 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_25,  ///< Time delay of 1048.576 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_26,  ///< Time delay of 2097.152 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_27,  ///< Time delay of 4194.304 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_28,  ///< Time delay of 8388.608 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_29,  ///< Time delay of 16777.216 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_30,  ///< Time delay of 33554.432 seconds
-  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_31,  ///< Time delay of 67108.864 seconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_12,  ///< Time delay of 125 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_13,  ///< Time delay of 250 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_14,  ///< Time delay of 500 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_15,  ///< Time delay of 1000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_16,  ///< Time delay of 2000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_17,  ///< Time delay of 4000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_18,  ///< Time delay of 8000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_19,  ///< Time delay of 16000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_20,  ///< Time delay of 32000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_21,  ///< Time delay of 64000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_22,  ///< Time delay of 128000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_23,  ///< Time delay of 256000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_24,  ///< Time delay of 512000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_25,  ///< Time delay of 10240000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_26,  ///< Time delay of 2048000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_27,  ///< Time delay of 4096000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_28,  ///< Time delay of 8192000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_29,  ///< Time delay of 16384000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_30,  ///< Time delay of 32768000 milliseconds
+  SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_31,  ///< Time delay of 65536000 milliseconds
   SL_SI91X_WATCHDOG_MANAGER_TIMEOUT_INDEX_MAX, ///< Maximum value for time delay validation
 } sl_watchdog_manager_wdog_timeout_t;
 
@@ -263,7 +263,9 @@ void sl_watchdog_enable_wdt_in_sleep(void);
  * - Detects and recovers from processor hangs.
  * - Provides mechanisms to handle planned and unplanned reboots.
  * - Ensures system reliability and stability by managing state transitions effectively.
- *
+ * 
+ * @note When the RC clock is used as the source for the LF-FSM, the timeout durations may vary due to the inherent frequency instability of the RC oscillator.
+ * 
  * @} (end addtogroup WDT-MANAGER)
  *******************************************************************************/
 #ifdef __cplusplus

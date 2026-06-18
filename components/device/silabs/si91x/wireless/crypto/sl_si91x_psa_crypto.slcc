@@ -1,5 +1,5 @@
 id: sl_si91x_psa_crypto
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Common utility folder for PSA crypto APIs
 label: PSA Crypto - Utility

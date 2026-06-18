@@ -41,6 +41,7 @@
 #include "rsi_m4.h"
 #include "sl_si91x_types.h"
 #include "sl_rsi_utility.h"
+#include "sl_si91x_m4_ps.h"
 #endif
 #ifdef SL_SI91X_POWER_MANAGER_UC_AVAILABLE
 #include "sl_si91x_power_manager_wakeup_handler.h"
@@ -76,7 +77,7 @@
 #define DIVISION_FACTOR          0          // Division Factor for clock
 #define PMU_WAIT_TIME            15         // Max PMU turn on wait time
 #define LDO_WAIT_TIME            15         // Max LDO turn on wait time
-#define PMU_GOOD_TIME            0x34       // 900us PMU good time duration
+#define PMU_GOOD_TIME            0x34       // PMU good time duration
 #define XTAL_GOOD_TIME           31         // XTAL good duration count
 #define VALID_M4SS_PERIPHERAL    0x466A10   // Valid bits for M4SS peripheral
 #define VALID_ULPSS_PERIPHERAL   0x1FEC0000 // Valid bits for ULPSS peripheral
@@ -109,6 +110,19 @@
 #define RAM_192_KB              192 // Validation for 192 KB RAM
 #define RAM_256_KB              256 // Validation for 256 KB RAM
 #define RAM_320_KB              320 // Validation for 320 KB RAM
+
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+// MBR magic word for flash initialization
+#ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
+#define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x8160000))
+#else
+#define MBR_MAGIC_WORD (*(volatile uint32_t *)(0x81F0000))
+#endif
+
+#define NVIC_ISER_INDEX_FOR_IRQ74 (2U)  // NVIC->ISER[2] covers IRQs 64�95
+#define NVIC_ISER_BIT_FOR_IRQ74   (10U) // Bit 10 corresponds to IRQ #74
+#define NVIC_ISER_MASK_FOR_IRQ74  BIT(NVIC_ISER_BIT_FOR_IRQ74)
+#endif
 
 /*******************************************************************************
  ***************************  Local Types  ********************************
@@ -148,7 +162,7 @@ typedef struct {
 } power_state_transition_t;
 
 typedef struct {
-  uint8_t from_ps;                                   // From the power state it transits
+  sl_power_state_t from_ps;                          // From the power state it transits
   power_state_transition_t to_ps[NO_OF_TRANSITIONS]; // All possible transition states
 } power_state_struct_t;
 
@@ -521,14 +535,22 @@ static void ps4_to_ps2_state_change(void)
 {
   // Low power hardware configuration to switch off the components which are not required.
   sli_si91x_power_manager_low_power_hw_config(false);
-
   // Change to 20MHz-RC to be used as Processor Clock in PS2 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS2,
                                                    sl_si91x_power_manager_get_clock_scaling());
-
-  // Disable 40MHZ clock in case PS2
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1) \
+  && (SLI_SI91X_MCU_COMMON_FLASH_MODE == 1)
+  // Turn off XTAL
+  sli_si91x_xtal_turn_off_request_from_m4_to_TA();
+  // Reset M4_USING_FLASH bit
+  M4SS_P2P_INTR_CLR_REG = M4_USING_FLASH;
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP
+  MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
+  MCUAON_CONTROL_REG4;
+#else
+  // Disable 40MHZ clock in case PS2 to PS4
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
-
+#endif
   // Switching from PS4 to PS2 state
   RSI_PS_PowerStateChangePs4toPs2(ULP_MCU_MODE,
                                   PWR_MUX_SEL_ULPSSRAM_SCDC_0_9,
@@ -606,14 +628,22 @@ static void ps3_to_ps2_state_change(void)
 {
   // Low power hardware configuration to switch off the components which are not required.
   sli_si91x_power_manager_low_power_hw_config(false);
-
   // Change to 20MHz-RC to be used as Processor Clock in PS2 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS2,
                                                    sl_si91x_power_manager_get_clock_scaling());
-
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1) \
+  && (SLI_SI91X_MCU_COMMON_FLASH_MODE == 1)
+  // Turn off XTAL
+  sli_si91x_xtal_turn_off_request_from_m4_to_TA();
+  // Reset M4_USING_FLASH bit
+  M4SS_P2P_INTR_CLR_REG = M4_USING_FLASH;
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctr, AON domain power supply controls from M4 to NWP
+  MCUAON_CONTROL_REG4 |= (MCU_TASS_REF_CLK_SEL_MUX_CTRL);
+  MCUAON_CONTROL_REG4;
+#else
   // Disable 40MHz clock in case PS2
   RSI_ULPSS_DisableRefClks(MCU_ULP_40MHZ_CLK_EN);
-
+#endif
   // Switching from PS3 to PS2 state
   RSI_PS_PowerStateChangePs4toPs2(ULP_MCU_MODE,
                                   PWR_MUX_SEL_ULPSSRAM_SCDC_0_9,
@@ -669,12 +699,41 @@ static void ps3_to_ps0_state_change(void)
 static void ps2_to_ps4_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
+#if !(SLI_WIRELESS_COMPONENT_PRESENT)
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+#endif
+  //Disable the NVIC interrupts.
+  __asm volatile("cpsid i" ::: "memory");
+  __asm volatile("dsb");
+  __asm volatile("isb");
   // To initialize the flash
   initialize_flash();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1) \
+  && (SLI_SI91X_MCU_COMMON_FLASH_MODE == 1)
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls from NWP to M4
+  RSI_Set_Cntrls_To_M4();
+  // Poll for flash magic word
+  while (MBR_MAGIC_WORD != 0x5A5A)
+    ;
+#endif
+  // Configuring the clocks as per the PS4 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS4,
                                                    sl_si91x_power_manager_get_clock_scaling());
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  // Clear M4 wakeup NWP bit
+  sl_si91x_host_clear_sleep_indicator();
+  // Enable the P2P interrupt IRQ
+  NVIC_SetPriority(TASS_P2P_IRQn, TASS_P2P_INTR_PRI);
+  if (!NVIC_GetEnableIRQ(TASS_P2P_IRQn)) {
+    // Set the P2P interrupt priority
+    NVIC_EnableIRQ(TASS_P2P_IRQn);
+  }
+  // Configure the NWP and M4 status registers to ensure the system resumes normal operation.
+  sli_si91x_m4_ta_wakeup_configurations();
+#endif
+  // Enable the NVIC interrupts.
+  __asm volatile("cpsie i" ::: "memory");
 }
 
 /*******************************************************************************
@@ -684,12 +743,41 @@ static void ps2_to_ps4_state_change(void)
 static void ps2_to_ps3_state_change(void)
 {
   ps_power_state_change_ps2_to_Ps4(PMU_WAIT_TIME, LDO_WAIT_TIME);
+#if !(SLI_WIRELESS_COMPONENT_PRESENT)
   // Enable 40MHz XTAL clock
   RSI_ULPSS_EnableRefClks(MCU_ULP_40MHZ_CLK_EN, ULP_PERIPHERAL_CLK, 0);
+#endif
+  //Disable the NVIC interrupts.
+  __asm volatile("cpsid i" ::: "memory");
+  __asm volatile("dsb");
+  __asm volatile("isb");
   // To initialize the flash
   initialize_flash();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1) \
+  && (SLI_SI91X_MCU_COMMON_FLASH_MODE == 1)
+  // Set m4ss_ref_clk_mux_ctrl ,tass_ref_clk_mux_ctrl ,AON domain power supply controls from NWP to M4
+  RSI_Set_Cntrls_To_M4();
+  // Poll for flash magic word
+  while (MBR_MAGIC_WORD != 0x5A5A)
+    ;
+#endif
+  // Configuring the clocks as per the PS3 state
   sli_si91x_clock_manager_config_clks_on_ps_change(SL_SI91X_POWER_MANAGER_PS3,
                                                    sl_si91x_power_manager_get_clock_scaling());
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
+  // Clear M4 wakeup NWP bit
+  sl_si91x_host_clear_sleep_indicator();
+  // Enable the P2P interrupt IRQ
+  NVIC_SetPriority(TASS_P2P_IRQn, TASS_P2P_INTR_PRI);
+  if (!NVIC_GetEnableIRQ(TASS_P2P_IRQn)) {
+    // Set the P2P interrupt priority
+    NVIC_EnableIRQ(TASS_P2P_IRQn);
+  }
+  // Configure the NWP and M4 status registers to ensure the system resumes normal operation.
+  sli_si91x_m4_ta_wakeup_configurations();
+#endif
+  // Enable the NVIC interrupts.
+  __asm volatile("cpsie i" ::: "memory");
 }
 
 /*******************************************************************************
@@ -849,11 +937,10 @@ static void initialize_flash(void)
   RSI_FLASH_Initialize();
 #endif
 
-#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1)
-  sli_m4_ta_interrupt_init();
-  //Indicate rx buffer valid
-  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-  sl_si91x_host_clear_sleep_indicator();
+#if defined(SLI_WIRELESS_COMPONENT_PRESENT) && (SLI_WIRELESS_COMPONENT_PRESENT == 1) \
+  && (defined SLI_SI91X_MCU_COMMON_FLASH_MODE)
+  // Indicate M4 is using flash
+  M4SS_P2P_INTR_SET_REG = M4_USING_FLASH;
 #endif
 }
 

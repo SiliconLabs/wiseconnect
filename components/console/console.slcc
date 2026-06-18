@@ -1,5 +1,5 @@
 id: console
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Provides a console (command line interpreter or CLI) service
 label: Console

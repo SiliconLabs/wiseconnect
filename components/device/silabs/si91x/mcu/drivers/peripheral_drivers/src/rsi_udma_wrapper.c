@@ -68,7 +68,7 @@ RSI_UDMA_HANDLE_T uDMAx_Initialize(const UDMA_RESOURCES *udma,
   RSI_UDMA_INIT_T udmaInit1 = { 0 };
 
   if (udma->reg == UDMA0) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);

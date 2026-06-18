@@ -1,5 +1,5 @@
 id: sl_si91x_crypto_multithread
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the thread-safe mechanism in crypto hardware accelerators
 label: CRYPTO MULTITHREAD

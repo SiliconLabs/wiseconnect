@@ -1,5 +1,5 @@
 id: sl_si91x_crypto
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Common folder for crypto APIs
 label: Crypto - Common

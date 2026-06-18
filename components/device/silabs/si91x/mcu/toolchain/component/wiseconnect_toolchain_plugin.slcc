@@ -1,6 +1,6 @@
 id: wiseconnect_toolchain_plugin
 label: GCC Toolchain Support
-package: platform
+package: platform_siwx91x
 description: >
   Toolchain support for GCC in Wiseconnect.
   Selecting this component will also include the GCC Toolchain component.

@@ -41,6 +41,7 @@
 #include "hub_hal_intf.h"
 #include "sl_status.h"
 #include "sensors_config.h"
+#include "base_types.h"
 #include "sensorhub_error_codes.h"
 #include "sl_si91x_gpio.h"
 #include "sl_si91x_peripheral_gpio.h"
@@ -487,7 +488,7 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id);
 void sl_si91x_em_post_event(sl_sensor_id_t sensor_id,
                             sl_sensorhub_event_t event,
                             void *dataPtr,
-                            TickType_t ticks_to_wait);
+                            TickType_t ticks_to_wait) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief Task to handle the sensor operations
@@ -499,7 +500,7 @@ void sl_si91x_em_post_event(sl_sensor_id_t sensor_id,
 * - Check the events and post the sensor data to the EM task based on the sensor data delivery mode.
 *
 ******************************************************************************/
-void sl_si91x_sensor_task(void);
+void sl_si91x_sensor_task(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief Task to handle the system power operations
@@ -508,7 +509,7 @@ void sl_si91x_sensor_task(void);
 * Power state task changes the system from one power save mode to another power save mode like(PS4 to PS2),(PS2toPS4),(Sleep_mode) using Binary semaphore.
 *
 ******************************************************************************/
-void sl_si91x_power_state_task(void);
+void sl_si91x_power_state_task(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief Task to handle the operations of the Event Manager (EM).
@@ -519,7 +520,7 @@ void sl_si91x_power_state_task(void);
 * - Calls the callback event.
 *
 ******************************************************************************/
-void sl_si91x_em_task(void);
+void sl_si91x_em_task(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To initialize the I2C interface based on configuration.
@@ -530,7 +531,7 @@ void sl_si91x_em_task(void);
 * @return I2C Initializtion status
 *
 ******************************************************************************/
-int32_t sli_si91x_i2c_init(void);
+int32_t sli_si91x_i2c_init(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To initialize SPI Interface based on configuration.
@@ -541,7 +542,7 @@ int32_t sli_si91x_i2c_init(void);
 * @return SPI Initializtion status.
 *
 ******************************************************************************/
-int32_t sli_si91x_spi_init(void);
+int32_t sli_si91x_spi_init(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To scan the I2C sensors.
@@ -553,7 +554,7 @@ int32_t sli_si91x_spi_init(void);
 * @return Status 0 if successful; otherwise, it will wait for the sensor response.
 *
 ******************************************************************************/
-int32_t sli_si91x_i2c_sensors_scan(uint16_t address);
+int32_t sli_si91x_i2c_sensors_scan(uint16_t address) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To get sensor implementation.
@@ -566,7 +567,7 @@ int32_t sli_si91x_i2c_sensors_scan(uint16_t address);
 *         returns NULL.
 *
 ******************************************************************************/
-sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id);
+sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To create sensor list index.
@@ -578,7 +579,7 @@ sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id);
 * @return  Returns the sensor index in sensor_list.
 *
 ******************************************************************************/
-int32_t sli_si91x_create_sensor_list_index();
+int32_t sli_si91x_create_sensor_list_index() SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To get sensor index for the sensor list.
@@ -593,7 +594,7 @@ int32_t sli_si91x_create_sensor_list_index();
 *         Otherwise, it returns - SL_SH_SENSOR_INDEX_NOT_FOUND.
 *
 ******************************************************************************/
-uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id);
+uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To delete the sensor index for the sensor list.
@@ -607,7 +608,7 @@ uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id);
 *         Otherwise, it returns error code - SL_SH_SENSOR_INDEX_NOT_FOUND.
 *
 ******************************************************************************/
-uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id);
+uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To get sensor info from the sensor configuration structure.
@@ -622,7 +623,7 @@ uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id);
 *         Otherwise, it returns NULL.
 *
 ******************************************************************************/
-sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id);
+sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To register callback function to the application.
@@ -650,7 +651,7 @@ sl_status_t sl_si91x_sensorhub_notify_cb_register(sl_sensor_signalEvent_t cb_eve
 * @param[in] xTimer   -   Timer handle.
 *
 ******************************************************************************/
-void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer);
+void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To configuring different types of NPSS GPIO interrupts in the Sensor HUB.
@@ -666,7 +667,8 @@ void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer);
 * 
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type);
+sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type)
+  SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To enable and set the priority of NPSS GPIO interrupt.
@@ -678,7 +680,7 @@ sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_inte
 * @param[in] gpio_pin   -   NPSS GPIO pin number.
 *
 ******************************************************************************/
-void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin);
+void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To mask and disable the NPSS GPIO interrupt.
@@ -689,7 +691,7 @@ void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin);
 * @param[in] gpio_pin   -   NPSS GPIO pin number.
 *
 ******************************************************************************/
-void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin);
+void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To start the sensor hub tasks.
@@ -716,7 +718,7 @@ sl_status_t sl_si91x_sensor_hub_start(void);
 * @param[in] interval   -   interval time
 *
 ******************************************************************************/
-void sli_si91x_set_alarm_intr_time(uint16_t interval);
+void sli_si91x_set_alarm_intr_time(uint16_t interval) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To initialize the Alarm block.
@@ -726,7 +728,7 @@ void sli_si91x_set_alarm_intr_time(uint16_t interval);
 *
 *
 ******************************************************************************/
-void sli_si91x_init_m4alarm_config(void);
+void sli_si91x_init_m4alarm_config(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To configure wake-up source for the system.
@@ -737,7 +739,7 @@ void sli_si91x_init_m4alarm_config(void);
 * @param[in] sleep_time  -   Sleep time for the sensor hub.
 *
 ******************************************************************************/
-void sli_si91x_config_wakeup_source(uint16_t sleep_time);
+void sli_si91x_config_wakeup_source(uint16_t sleep_time) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To configures sleep/wakeup sources for the system.
@@ -749,9 +751,9 @@ void sli_si91x_config_wakeup_source(uint16_t sleep_time);
 *
 ******************************************************************************/
 #ifdef SL_SH_PS1_STATE
-void sli_si91x_sleep_wakeup(void);
+void sli_si91x_sleep_wakeup(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 #else
-void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time);
+void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time) SL_DEPRECATED_API_WISECONNECT_4_0;
 #endif
 /***************************************************************************/ /**
 * @brief To change the system status from PS4 to PS2.
@@ -760,7 +762,7 @@ void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time);
 * This function will change the system status from PS4 to PS2.
 *
 ******************************************************************************/
-void sli_si91x_sensorhub_ps4tops2_state(void);
+void sli_si91x_sensorhub_ps4tops2_state(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To change the system status from PS2 to PS4.
@@ -769,7 +771,7 @@ void sli_si91x_sensorhub_ps4tops2_state(void);
 * This function will change the system status from PS2 to PS4.
 *
 ******************************************************************************/
-void sli_si91x_sensorhub_ps2tops4_state(void);
+void sli_si91x_sensorhub_ps2tops4_state(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To initialize ADC Interface based on configuration.
@@ -783,7 +785,7 @@ void sli_si91x_sensorhub_ps2tops4_state(void);
 *
 * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
 ******************************************************************************/
-sl_status_t sli_si91x_adc_init(void);
+sl_status_t sli_si91x_adc_init(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /***************************************************************************/ /**
 * @brief To initialize and configure systic timer for the RTOS.
@@ -819,7 +821,7 @@ sl_adc_cfg_t *sl_si91x_fetch_adc_bus_intf_info(void);
  *                         ADC_THRSHOLD_CALLBACK, INTERNAL_DMA, FIFO_MODE_EVENT).
  */
 /**************************************************************************/
-void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event);
+void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /**************************************************************************/ /**
  *  @brief       To initialize sdc Interface based on the configuration.
@@ -830,7 +832,7 @@ void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event);
  * 
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ***************************************************************************/
-sl_status_t sli_si91x_sdc_init(void);
+sl_status_t sli_si91x_sdc_init(void) SL_DEPRECATED_API_WISECONNECT_4_0;
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /**************************************************************************/ /**
@@ -841,7 +843,7 @@ sl_status_t sli_si91x_sdc_init(void);
  *               - SL_STATUS_FAIL - Fail.
  *               - SL_STATUS_OK  - Success.
 *******************************************************************************/
-void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p);
+void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p) SL_DEPRECATED_API_WISECONNECT_4_0;
 /** @endcond */
 #endif
 

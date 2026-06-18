@@ -51,16 +51,24 @@ typedef enum {
   SL_MDNS_PROTO_UDP      ///< Run mDNS using UDP.
 } sl_mdns_protocol_t;
 
+/// mDNS service query types.
+typedef enum sl_mdns_query_type {
+  SL_MDNS_QUERY_TYPE_A    = 1,  ///< IPv4 address record
+  SL_MDNS_QUERY_TYPE_PTR  = 12, ///< Pointer record
+  SL_MDNS_QUERY_TYPE_TXT  = 16, ///< Text record
+  SL_MDNS_QUERY_TYPE_AAAA = 28, ///< IPv6 address record
+  SL_MDNS_QUERY_TYPE_SRV  = 33, ///< Service locator record
+  SL_MDNS_QUERY_TYPE_ANY  = 255 ///< Wildcard for any record type
+} sl_mdns_query_type_t;
+
 /******************************************************
  *                   Type Definitions
  ******************************************************/
 /// mDNS service query
 typedef struct {
-  const char *instance_name;    ///< mDNS instance service name
-  const char *service_type;     ///< mDNS service type
-  const char *service_sub_type; ///< mDNS service sub type
-  sl_net_interface_t interface; ///< Target interface
-  uint16_t timeout;             ///< Time out for query
+  const char *service_type;        ///< mDNS instance service name
+  sl_mdns_query_type_t query_type; ///< mDNS query type
+  uint32_t timeout;                ///< Time out for query
 } sl_mdns_service_query_t;
 
 /// mDNS service
@@ -77,14 +85,6 @@ typedef struct {
   sl_ipv6_address_t
     ipv6; ///< IPv6 address of service. (In case of offload mode, it is provided by embedded network stack.)
 } sl_mdns_service_t;
-
-/// mDNS service discovery request
-typedef struct {
-  char *service_name; ///< Target service name for discovery
-  sl_net_interface_t
-    interface; ///< Interface on which to discover the service from [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t).
-  uint16_t timeout; ///< timeout for the discovery
-} sl_mdns_discover_request_t;
 
 /// MDNS instance configuration
 typedef struct {
@@ -124,6 +124,36 @@ struct sl_mdns_s {
     interface_list; ///< Pointer to interface list of type [sl_wifi_buffer_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-buffer-t).
   uint8_t service_count; ///< Count of the total number of services being registered on all interfaces.
 };
+
+/**
+ * @brief Represents the result of an mDNS query.
+ *
+ * This structure contains details about the discovered mDNS service,
+ * including instance name, service type, protocol, hostname, port,
+ * TXT records, IP addresses, and TTL.
+ */
+typedef struct sl_mdns_response_s {
+  uint16_t query_type; ///< Type of mDNS query (e.g., PTR, SRV, A, AAAA, ANY)
+
+  const char *instance_name; ///< Name of the service instance (e.g., "My Web Server")
+  const char *service_type;  ///< Service type string (e.g., "_http")
+  const char *proto;         ///< Protocol string (e.g., "_tcp")
+  const char *hostname;      ///< Hostname of the device offering the service
+
+  uint16_t port; ///< Port number where the service is running
+
+  struct {
+    const char **txt;   ///< Array of TXT record strings in "key=value" format
+    uint32_t txt_count; ///< Number of TXT records
+  } txt;                ///< TXT records associated with the service
+
+  struct {
+    sl_ip_address_t *addr; ///< Array of IP addresses (IPv4 or IPv6)
+    uint32_t addr_count;   ///< Number of IP addresses
+  } addr;                  ///< IP addresses associated with the service
+
+  uint32_t ttl; ///< Time-to-live for the DNS record (in seconds)
+} sl_mdns_response_t;
 
 /**
  * @brief
@@ -207,13 +237,59 @@ sl_status_t sl_mdns_update_service_message(const sl_mdns_t *mdns,
 
 /**
  * @brief
- * Discover services using mDNS instance. (Currently not supported.)
- * @param[in] mdns          mDNS instance handle of type @ref sl_mdns_t
- * @param[in] service_query Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t . This value cannot be null.
+ * Initiates mDNS service discovery on the specified network interface.
+ * This is an asynchronous API. Discovery results are delivered via the registered mDNS event callback.
+ *
+ * @details
+ * The discovery process queries for a specific DNS record type using the provided service query.
+ * The query type determines the nature of the response:
+ * - `SL_MDNS_QUERY_TYPE_PTR`  → Returns service instance name, service type, and protocol.
+ * - `SL_MDNS_QUERY_TYPE_SRV`  → Returns target hostname and port for a given instance name.
+ * - `SL_MDNS_QUERY_TYPE_A`    → Returns IPv4 address for a given hostname.
+ * - `SL_MDNS_QUERY_TYPE_AAAA` → Returns IPv6 address for a given hostname.
+ * - `SL_MDNS_QUERY_TYPE_TXT`  → Returns metadata (key-value pairs) for a given service instance.
+ * - `SL_MDNS_QUERY_TYPE_ANY`  → Returns all available record types. For broad discovery, use service type `_services._dns-sd._udp.local.` to enumerate available services via PTR records.
+ *
+ * @note
+ * - For `SRV`, `A`, `AAAA`, and `TXT` queries, the `service_type` field must be set to the **instance name** or **hostname** as appropriate.
+ * - For `PTR` queries, `service_type` must be set to the **service type**, e.g., `_http._tcp.local.`.
+ * - Minimum timeout value must be greater than 250 ms.
+ * - Internal stop handler is triggered automatically after 5 seconds of inactivity.
+ * - `sl_mdns_register_service()` must be called before initiating discovery.
+ * - mDNS works best with the DTIM-based power save method. Performance issues may be observed with the listen interval-based power save method due to multicast packet loss.
+ *
+ * @param[in] mdns           mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] interface      Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t).
+ * @param[in] service_query  Valid pointer to mDNS service query structure of type @ref sl_mdns_service_query_t. Cannot be NULL.
+ *
  * @return
- *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ * Returns `SL_STATUS_IN_PROGRESS` if the discovery request was successfully initiated,
+ * or an appropriate error code from [sl_status_t](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *
+ * @note
+ * Discovery results are received asynchronously via the registered mDNS event handler.
  */
-sl_status_t sl_mdns_discover_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query);
+sl_status_t sl_mdns_service_discovery_start(const sl_mdns_t *mdns,
+                                            sl_net_interface_t interface,
+                                            const sl_mdns_service_query_t *service_query);
+
+/**
+ * @brief
+ * Stops an ongoing mDNS service discovery operation on the specified network interface.
+ * This is a synchronous API and is used to explicitly terminate the discovery process from the host side.
+ *
+ * @details
+ * This function halts any active discovery initiated via @ref sl_mdns_service_discovery_start.
+ * It is typically used when the application no longer requires discovery results or wants to cancel the operation early.
+ *
+ * @param[in] mdns           mDNS instance handle of type @ref sl_mdns_t.
+ * @param[in] interface      Network interface of type [sl_net_interface_t](../wiseconnect-api-reference-guide-nwk-mgmt/sl-net-constants#sl-net-interface-t) on which discovery was started.
+ *
+ * @return
+ * Returns `SL_STATUS_OK` if the discovery was successfully stopped,
+ * or an appropriate error code from [sl_status_t](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ */
+sl_status_t sl_mdns_service_discovery_stop(const sl_mdns_t *mdns, const sl_net_interface_t interface);
 
 /** @} */
 

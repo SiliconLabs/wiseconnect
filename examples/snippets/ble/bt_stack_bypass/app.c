@@ -51,10 +51,7 @@
 #include "sl_si91x_hal_soc_soft_reset.h"
 #include "sl_si91x_driver.h"
 #include "sl_si91x_clock_manager.h"
-#ifdef FW_LOGGING_ENABLE
-//! Firmware logging includes
-#include "sl_fw_logging.h"
-#endif
+#include "USART.h"
 
 #define UART_READING_HCI_PKT_TYPE    0
 #define UART_READING_HCI_OPCODE      1
@@ -72,27 +69,9 @@
 #define INTF_PLL_CLK ((uint32_t)(80000000)) // 80MHz default Interface PLL Clock as source to UART
 #define SOC_PLL_CLK  ((uint32_t)(80000000)) // 80MHz default SoC PLL Clock as source to Processor
 
-#ifdef FW_LOGGING_ENABLE
-//! Memory length of driver updated for firmware logging
-#define BT_GLOBAL_BUFF_LEN (15000 + (FW_LOG_QUEUE_SIZE * MAX_FW_LOG_MSG_LEN))
-//! Memory length for driver
-#define BT_GLOBAL_BUFF_LEN 15000
-#endif
+//static uint8_t uart_data_in[BUFFER_SIZE];
+sl_usart_handle_t uart_handle;
 
-#ifdef FW_LOGGING_ENABLE
-/*=======================================================================*/
-//!    Firmware logging configurations
-/*=======================================================================*/
-//! Firmware logging task defines
-#define RSI_FW_TASK_STACK_SIZE (512 * 2)
-#define RSI_FW_TASK_PRIORITY   2
-//! Firmware logging variables
-extern rsi_semaphore_handle_t fw_log_app_sem;
-rsi_task_handle_t fw_log_task_handle = NULL;
-//! Firmware logging prototypes
-void sl_fw_log_callback(uint8_t *log_message, uint16_t log_message_length);
-void sl_fw_log_task(void);
-#endif
 /*=======================================================================*/
 //!    Powersave configurations
 /*=======================================================================*/
@@ -155,7 +134,7 @@ static ARM_DRIVER_USART *USARTdrv = &Driver_USART0;
 
 ARM_USART_CAPABILITIES drv_capabilities;
 
-ARM_USART_STATUS status;
+sl_status_t status;
 
 static uint32_t ble_app_event_map;
 static uint8_t uart_rx_in_progress;
@@ -174,7 +153,7 @@ uint8_t pkt_len       = 0;
 uint16_t cmd_length   = 0;
 uint8_t dummy_tx      = 0;
 rsi_data_packet_t rsi_data_packet;
-void ARM_USART_SignalEvent(uint32_t event);
+void uart_callback_event(uint32_t event);
 static const sl_wifi_device_configuration_t config = {
   .boot_option = LOAD_NWP_FW,
   .mac_address = NULL,
@@ -183,7 +162,7 @@ static const sl_wifi_device_configuration_t config = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
+                   .feature_bit_map = (SL_WIFI_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
                    .feature_bit_map            = RSI_FEATURE_BIT_MAP,
 #endif
@@ -192,9 +171,9 @@ static const sl_wifi_device_configuration_t config = {
 #else
                    .tcp_ip_feature_bit_map     = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
 #endif
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
+                     (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | MEMORY_CONFIG | SL_SI91X_EXT_FEAT_XTAL_CLK
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
                       | SL_SI91X_EXT_FEAT_BT_CUSTOM_FEAT_ENABLE),
                    .bt_feature_bit_map = (RSI_BT_FEATURE_BITMAP),
@@ -243,7 +222,7 @@ static const sl_wifi_device_configuration_t config = {
                       | SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
 #endif
                         ),
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP
                                               | RSI_CONFIG_FEATURE_BITMAP) }
 };
 
@@ -258,11 +237,6 @@ const osThreadAttr_t thread_attributes = {
   .tz_module  = 0,
   .reserved   = 0,
 };
-
-void Read_Capabilities(void)
-{
-  drv_capabilities = USARTdrv->GetCapabilities();
-}
 
 void rsi_ble_app_init_events()
 {
@@ -393,16 +367,28 @@ void read_user_packet(void)
   switch (uart_rx_state) {
     case UART_READING_HCI_PKT_TYPE: {
       pkt_len++;
-      USARTdrv->Receive(&rx_buffer[1], 2);
+      status = sl_si91x_usart_receive_data(uart_handle, &rx_buffer[1], 2);
+      if (status != SL_STATUS_OK) {
+        // If it fails to execute the API, it will not execute rest of the things
+        DEBUGOUT("sl_si91x_uart_receive_data: Error Code : %lu \n", status);
+      }
       uart_rx_state = UART_READING_HCI_OPCODE;
     } break;
     case UART_READING_HCI_OPCODE: {
       pkt_len += 2;
       if (rx_buffer[0] == HCI_COMMAND_PKT) {
-        USARTdrv->Receive(&cmd_length, 1);
+        status = sl_si91x_usart_receive_data(uart_handle, &cmd_length, 1);
+        if (status != SL_STATUS_OK) {
+          // If it fails to execute the API, it will not execute rest of the things
+          DEBUGOUT("sl_si91x_uart_receive_data: Error Code : %lu \n", status);
+        }
         uart_rx_state = UART_READING_HCI_LEN;
       } else {
-        USARTdrv->Receive(&cmd_length, 2);
+        status = sl_si91x_usart_receive_data(uart_handle, &cmd_length, 2);
+        if (status != SL_STATUS_OK) {
+          // If it fails to execute the API, it will not execute rest of the things
+          DEBUGOUT("sl_si91x_uart_receive_data: Error Code : %lu \n", status);
+        }
         uart_rx_state = UART_READING_HCI_LEN;
       }
     } break;
@@ -421,7 +407,11 @@ void read_user_packet(void)
           rsi_ble_app_set_event(RSI_APP_EVENT_UART);
         }
       } else {
-        USARTdrv->Receive(&rx_buffer[pkt_len], cmd_length);
+        status = sl_si91x_usart_receive_data(uart_handle, &rx_buffer[pkt_len], cmd_length);
+        if (status != SL_STATUS_OK) {
+          // If it fails to execute the API, it will not execute rest of the things
+          DEBUGOUT("sl_si91x_uart_receive_data: Error Code : %lu \n", status);
+        }
         uart_rx_state = UART_RECEIVING_ACTUAL_PACKET;
       }
     } break;
@@ -433,7 +423,7 @@ void read_user_packet(void)
   }
 }
 
-void ARM_USART_SignalEvent(uint32_t event)
+void uart_callback_event(uint32_t event)
 {
   // Mask to get only the usart events,
   // bits 30-31 gives the instance from which this event occurred
@@ -495,64 +485,39 @@ static void rsi_data_tx_send()
   rsi_bt_driver_send_cmd(RSI_BLE_REQ_HCI_RAW, &rsi_data_packet, NULL);
 }
 
-// Function to configure clock on powerup
-static void core_and_pll_clock_update(void)
-{
-  // Core Clock runs at 80MHz SOC PLL Clock
-  sl_si91x_clock_manager_m4_set_core_clk(M4_SOCPLLCLK, SOC_PLL_CLK);
-
-  // All peripherals' source to be set to Interface PLL Clock
-  // and it runs at 80MHz
-  sl_si91x_clock_manager_set_pll_freq(INTF_PLL, INTF_PLL_CLK, PLL_REF_CLK_VAL_XTAL);
-}
-
 /*******************************************************************************
  * USART Example Initialization function
  ******************************************************************************/
 int32_t rsi_ble_app_init_uart(void)
 {
   int32_t status = 0;
-  // Configures the system default clock and power configurations
-  SystemCoreClockUpdate();
-
-  core_and_pll_clock_update();
-
-  // Read capabilities of UART
-  Read_Capabilities();
-
-  // Initialized board UART
-  DEBUGINIT();
-
-  // Initialize UART(Enable Clock)
-  status = USARTdrv->Initialize(ARM_USART_SignalEvent);
-  if (status != ARM_DRIVER_OK) {
-    return status;
-  }
-
-  // Power up the UART peripheral
-  status = USARTdrv->PowerControl(ARM_POWER_FULL);
-  if (status != ARM_DRIVER_OK) {
-    return status;
-  }
-
-  // Enable Receiver and Transmitter lines
-  status = USARTdrv->Control(ARM_USART_CONTROL_TX, 1);
-  if (status != ARM_DRIVER_OK) {
-    return status;
-  }
-
-  status = USARTdrv->Control(ARM_USART_CONTROL_RX, 1);
-  if (status != ARM_DRIVER_OK) {
-    return status;
-  }
-
-  // Configure the UART to 256000 Bits/sec
-  status = USARTdrv->Control(ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 | ARM_USART_PARITY_NONE
-                               | ARM_USART_STOP_BITS_1 | ARM_USART_FLOW_CONTROL_NONE,
-                             BAUD_VALUE);
-  if (status != ARM_DRIVER_OK) {
-    return status;
-  }
+  sl_si91x_usart_control_config_t uart_config;
+  sl_si91x_usart_control_config_t get_config;
+  do {
+    // Initialize the UART
+    status = sl_si91x_usart_init(USART_0, &uart_handle);
+    if (status != SL_STATUS_OK) {
+      printf("sl_si91x_usart_initialize: Error Code : %lu \n", status);
+      break;
+    }
+    printf("UART initialization is successful \n");
+    // Configure the UART configurations
+    status = sl_si91x_usart_set_configuration(uart_handle, &uart_config);
+    if (status != SL_STATUS_OK) {
+      printf("sl_si91x_usart_set_configuration: Error Code : %lu \n", status);
+      break;
+    }
+    printf("UART configuration is successful \n");
+    // Register user callback function
+    status = sl_si91x_usart_multiple_instance_register_event_callback(USART_0, uart_callback_event);
+    if (status != SL_STATUS_OK) {
+      printf("sl_si91x_usart_register_event_callback: Error Code : %lu \n", status);
+      break;
+    }
+    printf("UART user event callback registered successfully \n");
+    sl_si91x_usart_get_configurations(USART_0, &get_config);
+    printf("Baud Rate = %ld \n", get_config.baudrate);
+  } while (false);
   return status;
 }
 
@@ -569,17 +534,21 @@ void rsi_ble_hci_raw_task(void *argument)
   DEBUGOUT("\n Reset reason : 0x%ld \n", reg_read);
   if (reg_read & BIT(5)) {
     //! If we are sending response immediately for hci reset command remote device not able to understand it. So adding the delay.
-    USARTdrv->Send(tx_buf_dummy, (tx_buf_dummy[2] + 3));
+    status = sl_si91x_usart_send_data(uart_handle, tx_buf_dummy, (tx_buf_dummy[2] + 3));
+    if (status != SL_STATUS_OK) {
+      // If it fails to execute the API, it will not execute rest of the things
+      DEBUGOUT("sl_si91x_uart_send_data: Error Code : %lu \n", status);
+    }
+    status = sl_si91x_usart_receive_data(uart_handle, rx_buffer, sizeof(rx_buffer));
+    if (status != SL_STATUS_OK) {
+      // If it fails to execute the API, it will not execute rest of the things
+      DEBUGOUT("sl_si91x_uart_receive_data: Error Code : %lu \n", status);
+    }
     /* clearing bit(5) in MCU_STORAGE_REG2 */
     *(volatile uint32_t *)(0x24048138) &= ~BIT(5);
     uart_rx_in_progress = 1;
     dummy_tx            = 1;
   }
-#endif
-
-#ifdef FW_LOGGING_ENABLE
-  //Fw log component level
-  sl_fw_log_level_t fw_component_log_level;
 #endif
 
   status = sl_wifi_init(&config, NULL, sl_wifi_default_event_handler);
@@ -590,29 +559,6 @@ void rsi_ble_hci_raw_task(void *argument)
     LOG_PRINT("\r\n Wi-Fi Initialization Successful\n");
   }
 
-#ifdef FW_LOGGING_ENABLE
-  //! Set log levels for firmware components
-  sl_set_fw_component_log_levels(&fw_component_log_level);
-
-  //! Configure firmware logging
-  status = sl_fw_log_configure(FW_LOG_ENABLE,
-                               FW_TSF_GRANULARITY_US,
-                               &fw_component_log_level,
-                               FW_LOG_BUFFER_SIZE,
-                               sl_fw_log_callback);
-  if (status != RSI_SUCCESS) {
-    LOG_PRINT("\r\n Firmware Logging Init Failed\r\n");
-  }
-  //! Create firmware logging semaphore
-  rsi_semaphore_create(&fw_log_app_sem, 0);
-  //! Create firmware logging task
-  rsi_task_create((rsi_task_function_t)sl_fw_log_task,
-                  (uint8_t *)"fw_log_task",
-                  RSI_FW_TASK_STACK_SIZE,
-                  NULL,
-                  RSI_FW_TASK_PRIORITY,
-                  &fw_log_task_handle);
-#endif
 #if RSI_SET_REGION_SUPPORT && !SL_SI91X_ACX_MODULE
   status = sl_si91x_set_device_region(0, 0, 4);
   if (status != RSI_SUCCESS) {
@@ -632,8 +578,9 @@ void rsi_ble_hci_raw_task(void *argument)
   rsi_ble_app_init_events();
 
   // Receives data
-  status = USARTdrv->Receive(&rx_buffer[0], 1);
-  if (status != ARM_DRIVER_OK) {
+  status = sl_si91x_usart_receive_data(uart_handle, &rx_buffer[0], 1);
+  if (status != SL_STATUS_OK) {
+    // If it fails to execute the API, it will not execute rest of the things
     return;
   }
   while (1) {
@@ -657,7 +604,13 @@ void rsi_ble_hci_raw_task(void *argument)
         if ((rx_queue->pkt_cnt) && (uart_rx_in_progress == 0)) {
           rx_uart_pkt_t *rx_pkt = rx_queue->head;
           if (rx_pkt != NULL) {
-            USARTdrv->Send(rx_pkt->tx_buf, (rx_pkt->cmd_len + 1));
+            status = sl_si91x_usart_send_data(uart_handle, rx_pkt->tx_buf, (rx_pkt->cmd_len + 1));
+            if (status != SL_STATUS_OK) {
+              // If it fails to execute the API, it will not execute rest of the things
+              DEBUGOUT("sl_si91x_uart_send_data: Error Code : %lu \n", status);
+            } else {
+              DEBUGOUT("sl_si91x_uart_send_data success\n");
+            }
             uart_rx_in_progress = 1;
           }
         }
@@ -668,8 +621,8 @@ void rsi_ble_hci_raw_task(void *argument)
     if (uart_tx_done == 1) {
       uart_tx_done = 0;
       // Receives data
-      status = USARTdrv->Receive(&rx_buffer[0], 1);
-      if (status != ARM_DRIVER_OK) {
+      status = sl_si91x_usart_receive_data(uart_handle, &rx_buffer[0], 1);
+      if (status != SL_STATUS_OK) {
         return;
       }
     }
@@ -679,9 +632,8 @@ void rsi_ble_hci_raw_task(void *argument)
 /***************************************************************************/ /**
  * Initialize application.
  ******************************************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   rsi_ble_app_init_uart();
   osThreadNew((osThreadFunc_t)rsi_ble_hci_raw_task, NULL, &thread_attributes);
 }

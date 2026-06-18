@@ -66,4 +66,7 @@
 #define AWS_IOT_MQTT_MAX_RECONNECT_WAIT_INTERVAL \
   128000 ///< Maximum time interval after which exponential back-off will stop attempting to reconnect.
 
+#define AWS_IOT_MAX_RETRANSMISSION_TIMEOUT \
+  128 ///< Maximum retransmission timeout in seconds (must be power of 2, max value is 128)
+
 #define DISABLE_METRICS false ///< Disable the collection of metrics by setting this to true

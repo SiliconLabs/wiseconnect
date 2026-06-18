@@ -1,6 +1,6 @@
 id: sl_efuse
 label: Efuse
-package: platform
+package: platform_siwx91x
 description: >
   The EFUSE (Electrically programmable fuses) driver has one-time programmable memory, which is used to store configuration or data in integrated circuits. 
   These efuses employ 32-bit addressing, with each address being eight bits.

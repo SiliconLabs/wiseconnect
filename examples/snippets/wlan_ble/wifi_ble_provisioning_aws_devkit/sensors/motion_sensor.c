@@ -25,16 +25,9 @@
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
 
-#define SSI_MASTER_DIVISION_FACTOR         0         // Division Factor
-#define SSI_MASTER_INTF_PLL_CLK            180000000 // PLL Clock frequency
-#define SSI_MASTER_INTF_PLL_REF_CLK        40000000  // PLL Ref Clock frequency
-#define SSI_MASTER_SOC_PLL_CLK             20000000  // SOC PLL Clock frequency
-#define SSI_MASTER_SOC_PLL_REF_CLK         40000000  // SOC PLL REFERENCE CLOCK frequency
-#define SSI_MASTER_INTF_PLL_500_CTRL_VALUE 0xD900    // Interface PLL control value
-#define SSI_MASTER_SOC_PLL_MM_COUNT_LIMIT  0xA4      // SOC PLL count limit
-#define SSI_MASTER_BIT_WIDTH               8         // SSI bit width
-#define SSI_MASTER_BAUDRATE                10000000  // SSI baudrate
-#define SSI_MASTER_RECEIVE_SAMPLE_DELAY    0         // By default sample delay is 0
+#define SSI_MASTER_BIT_WIDTH            8        // SSI bit width
+#define SSI_MASTER_BAUDRATE             10000000 // SSI baudrate
+#define SSI_MASTER_RECEIVE_SAMPLE_DELAY 0        // By default sample delay is 0
 
 /*******************************************************************************
  ******************************  Data Types  ***********************************
@@ -49,7 +42,6 @@ static uint32_t ssi_slave_number = SSI_SLAVE_0;
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 
-static sl_status_t ssi_master_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config);
 static void ssi_master_callback_event_handler(uint32_t event);
 
 /*******************************************************************************
@@ -63,7 +55,6 @@ void motion_sensor_init(void)
 {
   sl_status_t sl_status;
   sl_status_t status;
-  sl_ssi_clock_config_t ssi_clock_config;
   uint8_t dev_id;
   // Configuring the user configuration structure
   sl_ssi_control_config_t ssi_master_config;
@@ -102,17 +93,6 @@ void motion_sensor_init(void)
     }
   }
 #endif
-  // Clock Config for the SSI driver
-  sl_status = ssi_master_init_clock_configuration_structure(&ssi_clock_config);
-  if (sl_status != SL_STATUS_OK) {
-    printf("SSI Clock get Configuration Failed, Error Code : %lu \r\n", sl_status);
-    return;
-  }
-  sl_status = sl_si91x_ssi_configure_clock(&ssi_clock_config);
-  if (sl_status != SL_STATUS_OK) {
-    printf("SSI Clock Configuration Failed, Error Code : %lu \r\n", sl_status);
-    return;
-  }
   // Initialize the SSI driver
   sl_status = sl_si91x_ssi_init(ssi_master_config.device_mode, &ssi_driver_handle);
   if (sl_status != SL_STATUS_OK) {
@@ -205,29 +185,6 @@ static void ssi_master_callback_event_handler(uint32_t event)
       // indicates Master Mode Fault.
       break;
   }
-}
-/*******************************************************************************
- * To set the values in the SSI Master clock config structure
- *
- * @param[in] clock config structure
- * @return    SL_STATUS_OK if set was fine, SL_STATUS_NULL_POINTER if NULL ptr
- *            passed in.
- * *
-*******************************************************************************/
-static sl_status_t ssi_master_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config)
-{
-  if (clock_config == NULL) {
-    return SL_STATUS_NULL_POINTER;
-  }
-
-  clock_config->soc_pll_mm_count_value     = SSI_MASTER_SOC_PLL_MM_COUNT_LIMIT;
-  clock_config->intf_pll_500_control_value = SSI_MASTER_INTF_PLL_500_CTRL_VALUE;
-  clock_config->intf_pll_clock             = SSI_MASTER_INTF_PLL_CLK;
-  clock_config->intf_pll_reference_clock   = SSI_MASTER_INTF_PLL_REF_CLK;
-  clock_config->soc_pll_clock              = SSI_MASTER_SOC_PLL_CLK;
-  clock_config->soc_pll_reference_clock    = SSI_MASTER_SOC_PLL_REF_CLK;
-  clock_config->division_factor            = SSI_MASTER_DIVISION_FACTOR;
-  return SL_STATUS_OK;
 }
 
 //deinit accel,gyro,temp

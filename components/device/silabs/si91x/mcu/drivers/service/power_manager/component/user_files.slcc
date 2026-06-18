@@ -1,6 +1,6 @@
 id: user_files
 label: User Files
-package: platform
+package: platform_siwx91x
 description: >
   Install this component to enable execution of User Files which are added in this component from RAM
 category: Device|Si91x|MCU|Service|Power Manager|ULP Peripheral
@@ -19,5 +19,5 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: user_files_ps2
-    value: power_manager_example.o
+    value: power_manager_example.*
 

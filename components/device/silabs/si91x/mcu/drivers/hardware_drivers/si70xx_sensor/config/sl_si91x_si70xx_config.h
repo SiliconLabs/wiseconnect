@@ -56,11 +56,7 @@ extern "C" {
 //   <SL_I2C0=>  I2C0
 //   <SL_I2C1=>  I2C1
 //   <SL_ULP_I2C=>  I2C2 (ULP_I2C)
-#ifdef SLI_SI915
-#define SL_SI70XX_CONFIG_I2C_INSTANCE SL_I2C0
-#else
 #define SL_SI70XX_CONFIG_I2C_INSTANCE SL_ULP_I2C
-#endif
 // </h>
 
 // <<< end of configuration section >>>

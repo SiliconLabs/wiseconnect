@@ -74,6 +74,7 @@ extern "C" {
 // $[I2S_ULP_SL_ULP_I2S]
 #ifndef SL_ULP_I2S_PERIPHERAL
 #define SL_ULP_I2S_PERIPHERAL ULP_I2S
+#define ULP_I2S               I2S1
 #endif
 
 // ULP_I2S SCLK on ULP_GPIO_7/GPIO_71

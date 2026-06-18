@@ -127,7 +127,7 @@ int32_t I2Cx_Initialize(ARM_I2C_SignalEvent_t cb_event, I2C_RESOURCES *i2c)
 {
   // Pin muxing
   if (i2c->reg == I2C0) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI1);
@@ -170,7 +170,7 @@ int32_t I2Cx_Initialize(ARM_I2C_SignalEvent_t cb_event, I2C_RESOURCES *i2c)
     }
   }
   if (i2c->reg == I2C1) {
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_EFUSE_PERI);
 #else
     RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_PERI3);

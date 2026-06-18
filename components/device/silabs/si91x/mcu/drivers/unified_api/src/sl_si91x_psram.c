@@ -951,7 +951,7 @@ sl_psram_return_type_t sl_si91x_psram_init()
   rsi_error_t clkStatus               = RSI_FAIL;
   uint8_t pinIndex                    = 0;
   uint16_t clkDivFactor               = 0;
-#ifdef D_CACHE_ENABLE
+#if (SL_SI91X_D_CACHE_ENABLE == 1)
   uint32_t dCacheInitStatus = 0;
 #endif
 
@@ -1065,12 +1065,14 @@ sl_psram_return_type_t sl_si91x_psram_init()
   }
 
   /*D-cache Initialization*/
-#ifdef D_CACHE_ENABLE
+#if (SL_SI91X_D_CACHE_ENABLE == 1)
   DCACHE_REG_CTRL |= 0x3;
   dCacheInitStatus = DCACHE_REG_MAINT_STATUS;
   while (dCacheInitStatus != 0x101) {
     dCacheInitStatus = DCACHE_REG_MAINT_STATUS;
   }
+  /*Disable HPORT allocation signal*/
+  DCACHE_CTRL_AND_STATUS &= ~(HPORT_ALLOCATE_SIGNAL);
 #endif
 
   return PSRAM_Status;
@@ -1092,7 +1094,7 @@ sl_psram_return_type_t sl_si91x_psram_uninit(void)
   RSI_QSPI_SpiInit((qspi_reg_t *)M4_QSPI_2_BASE_ADDRESS, (spi_config_t *)&spi_psram_default_config, 0, 0, 0);
 
   /*disable cache*/
-#ifdef D_CACHE_ENABLE
+#if (SL_SI91X_D_CACHE_ENABLE == 1)
   DCACHE_REG_CTRL &= 0xFFFFFFFE;
   while ((DCACHE_REG_MAINT_STATUS & 0x3) != 0x0)
     ;

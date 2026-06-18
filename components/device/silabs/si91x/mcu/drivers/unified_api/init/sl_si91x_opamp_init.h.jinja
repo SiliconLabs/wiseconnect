@@ -25,6 +25,7 @@ extern "C" {
 #include "sl_si91x_opamp.h"
 // Include instance config {# Include instance config #}
 {% for inst in opamp_instances %}
+
 #include "sl_si91x_opamp_{{ inst }}_config.h"
 extern sl_opamp_pin_config_t sl_{{ inst }}_pin_config;
 extern sl_opamp_config_t sl_{{ inst }}_feature;

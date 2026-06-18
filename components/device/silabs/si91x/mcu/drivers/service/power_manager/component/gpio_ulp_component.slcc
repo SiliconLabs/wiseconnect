@@ -1,6 +1,6 @@
 id: gpio_ulp_component
 label: PM ULP GPIO
-package: platform
+package: platform_siwx91x
 description: >
   ULP GPIO component will enable execution of GPIO in the low power state.
   It moves all the peripheral dependencies to RAM. 
@@ -23,7 +23,7 @@ template_contribution:
     condition:
       - pm_ps2_component  
   - name: gpio_ps2
-    value: sl_si91x_peripheral_gpio.o
+    value: sl_si91x_peripheral_gpio.*
   - name: wakeup
     value: 
       event: wakeup_init
@@ -33,6 +33,6 @@ template_contribution:
       include:
         name: sl_si91x_driver_gpio.h
   - name: gpio_ps2
-    value: rsi_egpio.o  
+    value: rsi_egpio.*
   - name: gpio_ps2
-    value: sl_si91x_driver_gpio.o 
+    value: sl_si91x_driver_gpio.* 

@@ -1,6 +1,6 @@
 id: sl_ulp_timer
 label: ULP Timer
-package: platform
+package: platform_siwx91x
 description: >
   ULP Timer will works in ultra low power mode and is designed to consume very little power in comparison
   to regular timers. It allows a microcontroller to generate interrupt periodically or one time depending 

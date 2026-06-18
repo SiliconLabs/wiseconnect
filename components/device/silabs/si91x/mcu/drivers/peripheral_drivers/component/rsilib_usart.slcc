@@ -1,6 +1,6 @@
 id: rsilib_usart
 label: USART
-package: platform
+package: platform_siwx91x
 description: >
   Universal Synchronous and Asynchronous Receiver-Transmitter Peripheral API's
 category: Device|Si91x|MCU|Internal|RSI Peripheral Drivers

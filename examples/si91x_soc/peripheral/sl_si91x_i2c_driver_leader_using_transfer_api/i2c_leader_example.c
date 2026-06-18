@@ -19,15 +19,11 @@
 #include "sl_i2c_instances.h"
 #include "sl_si91x_i2c.h"
 #include "sl_si91x_peripheral_i2c.h"
+#include "sl_component_catalog.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define INSTANCE_ZERO 0 // For instance I2C0
-#define INSTANCE_ONE  1 // For instance I2C1
-#define INSTANCE_TWO  2 // For ULP-I2C instance (instance 2)
-#define I2C_INSTANCE_USED \
-  INSTANCE_TWO // Update this macro with i2c instance number used for application, INSTANCE_ZERO for instance 0, INSTANCE_ONE for instance 1 and INSTANCE_TWO for ulp instance (instance 2).
 #define FOLLOWER_I2C_ADDR        0x50  // I2C follower address
 #define MAX_BUFFER_SIZE_BLOCKING 80000 // Maximum buffer size for RX and TX length when transferring without DMA
 #define I2C_BUFFER_SIZE          1024  // Size of data buffer
@@ -47,7 +43,7 @@ typedef enum {
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
-sl_i2c_instance_t i2c_instance = I2C_INSTANCE_USED;
+sl_i2c_instance_t i2c_instance;
 static uint8_t i2c_read_buffer[I2C_BUFFER_SIZE];
 static uint8_t i2c_write_buffer[I2C_BUFFER_SIZE];
 static i2c_action_enum_t current_mode   = I2C_TRANSFER_DATA;
@@ -70,14 +66,18 @@ void i2c_leader_example_init(void)
 {
   sl_i2c_status_t i2c_status;
 
-  // Update structure name as per instance used
-#if (I2C_INSTANCE_USED == INSTANCE_ZERO)
+  // Update structure name as per instance used, to register I2C callback
+#if defined(SL_CATALOG_I2C_I2C0_PRESENT)
   sl_i2c_config = sl_i2c_i2c0_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_ONE)
+  i2c_instance  = SL_I2C0;
+#elif defined(SL_CATALOG_I2C_I2C1_PRESENT)
   sl_i2c_config = sl_i2c_i2c1_config;
-#elif (I2C_INSTANCE_USED == INSTANCE_TWO)
+  i2c_instance  = SL_I2C1;
+#elif defined(SL_CATALOG_I2C_I2C2_PRESENT)
   sl_i2c_config = sl_i2c_i2c2_config;
+  i2c_instance  = SL_ULP_I2C;
 #endif
+
   // Initializing I2C instance (update i2c config-strucure name as per instance used)
   i2c_status = sl_i2c_driver_init(i2c_instance, &sl_i2c_config);
   if (i2c_status != SL_I2C_SUCCESS) {

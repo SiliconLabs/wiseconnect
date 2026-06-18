@@ -1,5 +1,5 @@
 id: sl_si91x_lwip_stack
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The LwIP network stack component enables the LwIP network stack on the host MCU.
 
@@ -18,6 +18,6 @@ define:
 
 requires:
   - name: sl_si91x_wireless
-  - name: lwip_port_freertos
-  - name: lwip_api
-  - name: lwip_netif_ethernet
+  - name: netstack_silabs_lwip_port_freertos
+  - name: netstack_silabs_lwip_api
+  - name: netstack_silabs_lwip_netif_ethernet

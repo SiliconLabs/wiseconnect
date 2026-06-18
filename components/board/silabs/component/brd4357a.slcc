@@ -1,7 +1,7 @@
 !!omap
 - id: brd4357a
 - label: BRD4357A
-- package: platform
+- package: platform_siwx91x
 - description: Board support for BRD4357A.
 - category: Board|Radio Board
 - quality: production

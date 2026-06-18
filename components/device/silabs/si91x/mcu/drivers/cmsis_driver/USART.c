@@ -33,6 +33,7 @@
 #include "USART.h"
 #include "clock_update.h"
 #include "rsi_usart.h"
+#include "rsi_ulpss_clk.h"
 #if (SLI_SI91X_MCU_RS485_MODE== 1)
 #include "sl_si91x_driver_gpio.h"
 #ifdef UART1_RS485_MODE
@@ -161,69 +162,75 @@ static USART_DMA USART0_UDMA_RX_CHNL = {
 		USART0_UDMA_Rx_Event
 };
 #endif
-//Resources structure
-static  USART_RESOURCES USART0_Resources = {
-
-		{                   // Capabilities
-				1,              // supports UART(Asynchronous) mode
-				1,              // supports Synchronous Master mode
-				1,              // supports Synchronous Slave mode
-				1,              // supports UART Single-wire mode
-				1,              // supports UART IrDA mode(SIR_MODE)
-				0,              // supports UART Smart Card mode
-				0,              // Smart Card Clock generator
-				1,             // RTS Flow Control available
-				1,             // CTS Flow Control available
-				1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
-				1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
-				1,              // RTS Line: 0=not available, 1=available.
-				1,              // CTS Line: 0=not available, 1=available.
-				1,              // DTR Line: 0=not available, 1=available.
-				1,              // DSR Line: 0=not available, 1=available.
-				1,              // DCD Line: 0=not available, 1=available.
-				1,              // RI Line: 0=not available, 1=available.
-				1,              // Signal CTS change event(optional)
-				1,              // Signal DSR change event(optional)
-				1,              // event_dcd(Signal DCD change event)
-				1,              // Signal RI change event
-		},                  // Capabilities end
-#if(RTE_USART_MODE)
-		USART0,             // USART ADDRESS
+// Resources structure
+static USART_RESOURCES USART0_Resources = {
+  {             // Capabilities
+    1,          // supports UART(Asynchronous) mode
+    1,          // supports Synchronous Master mode
+    1,          // supports Synchronous Slave mode
+    1,          // supports UART Single-wire mode
+    1,          // supports UART IrDA mode(SIR_MODE)
+    0,          // supports UART Smart Card mode
+    0,          // Smart Card Clock generator
+    1,          // RTS Flow Control available
+    1,          // CTS Flow Control available
+    1,          // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
+    1,          // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+    1,          // RTS Line: 0=not available, 1=available.
+    1,          // CTS Line: 0=not available, 1=available.
+    1,          // DTR Line: 0=not available, 1=available.
+    1,          // DSR Line: 0=not available, 1=available.
+    1,          // DCD Line: 0=not available, 1=available.
+    1,          // RI Line: 0=not available, 1=available.
+    1,          // Signal CTS change event(optional)
+    1,          // Signal DSR change event(optional)
+    1,          // event_dcd(Signal DCD change event)
+    1,          // Signal RI change event
+  },            // Capabilities end
+#if(SL_USART0_SYNC_MODE_EN)
+  USART0,       // USART ADDRESS
 #else
-		UART0,              // UART ADDRESS
+  UART0,        // UART ADDRESS
 #endif
-		USART0_IRQn,        // IRQn
+  USART0_IRQn,  // IRQn
 #if defined(RTE_USART0_CHNL_UDMA_TX_EN) && (RTE_USART0_CHNL_UDMA_TX_EN == 1)
-		&USART0_UDMA_TX_CHNL,
+  &USART0_UDMA_TX_CHNL,
 #else
-		NULL,
+  NULL,
 #endif
 #if defined(RTE_USART0_CHNL_UDMA_RX_EN) && (RTE_USART0_CHNL_UDMA_RX_EN == 1)
-		&USART0_UDMA_RX_CHNL,
+  &USART0_UDMA_RX_CHNL,
 #else
-		NULL,
+  NULL,
 #endif
-		&USART0_Info ,
-		{
-		//pins
-		&usart0_clock,
-		&usart0_tx,
-		&usart0_rx,
-		&usart0_cts,
-		&usart0_rts,
-		&usart0_ir_tx,
-		&usart0_ir_rx ,
-		},
-		{  //clocks
-				RTE_USART0_CLK_SRC,
-				ULP_UART_REF_CLK,
-				RTE_USART0_CLK_DIV_FACT,
-				RTE_USART0_FRAC_DIV_SEL , 
-		} , //clocks end
-		{  //sync mode
-				RTE_USART_MODE,
-				RTE_CONTINUOUS_CLOCK_MODE,
-		}, //sync mode end
+  &USART0_Info ,
+  {             // Pins
+    &usart0_clock,
+    &usart0_tx,
+    &usart0_rx,
+    &usart0_cts,
+    &usart0_rts,
+    &usart0_ir_tx,
+    &usart0_ir_rx,
+  },
+  {             // Clocks
+#ifdef USART_MODULE
+    SL_USART0_CLOCK_SRC,
+#else
+    USART_ULPREFCLK,
+#endif
+    ULP_UART_REF_CLK,
+    RTE_USART0_CLK_DIV_FACT,
+    RTE_USART0_FRAC_DIV_SEL,
+  },            // Clocks end
+  {             // Sync mode
+#ifdef USART_MODULE
+  SL_USART0_SYNC_MODE_EN,
+#else
+  0,
+#endif
+  RTE_CONTINUOUS_CLOCK_MODE,
+  },            // Sync mode end
 };
 
 #endif
@@ -241,103 +248,103 @@ static  USART_PIN uart1_rts    = { RTE_UART1_RTS_PORT ,RTE_UART1_RTS_PIN ,RTE_UA
 void UART1_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 
 static USART_DMA UART1_UDMA_TX_CHNL = {
-		{
-				UDMA_MODE_BASIC,
-				0,
-				(RTE_UART1_DMA_TX_LEN_PER_DES-1),
-				ARBSIZE_1,
-				0x0,
-				0x0,
-				SRC_SIZE_8,
-				SRC_INC_8,
-				DST_SIZE_8,
-				DST_INC_NONE
-		},
-		RTE_UART1_CHNL_UDMA_TX_CH,
-		UART1_UDMA_Tx_Event
+  {
+    UDMA_MODE_BASIC,
+    0,
+    (RTE_UART1_DMA_TX_LEN_PER_DES-1),
+    ARBSIZE_1,
+    0x0,
+    0x0,
+    SRC_SIZE_8,
+    SRC_INC_8,
+    DST_SIZE_8,
+    DST_INC_NONE
+  },
+  RTE_UART1_CHNL_UDMA_TX_CH,
+  UART1_UDMA_Tx_Event
 };
 #endif
 #if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
 void UART1_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA UART1_UDMA_RX_CHNL = {
-		{
-				UDMA_MODE_BASIC,
-				0,
-				(RTE_UART1_DMA_RX_LEN_PER_DES-1),
-				ARBSIZE_1,
-				0x0,
-				0x0,
-				SRC_SIZE_8,
-				SRC_INC_NONE,
-				DST_SIZE_8,
-				DST_INC_8
-		},
-		RTE_UART1_CHNL_UDMA_RX_CH,
-		UART1_UDMA_Rx_Event
+  {
+    UDMA_MODE_BASIC,
+    0,
+    (RTE_UART1_DMA_RX_LEN_PER_DES-1),
+    ARBSIZE_1,
+    0x0,
+    0x0,
+    SRC_SIZE_8,
+    SRC_INC_NONE,
+    DST_SIZE_8,
+    DST_INC_8
+  },
+  RTE_UART1_CHNL_UDMA_RX_CH,
+  UART1_UDMA_Rx_Event
 };
 #endif
 
-//Resources structure
-static  USART_RESOURCES UART1_Resources = {
-
-		{                  // Capabilities
-				1,             // supports UART(Asynchronous) mode
-				0,             // synchronous_master (not supported)
-				0,             // synchronous_slave (not supported)
-				1,             // supports UART Single-wire mode
-				0,             // IRDA(SIR_MODE) mode (not supported)
-				0,             // smart_card (not supported)
-				0,             // smart_card_clock (not supported)
-				1,             // CTS Flow Control available
-				1,             // RTS Flow Control available
-				1,             // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
-				1,             // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
-				1,             // RTS Line: 0=not available, 1=available.
-				1,             // CTS Line: 0=not available, 1=available.
-				0,             // DTR Line: 0=not available, 1=available.
-				0,             // DSR Line: 0=not available, 1=available.
-				0,             // DCD Line: 0=not available, 1=available.
-				0,             // RI Line: 0=not available, 1=available.
-				0,             // Signal CTS change event(optional)
-				0,             // Signal DSR change event(optional)
-				0,             // event_dcd(Signal DCD change event)
-				0,             // Signal RI change event
-		},                 // Capabilities end
-
-		UART1,             // ADDRESS
-		UART1_IRQn,       // IRQn
+// Resources structure
+static USART_RESOURCES UART1_Resources = {
+  {             // Capabilities
+    1,          // supports UART(Asynchronous) mode
+    0,          // synchronous_master (not supported)
+    0,          // synchronous_slave (not supported)
+    1,          // supports UART Single-wire mode
+    0,          // IRDA(SIR_MODE) mode (not supported)
+    0,          // smart_card (not supported)
+    0,          // smart_card_clock (not supported)
+    1,          // CTS Flow Control available
+    1,          // RTS Flow Control available
+    1,          // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
+    1,          // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+    1,          // RTS Line: 0=not available, 1=available.
+    1,          // CTS Line: 0=not available, 1=available.
+    0,          // DTR Line: 0=not available, 1=available.
+    0,          // DSR Line: 0=not available, 1=available.
+    0,          // DCD Line: 0=not available, 1=available.
+    0,          // RI Line: 0=not available, 1=available.
+    0,          // Signal CTS change event(optional)
+    0,          // Signal DSR change event(optional)
+    0,          // event_dcd(Signal DCD change event)
+    0,          // Signal RI change event
+  },            // Capabilities end
+  UART1,        // ADDRESS
+  UART1_IRQn,   // IRQn
 #if defined(RTE_UART1_CHNL_UDMA_TX_EN) && (RTE_UART1_CHNL_UDMA_TX_EN == 1)
-		&UART1_UDMA_TX_CHNL,
+  &UART1_UDMA_TX_CHNL,
 #else
-		NULL,
+  NULL,
 #endif
 #if defined(RTE_UART1_CHNL_UDMA_RX_EN) && (RTE_UART1_CHNL_UDMA_RX_EN == 1)
-		&UART1_UDMA_RX_CHNL,
+  &UART1_UDMA_RX_CHNL,
 #else
-		NULL,
+  NULL,
 #endif
-		&UART1_Info,
-		{
-		NULL,
-		&uart1_tx,
-		&uart1_rx,
-		&uart1_cts,
-		&uart1_rts,
-		NULL,
-		NULL,
-		},
-
-		{  //clocks
-				RTE_UART1_CLK_SRC,
-				ULP_UART_REF_CLK,
-				RTE_UART1_CLK_DIV_FACT,
-				RTE_UART1_FRAC_DIV_SEL , 
-		} ,
-
-		{  //sync mode
-				0,
-				0,
-		},     
+  &UART1_Info,
+  {             // Pins
+    NULL,
+    &uart1_tx,
+    &uart1_rx,
+    &uart1_cts,
+    &uart1_rts,
+    NULL,
+    NULL,
+  },
+  {             // Clocks
+#ifdef UART_MODULE
+    SL_UART1_CLOCK_SRC,
+#else
+    USART_ULPREFCLK,
+#endif
+    ULP_UART_REF_CLK,
+    RTE_UART1_CLK_DIV_FACT,
+    RTE_UART1_FRAC_DIV_SEL, 
+  },
+  {  // Sync mode
+    0,
+    0,
+  },     
 };
 
 #endif
@@ -355,113 +362,113 @@ static  USART_PIN ulp_uart_rts    = { RTE_ULP_UART_RTS_PORT ,RTE_ULP_UART_RTS_PI
 #if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
 void ULPUART_UDMA_Tx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA ULPUART_UDMA_TX_CHNL = {
-		{
-				UDMA_MODE_BASIC,
-				0,
-				(RTE_ULP_UART_DMA_TX_LEN_PER_DES-1),
-				ARBSIZE_1,
-				0x0,
-				0x0,
-				SRC_SIZE_8,
-				SRC_INC_8,
-				DST_SIZE_8,
-				DST_INC_NONE
-		},
-		RTE_ULPUART_CHNL_UDMA_TX_CH,
-		ULPUART_UDMA_Tx_Event
+  {
+    UDMA_MODE_BASIC,
+    0,
+    (RTE_ULP_UART_DMA_TX_LEN_PER_DES-1),
+    ARBSIZE_1,
+    0x0,
+    0x0,
+    SRC_SIZE_8,
+    SRC_INC_8,
+    DST_SIZE_8,
+    DST_INC_NONE
+  },
+  RTE_ULPUART_CHNL_UDMA_TX_CH,
+  ULPUART_UDMA_Tx_Event
 };
 #endif
 #if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
 void ULPUART_UDMA_Rx_Event (uint32_t event ,uint32_t dmaCh);
 static USART_DMA ULPUART_UDMA_RX_CHNL = {
-		{
-				UDMA_MODE_BASIC,
-				0,
-				(RTE_ULP_UART_DMA_RX_LEN_PER_DES-1),
-				ARBSIZE_1,
-				0x0,
-				0x0,
-				SRC_SIZE_8,
-				SRC_INC_NONE,
-				DST_SIZE_8,
-				DST_INC_8
-		},
-		RTE_ULPUART_CHNL_UDMA_RX_CH,
-		ULPUART_UDMA_Rx_Event
+  {
+    UDMA_MODE_BASIC,
+    0,
+    (RTE_ULP_UART_DMA_RX_LEN_PER_DES-1),
+    ARBSIZE_1,
+    0x0,
+    0x0,
+    SRC_SIZE_8,
+    SRC_INC_NONE,
+    DST_SIZE_8,
+    DST_INC_8
+  },
+  RTE_ULPUART_CHNL_UDMA_RX_CH,
+  ULPUART_UDMA_Rx_Event
 };
 #endif
 
 // Resources structure
-static  USART_RESOURCES ULP_UART_Resources = {
-
-		{                   // Capabilities
-				1,              // supports UART(Asynchronous) mode
-				0,              // synchronous_master (Not supported)
-				0,              // synchronous_slave  (Not supported)
-				1,              // single_wire
-				0,              // IRDA               (Not supported)
-				0,              // smart_card         (Not supported)
-				0,              // smart_card_clock   (Not supported)
-		 #ifdef  USART_ROMDRIVER_PRESENT		
-				0,              // RTS Flow Control available
-				0,              // CTS Flow Control available
-		 #else	
-		        1,              // RTS Flow Control available
-		        1,              // CTS Flow Control available
-		 #endif			
-				1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
-				1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
-		 #ifdef  USART_ROMDRIVER_PRESENT		
-				0,              // RTS Line: 0=not available, 1=available.
-				0,              // CTS Line: 0=not available, 1=available.
-		 #else
-		        1,              // RTS Line: 0=not available, 1=available.
-		        1,              // CTS Line: 0=not available, 1=available.		 
-		 #endif
-				0,              // DTR Line: 0=not available, 1=available.
-				0,              // DSR Line: 0=not available, 1=available.
-				0,              // DCD Line: 0=not available, 1=available.
-				0,              // RI Line: 0=not available, 1=available.
-				0,              // Signal CTS change event(optional)
-				0,              // Signal DSR change event(optional)
-				0,              // event_dcd(Signal DCD change event)
-				0,              // Signal RI change event
-		},                  // Capabilities end
-
-		ULP_UART,           // ADDRESS
-		ULPSS_UART_IRQn,    // IRQn
-#if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
-		&ULPUART_UDMA_TX_CHNL,
+static USART_RESOURCES ULP_UART_Resources = {
+  {                 // Capabilities
+    1,              // supports UART(Asynchronous) mode
+    0,              // synchronous_master (Not supported)
+    0,              // synchronous_slave  (Not supported)
+    1,              // single_wire
+    0,              // IRDA               (Not supported)
+    0,              // smart_card         (Not supported)
+    0,              // smart_card_clock   (Not supported)
+#ifdef  USART_ROMDRIVER_PRESENT		
+    0,              // RTS Flow Control available
+    0,              // CTS Flow Control available
+#else	
+    1,              // RTS Flow Control available
+    1,              // CTS Flow Control available
+#endif			
+    1,              // Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
+    1,              // Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+#ifdef  USART_ROMDRIVER_PRESENT		
+    0,              // RTS Line: 0=not available, 1=available.
+    0,              // CTS Line: 0=not available, 1=available.
 #else
-		NULL,
+    1,              // RTS Line: 0=not available, 1=available.
+    1,              // CTS Line: 0=not available, 1=available.		 
+#endif
+    0,              // DTR Line: 0=not available, 1=available.
+    0,              // DSR Line: 0=not available, 1=available.
+    0,              // DCD Line: 0=not available, 1=available.
+    0,              // RI Line: 0=not available, 1=available.
+    0,              // Signal CTS change event(optional)
+    0,              // Signal DSR change event(optional)
+    0,              // event_dcd(Signal DCD change event)
+    0,              // Signal RI change event
+  },                // Capabilities end
+  ULP_UART,         // ADDRESS
+  ULPSS_UART_IRQn,  // IRQn
+#if defined(RTE_ULPUART_CHNL_UDMA_TX_EN) && (RTE_ULPUART_CHNL_UDMA_TX_EN == 1)
+  &ULPUART_UDMA_TX_CHNL,
+#else
+  NULL,
 #endif
 #if defined(RTE_ULPUART_CHNL_UDMA_RX_EN) && (RTE_ULPUART_CHNL_UDMA_RX_EN == 1)
-		&ULPUART_UDMA_RX_CHNL,
+  &ULPUART_UDMA_RX_CHNL,
 #else
-		NULL,
+  NULL,
 #endif
-		&ULP_UART_Info,
-		
-		{
-		NULL ,//pins
-		&ulp_uart_tx,
-		&ulp_uart_rx,
-		&ulp_uart_cts,
-		&ulp_uart_rts ,
-		NULL,
-		NULL,
-		},
-		{  //clocks
-				USART_ULPREFCLK ,
-				RTE_ULP_UART_CLK_SRC,
-				RTE_ULP_UART_CLK_DIV_FACT,
-				RTE_ULP_UART_FRAC_SEL , 
-		} ,//clocks end
-
-		{  //sync mode
-				0,
-				0,
-		},     
+  &ULP_UART_Info,	
+  {                 // Pins
+    NULL,
+    &ulp_uart_tx,
+    &ulp_uart_rx,
+    &ulp_uart_cts,
+    &ulp_uart_rts,
+    NULL,
+    NULL,
+  },
+  {                 // Clocks
+    USART_ULPREFCLK ,
+#ifdef ULP_UART_MODULE
+    SL_ULPUART_CLOCK_SRC,
+#else
+    ULP_UART_REF_CLK,
+#endif
+    RTE_ULP_UART_CLK_DIV_FACT,
+    RTE_ULP_UART_FRAC_SEL , 
+  },                 // Clocks end
+  {                  // Sync mode
+    0,
+    0,
+  },     
 };
 
 #endif
@@ -584,7 +591,7 @@ static uint32_t ARM_USART0_GetRxCount (void)
 
 static int32_t ARM_USART0_Control (uint32_t control, uint32_t arg)
 {
-#if RTE_USART_MODE
+#if SL_USART0_SYNC_MODE_EN
    if(arg!=1)
     arg= (arg >> 3);
 #endif
@@ -1146,6 +1153,29 @@ uint8_t USART_GetInitState(uint8_t usart_peripheral)
 	}
 	
   return init_state;
+}
+
+uint8_t USART_GetMode(uint8_t usart_peripheral)
+{
+  uint8_t mode = 0;
+
+  switch (usart_peripheral) {
+    case USART_0:
+      mode = USART0_Resources.info->mode;
+      break;
+
+    case UART_1:
+      mode = UART1_Resources.info->mode;
+      break;
+
+    case ULPUART:
+      mode = ULP_UART_Resources.info->mode;
+      break;
+
+    default:
+      break;
+  }
+  return mode;
 }
 
 //Below set of functions are only used by SL_DMA added as part of Dx improvements

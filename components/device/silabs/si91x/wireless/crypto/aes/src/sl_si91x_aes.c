@@ -38,7 +38,7 @@
 #endif
 #include "sl_si91x_driver.h"
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 #define SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES 1408
 
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
@@ -66,7 +66,7 @@ static sl_status_t sli_si91x_aes_pending(const sl_si91x_aes_config_t *config,
   }
   memcpy(request->msg, config->msg, chunk_length);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   request->key_info.key_type                         = config->key_config.b0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.b0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.b0.key_slot;
@@ -80,10 +80,10 @@ static sl_status_t sli_si91x_aes_pending(const sl_si91x_aes_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sli_si91x_aes_request_t) - SLI_SI91X_MAX_DATA_SIZE_IN_BYTES_FOR_AES + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
   if (status != SL_STATUS_OK) {
@@ -92,8 +92,7 @@ static sl_status_t sli_si91x_aes_pending(const sl_si91x_aes_config_t *config,
       sli_si91x_host_free_buffer(buffer);
   }
   VERIFY_STATUS_AND_RETURN(status);
-
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
   sli_si91x_host_free_buffer(buffer);
   free(request);
@@ -130,7 +129,7 @@ static sl_status_t sli_si91x_aes_side_band(const sl_si91x_aes_config_t *config, 
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_aes_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
@@ -236,6 +235,12 @@ sl_status_t sl_si91x_aes_multipart(const sl_si91x_aes_config_t *config,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
+  // Check if the AES mode is supported
+  if ((config->aes_mode != SL_SI91X_AES_CBC) && (config->aes_mode != SL_SI91X_AES_CTR)) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  // If side band crypto is enabled, call the side band function
 #ifdef SL_SI91X_SIDE_BAND_CRYPTO
   (void)chunk_length;
   (void)aes_flags;

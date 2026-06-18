@@ -1,5 +1,5 @@
 id: sl_si91x_ccm
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Implementation of the CCM API
 label: CCM

@@ -64,8 +64,12 @@ If both swallow and odd_div_en are set to zero,
 then for a division factor of 1, the output clock (Clock_out) will be equal to half of the input clock (Clock_in), i.e., Clock_out = Clock_in / 2.
 For a division factor of 2, the output clock will be Clock_in divided by 4, i.e.,Clock_out = Clock_in / (2 * 2) */
 #define QSPI_DIV_FACTOR 1 // Division factor for QSPI clock
-                          /************************************************************************************
+/************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
+ ************************************************************************************/
+
+/************************************************************************************
+ *************************  GLOBAL VARIABLES  ****************************************
  ************************************************************************************/
 
 /************************************************************************************
@@ -104,7 +108,6 @@ sl_status_t sli_si91x_clock_manager_config_clks_on_ps_change(sl_power_state_t po
 #ifdef SL_SI91X_REQUIRES_INTF_PLL
   uint32_t intf_pll_freq;
 #endif
-
   switch (power_state) {
     case SL_SI91X_POWER_MANAGER_PS4:
       /* Configure Ref clocks to 40MHz crystal */

@@ -66,7 +66,7 @@ enum calib_cmd_types {
   CALIB_WRITE,
   EVM_OFFSET,
   EVM_WRITE,
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   DPD_CALIB_WRITE
 #endif
 };
@@ -93,8 +93,8 @@ const osThreadAttr_t thread_attributes = {
   .reserved   = 0,
 };
 
-const sl_wifi_data_rate_t rate               = SL_WIFI_DATA_RATE_1;
-sl_si91x_request_tx_test_info_t tx_test_info = {
+const sl_wifi_data_rate_t rate              = SL_WIFI_DATA_RATE_1;
+sl_wifi_request_tx_test_info_t tx_test_info = {
   .enable      = 1,
   .power       = 18,
   .rate        = rate,
@@ -102,7 +102,7 @@ sl_si91x_request_tx_test_info_t tx_test_info = {
   .mode        = BURST_MODE,
   .channel     = 1,
   .aggr_enable = 0,
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   .enable_11ax            = 0,
   .coding_type            = 0,
   .nominal_pe             = 0,
@@ -162,13 +162,13 @@ static const sl_wifi_device_configuration_t calibration_configuration = {
   .region_code = WORLD_DOMAIN,
   .boot_config = { .oper_mode              = SL_SI91X_TRANSMIT_TEST_MODE,
                    .coex_mode              = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map        = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION),
+                   .feature_bit_map        = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map =
                      (SL_SI91X_EXT_FEAT_XTAL_CLK | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
                       | SL_SI91X_EXT_FEAT_DISABLE_XTAL_CORRECTION
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -193,9 +193,8 @@ void validate_input_cmd(void);
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 

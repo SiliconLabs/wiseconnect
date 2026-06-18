@@ -159,14 +159,29 @@ STATIC INLINE rsi_error_t RSI_CLK_SetSocPllFreq(const M4CLK_Type *pCLK, uint32_t
     return ret;
   } else {
     socPllFreq /= 1000000;
-    /*if SOC PLL frequency is greater than 90Mhz  */
+    /* If SOC PLL frequency is less than 90MHz, configure LDO voltage based on preprocessor setting */
     if (socPllFreq < 90) {
-      /* Change the power state from PS4 to PS3 */
+#if defined(SL_SI91X_ENABLE_LDO_LOW_VOLTAGE) && (SL_SI91X_ENABLE_LDO_LOW_VOLTAGE == 1)
+      /* Option 1: Enable low voltage mode (PS4 to PS3 transition)
+        * This mode uses lower LDO voltage for reduced power consumption.
+        * To enable this mode, define SL_SI91X_ENABLE_LDO_LOW_VOLTAGE=1 in preprocessor settings.
+        */
+      /* Change the power state from PS4 to PS3 (sets SOC LDO to LOW voltage) */
       RSI_PS_PowerStateChangePs4toPs3();
       /* Configure DCDC to give lower output voltage */
       RSI_PS_SetDcDcToLowerVoltage();
+#else
+      /* Option 2: Default mode - High voltage mode (PS3 to PS4 transition)
+        * This is the default behavior when SL_SI91X_ENABLE_LDO_LOW_VOLTAGE is not defined.
+        * Uses higher LDO voltage (1.15V) for better performance.
+        */
+      /* Configure DCDC to give higher output voltage (1.15V) */
+      RSI_PS_SetDcDcToHigerVoltage();
+      /* Change the power state from PS3 to PS4 (sets SOC LDO to HIGH voltage) */
+      RSI_PS_PowerStateChangePs3toPs4();
+#endif
     }
-    if ((socPllFreq > 90) && (!(BATT_FF->MCU_PMU_LDO_CTRL_CLEAR & MCU_SOC_LDO_LVL))) {
+    if ((socPllFreq >= 90) && (!(BATT_FF->MCU_PMU_LDO_CTRL_CLEAR & MCU_SOC_LDO_LVL))) {
       /* Change the power state from PS3 to PS4 */
       RSI_PS_SetDcDcToHigerVoltage();
       /* Configure DCDC to give higher output voltage.*/
@@ -538,14 +553,30 @@ STATIC INLINE rsi_error_t RSI_CLK_SetIntfPllFreq(const M4CLK_Type *pCLK, uint32_
   if (error != RSI_OK) {
     return error;
   } else {
-    /*if SOC PLL frequency is greater than 90Mhz  */
+    intfPllFreq /= 1000000;
+    /* If INTF PLL frequency is less than 90MHz, configure LDO voltage based on preprocessor setting */
     if (intfPllFreq < 90) {
-      /* Change the power state from PS4 to PS3 */
+#if defined(SL_SI91X_ENABLE_LDO_LOW_VOLTAGE) && (SL_SI91X_ENABLE_LDO_LOW_VOLTAGE == 1)
+      /* Option 1: Enable low voltage mode (PS4 to PS3 transition)
+        * This mode uses lower LDO voltage for reduced power consumption.
+        * To enable this mode, define SL_SI91X_ENABLE_LDO_LOW_VOLTAGE=1 in preprocessor settings.
+        */
+      /* Change the power state from PS4 to PS3 (sets INTF LDO to LOW voltage) */
       RSI_PS_PowerStateChangePs4toPs3();
       /* Configure DCDC to give lower output voltage */
       RSI_PS_SetDcDcToLowerVoltage();
+#else
+      /* Option 2: Default mode - High voltage mode (PS3 to PS4 transition)
+        * This is the default behavior when SL_SI91X_ENABLE_LDO_LOW_VOLTAGE is not defined.
+        * Uses higher LDO voltage (1.15V) for better performance.
+        */
+      /* Configure DCDC to give higher output voltage (1.15V) */
+      RSI_PS_SetDcDcToHigerVoltage();
+      /* Change the power state from PS3 to PS4 (sets INTF LDO to HIGH voltage) */
+      RSI_PS_PowerStateChangePs3toPs4();
+#endif
     }
-    if ((intfPllFreq > 90) && (!(BATT_FF->MCU_PMU_LDO_CTRL_CLEAR & MCU_SOC_LDO_LVL))) {
+    if ((intfPllFreq >= 90) && (!(BATT_FF->MCU_PMU_LDO_CTRL_CLEAR & MCU_SOC_LDO_LVL))) {
       /* Change the power state from PS3 to PS4 */
       RSI_PS_SetDcDcToHigerVoltage();
       /* Configure DCDC to give higher output voltage.*/
@@ -1136,7 +1167,7 @@ STATIC INLINE rsi_error_t RSI_CLK_QspiClkConfig(M4CLK_Type *pCLK,
   return clk_qspi_clk_config(pCLK, clkSource, swalloEn, OddDivEn, divFactor);
 #endif
 }
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 
 /**
  * @fn          STATIC INLINE rsi_error_t RSI_CLK_Qspi2ClkConfig(M4CLK_Type *pCLK ,QSPI_CLK_SRC_SEL_T clkSource,boolean_t swalloEn,

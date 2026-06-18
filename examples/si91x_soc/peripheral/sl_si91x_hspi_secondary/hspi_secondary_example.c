@@ -35,6 +35,16 @@
 uint8_t sl_hspi_xfer_buffer[SL_HSPI_RX_BUFFER_SIZE];
 volatile boolean_t sl_hspi_send_event    = false;
 volatile boolean_t sl_hspi_receive_event = false;
+
+#define TEST_MEMORY_READ_WRITES        0
+#define SPI_SECONDARY_ADDRESS_LOCATION 0x30000
+#define SPI_SECONDARY_CHECK_LOCATION   0x30500
+#define SPI_SECONDARY_CHECK_BYTE       0xAA
+volatile uint8_t *ptr   = (uint8_t *)SPI_SECONDARY_CHECK_LOCATION;
+volatile uint8_t *check = (uint8_t *)SPI_SECONDARY_ADDRESS_LOCATION;
+
+bool flag    = false;
+uint8_t test = 1;
 /*******************************************************************************
  ******************************   FUNCTIONS   **********************************
  ******************************************************************************/
@@ -63,7 +73,7 @@ void hspi_secondary_example_init(void)
   }
   DEBUGOUT("\rHSPI Secondary callback function registration success\r\n");
 
-#if (SL_HSPI_DMA == ENABLE)
+#if (SL_HSPI_DMA == ENABLE && TEST_MEMORY_READ_WRITES == 0)
 
   // HSPI Receive configuration when DMA is enabled
   sl_hspi_status = sl_si91x_hspi_secondary_receive_non_blocking(sl_hspi_xfer_buffer);
@@ -86,6 +96,22 @@ void hspi_secondary_example_init(void)
  ******************************************************************************/
 void hspi_secondary_example_process_action(void)
 {
+#if TEST_MEMORY_READ_WRITES
+  if ((*ptr == SPI_SECONDARY_CHECK_BYTE) && (flag == false)) {
+    flag = true;
+    for (int i = 0; i < SL_HSPI_RX_BUFFER_SIZE; i++) {
+      if (*check != 1) {
+        test = test + 1;
+      }
+      check++;
+    }
+    if (test == 1)
+      DEBUGOUT("\rHSPI receive data completed \r\n");
+    else
+      DEBUGOUT("\rHSPI receive data failed \r\n");
+    sl_si91x_hspi_secondary_deinit();
+  }
+#else
   // Check if receive DMA is done
   if (sl_hspi_receive_event) {
     sl_hspi_receive_event = false;
@@ -112,6 +138,7 @@ void hspi_secondary_example_process_action(void)
 #endif
     DEBUGOUT("\rHSPI send data completed\r\n");
   }
+#endif
 }
 
 /***************************************************************************/ /**

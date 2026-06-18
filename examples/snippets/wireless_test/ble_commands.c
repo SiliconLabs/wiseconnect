@@ -129,10 +129,10 @@ const sl_wifi_device_configuration_t sl_wifi_ble_configuration_cli = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = WORLD_DOMAIN,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
+  .boot_config = { .oper_mode = SL_SI91X_TRANSMIT_TEST_MODE,
                    .coex_mode = SL_SI91X_WLAN_BLE_MODE,
 #ifdef SLI_SI91X_MCU_INTERFACE
-                   .feature_bit_map = (SL_SI91X_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
+                   .feature_bit_map = (SL_WIFI_FEAT_WPS_DISABLE | RSI_FEATURE_BIT_MAP),
 #else
                    .feature_bit_map            = RSI_FEATURE_BIT_MAP,
 #endif
@@ -141,10 +141,10 @@ const sl_wifi_device_configuration_t sl_wifi_ble_configuration_cli = {
 #else
                    .tcp_ip_feature_bit_map     = (RSI_TCP_IP_FEATURE_BIT_MAP | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID),
 #endif
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
+                   .custom_feature_bit_map = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | RSI_CUSTOM_FEATURE_BIT_MAP),
                    .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
 #if ENABLE_POWERSAVE_CLI
-                                                  | SL_SI91X_EXT_FEAT_LOW_POWER_MODE
+                                                  | SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE
 #endif
 #ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
@@ -624,8 +624,8 @@ sl_status_t ble_tx_test_mode_handler(console_args_t *arguments)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  uint8_t ble_tx_channel      = (sl_si91x_region_code_t)GET_COMMAND_ARG(arguments, 0);
-  uint8_t ble_tx_phy          = (sl_si91x_region_code_t)GET_COMMAND_ARG(arguments, 1);
+  uint8_t ble_tx_channel      = (sl_wifi_region_code_t)GET_COMMAND_ARG(arguments, 0);
+  uint8_t ble_tx_phy          = (sl_wifi_region_code_t)GET_COMMAND_ARG(arguments, 1);
   uint8_t ble_tx_payload      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, RSI_BLE_TX_PAYLOAD_LEN, const uint8_t);
   uint8_t ble_tx_payload_type = GET_OPTIONAL_COMMAND_ARG(arguments, 3, RSI_BLE_TX_PAYLOAD_TYPE, const uint8_t);
   if (wifi_deinit_var != ENABLE) {
@@ -651,8 +651,8 @@ sl_status_t ble_rx_test_mode_handler(console_args_t *arguments)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  uint8_t ble_rx_channel = (sl_si91x_region_code_t)GET_COMMAND_ARG(arguments, 0);
-  uint8_t ble_rx_phy     = (sl_si91x_region_code_t)GET_COMMAND_ARG(arguments, 1);
+  uint8_t ble_rx_channel = (sl_wifi_region_code_t)GET_COMMAND_ARG(arguments, 0);
+  uint8_t ble_rx_phy     = (sl_wifi_region_code_t)GET_COMMAND_ARG(arguments, 1);
   if (wifi_deinit_var != ENABLE) {
     status = sl_si91x_disable_radio();
     VERIFY_STATUS_AND_RETURN(status);

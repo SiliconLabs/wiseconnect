@@ -85,7 +85,7 @@
 #define SLI_SI91X_SOCKET_FEAT_CERT_INDEX         BIT(5)
 #define SLI_SI91X_HIGH_PERFORMANCE_SOCKET        BIT(7)
 
-#define SLI_MAX_RETRANSMISSION_TIME_VALUE 32
+#define SLI_MAX_RETRANSMISSION_TIME_VALUE 255
 
 /**
  * @addtogroup SI91X_SOCKET_OPTION_NAME SiWx91x Socket Option Name
@@ -193,7 +193,7 @@
 
 /** @} */
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define SL_SI91X_TLS_EXT_CIPHERS SL_SI91X_TLSV1_3_ALL_CIPHERS
 
 /**
@@ -214,7 +214,7 @@
  */
 
 // TLSv1.3 supported ciphers
-#if defined(SLI_SI917) || defined(SLI_SI915) || defined(DOXYGEN)
+#if defined(SLI_SI917) || defined(DOXYGEN)
 #define SL_SI91X_TLS1_3_AES_128_GCM_SHA256       BIT(0) ///< Cipher for TLS 1.3 with AES 128 GCM SHA256.
 #define SL_SI91X_TLS1_3_AES_256_GCM_SHA384       BIT(1) ///< Cipher for TLS 1.3 with AES 256 GCM SHA384.
 #define SL_SI91X_TLS1_3_CHACHA20_POLY1305_SHA256 BIT(2) ///< Cipher for TLS 1.3 with CHACHA20 POLY1305 SHA256.

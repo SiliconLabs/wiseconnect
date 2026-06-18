@@ -111,9 +111,8 @@ static const sl_net_wifi_eap_credential_entry_t wifi_client_enterprise_eap_crede
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 

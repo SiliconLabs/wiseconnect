@@ -85,7 +85,7 @@ extern "C" {
 #ifndef SL_I2S0_PERIPHERAL
 #define SL_I2S0_PERIPHERAL I2S0
 #endif
-#warning "I2S peripheral is not configured. Please configure the I2S pins according to the board connections."
+
 // I2S0 SCLK on GPIO_25
 #ifndef SL_I2S0_SCLK_PORT
 #define SL_I2S0_SCLK_PORT HP
@@ -131,7 +131,12 @@ extern "C" {
 #endif
 // [I2S0_SL_I2S0]$
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "I2S0 peripheral pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

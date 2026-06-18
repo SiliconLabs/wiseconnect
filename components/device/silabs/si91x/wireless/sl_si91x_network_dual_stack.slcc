@@ -1,8 +1,8 @@
 id: sl_si91x_network_dual_stack
-package: wiseconnect3_sdk
+package: wifi
 description: >
-  The network dual stack component enables the offloaded network stack subsystem and the LwIP network stack on the host MCU.
-label: Network Dual Stack
+  The dual network stack component enables the offloaded network stack subsystem and the LwIP network stack on the host MCU.
+label: Dual Network Stack
 category: Device|Si91x|Wireless|Network Stack
 quality: production
 metadata:
@@ -58,6 +58,6 @@ define:
 
 requires:
   - name: sl_si91x_wireless
-  - name: lwip_port_freertos
-  - name: lwip_api
-  - name: lwip_netif_ethernet
+  - name: netstack_silabs_lwip_port_freertos
+  - name: netstack_silabs_lwip_api
+  - name: netstack_silabs_lwip_netif_ethernet

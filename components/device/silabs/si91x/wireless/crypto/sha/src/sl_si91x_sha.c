@@ -38,7 +38,7 @@
 #include "sl_si91x_driver.h"
 #include "sl_si91x_sha.h"
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static const uint8_t sha_digest_len_table[] = { [SL_SI91X_SHA_1]   = SL_SI91X_SHA_1_DIGEST_LEN,
                                                 [SL_SI91X_SHA_256] = SL_SI91X_SHA_256_DIGEST_LEN,
@@ -88,10 +88,10 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   send_size = sizeof(sli_si91x_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_len;
 
   status = sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          request,
                                          send_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                          NULL,
                                          &buffer);
   if (status != SL_STATUS_OK) {
@@ -101,7 +101,7 @@ static sl_status_t sli_si91x_sha_pending(uint8_t sha_mode,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   if (pending_flag == (LAST_CHUNK | FIRST_CHUNK) || pending_flag == LAST_CHUNK) {
     SL_ASSERT(packet->length == sha_digest_len_table[sha_mode]);
@@ -148,7 +148,7 @@ static sl_status_t sli_si91x_sha_side_band(uint8_t sha_mode, uint8_t *msg, uint1
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_sha_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;

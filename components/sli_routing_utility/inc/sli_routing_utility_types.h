@@ -31,7 +31,6 @@
 #ifndef SLI_ROUTING_UTILITY_TYPES_H
 #define SLI_ROUTING_UTILITY_TYPES_H
 
-#include "sl_wifi_device.h"
 #include "sli_queue_manager.h"
 #include "cmsis_os2.h"
 #include <stdint.h>

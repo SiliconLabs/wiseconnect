@@ -31,7 +31,7 @@
 #include "sl_si91x_http_client_callback_framework.h"
 #include "sl_constants.h"
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 /******************************************************
  *                    Constants
  ******************************************************/
@@ -99,7 +99,7 @@ static sl_status_t sl_si91x_http_client_put_delete(void)
                                          SLI_SI91X_NETWORK_CMD,
                                          request,
                                          packet_len,
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_HTTP_CLIENT_PUT_WAIT_TIME,
                                          NULL,
                                          NULL);
   // Free the memory allocated
@@ -122,22 +122,28 @@ sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
   const sl_http_client_callback_entry_t *entry = sli_get_http_client_callback_entry(event);
 
   // Get the packet data from the buffer
-  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  sl_wifi_system_packet_t *packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   // Convert the firmware status to a library status
   sl_status_t status = sli_convert_and_save_firmware_status(sli_get_si91x_frame_status(packet));
 
   // Initialize an HTTP client response structure
-  sl_http_client_response_t http_response = { 0 };
+  sl_http_client_response_t *http_response = (sl_http_client_response_t *)malloc(sizeof(sl_http_client_response_t));
+  if (http_response == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+  memset(http_response, 0, sizeof(sl_http_client_response_t));
+
   uint16_t end_of_data;
   uint16_t http_server_response;
 
-  http_response.status = status;
+  http_response->status = status;
 
   //! TBD
-  http_response.response_headers = NULL;
+  http_response->response_headers = NULL;
 
   if ((entry == NULL) && (entry->callback_function == NULL)) {
+    free(http_response);
     return SL_STATUS_FAIL;
   }
 
@@ -153,7 +159,7 @@ sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
         // Extract http server response from packet
         memcpy(&http_server_response, packet->data + 2, sizeof(uint16_t));
 
-        http_response.http_response_code = http_server_response;
+        http_response->http_response_code = http_server_response;
 
         // Check http server response and fill other callback response data
         // http server response - success codes 200 to 299, failure codes 300 to 499
@@ -162,12 +168,13 @@ sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
           // Extract end of data indication from packet
           memcpy(&end_of_data, packet->data, sizeof(uint16_t));
 
-          http_response.end_of_data = end_of_data;
-          http_response.data_buffer = &packet->data[SLI_SI91X_HTTP_OFFSET];
-          http_response.data_length = packet->length - SLI_SI91X_HTTP_OFFSET;
+          http_response->end_of_data = end_of_data;
+          http_response->data_buffer = &packet->data[SLI_SI91X_HTTP_OFFSET];
+          http_response->data_length = packet->length - SLI_SI91X_HTTP_OFFSET;
         }
       } else if (status == SL_STATUS_SI91X_HTTP_GET_CMD_IN_PROGRESS) {
         // Don't trigger the callback, If the HTTP GET execution is in progress
+        free(http_response);
         return status;
       }
       break;
@@ -187,29 +194,31 @@ sl_status_t sli_http_client_default_event_handler(sl_http_client_event_t event,
 
       // Check for HTTP_CLIENT_PUT_PKT command
       if (http_cmd_type == SLI_SI91X_HTTP_CLIENT_PUT_PKT) {
-        http_response.data_length = 0;
-        http_response.end_of_data = response->end_of_file;
+        http_response->data_length = 0;
+        http_response->end_of_data = response->end_of_file;
       }
       // Check for HTTP Client PUT response from server
       else if (http_cmd_type == SLI_SI91X_HTTP_CLIENT_PUT_OFFSET_PKT) {
-        http_response.data_length = (uint16_t)server_rsp->data_len;
-        http_response.end_of_data = server_rsp->more;
+        http_response->data_length = (uint16_t)server_rsp->data_len;
+        // Firmware semantics: more(code) 8 => more segments pending from server; 9 => last segment from server
+        http_response->end_of_data = server_rsp->more;
       }
 
-      http_response.data_buffer = &packet->data[SLI_SI91X_HTTP_PUT_OFFSET];
+      http_response->data_buffer = &packet->data[SLI_SI91X_HTTP_PUT_OFFSET];
 
       // 917 does not support HTTP Server response for SL_HTTP_PUT request
-      http_response.http_response_code = 0;
+      http_response->http_response_code = 0;
 
-      // Delete HTTP PUT client if end of data is 1
-      if (http_response.end_of_data) {
+      // Delete only after the last server response segment is received
+      if (http_response->end_of_data == 9) {
         sl_si91x_http_client_put_delete();
       }
-
       break;
     }
     default:
       break;
   }
-  return entry->callback_function(&entry->client_handle, event, &http_response, sdk_context);
+  status = entry->callback_function(&entry->client_handle, event, http_response, sdk_context);
+  free(http_response);
+  return status;
 }

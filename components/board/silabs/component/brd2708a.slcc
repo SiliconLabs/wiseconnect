@@ -1,7 +1,7 @@
 !!omap
 - id: brd2708a
 - label: BRD2708A
-- package: platform
+- package: platform_siwx91x
 - description: Board support for BRD2708A.
 - category: Board|Radio Board
 - quality: production

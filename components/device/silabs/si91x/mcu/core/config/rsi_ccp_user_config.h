@@ -30,25 +30,20 @@
 /*rsi_ccp_user_config.h --> user configurations w.r.t CCP*/
 
 /* To enable 917 chip  --> Add #define SLI_SI917 */
-/* To enable 9116 chip -->  Add #define CHIP_9118 */
-/* To enable 9115 chip -->  Add #define CHIP_915 */
 
-#ifdef CHIP_915
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
 #define SLI_SI917
-#endif
 #endif
 
 /*1. By default A10 ROM is enabled */
 /*2. To enable A11 ROM      --> Add #define A11_ROM (this disables A10 ROM) */
-/*3. To enable OS           --> Add SLI_SI91X_ENABLE_OS in preprocessor */
-/*4. To enable ROM Wireless --> Add #define ROM_WIRELESS */
+
 #define A11_ROM
 
 #ifndef SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
 #define ROMDRIVER_PRESENT
 #endif
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define SI91X_SYSRTC_COUNT 2
 #endif

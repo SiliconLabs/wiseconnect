@@ -1,6 +1,6 @@
 id: romdriver_efuse
 label: ROM DRIVER EFUSE
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver Electronic Fuse
 category: Device|Si91x|MCU|Internal|ROM Drivers

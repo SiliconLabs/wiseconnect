@@ -50,6 +50,11 @@ static void *callback_flags                       = NULL;
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
+static sl_status_t sli_si91x_sysrtc_compare_gpio_config(sl_sysrtc_group_number_t group_number,
+                                                        sl_sysrtc_channel_number_t channel,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio);
+static sl_status_t sli_si91x_sysrtc_gpio_capture_config(sl_sysrtc_group_number_t group_number,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio);
 
 /*******************************************************************************
  **********************  Local Function Definition****************************
@@ -383,6 +388,131 @@ sl_status_t sl_si91x_sysrtc_set_compare_output_gpio(sl_sysrtc_group_number_t gro
   return status;
 }
 
+/*******************************************************************************
+ * Configures SYSRTC capture input PRS_IN through gpio
+ ******************************************************************************/
+sl_status_t sl_si91x_sysrtc_set_capture_input_prs_gpio(sl_sysrtc_group_number_t group_number,
+                                                       sl_si91x_gpio_pin_config_t sysrtc_prs_gpio)
+{
+  sl_status_t status = SL_STATUS_OK;
+  if (group_number >= SL_SYSRTC_GROUP_LAST) {
+    status = SL_STATUS_INVALID_PARAMETER;
+  } else
+    status = sli_si91x_sysrtc_gpio_capture_config(group_number, sysrtc_prs_gpio);
+
+  return status;
+}
+
+/*******************************************************************************
+ * configures SYSRTC compare output PRS_OUT through gpio
+ ******************************************************************************/
+sl_status_t sl_si91x_sysrtc_set_compare_output_prs_gpio(sl_sysrtc_group_number_t group_number,
+                                                        sl_sysrtc_channel_number_t channel,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio)
+{
+  sl_status_t status;
+  status = SL_STATUS_OK;
+  do {
+    if (group_number >= SL_SYSRTC_GROUP_LAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    if (channel >= SL_SYSRTC_CHANNEL_LAST) {
+      status = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+    // reading group compare value
+    status = sli_si91x_sysrtc_compare_gpio_config(group_number, channel, sysrtc_prs_gpio);
+
+  } while (false);
+  return status;
+}
+/*******************************************************************************
+ * Sets GPIO configuration for PRS_OUT according to group number and channel number
+ ******************************************************************************/
+static sl_status_t sli_si91x_sysrtc_compare_gpio_config(sl_sysrtc_group_number_t group_number,
+                                                        sl_sysrtc_channel_number_t channel,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio)
+{
+  sl_si91x_uulp_npss_mode_t mux_mode;
+  sl_status_t status = sl_gpio_driver_init(); // Initialize the GPIO driver
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+
+  // Configure GPIO pins for SYSRTC Pin config.
+  status = sl_gpio_set_configuration(sysrtc_prs_gpio);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  if (group_number == SL_SYSRTC_GROUP_0) {
+
+    if (channel == SL_SYSRTC_CHANNEL_0) {
+      mux_mode = NPSS_GPIO_PIN_MUX_MODE3;
+    } else if (channel == SL_SYSRTC_CHANNEL_1) {
+      mux_mode = NPSS_GPIO_PIN_MUX_MODE4;
+    }
+  }
+
+  if (group_number == SL_SYSRTC_GROUP_1) {
+    mux_mode = NPSS_GPIO_PIN_MUX_MODE5;
+  }
+  status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(sysrtc_prs_gpio.port_pin.pin, mux_mode);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  status = sl_si91x_gpio_driver_select_uulp_npss_receiver(sysrtc_prs_gpio.port_pin.pin, GPIO_RECEIVER_DS);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  status = sl_si91x_gpio_driver_select_uulp_npss_polarity(sysrtc_prs_gpio.port_pin.pin, GPIO_POLARITY_0);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * Sets GPIO configuration for PRS_IN according to group number
+ ******************************************************************************/
+static sl_status_t sli_si91x_sysrtc_gpio_capture_config(sl_sysrtc_group_number_t group_number,
+                                                        sl_si91x_gpio_pin_config_t sysrtc_prs_gpio)
+{
+  sl_si91x_uulp_npss_mode_t mux_mode;
+  sl_status_t status = sl_gpio_driver_init(); // Initialize the GPIO driver
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  // Configure GPIO pins for SYSRTC Pin config.
+
+  status = sl_gpio_set_configuration(sysrtc_prs_gpio);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  if (group_number == SL_SYSRTC_GROUP_0) {
+
+    mux_mode = NPSS_GPIO_PIN_MUX_MODE3;
+  }
+
+  if (group_number == SL_SYSRTC_GROUP_1) {
+    mux_mode = NPSS_GPIO_PIN_MUX_MODE4;
+  }
+
+  status = sl_si91x_gpio_driver_set_uulp_npss_pin_mux(sysrtc_prs_gpio.port_pin.pin, mux_mode);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  status = sl_si91x_gpio_driver_select_uulp_npss_receiver(sysrtc_prs_gpio.port_pin.pin, GPIO_RECEIVER_EN);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  status = sl_si91x_gpio_driver_select_uulp_npss_polarity(sysrtc_prs_gpio.port_pin.pin, GPIO_POLARITY_0);
+  if (status != SL_STATUS_OK) {
+    return SL_STATUS_FAIL;
+  }
+  return SL_STATUS_OK;
+}
 /*******************************************************************************
  * Gets SYSRTC counter register value.
  *

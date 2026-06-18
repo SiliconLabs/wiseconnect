@@ -44,17 +44,11 @@
 
 #define EXT_IRQ_COUNT SI91X_EXT_IRQ_COUNT
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #include "si91x_device.h"
-
-#ifdef SLI_SI917
 #include "RTE_Device_917.h"
 #else
-#include "RTE_Device_915.h"
-#endif
-
-#else
 #error "em_device.h: PART NUMBER undefined"
-#endif /* SLI_SI917 || SLI_SI915 */
+#endif /* SLI_SI917  */
 
 #endif /* EM_DEVICE_H */

@@ -37,6 +37,7 @@
 #include "wifi_app.h"
 #include "ble_config.h"
 #include "rsi_ble_apis.h"
+#include "sl_string.h"
 //! Include SSL CA certificate
 #include "cacert.pem.h"
 #include "sl_si91x_socket.h"
@@ -170,7 +171,11 @@ void data_callback(uint32_t sock_no,
   bytes_read = 0;
 }
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
@@ -181,7 +186,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
       close(client_socket);
     }
     wifi_app_cb.state = WIFI_APP_UNCONNECTED_STATE;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -190,7 +195,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 void wifi_app_callbacks_init(void)
 {
   //! Initialize join fail call back
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 sl_status_t clear_and_load_certificates_in_flash(void)
@@ -228,7 +233,7 @@ void rsi_wlan_app_task(void)
 #if CONNECT_WITH_PMK
         sl_wifi_ssid_t ssid;
         uint8_t type = 3;
-        ssid.length  = (uint8_t)strnlen(SSID, sizeof(ssid.value));
+        ssid.length  = (uint8_t)sl_strnlen(SSID, sizeof(ssid.value));
         memcpy(ssid.value, SSID, ssid.length);
 
         status = sl_wifi_get_pairwise_master_key(SL_WIFI_CLIENT_INTERFACE, type, &ssid, PSK, pairwise_master_key);
@@ -264,7 +269,7 @@ void rsi_wlan_app_task(void)
         access_point.encryption    = SL_WIFI_DEFAULT_ENCRYPTION;
         access_point.credential_id = id;
 
-        status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+        status = sl_wifi_set_join_configuration(SL_WIFI_CLIENT_INTERFACE, SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID);
         if (status != SL_STATUS_OK) {
           LOG_PRINT("Failed to start set join configuration: 0x%lx\r\n", status);
           return;

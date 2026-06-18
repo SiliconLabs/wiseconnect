@@ -24,12 +24,12 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_gpio_board.h"
 #include "rsi_debug.h"
-
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define DELAY            1000 // Delay for 1sec
-#define MS_DELAY_COUNTER 4600 // Delay count
+#define DELAY                1000 // Delay for 1sec
+#define GPIO_PORT_GROUP_ABCD 0    // Set to 1 to enable GPIO Ports A/B/C/D configuration and control
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -41,13 +41,31 @@ typedef sl_gpio_t sl_si91x_gpio_t;
 
 // Define a configuration structure for GPIO pins that are required, specifying its port, pin number and direction.
 // Below configurations is for GPIO 10. Here SL_SI91X_GPIO_10_PORT corresponds to GPIO pin 10's port number : 0. This
-// is defined to '0' which is PORT_A and  GPIO_PIN_NUMBER10 refers to GPIO pin number 10. Same representation followed
+// is defined to '0' which is PORT_A and  SL_SI91X_GPIO_10_PIN refers to GPIO pin number 10. Same representation followed
 // for other port and pins.
-static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_10_PORT, GPIO_PIN_NUMBER10 }, GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN }, GPIO_OUTPUT };
+#if (GPIO_PORT_GROUP_ABCD == 1)
+// GPIO configuration array for multiple ports
+static sl_si91x_gpio_pin_config_t gpio_multi_port_configs[] = {
+  // GPIO 6 - Port A, Pin 6
+  { { SL_GPIO_PORT_A, GPIO_PIN_NUMBER6 }, GPIO_OUTPUT },
+  // GPIO 27 - Port B, Pin 11 (Physical pin 27)
+  { { SL_GPIO_PORT_B, GPIO_PIN_NUMBER11 }, GPIO_OUTPUT },
+  // GPIO 47 - Port C, Pin 15 (Physical pin 47)
+  { { SL_GPIO_PORT_C, GPIO_PIN_NUMBER15 }, GPIO_OUTPUT },
+  // GPIO 49 - Port D, Pin 1 (Physical pin 49)
+  { { SL_GPIO_PORT_D, GPIO_PIN_NUMBER1 }, GPIO_OUTPUT }
+};
+
+#define GPIO_MULTI_PORT_COUNT (sizeof(gpio_multi_port_configs) / sizeof(gpio_multi_port_configs[0]))
+
+// Port names for debug messages
+static const char gpio_port_names[] = { 'A', 'B', 'C', 'D' };
+#endif
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void delay(uint32_t idelay);
+
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -77,6 +95,26 @@ void gpio_detailed_example_init(void)
       DEBUGOUT("sl_gpio_set_configuration, Error code: %lu\r\n", status);
       break; // breaks if error occurs
     }
+#if (GPIO_PORT_GROUP_ABCD == 1)
+    // Configure multiple GPIO ports using array-based approach
+    for (uint8_t i = 0; i < GPIO_MULTI_PORT_COUNT; i++) {
+      status = sl_gpio_set_configuration(gpio_multi_port_configs[i]);
+      if (status != SL_STATUS_OK) {
+        // Prints if pin configuration fails with port identification
+        DEBUGOUT("sl_gpio_set_configuration Port %c Pin %d, Error code: %lu\r\n",
+                 gpio_port_names[i],
+                 gpio_multi_port_configs[i].port_pin.pin,
+                 status);
+        break; // breaks if error occurs
+      }
+      DEBUGOUT("GPIO driver Port %c Pin %d configuration is successful \r\n",
+               gpio_port_names[i],
+               gpio_multi_port_configs[i].port_pin.pin);
+    }
+    if (status != SL_STATUS_OK) {
+      break; // Exit if any multi-port configuration failed
+    }
+#endif
     DEBUGOUT("GPIO driver set pin configuration is successful \r\n");
     // Apart from above APIs, there are additional APIs that can be used as per requirement
     //  like to increase drive strength, to make pin pull up/ pull down, increase slew rate etc.
@@ -114,17 +152,21 @@ void gpio_detailed_example_process_action(void)
     DEBUGOUT("sl_gpio_toggle_pin, Error code: %lu\r\n", status);
     return;
   }
+#if (GPIO_PORT_GROUP_ABCD == 1)
+  // Toggle multiple GPIO ports using array-based approach
+  for (uint8_t i = 0; i < GPIO_MULTI_PORT_COUNT; i++) {
+    status = sl_gpio_driver_toggle_pin(&gpio_multi_port_configs[i].port_pin);
+    if (status != SL_STATUS_OK) {
+      // Prints if toggling pin fails with port identification
+      DEBUGOUT("sl_gpio_toggle_pin Port %c Pin %d, Error code: %lu\r\n",
+               gpio_port_names[i],
+               gpio_multi_port_configs[i].port_pin.pin,
+               status);
+      return;
+    }
+  }
+#endif
   // Prints indicating successful pin toggle
   DEBUGOUT("HP GPIO driver toggle pin is successful \r\n");
-  delay(DELAY); // Delay of 1sec
-}
-
-/*******************************************************************************
- * Delay function for 1ms
- ******************************************************************************/
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
-    __NOP();
-  }
+  sl_si91x_delay_ms(DELAY); // Delay of 1sec
 }

@@ -1,6 +1,6 @@
 id: romdriver_timer
 label: ROM DRIVER TIMER
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver Timer
 category: Device|Si91x|MCU|Internal|ROM Drivers

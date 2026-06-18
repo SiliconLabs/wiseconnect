@@ -1,6 +1,6 @@
 id: sl_si91x_soc_soft_reset
 label: Soft Reset
-package: platform
+package: platform_siwx91x
 description: >
   Provides soft reset functionality for the Si91x SoC MCU.
 category: Device|Si91x|MCU|HAL

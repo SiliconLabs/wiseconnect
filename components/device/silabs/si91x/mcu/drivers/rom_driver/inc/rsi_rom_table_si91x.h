@@ -57,7 +57,7 @@
 #include "rsi_time_period.h"
 #include "rsi_wwdt.h"
 #include "rsi_ipmu.h"
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 #include "rsi_efuse.h"
 #include "rsi_pwm.h"
 #endif
@@ -168,7 +168,7 @@ typedef PRE_PACK struct POST_PACK {
   void (*rng_get_bytes)(HWRNG_Type *pRNG, uint32_t *randomBytes, uint32_t numberOfBytes);
 } ROM_RNG_API_T;
 ///////////////RNG END//////////////////
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 /* @brief  ROM indirect function structure */
 typedef PRE_PACK struct POST_PACK {
   void (*efuse_enable)(EFUSE_Type *pstcEfuse);
@@ -264,8 +264,8 @@ typedef PRE_PACK struct POST_PACK {
                                    uint32_t cs_no,
                                    uint32_t num_prot_bytes,
                                    uint32_t wr_reg_delay_ms);
-#if defined(SLI_SI917) || defined(SLI_SI915)
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917)
+#if defined(SLI_SI917B0)
   void (*qspi_qspiload_key)(qspi_reg_t *qspi_reg,
                             uint8_t mode,
                             uint32_t *key1,
@@ -357,7 +357,7 @@ typedef PRE_PACK struct POST_PACK {
 
 } ROM_UDMA_WRAPPER_API_T;
 //////////////////////////UDMA WRAPPERS END//////////////////////////
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*mcpwm_counter_reset)(RSI_MCPWM_T *pMCPWM, uint8_t chnlNum);
 
@@ -512,7 +512,7 @@ typedef PRE_PACK struct POST_PACK {
                              uint32_t *mem);
   int32_t (*GSPI_Uninitialize)(const GSPI_RESOURCES *gspi, UDMA_RESOURCES *udma);
   int32_t (*GSPI_PowerControl)(ARM_POWER_STATE state, const GSPI_RESOURCES *gspi);
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   int32_t (*GSPI_Control)(uint32_t control,
                           uint32_t arg,
                           const GSPI_RESOURCES *gspi,
@@ -895,7 +895,7 @@ typedef PRE_PACK struct POST_PACK {
                                         CLK_ENABLE_T clkType,
                                         SSI_MST_CLK_SRC_SEL_T clkSource,
                                         uint32_t divFactor);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_sd_mem_clk_config)(M4CLK_Type *pCLK,
                                        boolean_t swalloEn,
                                        SDMEM_CLK_SRC_SEL_T clkSource,
@@ -905,7 +905,7 @@ typedef PRE_PACK struct POST_PACK {
                                    CT_CLK_SRC_SEL_T clkSource,
                                    uint32_t divFactor,
                                    CLK_ENABLE_T clkType);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_cci_clk_config)(M4CLK_Type *pCLK,
                                     CCI_CLK_SRC_SEL_T clkSource,
                                     uint32_t divFactor,
@@ -913,7 +913,7 @@ typedef PRE_PACK struct POST_PACK {
 #endif
   rsi_error_t (*clk_i2s_clk_config)(M4CLK_Type *pCLK, I2S_CLK_SRC_SEL_T clkSource, uint32_t divFactor);
   rsi_error_t (*clk_mcu_clk_cut_config)(M4CLK_Type *pCLK, MCU_CLKOUT_SRC_SEL_T clkSource, uint32_t divFactor);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_can_clk_config)(M4CLK_Type *pCLK, uint32_t divFactor, CLK_ENABLE_T clkType);
   rsi_error_t (*clk_ethernet_clk_config)(M4CLK_Type *pCLK,
                                          boolean_t swalloEn,
@@ -924,11 +924,11 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_qspi_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, boolean_t u8OddDivEn, uint32_t divFactor);
   rsi_error_t (*clk_ct_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
   rsi_error_t (*clk_ssi_mst_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_cci_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
 #endif
   rsi_error_t (*clk_i2s_clk_div)(M4CLK_Type *pCLK, uint32_t divFactor);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_sd_mem_clk_div)(M4CLK_Type *pCLK, boolean_t u8SwallowEn, uint32_t divFactor);
 #endif
   rsi_error_t (*clk_usart_clk_div)(M4CLK_Type *pCLK, EN_USART_T EN_USART_T, uint8_t u8FracDivEn, uint32_t divFactor);
@@ -937,14 +937,14 @@ typedef PRE_PACK struct POST_PACK {
   rsi_error_t (*clk_slp_clk_config)(M4CLK_Type *pCLK, SLEEP_CLK_SRC_SEL_T clkSrc);
   rsi_error_t (*clk_i2c_clk_config)(M4CLK_Type *pCLK, boolean_t clkEnable, EN_I2C_T enI2C);
   rsi_error_t (*clk_xtal_clk_config)(uint8_t xtalPin);
-#if !defined(SLI_SI917) && !defined(SLI_SI915)
+#if !defined(SLI_SI917)
   rsi_error_t (*clk_usb_clk_config)(M4CLK_Type *pCLK, USB_CLK_SRC_SEL_T clkSource, uint16_t divFactor);
 #endif
   rsi_error_t (*clk_peripheral_clk_enable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module, CLK_ENABLE_T clkType);
   rsi_error_t (*clk_peripheral_clk_disable)(M4CLK_Type *pCLK, PERIPHERALS_CLK_T module);
   void (*clk_config_pll_lock)(boolean_t manual_lock, boolean_t bypass_manual_lock, uint8_t mm_count_limit);
   void (*clk_config_pll_ref_clk)(uint8_t ref_clk_src);
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   rsi_error_t (*clk_qspi_2_clk_config)(M4CLK_Type *pCLK,
                                        QSPI_CLK_SRC_SEL_T clkSource,
                                        boolean_t swalloEn,
@@ -985,7 +985,7 @@ typedef PRE_PACK struct POST_PACK {
                           UDMA_Channel_Info *chnl_info,
                           RSI_UDMA_HANDLE_T udmaHandle);
   uint32_t (*SPI_GetDataCount)(const SPI_RESOURCES *spi);
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   int32_t (*SPI_Control)(uint32_t control,
                          uint32_t arg,
                          const SPI_RESOURCES *spi,
@@ -1012,12 +1012,12 @@ typedef struct {
   const ROM_M4SS_CLK_API_T *pM4SSCLK;
   const ROM_ULPSS_CLK_API_T *pULPSSCLK;
   const ROM_QSPI_API_T *pQSPIROM;
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
   const ROM_EFUSE_API_T *pEFUSEROM;
 #endif
   const ROM_CRC_API_T *pCRCROM;
   const ROM_RNG_API_T *pRNGROM;
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
   const ROM_MCPWM_API_T *pMCPWMROM;
 #endif
   const ROM_USART_API_T *pUSARTROM;
@@ -1027,7 +1027,7 @@ typedef struct {
 #ifdef CHIP_9118
   const struct ROM_WL_API_S *pWLROM;
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   const ROM_SSI_API_T *pSSIROM;
 #endif
 } RSI_ROM_API_T;
@@ -1065,7 +1065,7 @@ typedef struct {
 /* Pointer to QSPI peripheral driver functions in ROM */
 #define ROMAPI_QSPI_API ((RSI_ROM_API)->pQSPIROM)
 
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 /* Pointer to EFUSE driver functions in ROM */
 #define ROMAPI_EFUSE_API ((RSI_ROM_API)->pEFUSEROM)
 #endif
@@ -1076,7 +1076,7 @@ typedef struct {
 /* Pointer to RNG peripheral driver functions in ROM */
 #define ROMAPI_RNG_API ((RSI_ROM_API)->pRNGROM)
 
-#if !defined(SLI_SI917B0) && !defined(SLI_SI915)
+#if !defined(SLI_SI917B0)
 /* Pointer to MCPWM peripheral driver functions in ROM */
 #define ROMAPI_MCPWM_API ((RSI_ROM_API)->pMCPWMROM)
 #endif
@@ -1098,7 +1098,7 @@ typedef struct {
 #define ROMAPI_WL ((RSI_ROM_API)->pWLROM)
 #endif
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 /* Pointer to SSI driver functions in ROM */
 #define ROMAPI_SSI_API ((RSI_ROM_API)->pSSIROM)
 #endif

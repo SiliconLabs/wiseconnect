@@ -39,7 +39,7 @@
 
 #define SLI_SI91X_MQTT_CLIENT_ID_MAXIMUM_LENGTH   62  // This size is including the NULL terminating character.
 #define SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH 122 // This size is including the NULL terminating character.
-#define SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH 62  // This size is including the NULL terminating character.
+#define SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH 512 // This size is including the NULL terminating character.
 
 #define SLI_SI91X_MQTT_CLIENT_INIT_COMMAND        1
 #define SLI_SI91X_MQTT_CLIENT_CONNECT_COMMAND     2
@@ -79,7 +79,7 @@ typedef struct SL_ATTRIBUTE_PACKED {
   // user name
   uint8_t user_name[SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH];
   // password Length
-  uint8_t password_len;
+  uint16_t password_len;
   // password
   uint8_t password[SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH];
   // clean session(0-1)
@@ -88,7 +88,7 @@ typedef struct SL_ATTRIBUTE_PACKED {
   uint8_t encrypt;
   // MQTT  Client port
   uint32_t client_port;
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
   //! Capping tcp retransmission timeout
   uint8_t tcp_max_retransmission_cap_for_emb_mqtt;
 #endif

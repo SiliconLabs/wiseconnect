@@ -32,11 +32,12 @@
 #include "sl_si91x_protocol_types.h"
 #include "sl_constants.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include <string.h>
-
+#include "sli_wifi_utility.h"
 #ifndef SL_SI91X_SIDE_BAND_CRYPTO
 static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
                                           const uint8_t *data,
@@ -60,7 +61,7 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
   request->current_chunk_length = chunk_length;
   memcpy(request->hmac_data, data, chunk_length);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   request->key_info.key_type                         = config->key_config.B0.key_type;
   request->key_info.key_detail.key_size              = config->key_config.B0.key_size;
   request->key_info.key_detail.key_spec.key_slot     = config->key_config.B0.key_slot;
@@ -77,10 +78,10 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
 
   status = sli_si91x_driver_send_command(
     SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-    SI91X_COMMON_CMD,
+    SLI_WIFI_COMMON_CMD,
     request,
     (sizeof(sli_si91x_hmac_sha_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-    SL_SI91X_WAIT_FOR_RESPONSE(32000),
+    SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
     NULL,
     &buffer);
 
@@ -91,7 +92,7 @@ static sl_status_t sli_si91x_hmac_pending(const sl_si91x_hmac_config_t *config,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(buffer, 0, NULL);
   memcpy(output, packet->data, packet->length);
 
   sli_si91x_host_free_buffer(buffer);
@@ -131,7 +132,7 @@ static sl_status_t sli_si91x_hmac_side_band(uint16_t total_length,
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_hmac_sha_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
@@ -151,7 +152,7 @@ sl_status_t sl_si91x_hmac(const sl_si91x_hmac_config_t *config, uint8_t *output)
 
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   key_length = config->key_config.B0.key_size;
 #else
   key_length = config->key_config.A0.key_length;
@@ -164,7 +165,7 @@ sl_status_t sl_si91x_hmac(const sl_si91x_hmac_config_t *config, uint8_t *output)
 
   memset(data, 0, total_length);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   memcpy(data, config->key_config.B0.key, key_length); // Copy key into data
 #else
   memcpy(data, config->key_config.A0.key, key_length); // Copy key into data

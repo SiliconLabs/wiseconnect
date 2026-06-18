@@ -37,7 +37,6 @@
 #include "sl_wifi_callback_framework.h"
 #include "sl_net_wifi_types.h"
 #include "sl_si91x_driver.h"
-
 #include <string.h>
 #include <stdio.h>
 
@@ -53,11 +52,7 @@
 #include "app.h"
 #include "glib.h"
 #include "dmd.h"
-#if defined(SLI_SI917) || defined(SLI_SI917B0)
 #include "RTE_Device_917.h"
-#else
-#include "RTE_Device_915.h"
-#endif
 #include "rsi_retention.h"
 #include "sl_status.h"
 #include "rsi_ccp_user_config.h"
@@ -180,9 +175,14 @@ void memlcd_app_init(void);
 void wifi_app_set_event(uint32_t event_num);
 void wifi_app_clear_event(uint32_t event_num);
 int32_t wifi_app_get_event(void);
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg);
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg);
 void rsi_wlan_app_callbacks_init(void);
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg);
@@ -354,12 +354,19 @@ int32_t wifi_app_get_event(void)
 }
 
 // rejoin failure call back handler in station mode
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   // Update WLAN application state
   disconnected = 1;
@@ -373,7 +380,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 void rsi_wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 static sl_status_t show_scan_results()
@@ -406,6 +413,7 @@ static sl_status_t show_scan_results()
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -416,8 +424,8 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    return status_code;
   }
 
   memset(scan_result, 0, scanbuf_size);
@@ -438,7 +446,7 @@ sl_status_t network_event_handler(sl_net_event_t event, sl_status_t status, void
   UNUSED_PARAMETER(data_length);
   switch (event) {
     case SL_NET_PING_RESPONSE_EVENT: {
-      sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+      sl_net_ping_response_t *response = (sl_net_ping_response_t *)data;
       UNUSED_VARIABLE(response);
       if (status != SL_STATUS_OK) {
         printf("\r\nPing request unsuccessful\r\n");
@@ -807,8 +815,10 @@ void wifi_app_task(void)
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
 
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
 
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
@@ -849,6 +859,9 @@ void wifi_app_task(void)
             printf("\r\nFailed to set client credentials: 0x%lx\r\n", status);
             continue;
           }
+        } else {
+          // For OPEN security, clear the credential ID
+          wifi_client_profile.config.credential_id = SL_WIFI_NO_CREDENTIAL_ID;
         }
 
         status =
@@ -860,22 +873,22 @@ void wifi_app_task(void)
 
           // Enabling required MFP bits in join feature bitmap for WPA3 Personal mode security type
           if (wifi_client_profile.config.security == SL_WIFI_WPA3) {
-            status = sl_si91x_set_join_configuration(
+            status = sl_wifi_set_join_configuration(
               SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
-              SL_SI91X_JOIN_FEAT_MFP_CAPABLE_REQUIRED | SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+              SL_WIFI_JOIN_FEAT_MFP_CAPABLE_REQUIRED | SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
               printf("\r\n join configuration settings for WPA3 failed\r\n");
             }
           } else if (wifi_client_profile.config.security == SL_WIFI_WPA3_TRANSITION) {
-            status = sl_si91x_set_join_configuration(
+            status = sl_wifi_set_join_configuration(
               SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
-              SL_SI91X_JOIN_FEAT_MFP_CAPABLE_ONLY | SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+              SL_WIFI_JOIN_FEAT_MFP_CAPABLE_ONLY | SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
               printf("\r\n Join configuration settings for WPA3 failed\r\n");
             }
           } else {
-            status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_2_4GHZ_INTERFACE,
-                                                     SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID);
+            status =
+              sl_wifi_set_join_configuration(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID);
             if (status != SL_STATUS_OK) {
               printf("\r\n Join configuration settings for WPA3 failed\r\n");
             }

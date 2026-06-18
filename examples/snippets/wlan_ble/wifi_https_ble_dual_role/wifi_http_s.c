@@ -96,6 +96,7 @@ extern bool powersave_cmd_given;
 sl_wifi_scan_result_t *scan_result          = NULL;
 static volatile bool scan_complete          = false;
 static volatile sl_status_t callback_status = SL_STATUS_OK;
+static osSemaphoreId_t scan_complete_sem    = NULL;
 uint16_t scanbuf_size = (sizeof(sl_wifi_scan_result_t) + (SL_WIFI_MAX_SCANNED_AP * sizeof(scan_result->scan_info[0])));
 
 sl_wifi_client_configuration_t access_point = { 0 };
@@ -107,7 +108,11 @@ extern osThreadId_t app_thread_id;
 
 static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result);
 
-sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t result_length, void *arg)
+sl_status_t join_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
+                                  char *result,
+                                  uint32_t result_length,
+                                  void *arg)
 {
   UNUSED_PARAMETER(result);
   UNUSED_PARAMETER(arg);
@@ -124,7 +129,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
       }
     }
     rsi_wlan_app_cb.state = RSI_WLAN_UNCONNECTED_STATE;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   return SL_STATUS_OK;
@@ -141,7 +146,7 @@ sl_status_t join_callback_handler(sl_wifi_event_t event, char *result, uint32_t 
 void rsi_wlan_app_callbacks_init(void)
 {
   //! Initialize join fail call back
-  sl_wifi_set_join_callback(join_callback_handler, NULL);
+  sl_wifi_set_join_callback_v2(join_callback_handler, NULL);
 }
 
 #if (SSL && LOAD_CERTIFICATE)
@@ -193,6 +198,7 @@ static sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 }
 
 sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
+                                           sl_status_t status_code,
                                            sl_wifi_scan_result_t *result,
                                            uint32_t result_length,
                                            void *arg)
@@ -203,12 +209,19 @@ sl_status_t wlan_app_scan_callback_handler(sl_wifi_event_t event,
   scan_complete = true;
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status = *(sl_status_t *)result;
-    return SL_STATUS_FAIL;
+    callback_status = status_code;
+    if (scan_complete_sem != NULL) {
+      osSemaphoreRelease(scan_complete_sem);
+    }
+    return status_code;
   }
 
   if (result_length != 0) {
     callback_status = show_scan_results(result);
+  }
+
+  if (scan_complete_sem != NULL) {
+    osSemaphoreRelease(scan_complete_sem);
   }
 
   return SL_STATUS_OK;
@@ -311,6 +324,9 @@ int32_t rsi_wlan_app_task(void)
       } break;
       case RSI_WLAN_INITIAL_STATE: {
         rsi_wlan_app_callbacks_init(); //! register callback to initialize WLAN
+        if (scan_complete_sem == NULL) {
+          scan_complete_sem = osSemaphoreNew(1, 0, NULL);
+        }
         rsi_wlan_app_cb.state = RSI_WLAN_SCAN_STATE;
 
 #if ENABLE_NWP_POWER_SAVE
@@ -346,17 +362,19 @@ int32_t rsi_wlan_app_task(void)
 
         sl_wifi_scan_configuration_t wifi_scan_configuration = { 0 };
         wifi_scan_configuration                              = default_wifi_scan_configuration;
-        sl_wifi_set_scan_callback(wlan_app_scan_callback_handler, NULL);
+        scan_complete                                        = false;
+        callback_status                                      = SL_STATUS_FAIL;
+
+        sl_wifi_set_scan_callback_v2(wlan_app_scan_callback_handler, NULL);
 
         status = sl_wifi_start_scan(SL_WIFI_CLIENT_2_4GHZ_INTERFACE, NULL, &wifi_scan_configuration);
         if (SL_STATUS_IN_PROGRESS == status) {
           LOG_PRINT("Scanning...\r\n");
-          const uint32_t start = osKernelGetTickCount();
-
-          while (!scan_complete && (osKernelGetTickCount() - start) <= WIFI_SCAN_TIMEOUT) {
-            osThreadYield();
+          if (osSemaphoreAcquire(scan_complete_sem, WIFI_SCAN_TIMEOUT) == osOK) {
+            status = callback_status;
+          } else {
+            status = SL_STATUS_TIMEOUT;
           }
-          status = scan_complete ? callback_status : SL_STATUS_TIMEOUT;
         }
         if (status != RSI_SUCCESS) {
           LOG_PRINT("\r\n scan failed \r\n");
@@ -530,7 +548,7 @@ int32_t rsi_wlan_app_task(void)
         if (read_bytes < 0) {
           if (errno == 0) {
             // get the error code returned by the firmware
-            status = sl_si91x_get_saved_firmware_status();
+            status = sl_wifi_get_saved_firmware_status();
             if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
               continue;
             } else {
@@ -547,7 +565,7 @@ int32_t rsi_wlan_app_task(void)
           if (status < 0) {
             if (errno == 0) {
               // get the error code returned by the firmware
-              status = sl_si91x_get_saved_firmware_status();
+              status = sl_wifi_get_saved_firmware_status();
               LOG_PRINT("\r\nsocket close failed with status = %ld and BSD error: %d\r\n", status, errno);
             } else {
               LOG_PRINT("\r\nsocket close failed with BSD error: %d\r\n", errno);

@@ -3,7 +3,7 @@
 * @brief Clock Manager Service API implementation
 *******************************************************************************
 * # License
-* <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -31,6 +31,17 @@
 #include "sl_si91x_clock_manager.h"
 #include "rsi_rom_clks.h"
 #include "rsi_rom_ulpss_clk.h"
+#include "sl_component_catalog.h"
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+#include "sl_si91x_gpio.h"
+#include "sl_gpio_board.h"
+#include "sl_si91x_peripheral_gpio.h"
+#include "sl_si91x_driver_gpio.h"
+#endif
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "cmsis_os2.h"
+#include "sl_cmsis_os2_common.h"
+#endif
 /************************************************************************************
  *************************  DEFINES / MACROS  ***************************************
  ************************************************************************************/
@@ -51,10 +62,29 @@
   12 // Division factor used for delay calibration when system clock is above the CLOCK_THRESHOLD macro
 #define MILLISECONDS_TO_CYCLES 1000      // Conversion factor from milliseconds to clock cycles.
 #define CLOCK_THRESHOLD        120000000 //Threshold clock frequency in Hertz for delay calibration.
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+#define MCU_CLK_OUT_GPIO_OUTPUT_HIGH        1           // GPIO output high value
+#define MCU_CLK_OUT_GPIO_OUTPUT_LOW         0           // GPIO output low value
+#define MCU_CLK_OUT_DIV_FACTOR_MAX          0x3F        // Maximum division factor for MCU clock out
+#define SL_SI91X_MCU_CLK_OUT_GPIO_DIRECTION GPIO_OUTPUT // Direction output
+#endif
+#define ULP_PROC_MAX_CLK_DIV_FAC 5 // Maximum division factor for ULP processor clock division
 /************************************************************************************
  *************************  LOCAL VARIABLES  ****************************************
  ************************************************************************************/
-
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+sl_si91x_clock_manager_mcu_clk_out_config_t sl_mcu_clk_out_config = {
+    .pin_config = {
+        .port_pin = {
+            .port = SL_SI91X_MCU_CLK_OUT_GPIO_PORT,
+            .pin = SL_SI91X_MCU_CLK_OUT_GPIO_PIN
+        },
+        .direction = SL_SI91X_MCU_CLK_OUT_GPIO_DIRECTION,
+    },
+    .clk_source = SL_CLOCK_MANAGER_MCU_CLK_OUT_SOURCE,
+    .div_factor = SL_CLOCK_MANAGER_MCU_CLK_OUT_DIV_FACTOR
+};
+#endif
 /************************************************************************************
  *************************  LOCAL TYPE DEFINITIONS  *********************************
  ************************************************************************************/
@@ -122,9 +152,147 @@ sl_status_t sl_si91x_clock_manager_init(void)
 #endif
 #endif
 #endif /* SL_SI91X_REQUIRES_INTF_PLL */
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+  sl_si91x_clock_manager_mcu_clk_out(sl_mcu_clk_out_config.pin_config,
+                                     sl_mcu_clk_out_config.clk_source,
+                                     sl_mcu_clk_out_config.div_factor);
+#endif
+  return status;
+}
+
+#if (defined(SL_SI91X_MCU_CLK_OUT_EN) && (SL_SI91X_MCU_CLK_OUT_EN == 1))
+/***************************************************************************/
+/**
+ * @brief Configures the MCU Clock output on a specified GPIO pin.
+ *
+ * @details Sets up a GPIO pin to output a selected clock signal with optional frequency division.
+ * If SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_GATED is selected, the clock output is disabled.
+ *
+ * @param[in] gpio_pin_config  GPIO pin configuration structure specifying the pin to use.
+ *                             Supported only on GPIO_11, GPIO_12, or GPIO_15.
+ * @param[in] mcu_clk_out_sel  Clock source selection for MCU clock generation.
+ * @param[in] div_factor       Division factor for the clock output.
+ *                             - 0: Divider is bypassed.
+ *                             - (> 0): clk_out = clk_in / (div_factor * 2).
+ *
+ * @return sl_status_t Status code indicating the result:
+ *   - SL_STATUS_OK if the configuration was successful.
+ *   - SL_STATUS_INVALID_PARAMETER if an invalid GPIO pin, clock source, or division factor is provided.
+ *   - SL_STATUS_INITIALIZATION_FAILED if the selected clock is not present.
+ *   - Corresponding error code on other failures.
+ *
+ * @note Ensure that the selected clock source is available and that div_factor is
+ *       within the valid range of 0x00-0x3F (6 bits) to prevent operational issues.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ ******************************************************************************/
+sl_status_t sl_si91x_clock_manager_mcu_clk_out(sl_si91x_gpio_pin_config_t gpio_pin_config,
+                                               sl_clock_manager_mcu_clk_out_sel_t mcu_clk_out_sel,
+                                               uint32_t div_factor)
+{
+  M4CLK_Type *pCLK         = M4CLK;
+  sl_status_t status       = SL_STATUS_OK;
+  rsi_error_t error_status = RSI_OK;
+  sl_gpio_mode_t pin_mode  = SL_GPIO_MODE_0; // Default pin mode
+
+  // Validate GPIO pin
+  if ((gpio_pin_config.port_pin.pin != SL_SI91X_GPIO_11_PIN) && (gpio_pin_config.port_pin.pin != SL_SI91X_GPIO_12_PIN)
+      && (gpio_pin_config.port_pin.pin != SL_SI91X_GPIO_15_PIN)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Validate Division factor
+  if (div_factor > MCU_CLK_OUT_DIV_FACTOR_MAX) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  // Enable GPIO clock
+  status = sl_si91x_gpio_driver_enable_clock((sl_si91x_gpio_select_clock_t)M4CLK_GPIO);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Configure GPIO pin for MCU_CLK_OUT (External Clock)
+  status = sl_gpio_set_configuration(gpio_pin_config);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Initially set pin mode to default
+  status = sl_gpio_driver_set_pin_mode(&gpio_pin_config.port_pin, pin_mode, MCU_CLK_OUT_GPIO_OUTPUT_LOW);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Disable the External Clock on GPIO PAD before configuration
+  error_status = RSI_CLK_PeripheralClkDisable(pCLK, MCUCLKOUT_CLK);
+  status       = convert_rsi_to_sl_error_code(error_status);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Validate clock source
+  switch (mcu_clk_out_sel) {
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_GATED:
+      // For gated clock source, return success immediately as the MCU clock is already disabled
+      return SL_STATUS_OK;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_RC_32MHZ:
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_XTAL:
+      // These clock sources are already available and don't need additional initialization / validation
+      break;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_RC_32KHZ:
+      if (RSI_OK != RSI_ULPSS_EnableRefClks(MCU_ULP_32KHZ_RC_CLK_EN, ULP_PERIPHERAL_CLK, 0)) {
+        return SL_STATUS_NOT_INITIALIZED;
+      }
+      break;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_XTAL_32KHZ:
+      if (RSI_OK != RSI_ULPSS_EnableRefClks(MCU_ULP_32KHZ_XTAL_CLK_EN, ULP_PERIPHERAL_CLK, 0)) {
+        return SL_STATUS_NOT_INITIALIZED;
+      }
+      break;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_INTF_PLL:
+      if (RSI_OK != RSI_CLK_CheckPresent(pCLK, INTF_PLL_CLK_PRESENT)) {
+        return SL_STATUS_NOT_INITIALIZED;
+      }
+      break;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_SOC_PLL:
+      if (RSI_OK != RSI_CLK_CheckPresent(pCLK, SOC_PLL_CLK_PRESENT)) {
+        return SL_STATUS_NOT_INITIALIZED;
+      }
+      break;
+    case SL_CLOCK_MANAGER_MCU_CLK_OUT_SEL_I2S_PLL:
+      if (RSI_OK != RSI_CLK_CheckPresent(pCLK, I2S_PLL_CLK_PRESENT)) {
+        return SL_STATUS_NOT_INITIALIZED;
+      }
+      break;
+    default:
+      return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Set pin mode for MCU_CLK_OUT (External Clock)
+  pin_mode = (gpio_pin_config.port_pin.pin == SL_SI91X_GPIO_11_PIN) ? SL_GPIO_MODE_12 : SL_GPIO_MODE_8;
+  status   = sl_gpio_driver_set_pin_mode(&gpio_pin_config.port_pin, pin_mode, MCU_CLK_OUT_GPIO_OUTPUT_HIGH);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Set division factor for External Clock
+  M4CLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_DIV_FAC = (unsigned int)(div_factor & 0x3F);
+
+  // Set clock source to be used for External Clock
+  M4CLK->CLK_CONFIG_REG3_b.MCU_CLKOUT_SEL = (unsigned int)(mcu_clk_out_sel & 0x0F);
+
+  // Enable the External Clock on GPIO PAD
+  error_status = RSI_CLK_PeripheralClkEnable(pCLK, MCUCLKOUT_CLK, ENABLE_STATIC_CLK);
+  status       = convert_rsi_to_sl_error_code(error_status);
+
+  // Wait for the External Clock to be switched
+  while ((pCLK->PLL_STAT_REG_b.MCU_CLKOUT_SWITCHED) != true)
+    ;
 
   return status;
 }
+#endif
+
 /***************************************************************************/
 /**
  * @brief To configure the M4 core clock source and configure the PLL frequency if selected as source.
@@ -187,6 +355,11 @@ sl_status_t sl_si91x_clock_manager_m4_set_core_clk(M4_SOC_CLK_SRC_SEL_T clk_sour
   // RSI API to set M4 SOC clock is called and the status is converted to the SL error code.
   error_status = RSI_CLK_M4SocClkConfig(pCLK, clk_source, div_factor);
   status       = convert_rsi_to_sl_error_code(error_status);
+
+#if defined(SL_CATALOG_KERNEL_PRESENT) && (SL_SI91X_TICKLESS_MODE == 0)
+  // Reconfigure the system tick timer after changing the core clock
+  SysTick_Config(SystemCoreClock / 1000);
+#endif
 
   return status;
 }
@@ -444,7 +617,7 @@ void sl_si91x_delay_ms(uint32_t milli_seconds)
 sl_status_t sl_si91x_clock_manager_ulp_processor_clk_division(uint8_t clk_div)
 {
   sl_status_t status = SL_STATUS_OK;
-  if (clk_div >= 5) {
+  if (clk_div > ULP_PROC_MAX_CLK_DIV_FAC) {
     status = SL_STATUS_INVALID_PARAMETER;
     return status;
   }

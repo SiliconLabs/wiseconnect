@@ -1,6 +1,6 @@
 id: sl_dac
 label: DAC
-package: platform
+package: platform_siwx91x
 description: >
   The DAC Drivers can write at up to 5 Msps with a 10-Bit resolution. 
   There are two types of data sampling functions: blocking and non-blocking.  

@@ -28,13 +28,15 @@
 *
 ******************************************************************************/
 #include "sl_si91x_peripheral_hspi_secondary.h"
-
+#include "rsi_power_save.h"
 /*******************************************************************************
  * Initializes the HSPI secondary peripheral.
  * This function grants pin access to M4, selects the HSPI mode, and masks the HSPI primary interrupts.
  ******************************************************************************/
 void hspi_secondary_peripheral_init(void)
 {
+  // enables power to the SDIO-SPI Slave
+  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_SDIO_SPI);
   //  Enable SPI access to MCSS
   (*(volatile uint32_t *)(SL_HSPI_NWPAON_MEM_HOST_ACCESS_CTRL_CLEAR)) = SL_HSPI_HOST_CONTROL_TO_MCU;
   // Indication to the host that bootloading is done
@@ -54,6 +56,39 @@ void hspi_secondary_peripheral_init(void)
     ;
   // Mask the HSPI primary interrupts
   SL_HSPI_M4_HOST_INTR_MASK_REG = SL_HSPI_MASK_HOST_INTERRUPT;
+}
+
+/*******************************************************************************
+ * De-Initializes the HSPI secondary peripheral.
+ ******************************************************************************/
+void hspi_secondary_peripheral_deinit(void)
+{
+  // Unmask the HSPI primary interrupts
+  SL_HSPI_M4_HOST_INTR_MASK_REG &= ~SL_HSPI_MASK_HOST_INTERRUPT;
+
+  // Clear boot mode
+  SL_HSPI_MISC_CFG_RST_LATCH_STATUS &= ~SL_HSPI_BOOT_MODE_EN;
+
+  // Reset SDIO/SPI register selection
+  SL_HSPI_MCSS_MISC_CFG_HOST_CTRL |= SL_HSPI_SDIO_SPI_PROG_SEL;
+
+  // Clear SPI bus error output
+  SL_HSPI_MCSS_MISC_CFG_HOST_CTRL &= ~SL_HSPI_HOST_SPI_BUS_ERR_OEN;
+
+  // Clear Host selection as SPI
+  SL_HSPI_MCSS_MISC_CFG_HOST_CTRL &= ~SL_HSPI_HOST_SEL_AS_SPI;
+
+  // Clear Host mode override
+  SL_HSPI_MCSS_MISC_CFG_HOST_CTRL &= ~SL_HSPI_LOAD_HOST_MODE;
+
+  // Clear ready from rcore indication
+  SL_HSPI_MCSS_MISC_CFG_HOST_CTRL &= ~SL_HSPI_READY_FROM_RCORE;
+
+  // Disable SPI access to MCSS
+  (*(volatile uint32_t *)(SL_HSPI_NWPAON_MEM_HOST_ACCESS_CTRL_SET)) = SL_HSPI_HOST_CONTROL_TO_MCU;
+
+  // Power down the SDIO-SPI Slave
+  RSI_PS_M4ssPeriPowerDown(M4SS_PWRGATE_ULP_SDIO_SPI);
 }
 
 /*******************************************************************************

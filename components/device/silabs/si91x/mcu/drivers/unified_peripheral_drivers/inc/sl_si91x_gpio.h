@@ -224,6 +224,20 @@ typedef struct {
   uint8_t minor;   ///< Development version number
 } sl_si91x_gpio_version_t;
 
+/// @brief GPIO power-on start enable selection
+typedef enum {
+  GPIO_POS_DIS = 0, ///< power-on-start disable
+  GPIO_POS_EN  = 1, ///< power-on-start enable
+  GPIO_POS_LAST,    ///< Last enum for validating
+} sl_si91x_gpio_pos_t;
+
+/// @brief GPIO Schmitt trigger selection
+typedef enum {
+  GPIO_SCHMITT_TRIG_DIS = 0, ///< Schmitt trigger disable
+  GPIO_SCHMITT_TRIG_EN  = 1, ///< Schmitt trigger enable
+  GPIO_SCHMITT_TRIG_LAST,    ///< Last enum for validating
+} sl_si91x_gpio_schmitt_trig_t;
+
 // -----------------------------------------------------------------------------
 // Prototypes
 /***************************************************************************/ /**
@@ -319,6 +333,34 @@ void sl_si91x_gpio_enable_host_pad_selection(uint8_t gpio_num);
  * @return       None
  ******************************************************************************/
 void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength);
+
+/***************************************************************************/ /**
+ * @brief     Configure the power-on-start selection for a GPIO pin.
+ * @pre       \ref sl_si91x_gpio_enable_clock() \n
+ *            \ref sl_si91x_gpio_enable_pad_selection() \n
+ *            \ref sl_si91x_gpio_enable_pad_receiver() \n
+ * @param[in] gpio_num - GPIO pin number to configure
+ * @param[in] pos      - Power-on start level of type \ref sl_si91x_gpio_pos_t \n
+ *                       Possible values are: \n
+ *                         GPIO_POS_DIS  - power-on-start disable \n
+ *                         GPIO_POS_EN - power-on-start enable \n
+ * @return    None
+ ******************************************************************************/
+void sl_si91x_gpio_select_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos);
+
+/***************************************************************************/ /**
+ * @brief     Configure the Schmitt trigger selection for a GPIO pin.
+ * @pre       \ref sl_si91x_gpio_enable_clock() \n
+ *            \ref sl_si91x_gpio_enable_pad_selection() \n
+ *            \ref sl_si91x_gpio_enable_pad_receiver() \n
+ * @param[in] gpio_num     - GPIO pin number to configure
+ * @param[in] schmitt_trig - Schmitt trigger level of type \ref sl_si91x_gpio_schmitt_trig_t \n
+ *                            Possible values are: \n
+ *                              GPIO_SCHMITT_TRIG_DIS  - Schmitt trigger disable\n
+ *                              GPIO_SCHMITT_TRIG_EN - Schmitt trigger enable \n
+ * @return    None
+ ******************************************************************************/
+void sl_si91x_gpio_select_pad_active_high_schmitt_trigger(uint8_t gpio_num, sl_si91x_gpio_schmitt_trig_t schmitt_trig);
 
 /***************************************************************************/ /**
  * @brief    Select the Driver disabled state control of a HP instance GPIO pin.
@@ -684,6 +726,35 @@ void sl_si91x_gpio_select_ulp_pad_slew_rate(uint8_t gpio_num, sl_si91x_gpio_slew
  * @return       None
  ******************************************************************************/
 void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_driver_strength_select_t strength);
+
+/***************************************************************************/ /**
+ * @brief     Configure the power-on-start selection for the ULP instance of GPIO peripheral.
+ * @pre       \ref sl_si91x_gpio_enable_clock() \n
+ *            \ref sl_si91x_gpio_enable_pad_selection() \n
+ *            \ref sl_si91x_gpio_enable_pad_receiver() \n
+ * @param[in] gpio_num - GPIO pin number to configure
+ * @param[in] pos      - Power-on start level of type \ref sl_si91x_gpio_pos_t \n
+ *                       Possible values are: \n
+ *                         GPIO_POS_DIS  - power-on-start disable \n
+ *                         GPIO_POS_EN - power-on-start enable \n
+ * @return    None
+ ******************************************************************************/
+void sl_si91x_gpio_select_ulp_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos);
+
+/***************************************************************************/ /**
+ * @brief     Configure the Schmitt trigger selection for the ULP instance of GPIO peripheral.
+ * @pre       \ref sl_si91x_gpio_enable_clock() \n
+ *            \ref sl_si91x_gpio_enable_pad_selection() \n
+ *            \ref sl_si91x_gpio_enable_pad_receiver() \n
+ * @param[in] gpio_num     - GPIO pin number to configure
+ * @param[in] schmitt_trig - Schmitt trigger level of type \ref sl_si91x_gpio_schmitt_trig_t \n
+ *                            Possible values are: \n
+ *                              GPIO_SCHMITT_TRIG_DIS  - Schmitt trigger disable\n
+ *                              GPIO_SCHMITT_TRIG_EN - Schmitt trigger enable \n
+ * @return    None
+ ******************************************************************************/
+void sl_si91x_gpio_select_ulp_pad_active_high_schmitt_trigger(uint8_t gpio_num,
+                                                              sl_si91x_gpio_schmitt_trig_t schmitt_trig);
 
 /***************************************************************************/ /**
  * @brief       Select the driver-disabled state control for the ULP instance of GPIO peripheral.

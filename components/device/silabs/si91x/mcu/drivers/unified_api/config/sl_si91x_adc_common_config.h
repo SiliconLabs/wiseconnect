@@ -40,7 +40,7 @@ extern "C" {
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>ADC Peripheral Common Configuration
 
-// <o NUMBER_OF_CHANNEL> Number of channel <1-16>
+// <o NUMBER_OF_CHANNEL> Number of channel(s) <1-16>
 // <i> Default: 1
 #define NUMBER_OF_CHANNEL 1
 

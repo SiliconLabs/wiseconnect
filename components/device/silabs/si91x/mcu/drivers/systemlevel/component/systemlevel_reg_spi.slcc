@@ -1,6 +1,6 @@
 id: systemlevel_reg_spi
 label: REG SPI
-package: platform
+package: platform_siwx91x
 description: >
   REG SPI API's
 category: Device|Si91x|MCU|Internal|System-Level Drivers

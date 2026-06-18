@@ -1,6 +1,6 @@
 id: sl_si91x_nvm3
 label: NVM3 for Si91x
-package: platform
+package: platform_nwp_siwx91x
 description: >
   The NVM3 driver provides a means to write and read data objects
   (key/value pairs) stored in flash. Wear-leveling is applied to reduce erase

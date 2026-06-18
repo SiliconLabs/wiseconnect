@@ -34,7 +34,7 @@
 // <<< sl:start pin_tool >>>
 // <gpio> SL_SI91X_LED_0
 // $[GPIO_SL_SI91X_LED_0]
-#warning "LED is not configured. Please configure the LED pins according to the board connections."
+
 #ifndef SL_SI91X_LED_0_PORT
 #define SL_SI91X_LED_0_PORT ULP
 #endif
@@ -47,11 +47,10 @@
 #define SL_LED_LED0_PIN    SL_SI91X_LED_0_PIN
 #define SL_LED_LED0_PORT   RTE_LED0_PORT
 #define SL_LED_LED0_NUMBER RTE_LED0_NUMBER
-// This else part is only to resolve build errors in macro define. When USER_CONFIGURATION_ENABLE is enabled else part is neglected
 #else
-#define SL_SI91X_LED_0_PORT ULP
-#define SL_LED_LED0_PIN     2
-#define SL_LED_LED0_PORT    RTE_LED0_PORT
-#define SL_LED_LED0_NUMBER  RTE_LED0_NUMBER
-#endif
+
+#warning \
+  "LED0 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #endif // SL_SI91X_LED_INIT_LED0_CONFIG_H

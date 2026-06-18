@@ -105,6 +105,18 @@
 #define SL_WIFI_TRANSCEIVER_DEFAULT_QOS_VO_AIFSN     1  ///< Wi-Fi transceiver default VO aifsn contention param value
 /** @} */
 
+// Vendor-specific IE Auto-Assign identifier. Use this value to request firmware to automatically
+// assign an available memory for the vendor-specific IE. The actual assigned unique id will be returned
+// in the fw_unique_id field of the sl_wifi_vendor_ie_t structure after successful addition.
+#define SL_WIFI_VENDOR_IE_AUTO_ASSIGN 0
+
+// Management frame bitmap for vendor-specific IE feature.
+#define SL_WIFI_VENDOR_IE_IN_BEACON     (1U << 0)
+#define SL_WIFI_VENDOR_IE_IN_PROBE_RESP (1U << 1)
+#define SL_WIFI_VENDOR_IE_IN_ASSOC_RESP (1U << 2)
+#define SL_WIFI_VENDOR_IE_IN_PROBE_REQ  (1U << 3)
+#define SL_WIFI_VENDOR_IE_IN_ASSOC_REQ  (1U << 4)
+
 /** @addtogroup SL_WIFI_TYPES Types
   * @{ */
 
@@ -139,7 +151,16 @@ typedef struct {
  */
 typedef sl_status_t (*sl_wifi_event_handler_t)(sl_wifi_event_t event, sl_wifi_buffer_t *buffer);
 
-/// Wi-Fi credential handle
+/**
+ * @typedef sl_wifi_credential_id_t
+ * @brief Wi-Fi credential identifier type.
+ * 
+ * @details
+ * This type stores credential identifiers for Wi-Fi configurations.
+ *
+ * @note 
+ * For open security networks (SL_WIFI_OPEN), use SL_WIFI_NO_CREDENTIAL_ID.
+ */
 typedef uint32_t sl_wifi_credential_id_t;
 
 /**
@@ -243,7 +264,14 @@ typedef struct {
  *       after finding the access point.
  * @note The `channel_bitmap_2g4` uses the lower 14 bits to represent channels from 1 to 14,
  *       where channel 1 = (1 << 0), channel 2 = (1 << 1), and so on.
- * @note 5GHz is not supported.
+ * @note When `channel_bitmap_2g4` is not set (value is 0), the device will scan all available channels.
+ * @note `periodic_scan_interval` is only applicable for SL_WIFI_SCAN_TYPE_ADV_SCAN of type @ref sl_wifi_scan_type_t.
+ * @note To configure active_channel_time and passive_channel_time for active and passive scans, 
+ *       use the sl_wifi_set_advanced_scan_configuration() API with @ref sl_wifi_advanced_scan_configuration_t.
+ * @note Channel scanning behavior:
+ *       - For active scans: Scans the channels specified in `channel_bitmap_2g4`. If set to 0, scans all available channels. Can be configured as a subset of channels.
+ *       - For background scans (SL_WIFI_SCAN_TYPE_ADV_SCAN): Scans the channels that were originally specified in `channel_bitmap_2g4` during the first scan. The channel bitmap cannot be modified for background scans.
+ * @note 5 GHz is not supported.
  *
  * | Channel Number 2.4 GHz | channel_bitmap_2g4    |
  * |------------------------|-----------------------|
@@ -276,10 +304,21 @@ typedef struct {
  * @brief Wi-Fi advanced scan configuration options.
  *
  * Indicates the configuration parameters for an advanced Wi-Fi scan operation.
+ *
+ * @note active_channel_time and passive_channel_time are applicable for foreground scan (station before connection).
+ * @note If active_channel_time and passive_channel_time are not set or set to 0, default values are used.
+ *       Default value of 100 msec is used for active_channel_time when SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME is passed.
+ *       Default value of 400 msec is used for passive_channel_time when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
+ * @note trigger_level and trigger_level_change are used for automatic roaming functionality. When connected to an AP:
+ *       - If RSSI drops below trigger_level, a background scan is automatically initiated to find better APs for roaming
+ *       - If RSSI drops by trigger_level_change delta from the previous measurement, a background scan is triggered
+ *       - The background scan operates independently and helps facilitate seamless roaming to better APs when available
  */
 typedef struct {
-  int32_t trigger_level;         ///< RSSI level to trigger advanced scan
-  uint32_t trigger_level_change; ///< RSSI level change to trigger advanced scan
+  int32_t
+    trigger_level; ///< RSSI threshold level to trigger background scan for roaming. When connected to an AP, if the RSSI drops below this level, a background scan is automatically triggered to find better APs for potential roaming.
+  uint32_t
+    trigger_level_change; ///< RSSI delta change threshold to trigger background scan for roaming. If the current RSSI value drops by this delta amount from the previous measurement, a background scan is triggered to find better APs for potential roaming.
   uint16_t active_channel_time;  ///< Time spent on each channel during active scan (milliseconds)
   uint16_t passive_channel_time; ///< Time spent on each channel during passive scan (milliseconds)
   uint8_t enable_instant_scan;   ///< Flag to start advanced scan immediately
@@ -293,7 +332,20 @@ typedef struct {
  *
  * Indicates the configuration parameters for setting up a Wi-Fi Access Point (AP).
  * 
- * @note When configuring AP interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
+ * @note When configuring AP interface in open security mode, the credential ID must be set to `SL_WIFI_NO_CREDENTIAL_ID`.
+ * @note The security field refers to the security type of the Wi-Fi AP.
+ * In Wi-Fi access-point mode, the AP supports OPEN, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, and WPA3 security modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For OPEN security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA-PSK security mode
+ * - SL_WIFI_WPA2                       - For WPA2-PSK security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ *
+ * @note client_idle_timeout - This is the period after which the AP will disconnect the station if there are no wireless exchanges from the station to the AP. The keep-alive period is calculated in terms of 32 multiples of the beacon interval (i.e, if there are no wireless transfers from station to AP within a
+ * (32 x beacon_interval) milliseconds time period, the station will be disconnected).
+ * If null data-based method is selected, the AP checks the connectivity of the station by sending null data packet. If the station does not acknowledge the packet, that station will be disconnected from the AP after 4 retries.
+ * The maximum valid range supported is up to 255.
  */
 typedef struct {
   sl_wifi_ssid_t ssid;                   ///< SSID (Service Set Identifier) of the Access Point
@@ -301,15 +353,17 @@ typedef struct {
   sl_wifi_encryption_t encryption;       ///< Encryption mode of the Access Point
   sl_wifi_channel_t channel;             ///< Channel configuration of the Access Point
   sl_wifi_rate_protocol_t rate_protocol; ///< Rate protocol of the Access Point
-  sl_wifi_ap_flag_t options;             ///< Optional flags for AP configuration
+  sl_wifi_ap_flag_t
+    options; ///< Optional flags for AP configuration. @note Dynamic configurability of hidden SSIDs is only available in APCONF when it is disabled in opermode.
   sl_wifi_credential_id_t credential_id; ///< ID of secure credentials
   uint8_t
-    keepalive_type; ///< Keep alive type of the access point. One of the values from [sl_si91x_ap_keepalive_type_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91-x-types#sl-si91x-ap-keepalive-type-t)
+    keepalive_type; ///< Keep alive type of the access point. One of the values from [sl_wifi_ap_keepalive_type_t](../wiseconnect-api-reference-guide-si91x-driver/sl-si91-x-types#sl-si91x-ap-keepalive-type-t)
   uint16_t beacon_interval;     ///< Beacon interval of the access point in milliseconds
-  uint32_t client_idle_timeout; ///< Duration in milliseconds to kick idle client
+  uint32_t client_idle_timeout; ///< Period after which AP will disconnect the station
   uint16_t dtim_beacon_count;   ///< Number of beacons per DTIM
-  uint8_t maximum_clients;      ///< Maximum number of associated clients
-  uint8_t beacon_stop;          ///< Flag to stop beaconing when there are no associated clients
+  uint8_t
+    maximum_clients; ///< The maximum number of associated clients must not exceed [SL_WIFI_CUSTOM_FEAT_MAX_NUM_OF_CLIENTS](../wiseconnect-api-reference-guide-si91x-driver/si91-x-custom-feature-bitmap#sl-si91x-custom-feat-max-num-of-clients). If this bit is not set in device configuration, the default maximum is 8 clients in AP-only mode and 4 clients in concurrent mode.
+  uint8_t beacon_stop; ///< Flag to stop beaconing when there are no associated clients
   sl_wifi_tdi_t
     tdi_flags; ///< Flags to enable Transition Disable Indication (TDI). One of the values from @ref sl_wifi_tdi_t
   uint8_t is_11n_enabled; ///< A flag to enable 11n.
@@ -347,7 +401,33 @@ typedef struct {
  *
  * Defines the configuration parameters for a Wi-Fi client interface.
  * 
- * @note When configuring client interface in open security mode, the credential ID must be set to `SL_NET_NO_CREDENTIAL_ID`.
+ * @note When configuring client interface in open security mode, the credential ID must be set to `SL_WIFI_NO_CREDENTIAL_ID`.
+ * 
+ * @note The security field refers to the security type for the Wi-Fi Station (STA) interface.
+ * @note In Wi-Fi concurrent mode, the client interface supports Open, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, WPA3, and WPA3 Transition security (WPA2/WPA3) modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For Open security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA security mode
+ * - SL_WIFI_WPA2                       - For WPA2 security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ * - SL_WIFI_WPA3_TRANSITION            - For WPA3 Transition security mode
+ * 
+ *  @note  In Wi-Fi enterprise client mode, the client interface supports WPA-Enterprise, WPA2-Enterprise, WPA3-Enterprise, and WPA3 Transition Enterprise (WPA2/WPA3 Enterprise) security modes.
+ * Valid configurations are:
+ * - SL_WIFI_WPA_ENTERPRISE                         - For WPA Enterprise security mode
+ * - SL_WIFI_WPA2_ENTERPRISE                        - For WPA2 Enterprise mode
+ * - SL_WIFI_WPA3_ENTERPRISE                        - For WPA3 Enterprise security mode
+ * - SL_WIFI_WPA3_TRANSITION_ENTERPRISE             - For WPA3 Transition Enterprise Security mode
+ * 
+ * @note In Wi-Fi personal client mode, the client interface supports Open, WPA-PSK, WPA2-PSK, WPA/WPA2 Mixed, WPA3, and WPA3 Transition (WPA2/WPA3) security modes.
+ * Valid configurations are:
+ * - SL_WIFI_OPEN                       - For Open security mode (no encryption)
+ * - SL_WIFI_WPA                        - For WPA security mode
+ * - SL_WIFI_WPA2                       - For WPA2 security mode
+ * - SL_WIFI_WPA_WPA2_MIXED             - For WPA/WPA2 mixed security mode
+ * - SL_WIFI_WPA3                       - For WPA3 security mode
+ * - SL_WIFI_WPA3_TRANSITION            - For WPA3 Transition security mode
  */
 typedef struct {
   sl_wifi_ssid_t ssid; ///< SSID (Service Set Identifier) of the Wi-Fi network. This is of type @ref sl_wifi_ssid_t
@@ -367,10 +447,11 @@ typedef struct {
  * @note  The default beacon missed count is set to 40. A unicast probe request is sent from the module to the Access Point (AP) at the 21st beacon count and again at the 31st beacon count.
  */
 typedef struct {
-  uint32_t max_retry_attempts;      ///< Maximum number of retries before indicating join failure
-  uint32_t scan_interval;           ///< Scan interval in seconds between each retry
-  uint32_t beacon_missed_count;     ///< Number of missed beacons that will trigger rejoin
-  uint32_t first_time_retry_enable; ///< Retry enable or disable for first time joining
+  uint32_t max_retry_attempts;  ///< Maximum number of retries before indicating join failure
+  uint32_t scan_interval;       ///< Scan interval in seconds between each retry
+  uint32_t beacon_missed_count; ///< Number of missed beacons that will trigger rejoin
+  uint32_t
+    first_time_retry_enable; ///< Enable or disable retry attempts for initial join failures. If set to 0 (default), no retry attempts are made for first-time join failures - the API will return failure immediately. If set to 1, retry attempts will be made using max_retry_attempts and scan_interval parameters. Note: This setting only affects initial connection attempts; roaming and background scan disconnections will always use the retry mechanism regardless of this setting.
 } sl_wifi_advanced_client_configuration_t;
 
 /**
@@ -454,11 +535,11 @@ typedef struct {
 typedef struct {
   sl_wifi_credential_type_t type; ///< Credential type
   union {
-    sl_wifi_psk_credential_t psk; ///< WiFi Personal credentials
-    sl_wifi_pmk_credential_t pmk; ///< WiFi PMK credentials
+    sl_wifi_psk_credential_t psk; ///< Wi-Fi Personal credentials
+    sl_wifi_pmk_credential_t pmk; ///< Wi-Fi PMK credentials
     sl_wifi_wep_credential_t wep; ///< WEP keys
     sl_wifi_eap_credential_t eap; ///< Enterprise client credentials
-  };                              ///< WiFi Credential structure
+  };                              ///< Wi-Fi Credential structure
 } sl_wifi_credential_t;
 
 /**
@@ -504,7 +585,7 @@ typedef struct {
   uint16_t
     average_tx_throughput; ///< This is the expected average Tx throughput in Kbps. Value ranges from 0 to 10 Mbps, which is half of the default [device_average_throughput](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-wi-fi/sl-wifi-twt-selection-t#device-average-throughput) (20 Mbps by default).
   uint32_t
-    tx_latency; ///< The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200 ms - 6 hrs].
+    tx_latency; ///< The allowed latency, in milliseconds, within which the given Tx operation is expected to be completed. If 0 is configured, maximum allowed Tx latency is same as rx_latency. Otherwise, valid values are in the range of [200 msec - 6 hrs].
   uint32_t
     rx_latency; ///< The maximum latency, in milliseconds, for receiving buffered packets from the AP. The device wakes up at least once for a TWT service period within the configured rx_latency if there are any pending packets destined for the device from the AP. If set to 0, the default latency of 2 seconds is used. Valid range is between 2 seconds to 6 hours. Recommended range is 2 seconds to 60 seconds to avoid connection failures with AP due to longer sleep time.
   uint16_t
@@ -514,9 +595,9 @@ typedef struct {
   uint8_t
     twt_tolerable_deviation; ///< The allowed deviation percentage of wake duration TWT response. Recommended input range is 0 - 50%. The default value is 10. Internal SDK use only: do not use.
   uint32_t
-    default_wake_interval_ms; ///< Default minimum wake interval. Recommended Range: 512 to 1024 ms. The default value is 1024msec. Internal SDK use only: do not use.
+    default_wake_interval_ms; ///< Default minimum wake interval. Recommended Range: 512 to 1024 msec. The default value is 1024 msec. Internal SDK use only: do not use.
   uint32_t
-    default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8- 16 ms. The default value is 8 ms. Internal SDK use only: do not use.
+    default_minimum_wake_duration_ms; ///< Default minimum wake interval. Recommended Range: 8- 16 msec. The default value is 8 msec. Internal SDK use only: do not use.
   uint8_t
     beacon_wake_up_count_after_sp; ///< The number of beacons after the service period completion for which the module wakes up and listens for any pending RX. The default value is 2. Internal SDK use only: do not use.
 } sl_wifi_twt_selection_t;
@@ -542,9 +623,9 @@ typedef struct {
  * It uses bit fields to indicate the status of different Wi-Fi modes and operations.
  */
 typedef struct {
-  uint8_t client_active : 1;       ///< WiFi Client active
-  uint8_t ap_active : 1;           ///< WiFi Access point active
-  uint8_t monitor_mode_active : 1; ///< WiFi promiscuous mode active
+  uint8_t client_active : 1;       ///< Wi-Fi Client active
+  uint8_t ap_active : 1;           ///< Wi-Fi Access point active
+  uint8_t monitor_mode_active : 1; ///< Wi-Fi promiscuous mode active
   uint8_t wfd_go_active : 1;       ///< Reserved Status bit
   uint8_t wfd_client_active : 1;   ///< Reserved Status bit
   uint8_t scan_active : 1;         ///< Scan in Progress
@@ -612,6 +693,43 @@ typedef struct {
 } sl_wifi_wps_pin_t;
 
 /**
+ * @struct sl_wifi_wps_config_t
+ * @brief WPS (Wi-Fi Protected Setup) configuration structure.
+ *
+ * This structure defines the device role, WPS method (PBC or PIN), optional PIN value, and whether to
+ * automatically connect to the network.
+ *
+ */
+typedef struct {
+  sl_wifi_wps_role_t
+    role; ///< Role of the device. Refer [sl_wifi_wps_role_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-constants#sl-wifi-wps-role-t)
+  sl_wifi_wps_mode_t
+    mode; ///< WPS mode. Refer [sl_wifi_wps_mode_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-constants#sl-wifi-wps-mode-t)
+  char optional_pin[9]; ///< PIN-based WPS configuration. Null-terminated string
+  bool
+    auto_connect; ///< Set to true to enable auto connect after WPS, false to only receive credentials without connecting
+} sl_wifi_wps_config_t;
+
+/**
+ * @struct sl_wifi_wps_response_t
+ * @brief Wi-Fi WPS response structure containing network credentials received from WPS exchange.
+ *
+ * This structure contains all the network information needed to connect to the Wi-Fi network,
+ * including SSID, security type, and network key.
+ */
+#pragma pack(1)
+typedef struct {
+  uint32_t status;       ///< Status of the WPS operation
+  uint8_t ssid[32];      ///< SSID of the connected network
+  uint8_t ssid_len;      ///< Length of the SSID
+  uint8_t security_type; ///< Security type
+  uint8_t key[32];       ///< Network key
+  uint8_t mac_addr[6];   ///< MAC address of the access point
+  uint32_t reserved;     ///< Reserved for future use
+} sl_wifi_wps_response_t;
+#pragma pack()
+
+/**
  * @struct sl_wifi_listen_interval_t
  * @brief Wi-Fi Listen interval structure.
  *
@@ -620,7 +738,7 @@ typedef struct {
  * Moving forward, this structure will be deprecated. Instead, use the [sl_wifi_listen_interval_v2_t](../wiseconnect-api-reference-guide-wi-fi/sl-wifi-listen-interval-v2-t) structure. This is retained for backward compatibility.
  */
 typedef struct {
-  uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
+  uint32_t listen_interval; ///< Wi-Fi Listen interval in milliseconds
 } sl_wifi_listen_interval_t;
 
 /**
@@ -632,7 +750,7 @@ typedef struct {
  * The listen interval is multiplied with listen interval multiplier and advertised in the assoc request.
  */
 typedef struct {
-  uint32_t listen_interval; ///< Wi-Fi Listen interval in millisecs
+  uint32_t listen_interval; ///< Wi-Fi Listen interval in milliseconds
   uint32_t
     listen_interval_multiplier; ///< Multiplier for the listen interval, sent by the device in the association request to the AP. Default: 1. Max recommended: 10. Higher values may lead to interoperability issues.
 } sl_wifi_listen_interval_v2_t;
@@ -667,16 +785,11 @@ typedef struct {
  * The effective transmit power is subject to regional and device limitations. If the specified transmit power exceeds the
  * maximum supported value for that region, or if the specified transmit power exceeds the maximum supported value of the device,
  * the transmission would occur at the maximum supported transmit power.
- *
+ * 
  * @note
- * There are three available configurations for join_tx_power: low, medium, and high, which correspond to the values 0, 1, and 2, respectively.
- * Each configuration has a specified power level.
- *     Low power (7 +/- 1) dBm
- *     Medium power (10 +/- 1) dBm
- *     High power (18 +/- 2) dBm
- * An absolute power level can be set using the most significant bit (MSB) of an 8-bit value. This is achieved by setting the MSB to 128 (binary: 1000 0000).
- * To configure the absolute transmission power, add the desired Tx power to 128.
- * For example, setting the parameter to 148 (128 + 20) configures the transmission power to 20 dBm.
+ * The software supports configuration up to 31 dBm. Refer to the data sheet for the maximum supported power.
+ * The device automatically selects the highest transmit power allowed for each data rate.
+ * If the configured power level exceeds the device’s supported power for that rate, the device limits the power to the maximum supported level.
  *
  */
 typedef struct {
@@ -737,6 +850,33 @@ typedef struct {
 } sl_wifi_mfp_config_t;
 
 /**
+ * @enum sl_wifi_pll_mode_t
+ * @brief Wi-Fi Phase-Locked Loop (PLL) mode selection.
+ *
+ * Specifies the PLL operating mode for Wi-Fi hardware, determining the clock frequency bandwidth.
+ *
+ * - SL_WIFI_PLL_MODE_20MHZ: PLL mode for 20 MHz channel bandwidth (default).
+ * - SL_WIFI_PLL_MODE_40MHZ: PLL mode for 40 MHz channel bandwidth.
+ */
+typedef enum {
+  SL_WIFI_PLL_MODE_20MHZ = 0, ///< PLL mode for 20 MHz channel bandwidth (default)
+  SL_WIFI_PLL_MODE_40MHZ = 1  ///< PLL mode for 40 MHz channel bandwidth
+} sl_wifi_pll_mode_t;
+
+/**
+ * @enum sl_wifi_power_chain_t
+ * @brief Wi-Fi power chain selection.
+ *
+ * This enum defines the available power chains for Wi-Fi operation.
+ * - SL_WIFI_HP_CHAIN: High-power chain (default).
+ * - SL_WIFI_LP_CHAIN: Low-power chain.
+ */
+typedef enum {
+  SL_WIFI_HP_CHAIN = 0, ///< High-power chain (default)
+  SL_WIFI_LP_CHAIN = 12 ///< Low-power chain
+} sl_wifi_power_chain_t;
+
+/**
  * @struct sl_wifi_async_stats_response_t
  * @brief Structure representing asynchronous Wi-Fi statistics response.
  *
@@ -768,6 +908,47 @@ typedef struct {
 } sl_wifi_async_stats_response_t;
 
 /**
+ * @struct sl_wifi_cw_tone_config_t
+ * @brief Structure representing the configuration for CW tone settings.
+ *
+ * This structure contains parameters to configure single-tone and two-tone modes, 
+ * tone frequencies, amplitude scaling, and DC mode settings.
+ * @note 
+ *    - This structure is only supported on SiWx353 devices, not on SiWx91x devices.
+ */
+typedef struct {
+  uint8_t freq_val_en; ///< Enable or disable frequency value. 1 to enable, 0 to disable.
+  uint8_t two_tone_en; ///< Enable or disable two-tone mode. 1 to enable, 0 to disable.
+  uint16_t
+    tone1_freq_val; ///< Frequency value for the first tone in KHz. Indicates the frequency of the 1st tone to be generated in TX test modes. Valid range of values is from 0 to 5000. This is ignored when @ref freq_val_en is 0.
+  sl_wifi_cw_tone_frequency_t
+    tone1_freq_sel; ///< Frequency selection for the first tone. Indicates the frequency of the 1st Tone to be generated in TX test modes. This is ignored when @ref freq_val_en is 1. Possible values are defined in @ref sl_wifi_cw_tone_frequency_t.
+  uint16_t
+    tone2_freq_val; ///< Frequency value for the second tone in KHz. Indicates the frequency of the 2nd Tone to be generated in TX test modes. Valid range of values is from 0 to 5000. This is ignored when @ref freq_val_en is 0 or @ref two_tone_en is 0.
+  sl_wifi_cw_tone_frequency_t
+    tone2_freq_sel; ///< Frequency selection for the second tone. Indicates the frequency of the 2nd Tone to be generated in TX test modes. This is ignored when @ref freq_val_en is 1 or @ref two_tone_en is 0. Possible values are defined in @ref sl_wifi_cw_tone_frequency_t.
+  sl_wifi_cw_tone_amplitude_t
+    tone_scale_val; ///< This is used to control the amplitude of the WAVE. Possible values are defined in @ref sl_wifi_cw_tone_amplitude_t.
+  uint8_t neg_tone_en; ///< Enable or disable negative tone. 1 to enable, 0 to disable.
+  uint8_t dc_mode_en;  ///< Enable or disable DC mode. 1 to enable, 0 to disable.
+  sl_wifi_dc_val_iq_t
+    dc_val_iq; ///< DC Value to be transmitted. Possible values are defined in @ref sl_wifi_dc_val_iq_t. This is ignored when dc_mode_en is 0.
+} sl_wifi_cw_tone_config_t;
+
+/**
+ * @struct sl_wifi_response_get_ctune_data_t
+ * @brief Structure representing the response for getting CTUNE data.
+ * 
+ * This structure contains the flags indicating the presence of CTUNE data and the actual CTUNE data values.
+ * @note
+ * This structure is only supported on SiWx353 devices, not on SiWx91x devices.
+ */
+typedef struct {
+  uint32_t flags;         ///< Flags indicating the presence of CTUNE data
+  uint32_t ctune_data[2]; ///< CTUNE data values
+} sl_wifi_response_get_ctune_data_t;
+
+/**
  * @struct sl_wifi_rx_stats_request_t
  * @brief Structure representing the request for RX statistics in Wi-Fi.
  *
@@ -777,7 +958,6 @@ typedef struct {
 typedef struct {
   /// 0 - start, 1 - stop
   uint8_t start[2];
-
   /// channel number
   uint8_t channel[2];
 } sl_wifi_rx_stats_request_t;
@@ -795,7 +975,7 @@ typedef struct {
   uint16_t power;  ///< TX power in dBm.  Range : 2 - 18 dBm.
                    ///<
   ///< @note 1. User can configure the maximum power level allowed for the given frequncey in the configured region by providing 127 as power level.
-  ///< @note 2. User should configure a minimum delay (approx. 10 milliseconds) before and after \ref sl_wifi_transmit_test_start API to observe a stable output at requested dBm level.
+  ///< @note 2. User should configure a minimum delay (approx. 10 msec) before and after \ref sl_wifi_transmit_test_start API to observe a stable output at requested dBm level.
   uint32_t rate;   ///< Transmit data rate
                    ///<     ### Data Rates ###
                    ///<          Data rate(Mbps) |   Value of rate
@@ -848,50 +1028,49 @@ typedef struct {
   ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency +5 MHz)`: The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected.
   ///<                                                                                      Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412MHz, the output would be seen at 2417 MHz.
   uint16_t channel; ///< Channel number in 2.4 GHZ / 5 GHZ.
-    ///<         ###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
-    ///<         Channel numbers (2.4GHz)|   Center frequencies for 20 MHz channel width
-    ///<         :----------------------:|:-----------------------------------------------:
-    ///<         1           |   2412
-    ///<         2           |   2417
-    ///<         3           |   2422
-    ///<         4           |   2427
-    ///<         5           |   2432
-    ///<         6           |   2437
-    ///<         7           |   2442
-    ///<         8           |   2447
-    ///<         9           |   2452
-    ///<         10          |   2457
-    ///<         11          |   2462
-    ///<         12          |   2467
-    ///<         13          |   2472
-    ///< @note   To start transmit test in 12,13 channels, configure set region parameters in  sl_si91x_set_device_region
-    ///<    ###  The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
-    ///<         Channel Numbers(5GHz) | Center frequencies for 20MHz channel width
-    ///<         :--------------------:|:------------------------------------------:
-    ///<     36            |5180
-    ///<     40            |5200
-    ///<     44            |5220
-    ///<     48            |5240
-    ///<     52            |5260
-    ///<     56          |5280
-    ///<     60            |5300
-    ///<     64            |5320
-    ///<     149           |5745
-    ///<     153           |5765
-    ///<     157           |5785
-    ///<     161           |5805
-    ///<     165           |5825
+  ///<         ###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
+  ///<         Channel numbers (2.4GHz)|   Center frequencies for 20 MHz channel width
+  ///<         :----------------------:|:-----------------------------------------------:
+  ///<         1           |   2412
+  ///<         2           |   2417
+  ///<         3           |   2422
+  ///<         4           |   2427
+  ///<         5           |   2432
+  ///<         6           |   2437
+  ///<         7           |   2442
+  ///<         8           |   2447
+  ///<         9           |   2452
+  ///<         10          |   2457
+  ///<         11          |   2462
+  ///<         12          |   2467
+  ///<         13          |   2472
+  ///< @note   To start transmit test in 12,13 channels, configure set region parameters in  sl_si91x_set_device_region
+  ///<    ###  The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
+  ///<         Channel Numbers(5GHz) | Center frequencies for 20MHz channel width
+  ///<         :--------------------:|:------------------------------------------:
+  ///<     36            |5180
+  ///<     40            |5200
+  ///<     44            |5220
+  ///<     48            |5240
+  ///<     52            |5260
+  ///<     56          |5280
+  ///<     60            |5300
+  ///<     64            |5320
+  ///<     149           |5745
+  ///<     153           |5765
+  ///<     157           |5785
+  ///<     161           |5805
+  ///<     165           |5825
   uint16_t rate_flags; ///< Rate flags
-    ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
+  ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
   uint16_t channel_bw;  ///< Channel Bandwidth
   uint16_t aggr_enable; ///< tx test mode aggr_enable
   uint16_t reserved;    ///< Reserved
   uint16_t no_of_pkts;  ///< Number of packets
   uint32_t delay;       ///< Delay
-#if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
-  uint8_t enable_11ax; ///< 11AX_ENABLE 0-disable, 1-enable
-  uint8_t coding_type; ///< Coding_type 0-BCC 1-LDPC
-  uint8_t nominal_pe;  ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
+  uint8_t enable_11ax;  ///< 11AX_ENABLE 0-disable, 1-enable
+  uint8_t coding_type;  ///< Coding_type 0-BCC 1-LDPC
+  uint8_t nominal_pe;   ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
   uint8_t
     ul_dl; ///< Indicates whether the PPDU is UL/DL. Set it to 1 if PPDU is to be sent by station to AP; 0 if PPDU is to be sent by AP to station.
   uint8_t he_ppdu_type; ///< he_ppdu_type 0-HE SU PPDU, 1-HE ER SU PPDU, 2-HE TB PPDU, 3-HE MU PPDU
@@ -916,7 +1095,6 @@ typedef struct {
   uint16_t user_sta_id;           ///< Indicates the Station ID of the intended user. Allowed range is 0-2047.
   uint8_t user_idx;               ///< USER_IDX shall be in the range 0-8
   uint8_t sigb_compression_field; ///< SIGB_COMPRESSION_FIELD shall be 0/1
-#endif
 } sl_wifi_transmitter_test_info_t;
 
 /**
@@ -1231,7 +1409,7 @@ typedef struct {
 } sl_wifi_ap_reconfiguration_t;
 
 /// Wi-Fi Access Point dynamic configuration structure.
-typedef sl_wifi_ap_reconfiguration_t sl_si91x_ap_reconfiguration_t;
+typedef sl_wifi_ap_reconfiguration_t SL_DEPRECATED_API_WISECONNECT_4_0 sl_si91x_ap_reconfiguration_t;
 
 /**
  * @enum sl_wifi_system_coex_mode_t
@@ -1306,13 +1484,13 @@ typedef enum {
  */
 typedef struct {
   uint16_t
-    active_chan_scan_timeout_value; ///< Time spent on each channel when performing active scan (milliseconds). Default value of 100 millisecs is used when SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME is passed.
+    active_chan_scan_timeout_value; ///< Time spent on each channel when performing active scan (milliseconds). Default value of 100 msec is used when SL_WIFI_DEFAULT_ACTIVE_CHANNEL_SCAN_TIME is passed.
   uint16_t
-    auth_assoc_timeout_value; ///< Authentication and association timeout value. Default value of 300 millisecs is used when SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT is passed.
+    auth_assoc_timeout_value; ///< Authentication and association timeout value. Default value of 300 msec is used when SL_WIFI_DEFAULT_AUTH_ASSOCIATION_TIMEOUT is passed.
   uint16_t
     keep_alive_timeout_value; ///< Keep Alive Timeout value. Default value of 30 seconds is used when SL_WIFI_DEFAULT_KEEP_ALIVE_TIMEOUT is passed.
   uint16_t
-    passive_scan_timeout_value; ///< Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 millisecs, and maximum is 1000 milliseconds. Default value of 400 milliseconds is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
+    passive_scan_timeout_value; ///< Time spent on each channel when performing passive scan (milliseconds). The minimum passive_scan_timeout_value is 5 msec, and maximum is 1000 msec. Default value of 400 msec is used when SL_WIFI_DEFAULT_PASSIVE_CHANNEL_SCAN_TIME is passed.
 } sl_wifi_timeout_t;
 
 /**
@@ -1324,7 +1502,7 @@ typedef struct {
   uint16_t power;  ///< TX power in dBm.  Range : 2 - 18 dBm.
                    ///<
   ///< @note 1. User can configure the maximum power level allowed for the given frequency in the configured region by providing 127 as power level.
-  ///< @note 2. User should configure a minimum delay (approximately 10 milliseconds) before and after sl_si91x_transmit_test_start API to observe a stable output at requested dBm level.
+  ///< @note 2. User should configure a minimum delay (approx. 10 msec) before and after sl_si91x_transmit_test_start API to observe a stable output at requested dBm level.
   uint32_t rate;   ///< Transmit data rate
                    ///<     ### Data Rates ###
                    ///<			Data rate(Mbps)	|	Value of rate
@@ -1377,50 +1555,49 @@ typedef struct {
   ///<  `Continuous Wave Mode (Non-Modulation) in single tone Mode (Center frequency +5 MHz)`: The DUT transmits a spectrum that is generated at 5MHz from the center frequency of the channel selected.
   ///<                                                                                      Some amount of carrier leakage will be seen at Center Frequency. For example, for 2412MHz, the output would be seen at 2417 MHz.
   uint16_t channel; ///< Channel number in 2.4 GHZ / 5 GHZ.
-    ///<			###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
-    ///<			Channel numbers (2.4GHz)|	Center frequencies for 20 MHz channel width
-    ///<			:----------------------:|:-----------------------------------------------:
-    ///<			1			|	2412
-    ///<			2			|	2417
-    ///<			3			|	2422
-    ///<			4			|	2427
-    ///<			5			|	2432
-    ///<			6			|	2437
-    ///<			7			|	2442
-    ///<			8			|	2447
-    ///<			9			|	2452
-    ///<			10			|	2457
-    ///<			11			|	2462
-    ///<			12			|	2467
-    ///<			13			|	2472
-    ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API.
-    ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
-    ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
-    ///< 		:--------------------:|:------------------------------------------:
-    ///<		36		      |5180
-    ///<		40		      |5200
-    ///<		44		      |5220
-    ///<		48		      |5240
-    ///<		52		      |5260
-    ///<		56	        |5280
-    ///<		60		      |5300
-    ///<		64		      |5320
-    ///<		149		      |5745
-    ///<		153		      |5765
-    ///<		157		      |5785
-    ///<		161		      |5805
-    ///<		165		      |5825
+  ///<			###The following table maps the channel number to the actual radio frequency in the 2.4 GHz spectrum. ###
+  ///<			Channel numbers (2.4GHz)|	Center frequencies for 20 MHz channel width
+  ///<			:----------------------:|:-----------------------------------------------:
+  ///<			1			|	2412
+  ///<			2			|	2417
+  ///<			3			|	2422
+  ///<			4			|	2427
+  ///<			5			|	2432
+  ///<			6			|	2437
+  ///<			7			|	2442
+  ///<			8			|	2447
+  ///<			9			|	2452
+  ///<			10			|	2457
+  ///<			11			|	2462
+  ///<			12			|	2467
+  ///<			13			|	2472
+  ///< @note	To start transmit test in channels 12 and 13, configure region parameters in sl_si91x_set_device_region API.
+  ///<    ###	The following table maps the channel number to the actual radio frequency in the 5 GHz spectrum for 20MHz channel bandwidth. The channel numbers in 5 GHz range is from 36 to 165. ###
+  ///< 		Channel Numbers(5GHz) |	Center frequencies for 20MHz channel width
+  ///< 		:--------------------:|:------------------------------------------:
+  ///<		36		      |5180
+  ///<		40		      |5200
+  ///<		44		      |5220
+  ///<		48		      |5240
+  ///<		52		      |5260
+  ///<		56	        |5280
+  ///<		60		      |5300
+  ///<		64		      |5320
+  ///<		149		      |5745
+  ///<		153		      |5765
+  ///<		157		      |5785
+  ///<		161		      |5805
+  ///<		165		      |5825
   uint16_t rate_flags; ///< Rate flags
-    ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
+  ///< BIT(6) - Immediate Transfer, set this bit to transfer packets immediately ignoring energy/traffic in channel.
   uint16_t channel_bw;  ///< Channel Bandwidth
   uint16_t aggr_enable; ///< tx test mode aggr_enable
   uint16_t reserved;    ///< Reserved
   uint16_t no_of_pkts;  ///< Number of packets
   uint32_t delay;       ///< Delay
-#if defined(SLI_SI917) || defined(DOXYGEN) || defined(SLI_SI915)
-  uint8_t enable_11ax; ///< 11AX_ENABLE 0-disable, 1-enable
-  uint8_t coding_type; ///< Coding_type 0-BCC 1-LDPC
-  uint8_t nominal_pe;  ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
+  uint8_t enable_11ax;  ///< 11AX_ENABLE 0-disable, 1-enable
+  uint8_t coding_type;  ///< Coding_type 0-BCC 1-LDPC
+  uint8_t nominal_pe;   ///< Indicates Nominal T-PE value. 0-0Us 1-8Us 2-16Us
   uint8_t
     ul_dl; ///< Indicates whether the PPDU is UL/DL. Set it to 1 if PPDU is to be sent by station to AP; 0 if PPDU is to be sent by AP to station.
   uint8_t he_ppdu_type; ///< he_ppdu_type 0-HE SU PPDU, 1-HE ER SU PPDU, 2-HE TB PPDU, 3-HE MU PPDU
@@ -1445,7 +1622,6 @@ typedef struct {
   uint16_t user_sta_id;           ///< Indicates the Station ID of the intended user. Allowed range is 0-2047.
   uint8_t user_idx;               ///< USER_IDX should be in the range 0-8.
   uint8_t sigb_compression_field; ///< SIGB_COMPRESSION_FIELD should be 0/1.
-#endif
 } sl_wifi_request_tx_test_info_t;
 
 /**
@@ -1480,4 +1656,31 @@ typedef struct {
   uint8_t twt_protection;     ///< TWT Protection
   uint8_t twt_flow_id;        ///< TWT flow ID
 } sl_wifi_twt_response_t;
+
+/**
+ * @struct sl_wifi_vendor_ie_t
+ * @brief Structure to configure a vendor-specific IE.
+ *
+ * This structure is used to add or remove a vendor-specific IE.
+ */
+typedef struct {
+  uint8_t unique_id;          ///< Unique ID for the IE (must be < SLI_MAX_VENDOR_IE)
+  uint16_t mgmt_frame_bitmap; ///< Bitmap indicating which management frames to include the IE in
+  uint16_t ie_buffer_length;  ///< Length of the IE buffer (must be < SLI_MAX_VENDOR_IE_BUFFER_LENGTH)
+  uint8_t *ie_buffer;         ///< Pointer to raw IE buffer.
+} sl_wifi_vendor_ie_t;
+
+/// Generic Wi-Fi interface information structure
+typedef struct {
+  uint16_t
+    wlan_state; ///< WLAN state: 1 = connected, 0 = disconnected in station mode; number of stations connected in AP mode.
+  uint16_t channel_number; ///< Channel number of connected AP in station mode; channel number of the module in AP mode.
+  uint8_t ssid[SL_WIFI_SSID_LEN]; ///< SSID of connected AP in station mode; SSID of the module in AP mode
+  uint8_t sec_type;               ///< Security type of connected AP is supported in station mode, but not in AP mode.
+  uint8_t psk_pmk[SL_WIFI_MAX_PSK_LENGTH]; ///< PSK for AP mode, PMK for station mode.
+  uint8_t bssid[SL_WIFI_BSSID_LENGTH];     ///< BSSID address of connected AP in station mode; not supported in AP mode.
+  uint8_t
+    wireless_mode; ///< Wireless mode used in connected AP (6 - AX, 4 - N, 3 - G, 1 - B) in station mode; not supported in AP mode.
+  uint8_t mac_address[SL_WIFI_MAC_ADDRESS_LENGTH]; ///< MAC address of the module.
+} sl_wifi_interface_info_t;
 /** @} */

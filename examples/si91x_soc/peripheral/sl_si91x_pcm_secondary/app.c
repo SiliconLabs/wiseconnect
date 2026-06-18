@@ -22,7 +22,7 @@
  ******************************************************************************/
 void app_init(void)
 {
-  pcm_example_init();
+  pcm_secondary_example_init();
 }
 
 /*******************************************************************************
@@ -30,5 +30,5 @@ void app_init(void)
  ******************************************************************************/
 void app_process_action(void)
 {
-  pcm_example_process_action();
+  pcm_secondary_example_process_action();
 }

@@ -1,6 +1,6 @@
 id: sl_calendar
 label: Calendar
-package: platform
+package: platform_siwx91x
 description: >
   The calendar driver will set the day and time for the RTC. 
   When activated, it can also generate triggers for second and millisecond timeouts. 

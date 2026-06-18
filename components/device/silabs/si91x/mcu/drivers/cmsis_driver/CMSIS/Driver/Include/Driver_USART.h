@@ -181,6 +181,7 @@ typedef struct _ARM_USART_MODEM_STATUS {
 
 
 /****** USART Event *****/
+#define ARM_USART_EVENT_NONE                (0UL)  ///< Default value when no events are signaled
 #define ARM_USART_EVENT_SEND_COMPLETE       (1UL << 0)  ///< Send completed; however USART may still transmit data
 #define ARM_USART_EVENT_RECEIVE_COMPLETE    (1UL << 1)  ///< Receive completed
 #define ARM_USART_EVENT_TRANSFER_COMPLETE   (1UL << 2)  ///< Transfer completed

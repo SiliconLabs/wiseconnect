@@ -34,6 +34,7 @@
 #include "sl_net_constants.h"
 #include "sli_net_utility.h"
 #include "sl_net_si91x_integration_handler.h"
+#include "sli_wifi_constants.h"
 #if defined(SL_WIFI_COMPONENT_INCLUDED)
 #include "sl_wifi.h"
 #endif
@@ -69,8 +70,8 @@
 #ifdef SLI_SI91X_INTERNAL_HTTP_CLIENT
 #include "sl_si91x_http_client_callback_framework.h"
 #endif
-
-extern sli_si91x_command_queue_t cmd_queues[SI91X_CMD_MAX];
+#include "sli_wifi_utility.h"
+extern sli_wifi_command_queue_t cmd_queues[SI91X_CMD_MAX];
 
 void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system_packet_t *packet);
 
@@ -80,7 +81,8 @@ void sli_handle_wifi_events(const sli_si91x_queue_packet_t *data, sl_wifi_system
  */
 static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_asyn_packet)
 {
-  sl_wifi_system_packet_t *raw_rx_packet = sl_si91x_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
+  sl_wifi_system_packet_t *raw_rx_packet =
+    (sl_wifi_system_packet_t *)sli_wifi_host_get_buffer_data(mqtt_asyn_packet->host_packet, 0, NULL);
   sl_mqtt_client_t *mqtt_client;
 
   raw_rx_packet->desc[12] = mqtt_asyn_packet->frame_status & 0xFF;        // Lower 8 bits
@@ -92,7 +94,7 @@ static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_
 
   // Since these responses are unsolicited, We need to create a context for them.
   if (raw_rx_packet->command == SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE
-      || raw_rx_packet->command == SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT || raw_rx_packet->command == SLI_WLAN_RSP_JOIN
+      || raw_rx_packet->command == SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT || raw_rx_packet->command == SLI_WIFI_RSP_JOIN
       || is_keep_alive_response_related_disconnect) {
 
     sli_si91x_get_mqtt_client(&mqtt_client);
@@ -111,7 +113,7 @@ static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_
     }
 
     // Send CONNECT_FAILED_EVENT if JOIN is received during TA_INIT state
-    if ((raw_rx_packet->command == SLI_WLAN_RSP_JOIN || raw_rx_packet->command == SLI_WLAN_RSP_DISCONNECT)
+    if ((raw_rx_packet->command == SLI_WIFI_RSP_JOIN || raw_rx_packet->command == SLI_WIFI_RSP_DISCONNECT)
         && mqtt_client->state == SL_MQTT_CLIENT_TA_INIT) {
       // Build MQTT SDK context for asynchronous MQTT events
       sli_si91x_build_mqtt_sdk_context_if_async(SL_MQTT_CLIENT_CONNECTED_EVENT,
@@ -123,7 +125,7 @@ static void sli_handle_mqtt_client_asynch_events(sli_si91x_queue_packet_t *mqtt_
     } else {
       // Build MQTT SDK context for asynchronous MQTT events
       sli_si91x_build_mqtt_sdk_context_if_async(
-        (raw_rx_packet->command == SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == SLI_WLAN_RSP_JOIN
+        (raw_rx_packet->command == SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE || raw_rx_packet->command == SLI_WIFI_RSP_JOIN
          || is_keep_alive_response_related_disconnect)
           ? SL_MQTT_CLIENT_DISCONNECTED_EVENT
           : SL_MQTT_CLIENT_MESSAGED_RECEIVED_EVENT,
@@ -156,7 +158,7 @@ static bool sli_handle_mqtt_client_events(sli_si91x_queue_packet_t *data, const 
 {
   // Handle MQTT client-specific events
   if (packet->command == SLI_WLAN_REQ_EMB_MQTT_CLIENT || packet->command == SLI_WLAN_RSP_EMB_MQTT_PUBLISH_PKT
-      || packet->command == SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE || packet->command == SLI_WLAN_RSP_JOIN) {
+      || packet->command == SLI_WLAN_RSP_MQTT_REMOTE_TERMINATE || packet->command == SLI_WIFI_RSP_JOIN) {
     sli_handle_mqtt_client_asynch_events(data);
     return true;
   }
@@ -218,7 +220,7 @@ void sl_net_si91x_event_dispatch_handler(sli_si91x_queue_packet_t *data, sl_wifi
   sli_handle_socket_events(data, packet);
 #endif
 
-  status = sli_convert_si91x_event_to_sl_net_event(&packet->command, &service_event);
+  status = sli_convert_si91x_event_to_sl_net_event(&packet->command, &service_event, packet);
   if (status == SL_STATUS_OK) {
     SL_DEBUG_LOG("><<<< Got net event : %u\n", service_event);
     sl_si91x_default_handler(service_event, data->host_packet);
@@ -292,7 +294,7 @@ void sli_si91x_flush_third_party_station_dependent_sockets(const sli_si91x_ap_di
 {
 
   sl_ip_address_t dest_ip_add = { 0 };
-  uint8_t vap_id = (SL_SI91X_CONCURRENT_MODE == sli_get_opermode()) ? SL_WIFI_AP_VAP_ID : SL_WIFI_CLIENT_VAP_ID;
+  uint8_t vap_id = (SL_WIFI_CONCURRENT_MODE == sli_wifi_get_opermode()) ? SL_WIFI_AP_VAP_ID : SL_WIFI_CLIENT_VAP_ID;
   // IPv4 Address Handling
   if (ap_disconnect_resp->flag & BIT(0)) {
     dest_ip_add.type = SL_IPV4;

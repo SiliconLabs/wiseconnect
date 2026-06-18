@@ -66,7 +66,7 @@ To use this application, the following hardware, software and project setup is r
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 - [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-extension)
 - [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
 - [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
 - [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
@@ -81,7 +81,7 @@ The application can be configured to suit user requirements and development envi
 
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-  sl_si91x_request_tx_test_info_t tx_test_info = {
+  sl_wifi_request_tx_test_info_t tx_test_info = {
   .enable    = 1,    // Enable/disable tx test mode
     .power   = 4,    // Tx RF power in the range [2:18] dBm
     .rate    = rate, // WLAN data rate of 6Mbps
@@ -107,7 +107,7 @@ The application can be configured to suit user requirements and development envi
 **NOTE**:
     Receive stats testing should be done in a controlled environment (RF shield box or chamber).
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -126,7 +126,7 @@ Follow the steps below for successful execution of the application:
 
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-  sl_si91x_request_tx_test_info_t tx_test_info = {
+  sl_wifi_request_tx_test_info_t tx_test_info = {
   .enable = 1, .power = 127, .rate = rate, .length = 100,
   .mode      = 1, // Continuous Mode
     .channel = 6,
@@ -147,7 +147,7 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
 
 ```c
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_MCS0;
-  sl_si91x_request_tx_test_info_t tx_test_info = {
+  sl_wifi_request_tx_test_info_t tx_test_info = {
     .enable      = 1,
     .power       = 127,
     .rate        = rate,
@@ -159,7 +159,7 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
     .enable_11ax            = 1, // 11AX_ENABLE 0-disable, 1-enable
     ....
 // Other configurable parameters
-// The description of the configurable parameters can be found in sl_si91x_request_tx_test_info_t structure
+// The description of the configurable parameters can be found in sl_wifi_request_tx_test_info_t structure
 #endif
   }
 
@@ -167,7 +167,7 @@ The below result is for PER Mode with Channel '6' with 6 Mbps data rate and max 
 ```
 
 - Configure below parameter in **app.c** to enable AGGREGATION support
-  .feature_bit_map = SL_SI91X_FEAT_AGGREGATION
+  .feature_bit_map = SL_WIFI_FEAT_AGGREGATION
 
 The below is the result for PER Mode with Channel '1' with MCS index 0 transfer rate, in continuous mode.
 

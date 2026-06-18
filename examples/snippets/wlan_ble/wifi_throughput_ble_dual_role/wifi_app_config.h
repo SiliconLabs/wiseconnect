@@ -81,8 +81,8 @@
 /*=======================================================================*/
 //! Socket configuration
 /*=======================================================================*/
-#define TCP_RX_WINDOW_SIZE_CAP   20 //@ TCP RX Window size - 64K (44 * 1460)
-#define TCP_RX_WINDOW_DIV_FACTOR 0
+#define TCP_RX_WINDOW_SIZE_CAP   44 //@ TCP RX Window size - 64KB (44 * 1460)
+#define TCP_RX_WINDOW_DIV_FACTOR 44
 #define USE_SELECT_FEATURE       0
 
 //! Enumeration for states in application

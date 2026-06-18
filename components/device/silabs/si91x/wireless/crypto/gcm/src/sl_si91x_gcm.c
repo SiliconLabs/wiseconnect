@@ -34,12 +34,13 @@
 #include "sl_constants.h"
 #include "sl_si91x_protocol_types.h"
 #include "sl_si91x_driver.h"
+#include "sli_wifi_utility.h"
 #if defined(SLI_MULTITHREAD_DEVICE_SI91X)
 #include "sl_si91x_crypto_thread.h"
 #endif
 #include <string.h>
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 static void sli_si91x_gcm_get_key_info(sli_si91x_gcm_request_t *request, const sl_si91x_gcm_config_t *config)
 {
   request->gcm_mode                                  = config->gcm_mode;
@@ -75,7 +76,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
       return SL_STATUS_INVALID_PARAMETER;
   }
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   if ((config->gcm_mode == SL_SI91X_GCM_MODE) && config->nonce_length != SLI_SI91X_GCM_IV_SIZE) {
     return SL_STATUS_INVALID_PARAMETER;
   }
@@ -99,7 +100,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   memcpy(request->nonce, config->nonce, config->nonce_length);
   memcpy(request->msg, config->msg, chunk_length);
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   sli_si91x_gcm_get_key_info(request, config);
 
 #else
@@ -109,10 +110,10 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
 
   status =
     sli_si91x_driver_send_command(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
-                                  SI91X_COMMON_CMD,
+                                  SLI_WIFI_COMMON_CMD,
                                   request,
                                   (sizeof(sli_si91x_gcm_request_t) - SL_SI91X_MAX_DATA_SIZE_IN_BYTES + chunk_length),
-                                  SL_SI91X_WAIT_FOR_RESPONSE(32000),
+                                  SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME),
                                   NULL,
                                   &buffer);
 
@@ -123,7 +124,7 @@ static sl_status_t sli_si91x_gcm_pending(sl_si91x_gcm_config_t *config,
   }
   VERIFY_STATUS_AND_RETURN(status);
 
-  packet = sl_si91x_host_get_buffer_data(buffer, 0, NULL);
+  packet = sli_wifi_host_get_buffer_data(buffer, 0, NULL);
 
   if (config->gcm_mode == SL_SI91X_GCM_MODE) {
     memcpy(output, packet->data, packet->length);
@@ -174,7 +175,7 @@ static sl_status_t sli_si91x_gcm_side_band(sl_si91x_gcm_config_t *config, uint8_
   status = sl_si91x_driver_send_side_band_crypto(SLI_COMMON_REQ_ENCRYPT_CRYPTO,
                                                  request,
                                                  (sizeof(sli_si91x_gcm_request_t)),
-                                                 SL_SI91X_WAIT_FOR_RESPONSE(32000));
+                                                 SLI_WIFI_WAIT_FOR_RESPONSE(SLI_COMMON_RSP_ENCRYPT_CRYPTO_WAIT_TIME));
   free(request);
   VERIFY_STATUS_AND_RETURN(status);
   return status;
@@ -195,7 +196,7 @@ sl_status_t sl_si91x_gcm(sl_si91x_gcm_config_t *config, uint8_t *output)
   SL_VERIFY_POINTER_OR_RETURN(config->msg, SL_STATUS_NULL_POINTER);
 
   if ((config->msg == NULL) || (output == NULL) ||
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
       (config->gcm_mode == SL_SI91X_GCM_MODE && config->nonce == NULL)
 #else
       (config->key_config.a0.key == NULL) || (config->nonce == NULL)

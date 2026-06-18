@@ -1,6 +1,6 @@
 id: sl_gpio_peripheral
 label: SL GPIO Peripheral
-package: platform
+package: platform_siwx91x
 description: >
   GPIO stands for general purpose input output. 
   The peripheral GPIO demonstrates the set of operations like handling input and output 

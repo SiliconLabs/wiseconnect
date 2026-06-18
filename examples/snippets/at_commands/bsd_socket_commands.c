@@ -27,7 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include <string.h>
+
 #include "console.h"
 #include "sl_utility.h"
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
@@ -46,16 +46,24 @@ int errno;
 #include "sl_si91x_socket.h"
 #include "sl_si91x_socket_utility.h"
 #include "at_utility.h"
+#include "at_command_data_mode.h"
+#include <string.h>
+#include <inttypes.h>
 
 /******************************************************
  *                    Macros
  ******************************************************/
 #define UDP_MAX_RECEIVE_DATA_LENGTH 1470
 #define TCP_MAX_RECEIVE_DATA_LENGTH 1460
+
+#define INVALID_SOCK          (-1)
+#define SOCK_DOMAIN_DEFAULT   AF_INET
+#define SOCK_TYPE_DEFAULT     SOCK_STREAM
+#define SOCK_PROTOCOL_DEFAULT IPPROTO_TCP
+
 #define VERIFY_BSD_STATUS(status) \
   do {                            \
     if (status < 0) {             \
-      print_errno();              \
       return SL_STATUS_FAIL;      \
     }                             \
   } while (0)
@@ -64,47 +72,144 @@ int errno;
  *               Static Function Declarations
  ******************************************************/
 
-static inline void print_errno(void);
-
 /******************************************************
  *               Extern Functions
  ******************************************************/
+
 /******************************************************
  *               Function Declarations
  ******************************************************/
 uint8_t nfds = 0;
 
-static uint8_t remote_terminate_flag        = 0;
-static uint8_t skip_remote_terminate_prints = 0;
+typedef struct {
+  int fd;
+  char *address;
+  uint16_t port;
+} server_info_t;
+
+static server_info_t sv_info = {
+  .fd      = -1,
+  .address = NULL,
+  .port    = 0,
+};
+
+typedef struct socket_node {
+  int fd;
+  int domain;
+  struct socket_node *next;
+} socket_node_t;
+
+static socket_node_t *socket_list_head = NULL;
+
+/******************************************************
+ *               Socket List Management Functions
+ ******************************************************/
+
+// Add a new socket to the list
+static sl_status_t socket_list_add(int fd, int domain)
+{
+  if (fd < 0) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  socket_node_t *current = socket_list_head;
+  while (current != NULL) {
+    if (current->fd == fd) {
+      // Socket already exists in the list
+      return SL_STATUS_OK;
+    }
+    current = current->next;
+  }
+
+  socket_node_t *new_node = calloc(1, sizeof(socket_node_t));
+  SL_VERIFY_POINTER_OR_RETURN(new_node, SL_STATUS_ALLOCATION_FAILED);
+
+  new_node->fd     = fd;
+  new_node->domain = domain;
+  new_node->next   = socket_list_head;
+  socket_list_head = new_node;
+
+  return SL_STATUS_OK;
+}
+
+// Find socket info by fd
+static socket_node_t *socket_list_find(int fd)
+{
+  socket_node_t *current = socket_list_head;
+  while (current != NULL) {
+    if (current->fd == fd) {
+      return current;
+    }
+    current = current->next;
+  }
+  return NULL;
+}
+
+// Get socket domain
+static int socket_list_get_domain(int fd)
+{
+  socket_node_t *node = socket_list_find(fd);
+  return (node != NULL) ? node->domain : AF_UNSPEC;
+}
+
+// Check if socket exists
+static bool socket_list_exists(int fd)
+{
+  return (socket_list_find(fd) != NULL);
+}
+
+// Remove socket from list
+static sl_status_t socket_list_remove(int fd)
+{
+  socket_node_t *current = socket_list_head;
+  socket_node_t *prev    = NULL;
+
+  while (current != NULL) {
+    if (current->fd == fd) {
+      if (prev == NULL) {
+        socket_list_head = current->next;
+      } else {
+        prev->next = current->next;
+      }
+      free(current);
+      return SL_STATUS_OK;
+    }
+    prev    = current;
+    current = current->next;
+  }
+
+  return SL_STATUS_NOT_FOUND;
+}
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void remote_terminate(int socket_id, uint16_t port_number, uint32_t bytes_sent)
-{
-  if (skip_remote_terminate_prints) {
-    remote_terminate_flag        = 1;
-    skip_remote_terminate_prints = 0;
-  } else {
-    printf("Remote Terminate on socket %d, port %d , bytes_sent %ld\r\n", socket_id, port_number, bytes_sent);
-  }
-}
-
+// at+socket=<domain>,<type>,<protocol>
 sl_status_t bsd_socket_create_handler(console_args_t *arguments)
 {
-  const int32_t domain   = (int32_t)arguments->arg[0];
-  const int32_t type     = (int32_t)arguments->arg[1];
-  const int32_t protocol = (int32_t)arguments->arg[2];
+  CHECK_ARGUMENT_BITMAP(arguments, 0x07);
 
-  int32_t socket_fd = socket(domain, type, protocol);
+  int domain   = GET_OPTIONAL_COMMAND_ARG(arguments, 0, SOCK_DOMAIN_DEFAULT, int);
+  int type     = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SOCK_TYPE_DEFAULT, int);
+  int protocol = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SOCK_PROTOCOL_DEFAULT, int);
+
+  int socket_fd = socket(domain, type, protocol);
   VERIFY_BSD_STATUS(socket_fd);
-  PRINT_AT_CMD_SUCCESS;
 
-  printf("%lu", socket_fd);
+  sl_status_t status = socket_list_add(socket_fd, domain);
+  if (status != SL_STATUS_OK) {
+    close(socket_fd);
+    return status;
+  }
+
+  PRINT_AT_CMD_SUCCESS;
+  AT_PRINTF("%d", socket_fd);
+
   return SL_STATUS_OK;
 }
 
+// ?
 sl_status_t bsd_socket_bind_handler(console_args_t *arguments)
 {
   sl_ipv4_address_t ip = { 0 };
@@ -141,6 +246,7 @@ sl_status_t bsd_socket_bind_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// ?
 sl_status_t bsd_socket_listen_handler(console_args_t *arguments)
 {
   const int32_t socket_fd = (int32_t)arguments->arg[0];
@@ -154,6 +260,7 @@ sl_status_t bsd_socket_listen_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// ?
 sl_status_t bsd_socket_accept_handler(console_args_t *arguments)
 {
   const int32_t socket_fd                  = (int32_t)arguments->arg[0];
@@ -185,151 +292,309 @@ sl_status_t bsd_socket_accept_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+recv=<socket-id>,<remote-ip-address>,<remote-port>,<bytes-to-read>,<flags>
 sl_status_t bsd_socket_receive_from_handler(console_args_t *arguments)
 {
-  int32_t sock_fd                                 = (int32_t)arguments->arg[0];
-  struct sockaddr_in address                      = { 0 };
-  socklen_t address_length                        = sizeof(address);
-  sl_ipv4_address_t ip                            = { 0 };
-  uint8_t buffer[UDP_MAX_RECEIVE_DATA_LENGTH + 1] = { 0 };
+  CHECK_ARGUMENT_BITMAP(arguments, 0x19);
 
-  int32_t status = recvfrom(sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr *)&address, &address_length);
-  VERIFY_BSD_STATUS(status);
+  int sock_fd          = GET_OPTIONAL_COMMAND_ARG(arguments, 0, INVALID_SOCK, int);
+  const char *address  = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
+  uint16_t port        = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t);
+  size_t bytes_to_read = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, size_t);
+  int flags            = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, int);
 
-  PRINT_AT_CMD_SUCCESS;
-  memcpy(&ip.value, &address.sin_addr.s_addr, SL_IPV4_ADDRESS_LENGTH);
-  SL_DEBUG_LOG("%u.%u.%u.%u:%u", ip.bytes[0], ip.bytes[1], ip.bytes[2], ip.bytes[3], address.sin_port);
-
-  SL_DEBUG_LOG("Received:%s", buffer);
-  return SL_STATUS_OK;
-}
-
-sl_status_t bsd_socket_receive_handler(console_args_t *arguments)
-{
-  int32_t sock_fd                                 = (int32_t)arguments->arg[0];
-  uint8_t buffer[TCP_MAX_RECEIVE_DATA_LENGTH + 1] = { 0 };
-
-  int32_t status = recv(sock_fd, buffer, sizeof(buffer), 0);
-  VERIFY_BSD_STATUS(status);
-
-  PRINT_AT_CMD_SUCCESS;
-  printf("Received:%s", buffer);
-  return SL_STATUS_OK;
-}
-
-sl_status_t bsd_socket_send_handler(console_args_t *arguments)
-{
-  const char *buffer = NULL;
-  int32_t sock_fd    = (int32_t)arguments->arg[0];
-
-  buffer = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, char *);
-
-  int flags = 0;
-
-  if (buffer == NULL) {
+  if ((sock_fd == INVALID_SOCK) || (bytes_to_read == 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  int32_t status = send(sock_fd, buffer, strlen(buffer), flags);
+  // Check if socket exists in list
+  int domain = socket_list_get_domain(sock_fd);
+  if (domain == AF_UNSPEC) {
+    return SL_STATUS_NOT_INITIALIZED;
+  }
 
-  VERIFY_BSD_STATUS(status);
+  uint8_t *buffer = calloc(1, bytes_to_read);
+  if (buffer == NULL) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  ssize_t size = -1;
+  sl_status_t status;
+  sl_ip_address_t ip_address;
+
+  if (domain == AF_INET) {
+    status = sl_net_inet_addr(address, &ip_address.ip.v4.value);
+    VERIFY_STATUS_AND_RETURN(status);
+
+    struct sockaddr_in server_address = { 0 };
+    socklen_t address_length          = sizeof(server_address);
+    server_address.sin_addr.s_addr    = ip_address.ip.v4.value;
+    server_address.sin_port           = (in_port_t)port;
+    server_address.sin_family         = AF_INET;
+
+    size = recvfrom(sock_fd, buffer, bytes_to_read, flags, (struct sockaddr *)&server_address, &address_length);
+  } else if (domain == AF_INET6) {
+    unsigned char hex_addr[SL_IPV6_ADDRESS_LENGTH] = { 0 };
+    int ret = sl_inet_pton6(address, address + strlen(address), hex_addr, (unsigned int *)ip_address.ip.v6.value);
+    if (ret != 0x1) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+
+    struct sockaddr_in6 server_address6 = { 0 };
+    socklen_t address_length            = sizeof(server_address6);
+
+    memcpy(&server_address6.sin6_addr.__u6_addr.__u6_addr32,
+           &(ip_address.ip.v6.value),
+           sizeof(server_address6.sin6_addr.__u6_addr.__u6_addr32));
+    server_address6.sin6_family = AF_INET6;
+    server_address6.sin6_port   = (in_port_t)port;
+
+    size = recvfrom(sock_fd, buffer, bytes_to_read, flags, (struct sockaddr *)&server_address6, &address_length);
+  } else {
+    SL_CLEANUP_MALLOC(buffer);
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if (size < 0) {
+    SL_CLEANUP_MALLOC(buffer);
+    return size;
+  }
 
   PRINT_AT_CMD_SUCCESS;
-  SL_DEBUG_LOG("%lu bytes sent", status);
+  printf("%d ", size);
+  at_print_char_buffer((char *)buffer, size);
+
+  SL_CLEANUP_MALLOC(buffer);
 
   return SL_STATUS_OK;
 }
 
+static sl_status_t setup_server_info(server_info_t *info, int fd, const char *address, uint16_t port)
+{
+  if (info == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  info->fd   = fd;
+  info->port = port;
+
+  // Clear before new allocate
+  SL_CLEANUP_MALLOC(info->address);
+
+  if (address != NULL) {
+    size_t addr_len = strlen(address);
+    info->address   = calloc(1, addr_len + 1);
+    if (info->address == NULL) {
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+
+    strncpy(info->address, address, addr_len);
+    info->address[addr_len] = '\0';
+  }
+
+  return SL_STATUS_OK;
+}
+
+static sl_status_t bsd_socket_sendto(server_info_t *info, uint8_t *buffer, size_t data_len)
+{
+  if ((info == NULL) || (buffer == NULL)) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  ssize_t size;
+  if (info->address != NULL) {
+    sl_ip_address_t ip_address = { 0 };
+    sl_status_t status         = sl_net_inet_addr_auto(info->address, &ip_address);
+    VERIFY_STATUS_AND_RETURN(status);
+
+    // Get domain from linked list
+    int domain = socket_list_get_domain(info->fd);
+    if (domain == AF_UNSPEC) {
+      return SL_STATUS_NOT_INITIALIZED;
+    }
+
+    // Verify with sock_domain
+    if ((ip_address.type == SL_IPV4 && domain != AF_INET) || (ip_address.type == SL_IPV6 && domain != AF_INET6)) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+
+    if (ip_address.type == SL_IPV4) {
+      struct sockaddr_in server_address = { 0 };
+
+      server_address.sin_addr.s_addr = ip_address.ip.v4.value;
+      server_address.sin_port        = (in_port_t)info->port;
+      server_address.sin_family      = AF_INET;
+
+      size = sendto(info->fd, buffer, data_len, 0, (const struct sockaddr *)&server_address, sizeof(server_address));
+      VERIFY_BSD_STATUS(size);
+    } else if (ip_address.type == SL_IPV6) {
+      struct sockaddr_in6 server_address6 = { 0 };
+
+      memcpy(&server_address6.sin6_addr.__u6_addr.__u6_addr32,
+             &(ip_address.ip.v6.value),
+             sizeof(server_address6.sin6_addr.__u6_addr.__u6_addr32));
+      server_address6.sin6_family = AF_INET6;
+      server_address6.sin6_port   = (in_port_t)info->port;
+
+      size = sendto(info->fd, buffer, data_len, 0, (const struct sockaddr *)&server_address6, sizeof(server_address6));
+      VERIFY_BSD_STATUS(size);
+    } else {
+      return SL_STATUS_NOT_SUPPORTED;
+    }
+  } else {
+    // Get domain from linked list
+    int domain = socket_list_get_domain(info->fd);
+    if (domain == AF_UNSPEC) {
+      return SL_STATUS_NOT_INITIALIZED;
+    }
+
+    size = sendto(info->fd, buffer, data_len, 0, NULL, 0);
+    VERIFY_BSD_STATUS(size);
+  }
+
+  return SL_STATUS_OK;
+}
+
+static sl_status_t bsd_socket_send_buffer_handler(uint8_t *buffer, uint32_t length, void *user_data)
+{
+  server_info_t *info = (server_info_t *)user_data;
+  if (info == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  sl_status_t status = bsd_socket_sendto(info, buffer, (size_t)length);
+  SL_CLEANUP_MALLOC(info->address);
+  VERIFY_STATUS_AND_RETURN(status);
+
+  PRINT_AT_CMD_SUCCESS;
+  return SL_STATUS_OK;
+}
+
+// Old: at+send=<socket-id>,<remote-ip-address>,<remote-port>,<data-length>,<data>
+// New: at+send=<socket-id>,<remote-ip-address>,<remote-port>,<data-length>
 sl_status_t bsd_socket_send_to_handler(console_args_t *arguments)
 {
-  const char *buffer         = NULL;
-  struct sockaddr_in address = { 0 };
-  sl_ipv4_address_t ip       = { 0 };
-  int32_t sock_fd            = (int32_t)arguments->arg[0];
+  CHECK_ARGUMENT_BITMAP(arguments, 0x09);
 
-  buffer = GET_OPTIONAL_COMMAND_ARG(arguments, 4, NULL, char *);
+  sl_status_t status  = SL_STATUS_OK;
+  int sock_fd         = GET_OPTIONAL_COMMAND_ARG(arguments, 0, INVALID_SOCK, int);
+  const char *address = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
+  uint16_t port       = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t);
+  size_t data_len     = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, size_t);
+  const char *buffer  = GET_OPTIONAL_COMMAND_ARG(arguments, 4, NULL, const char *);
 
-  uint16_t data_length = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, socklen_t);
-
-  if ((buffer == NULL) || (data_length == 0)) {
+  if ((sock_fd == INVALID_SOCK) || (data_len == 0)) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (data_length > strlen(buffer)) {
-    data_length = strlen(buffer);
+  if (!socket_list_exists(sock_fd)) {
+    return SL_STATUS_NOT_INITIALIZED;
   }
 
-  convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip);
-  memcpy(&address.sin_addr.s_addr, &ip.value, SL_IPV4_ADDRESS_LENGTH);
+  if (buffer == NULL) { // Data Mode
+    status = setup_server_info(&sv_info, sock_fd, address, port);
+    VERIFY_STATUS_AND_RETURN(status);
+    status = at_command_goto_data_mode(bsd_socket_send_buffer_handler, data_len, &sv_info);
+  } else { // Old version
+    server_info_t info = { 0 };
+    status             = setup_server_info(&info, sock_fd, address, port);
+    VERIFY_STATUS_AND_RETURN(status);
+    data_len = data_len > strlen(buffer) ? strlen(buffer) : data_len;
+    status   = bsd_socket_sendto(&info, (uint8_t *)buffer, data_len);
+    SL_CLEANUP_MALLOC(info.address);
+  }
 
-#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
-  address.sin_port = htons((in_port_t)GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t));
-#else
-  address.sin_port    = (in_port_t)GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t);
-#endif
-  address.sin_family = AF_INET;
-
-  int32_t status = sendto(sock_fd, buffer, data_length, 0, (const struct sockaddr *)&address, sizeof(address));
-  VERIFY_BSD_STATUS(status);
+  VERIFY_STATUS_AND_RETURN(status);
 
   PRINT_AT_CMD_SUCCESS;
-  SL_DEBUG_LOG("%lu bytes sent", status);
-
   return SL_STATUS_OK;
 }
 
+// at+connect=<socket-id>,<remote-ip-address>,<remote-port>
 sl_status_t bsd_socket_connect_handler(console_args_t *arguments)
 {
-  struct sockaddr_in address          = { 0 };
-  struct sockaddr_in6 server_address6 = { 0 };
-  sl_ipv4_address_t ip                = { 0 };
-  uint8_t address_buffer[SL_IPV6_ADDRESS_LENGTH];
-  uint8_t ip_length = 0;
-  int32_t status;
-  int32_t sock_fd = (int32_t)arguments->arg[0];
-#ifdef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
-  address.sin_port = htons((in_port_t)arguments->arg[2]);
-#else
-  address.sin_port    = (in_port_t)arguments->arg[2];
-#endif
-  status = convert_string_to_sl_ipv4_address((char *)arguments->arg[1], &ip);
-  if (status == SL_STATUS_OK) {
-    ip_length = SL_IPV4_ADDRESS_LENGTH;
+  CHECK_ARGUMENT_BITMAP(arguments, 0x07);
+
+  int sock_fd         = GET_OPTIONAL_COMMAND_ARG(arguments, 0, INVALID_SOCK, int);
+  const char *address = GET_OPTIONAL_COMMAND_ARG(arguments, 1, NULL, const char *);
+  uint16_t port       = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint16_t);
+
+  if ((sock_fd == INVALID_SOCK) || (address == NULL)) {
+    return SL_STATUS_INVALID_PARAMETER;
   }
 
-  if (ip_length == SL_IPV4_ADDRESS_LENGTH) {
-    address.sin_family = AF_INET;
-    memcpy(&address.sin_addr.s_addr, &ip.value, SL_IPV4_ADDRESS_LENGTH);
-    status = connect(sock_fd, (struct sockaddr *)&address, sizeof(address));
-  } else {
-    server_address6.sin6_family = AF_INET6;
-    server_address6.sin6_port   = (in_port_t)arguments->arg[3];
-    status                      = sl_inet_pton6((char *)arguments->arg[1],
-                           (char *)arguments->arg[1] + strlen((char *)arguments->arg[1]),
-                           address_buffer,
-                           (unsigned int *)server_address6.sin6_addr.__u6_addr.__u6_addr32);
-    if (status != 0x1) {
-      printf("\nIPv6 conversion failed.\n");
-    }
-    status = connect(sock_fd, (struct sockaddr *)&server_address6, sizeof(server_address6));
+  // Get domain from linked list
+  int domain = socket_list_get_domain(sock_fd);
+  if (domain == AF_UNSPEC) {
+    return SL_STATUS_NOT_INITIALIZED;
   }
-  VERIFY_BSD_STATUS(status);
+
+  sl_status_t status;
+  sl_ip_address_t ip_address;
+
+  if (domain == AF_INET) {
+    status = sl_net_inet_addr(address, &ip_address.ip.v4.value);
+    VERIFY_STATUS_AND_RETURN(status);
+
+    struct sockaddr_in server_address = { 0 };
+    server_address.sin_addr.s_addr    = ip_address.ip.v4.value;
+    server_address.sin_port           = (in_port_t)port;
+    server_address.sin_family         = AF_INET;
+
+    int ret = connect(sock_fd, (const struct sockaddr *)&server_address, sizeof(server_address));
+    VERIFY_BSD_STATUS(ret);
+  } else if (domain == AF_INET6) {
+    unsigned char hex_addr[SL_IPV6_ADDRESS_LENGTH] = { 0 };
+    int ret = sl_inet_pton6(address, address + strlen(address), hex_addr, (unsigned int *)ip_address.ip.v6.value);
+    if (ret != 0x1) {
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+
+    struct sockaddr_in6 server_address6 = { 0 };
+
+    memcpy(&server_address6.sin6_addr.__u6_addr.__u6_addr32,
+           &(ip_address.ip.v6.value),
+           sizeof(server_address6.sin6_addr.__u6_addr.__u6_addr32));
+    server_address6.sin6_family = AF_INET6;
+    server_address6.sin6_port   = (in_port_t)port;
+
+    ret = connect(sock_fd, (const struct sockaddr *)&server_address6, sizeof(server_address6));
+    VERIFY_BSD_STATUS(ret);
+  } else {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
 
   PRINT_AT_CMD_SUCCESS;
   return SL_STATUS_OK;
 }
 
+// at+close=<socket-id>
 sl_status_t bsd_socket_close_handler(console_args_t *arguments)
 {
-  int32_t sock_fd = (int32_t)arguments->arg[0];
+  CHECK_ARGUMENT_BITMAP(arguments, 0x01);
 
-  int32_t status = close(sock_fd);
+  int sock_fd = GET_OPTIONAL_COMMAND_ARG(arguments, 0, INVALID_SOCK, int);
+
+  if (sock_fd == INVALID_SOCK) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Check if socket exists
+  if (!socket_list_exists(sock_fd)) {
+    return SL_STATUS_NOT_FOUND;
+  }
+
+  int status = close(sock_fd);
   VERIFY_BSD_STATUS(status);
+
+  // Remove socket from list
+  socket_list_remove(sock_fd);
 
   PRINT_AT_CMD_SUCCESS;
   return SL_STATUS_OK;
 }
 
+// ?
 sl_status_t bsd_socket_get_host_by_name_handler(console_args_t *arguments)
 {
 #ifndef SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
@@ -356,6 +621,7 @@ sl_status_t bsd_socket_get_host_by_name_handler(console_args_t *arguments)
 #endif
 }
 
+// ?
 sl_status_t bsd_socket_get_sock_name(console_args_t *arguments)
 {
   int status = 0;
@@ -379,6 +645,7 @@ sl_status_t bsd_socket_get_sock_name(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// ?
 sl_status_t bsd_socket_select_handler(console_args_t *arguments)
 {
   fd_set readfds;
@@ -414,146 +681,41 @@ sl_status_t bsd_socket_select_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
-sl_status_t bsd_socket_get_opt_handler(console_args_t *arguments)
-{
-  int32_t socket       = (int32_t)arguments->arg[0];
-  int32_t option_name  = (int32_t)arguments->arg[1];
-  int32_t option_value = 0;
-  socklen_t length     = sizeof(option_value);
-
-  int32_t socket_status = getsockopt(socket, SOL_SOCKET, option_name, &option_value, &length);
-  VERIFY_BSD_STATUS(socket_status);
-
-  printf("%ld", option_value);
-
-  PRINT_AT_CMD_SUCCESS;
-  return SL_STATUS_OK;
-}
-
-sl_status_t bsd_socket_get_peer_name(console_args_t *arguments)
-{
-  int status = 0;
-
-  int socket_id                            = (int32_t)arguments->arg[0];
-  struct sockaddr_in remote_socket_address = { 0 };
-  socklen_t socket_length                  = sizeof(struct sockaddr_in);
-
-  status = getpeername(socket_id, (struct sockaddr *)&remote_socket_address, &socket_length);
-
-  VERIFY_BSD_STATUS(status);
-
-  if (socket_length == sizeof(struct sockaddr_in)) {
-    const uint8_t *ip_address = (uint8_t *)&remote_socket_address.sin_addr.s_addr;
-
-    printf("\n\rIP address %d:%d:%d:%d", ip_address[0], ip_address[1], ip_address[2], ip_address[3]);
-    printf("\n\rPort %d", remote_socket_address.sin_port);
-  }
-
-  PRINT_AT_CMD_SUCCESS;
-  return SL_STATUS_OK;
-}
-
+// at+setsockopt=<socket-id>,<option-level>,<option-name>,<option-value-1>,<option-value-2>,...
 sl_status_t bsd_socket_setsockopt_handler(console_args_t *arguments)
 {
-  int32_t socket           = (int32_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, int32_t);
-  int32_t option_level     = (int32_t)GET_OPTIONAL_COMMAND_ARG(arguments, 1, SOL_SOCKET, int32_t);
-  int32_t option_name      = (int32_t)GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, uint32_t);
+  CHECK_ARGUMENT_BITMAP(arguments, 0x0F);
+
+  int sock_fd              = GET_OPTIONAL_COMMAND_ARG(arguments, 0, INVALID_SOCK, int);
+  int option_level         = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SOL_SOCKET, int);
+  int option_name          = GET_OPTIONAL_COMMAND_ARG(arguments, 2, 0, int);
   const char *option_value = (char *)GET_OPTIONAL_COMMAND_ARG(arguments, 3, NULL, char *);
   uint16_t option_val      = 0;
-  int32_t socket_status    = 0;
+  int socket_status        = 0;
+
+  if ((sock_fd == INVALID_SOCK) || (option_value == NULL)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Check if socket exists
+  if (!socket_list_exists(sock_fd)) {
+    return SL_STATUS_NOT_FOUND;
+  }
 
   if (option_name == TCP_ULP) {
-    socket_status = setsockopt(socket, option_level, option_name, option_value, (strlen(option_value) + 1));
+    socket_status = setsockopt(sock_fd, option_level, option_name, option_value, (strlen(option_value) + 1));
   } else if (option_name == SO_RCVTIMEO) {
     sl_si91x_time_value timeout = { 0 };
-    timeout.tv_sec              = (int32_t)GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
-    timeout.tv_usec             = ((int32_t)GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t)) * 1000;
-    socket_status               = setsockopt(socket, option_level, option_name, &timeout, sizeof(timeout));
+    timeout.tv_sec              = (uint32_t)atoi(option_value);
+    timeout.tv_usec             = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
+    socket_status               = setsockopt(sock_fd, option_level, option_name, &timeout, sizeof(timeout));
   } else {
-    option_val    = (uint16_t)(atoi(option_value));
-    socket_status = setsockopt(socket, option_level, option_name, &option_val, sizeof(option_val));
-  }
-  if (socket_status < 0) {
-    SL_DEBUG_LOG("Set socket option failed with bsd error: %d\n", errno);
-    return SL_STATUS_FAIL;
-  } else {
-    PRINT_AT_CMD_SUCCESS;
-    return SL_STATUS_OK;
-  }
-}
-
-sl_status_t bsd_socket_set_option_handler(console_args_t *arguments)
-{
-  int32_t socket              = (int32_t)arguments->arg[0];
-  int32_t option_level        = (int32_t)arguments->arg[1];
-  int32_t option_name         = (int32_t)arguments->arg[2];
-  int32_t socket_status       = 0;
-  sl_si91x_time_value timeout = { 0 };
-
-  timeout.tv_sec  = (int32_t)arguments->arg[3];
-  timeout.tv_usec = ((int32_t)arguments->arg[4]) * 1000;
-
-  socket_status = setsockopt(socket, option_level, option_name, &timeout, sizeof(timeout));
-  if (socket_status < 0) {
-    printf("Set socket option failed with bsd error: %d\n", errno);
-    return SL_STATUS_FAIL;
+    option_val    = (uint16_t)atoi(option_value);
+    socket_status = setsockopt(sock_fd, option_level, option_name, &option_val, sizeof(option_val));
   }
 
-  PRINT_AT_CMD_SUCCESS;
-  return SL_STATUS_OK;
-}
-
-sl_status_t si91x_set_custom_sync_sockopt(console_args_t *arguments)
-{
-  int32_t socket                = (int32_t)arguments->arg[0];
-  int32_t option_level          = (int32_t)arguments->arg[1];
-  uint32_t option_name          = arguments->arg[2];
-  uint8_t ssl_certificate_index = (uint8_t)arguments->arg[3];
-
-  int32_t socket_status =
-    setsockopt(socket, option_level, option_name, &ssl_certificate_index, sizeof(ssl_certificate_index));
   VERIFY_BSD_STATUS(socket_status);
 
-  PRINT_AT_CMD_SUCCESS;
-  return SL_STATUS_OK;
-}
-
-static inline void print_errno(void)
-{
-  SL_DEBUG_LOG("errno %d", errno);
-}
-
-/* Function to get no of set bits in binary
-representation of positive integer n */
-unsigned int countSetBits(unsigned int number)
-{
-  unsigned int count = 0;
-  while (number) {
-    count += number & 1;
-    number >>= 1;
-  }
-  return count;
-}
-
-sl_status_t set_socket_config_handler(console_args_t *arguments)
-{
-  sl_si91x_socket_config_t socket_configuration        = { 0 };
-  socket_configuration.total_sockets                   = sl_cli_get_argument_uint8(arguments, 0);
-  socket_configuration.total_tcp_sockets               = sl_cli_get_argument_uint8(arguments, 1);
-  socket_configuration.total_udp_sockets               = sl_cli_get_argument_uint8(arguments, 2);
-  socket_configuration.tcp_tx_only_sockets             = sl_cli_get_argument_uint8(arguments, 3);
-  socket_configuration.tcp_rx_only_sockets             = sl_cli_get_argument_uint8(arguments, 4);
-  socket_configuration.udp_tx_only_sockets             = sl_cli_get_argument_uint8(arguments, 5);
-  socket_configuration.udp_rx_only_sockets             = sl_cli_get_argument_uint8(arguments, 6);
-  socket_configuration.tcp_rx_high_performance_sockets = sl_cli_get_argument_uint8(arguments, 7);
-  socket_configuration.tcp_rx_window_size_cap          = sl_cli_get_argument_uint8(arguments, 8);
-  socket_configuration.tcp_rx_window_div_factor        = sl_cli_get_argument_uint8(arguments, 9);
-  return sl_si91x_config_socket(socket_configuration);
-}
-
-sl_status_t set_remote_termination_handler()
-{
-  sl_si91x_set_remote_termination_callback(remote_terminate);
   PRINT_AT_CMD_SUCCESS;
   return SL_STATUS_OK;
 }

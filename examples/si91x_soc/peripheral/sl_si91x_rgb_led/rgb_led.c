@@ -24,6 +24,7 @@
 #include "sl_si91x_rgb_led_instances.h"
 #include "rsi_debug.h"
 #include "sl_si91x_rgb_led.h"
+#include "sl_si91x_clock_manager.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -80,8 +81,7 @@ void rgb_led_process_action(void)
     sl_si91x_simple_rgb_led_set_colour(&RGB_LED, RGB_COLORS[i]);
 
     // delay
-    for (volatile int delay = 0; delay < 1000000; delay++) {
-    }
+    sl_si91x_delay_ms(100);
   }
   // Switch off the LED
   sl_si91x_simple_rgb_led_off(&RGB_LED);

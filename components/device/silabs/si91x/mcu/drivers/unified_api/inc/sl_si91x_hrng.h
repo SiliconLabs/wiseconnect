@@ -75,6 +75,36 @@ typedef enum sl_si91x_hrng_mode {
  ******************************************************************************/
 sl_status_t sl_si91x_hrng_init(void);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Set the soft reset bit of the HRNG peripheral.
+ *
+ * @details
+ *   Sets the HRNG control register `SOFT_RESET` bit to 1 to initiate a reset of
+ *   the internal HRNG logic/state. Use this after enabling clocks to ensure a clean
+ *   starting state. Call @ref sl_si91x_hrng_soft_reset_clear to clear the reset bit
+ *   before starting the HRNG again.
+ *
+ * @pre Pre-conditions:
+ *  - The HRNG peripheral clocks must be enabled using @ref sl_si91x_hrng_init.
+ ******************************************************************************/
+void sl_si91x_hrng_soft_reset_set(void);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Clear the soft reset bit of the HRNG peripheral.
+ *
+ * @details
+ *   Clears the HRNG control register `SOFT_RESET` bit to 0, releasing the HRNG
+ *   from reset state. Call this after @ref sl_si91x_hrng_soft_reset_set to complete
+ *   the reset sequence before requesting random data.
+ *
+ * @pre Pre-conditions:
+ *  - The HRNG peripheral clocks must be enabled using @ref sl_si91x_hrng_init.
+ *  - The soft reset bit should have been set using @ref sl_si91x_hrng_soft_reset_set.
+ ******************************************************************************/
+void sl_si91x_hrng_soft_reset_clear(void);
+
 /***************************************************************************/
 /**
  * @brief
@@ -223,6 +253,8 @@ sl_status_t sl_si91x_hrng_deinit(void);
  *
  * The random number generator can be initialized, started, and stopped using the following functions:
  * - Initialize the HRNG : @ref sl_si91x_hrng_init
+ * - Set soft reset : @ref sl_si91x_hrng_soft_reset_set (call this to turn off random number generation)
+ * - Clear soft reset : @ref sl_si91x_hrng_soft_reset_clear
  * - Start the HRNG : @ref sl_si91x_hrng_start
  * - Get random bytes: @ref sl_si91x_hrng_get_bytes
  * - Stop the HRNG : @ref sl_si91x_hrng_stop
@@ -232,11 +264,15 @@ sl_status_t sl_si91x_hrng_deinit(void);
  *
  * To use the HRNG module:
  * 1. Enable the HRNG peripheral clocks using @ref sl_si91x_hrng_init.
- * 2. Start the HRNG using @ref sl_si91x_hrng_start.
- * 3. Retrieve the random numbers using @ref sl_si91x_hrng_get_bytes.
- * 4. Stop the HRNG using @ref sl_si91x_hrng_stop.
- * 5. Disable the HRNG peripheral clocks using @ref sl_si91x_hrng_deinit.
+ * 2. (Optional) Perform a soft reset for a clean state: call @ref sl_si91x_hrng_soft_reset_set, then @ref sl_si91x_hrng_soft_reset_clear.
+ * 3. Start the HRNG using @ref sl_si91x_hrng_start.
+ * 4. Retrieve the random numbers using @ref sl_si91x_hrng_get_bytes.
+ * 5. Stop the HRNG using @ref sl_si91x_hrng_stop.
+ * 6. Disable the HRNG peripheral clocks using @ref sl_si91x_hrng_deinit.
  *
+ * To turn off random number generation, call @ref sl_si91x_hrng_soft_reset_set.
+ * To turn on random number generation, call @ref sl_si91x_hrng_soft_reset_clear.
+ * 
  *** @} (end addtogroup HRNG) */
 /***************************************************************************** */
 

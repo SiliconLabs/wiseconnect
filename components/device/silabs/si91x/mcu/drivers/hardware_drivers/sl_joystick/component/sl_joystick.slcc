@@ -1,6 +1,6 @@
 id: sl_joystick
 label: Joystick
-package: platform
+package: platform_siwx91x
 description: >
   Provides an API for the Si91x MCU to control a joystick.
 category: Device|Si91x|MCU|Hardware

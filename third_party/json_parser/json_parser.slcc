@@ -1,5 +1,5 @@
 id: json_parser
-package: wiseconnect3_sdk
+package: wifi
 description: >
   JSON Parser for Embedded C
 label: JSON Parser

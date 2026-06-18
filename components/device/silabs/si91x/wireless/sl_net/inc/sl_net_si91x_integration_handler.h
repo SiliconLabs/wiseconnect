@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 #pragma once
+#include "sli_wifi_types.h"
 #include "sl_si91x_types.h"
 
 #define SL_NET_EVENT_DISPATCH_HANDLER(data, packet) sl_net_si91x_event_dispatch_handler(data, packet)

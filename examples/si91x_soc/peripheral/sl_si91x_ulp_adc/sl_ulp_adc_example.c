@@ -77,11 +77,7 @@ static void configuring_ps2_power_state(void);
 void adc_example_init(void)
 {
   sl_adc_version_t version;
-#ifdef SLI_SI915
-  sl_adc_channel_config.channel = SL_ADC_CHANNEL_2;
-#else
-  sl_adc_channel_config.channel = SL_ADC_CHANNEL_1;
-#endif
+  sl_adc_channel_config.channel                        = SL_ADC_CHANNEL_1;
   adc_channel                                          = sl_adc_channel_config.channel;
   sl_adc_channel_config.rx_buf[adc_channel]            = adc_output;
   sl_adc_channel_config.chnl_ping_address[adc_channel] = ADC_PING_BUFFER; /* ADC Ping address */

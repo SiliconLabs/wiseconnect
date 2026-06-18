@@ -29,7 +29,9 @@
 /*
   Include files
  */
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* pull in string library() on Linux */
+#endif
 #include "rsi_common.h"
 #include <string.h>
 #ifndef __ZEPHYR__

@@ -17,10 +17,23 @@
 
 #include "em_device.h"
 #include "sl_status.h"
+#include "sl_wifi.h"
+
+#ifdef SLI_SI91X_MCU_INTERFACE
+#include "sl_si91x_hal_soc_soft_reset.h"
+#endif // SLI_SI91X_MCU_INTERFACE
 
 sl_status_t wifi_reset_command_handler()
 {
+#ifdef SLI_SI91X_MCU_INTERFACE
+  // In MCU mode, call sl_si91x_soc_nvic_reset to reset the NWP firmware
+  sl_si91x_soc_nvic_reset();
+#else
+  // In NCP mode sl_wifi_deinit to be called to soft reset NWP firmware
+  sl_wifi_deinit();
+  // In NCP Mode call NVIC_SystemReset to reset the system
   NVIC_SystemReset();
+#endif
   while (1)
     ;
 

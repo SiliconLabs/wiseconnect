@@ -37,13 +37,13 @@
  *************************** LOCAL VARIABLES   *********************************
  ******************************************************************************/
 // Define GPIO port and pin for HP instance. Here SL_SI91X_GPIO_6_PORT corresponds to GPIO pin 6's port number : 0.
-// This is defined to '0' which is PORT_A and GPIO_PIN_NUMBER6 refers to GPIO pin number 6.
+// This is defined to '0' which is PORT_A and SL_SI91X_GPIO_6_PIN refers to GPIO pin number 6.
 // Same representation followed for other port and pins.
-static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_6_PORT, GPIO_PIN_NUMBER6 }, GPIO_OUTPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config = { { SL_SI91X_GPIO_6_PORT, SL_SI91X_GPIO_6_PIN }, GPIO_OUTPUT };
 // Define GPIO port and pin for HP instance. Here SL_SI91X_GPIO_11_PORT corresponds to GPIO pin 11's port number : 0.
-// This is defined to '0' which is PORT_A and GPIO_PIN_NUMBER11 refers to GPIO pin number 11.
+// This is defined to '0' which is PORT_A and SL_SI91X_GPIO_11_PIN refers to GPIO pin number 11.
 // Same representation followed for other port and pins.
-static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_GPIO_11_PORT, GPIO_PIN_NUMBER11 }, GPIO_INPUT };
+static sl_si91x_gpio_pin_config_t sl_gpio_pin_config1 = { { SL_SI91X_GPIO_11_PORT, SL_SI91X_GPIO_11_PIN }, GPIO_INPUT };
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/

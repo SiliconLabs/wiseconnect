@@ -1,5 +1,5 @@
 id: aws_sdk
-package: wiseconnect3_sdk
+package: wifi
 description: >
   AWS IoT Device SDK for Embedded C
 label: AWS IoT Device SDK
@@ -74,10 +74,69 @@ include:
 requires:
 - name: bsd_socket
   condition: ["sl_si91x_internal_stack"]
-- name: mbedtls
+- name: mbedtls_random
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_tls
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_x509
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_source
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_oid
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_asn1
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_rsa
+  condition: ["sl_si91x_lwip_stack"]
+- name: psa_crypto_tls12_prf
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cipher
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cipher_cbc
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecc
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdsa
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ccm
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_gcm
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_aes
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_hash
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_md5
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_cmac
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdh
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha512
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha256
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha1
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_sha384
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_debug
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_error
+  condition: ["sl_si91x_lwip_stack"]
+- name: psa_its
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_ecdhe_key_exchange
+  condition: ["sl_si91x_lwip_stack"]
+- name: mbedtls_config
   condition: ["sl_si91x_lwip_stack"]
 
 define:
   - name: MBEDTLS_CONFIG_FILE
     value: <sli_aws_iot_mbedtls_config.h>
+    condition: ["sl_si91x_lwip_stack"]
+  - name: MBEDTLS_SSL_ALPN
+    condition: ["sl_si91x_lwip_stack"]
+  - name: MBEDTLS_ENTROPY_MIN_HARDWARE
+    value: '128'
     condition: ["sl_si91x_lwip_stack"]

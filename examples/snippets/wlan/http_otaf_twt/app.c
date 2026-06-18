@@ -40,7 +40,7 @@
 
 // include certificates
 #include "aws_starfield_ca.pem.h"
-#include "azure_baltimore_ca.pem.h"
+#include "silabs_dgcert_ca.pem.h"
 #include "cacert.pem.h"
 
 #ifdef SLI_SI91X_MCU_INTERFACE
@@ -185,18 +185,18 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                     (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #ifdef RSI_M4_INTERFACE
-                      | SL_SI91X_FEAT_WPS_DISABLE
+                      | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                       ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_HTTP_CLIENT
                                               | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID | SL_SI91X_TCP_IP_FEAT_SSL
                                               | SL_SI91X_TCP_IP_FEAT_DNS_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
-                   .ext_custom_feature_bit_map = (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
+                   .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
+                   .ext_custom_feature_bit_map = (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK
                                                   | SL_SI91X_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -206,7 +206,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                       | SL_SI91X_CONFIG_FEAT_EXTENTION_VALID),
                    .ble_feature_bit_map     = 0,
                    .ble_ext_feature_bit_map = 0,
-                   .config_feature_bit_map  = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
+                   .config_feature_bit_map  = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 sl_wifi_twt_request_t default_twt_setup_configuration = {
@@ -248,7 +248,7 @@ int twt_active_session               = 0;
 int power_save_enabled               = 0;
 volatile bool response               = false;
 volatile sl_status_t callback_status = SL_STATUS_OK;
-sl_si91x_twt_response_t twt_response;
+sl_wifi_twt_response_t twt_response;
 
 /******************************************************
  *               Function Declarations
@@ -256,12 +256,14 @@ sl_si91x_twt_response_t twt_response;
 void application_start(const void *unused);
 sl_status_t http_otaf_app();
 static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
                                                    uint16_t *data,
                                                    uint32_t data_length,
                                                    void *arg);
 sl_status_t set_twt(void);
 static sl_status_t twt_callback_handler(sl_wifi_event_t event,
-                                        sl_si91x_twt_response_t *result,
+                                        sl_status_t status_code,
+                                        sl_wifi_twt_response_t *result,
                                         uint32_t result_length,
                                         void *arg);
 #if LOAD_CERTIFICATE
@@ -271,9 +273,8 @@ static sl_status_t clear_and_load_certificates_in_flash(void);
 /******************************************************
  *               Function Definitions
  ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -325,8 +326,8 @@ sl_status_t clear_and_load_certificates_in_flash(void)
   cert        = (void *)aws_starfield_ca;
   cert_length = (sizeof(aws_starfield_ca) - 1);
 #elif AZURE_ENABLE
-  cert        = (void *)azure_baltimore_ca;
-  cert_length = (sizeof(azure_baltimore_ca) - 1);
+  cert        = (void *)silabs_dgcert_ca;
+  cert_length = (sizeof(silabs_dgcert_ca) - 1);
 #else
   cert        = (uint8_t *)cacert;
   cert_length = (sizeof(cacert) - 1);
@@ -358,9 +359,9 @@ sl_status_t http_otaf_app()
   print_firmware_version(&version);
 #endif
 
-  sl_wifi_set_callback(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
-                       (sl_wifi_callback_function_t)&http_fw_update_response_handler,
-                       NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_HTTP_OTA_FW_UPDATE_EVENTS,
+                          (sl_wifi_callback_function_v2_t)&http_fw_update_response_handler,
+                          NULL);
 
 #if defined(AWS_ENABLE) || defined(AZURE_ENABLE)
   sl_ip_address_t dns_query_rsp = { 0 };
@@ -505,7 +506,7 @@ sl_status_t set_twt(void)
   sl_status_t status                                   = SL_STATUS_OK;
 
   //! Set TWT Config
-  sl_wifi_set_twt_config_callback(twt_callback_handler, NULL);
+  sl_wifi_set_twt_config_callback_v2(twt_callback_handler, NULL);
   if (TWT_AUTO_CONFIG == 1) {
     performance_profile.twt_selection = default_twt_selection_configuration;
     status                            = sl_wifi_target_wake_time_auto_selection(&performance_profile.twt_selection);
@@ -536,7 +537,8 @@ sl_status_t set_twt(void)
 }
 
 static sl_status_t twt_callback_handler(sl_wifi_event_t event,
-                                        sl_si91x_twt_response_t *result,
+                                        sl_status_t status_code,
+                                        sl_wifi_twt_response_t *result,
                                         uint32_t result_length,
                                         void *arg)
 {
@@ -544,11 +546,11 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(arg);
 
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   twt_active_session = 0;
-  memcpy(&twt_response, result, sizeof(sl_si91x_twt_response_t));
+  memcpy(&twt_response, result, sizeof(sl_wifi_twt_response_t));
   switch (event) {
     case SL_WIFI_TWT_RESPONSE_EVENT:
       twt_active_session = 1;
@@ -617,6 +619,7 @@ static sl_status_t twt_callback_handler(sl_wifi_event_t event,
 }
 
 static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
+                                                   sl_status_t status_code,
                                                    uint16_t *data,
                                                    uint32_t data_length,
                                                    void *arg)
@@ -624,9 +627,10 @@ static sl_status_t http_fw_update_response_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(data);
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
+
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
     response = false;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
   response = true;
   return SL_STATUS_OK;

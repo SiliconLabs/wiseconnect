@@ -77,11 +77,6 @@
 // WLAN data queue type
 #define RSI_WLAN_DATA_Q 5
 
-#ifdef FW_LOGGING_ENABLE
-#define RSI_SL_LOG_DATA_Q 8
-#define SLI_LOG_DATA      0x01
-#endif
-
 // frame descriptor length
 #define SLI_FRAME_DESC_LEN 16
 

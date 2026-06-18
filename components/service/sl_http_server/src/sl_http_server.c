@@ -42,9 +42,11 @@
 #include "socket.h"
 #include "sli_net_utility.h"
 #include "sl_wifi.h"
+#include "sli_wifi_utility.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "sl_cmsis_utility.h"
 
 #define BACK_LOG                      1 ///< As we are processing one request at a time, the backlog is set to one.
 #define SL_HIGH_PERFORMANCE_SOCKET    BIT(7)
@@ -57,6 +59,14 @@
 #define HTTP_SERVER_EXIT            BIT(3)
 #define HTTP_SERVER_CONNECT_SUCCESS BIT(4)
 
+#ifndef SL_HTTP_SERVER_THREAD_PRIORITY
+#define SL_HTTP_SERVER_THREAD_PRIORITY osPriorityNormal
+#endif
+
+#ifndef SL_HTTP_SERVER_THREAD_STACK_SIZE
+#define SL_HTTP_SERVER_THREAD_STACK_SIZE 2048
+#endif
+
 /******************************************************
  *               Variable Definitions
  ******************************************************/
@@ -65,14 +75,20 @@ static int client_socket               = -1;
 static sl_http_server_t *server_handle = NULL;
 static osThreadId_t http_server_id     = NULL;
 
+typedef enum {
+  SLI_HTTP_VAP_ID_CLIENT = 0,
+  SLI_HTTP_VAP_ID_AP     = 1,
+} sli_http_vap_id_t;
+uint8_t vap_id = SLI_HTTP_VAP_ID_AP; ///< VAP ID for the HTTP server
+
 const osThreadAttr_t http_server_attributes = {
   .name       = "http_server",
   .attr_bits  = 0,
   .cb_mem     = 0,
   .cb_size    = 0,
   .stack_mem  = 0,
-  .stack_size = 2048,
-  .priority   = osPriorityNormal,
+  .stack_size = SL_HTTP_SERVER_THREAD_STACK_SIZE,
+  .priority   = SL_HTTP_SERVER_THREAD_PRIORITY,
   .tz_module  = 0,
   .reserved   = 0,
 };
@@ -236,10 +252,10 @@ static void sli_process_request(sl_http_server_t *handle, int client_socket)
 
   // Loop until Complete headers are received
   while (rem_length > 0) {
-    int length = recv(client_socket, recv_buffer, rem_length, 0);
+    int length = sl_si91x_recv(client_socket, (uint8_t *)recv_buffer, rem_length, 0);
     if (length < 0) {
       SL_DEBUG_LOG("\r\nSocket receive failed with bsd error: %d\r\n", errno);
-      close(client_socket);
+      sl_si91x_shutdown(client_socket, SHUTDOWN_BY_ID);
       return;
     }
     char *sol = &(recv_buffer[recv_length]);
@@ -316,7 +332,7 @@ static void sli_http_server(const void *arg)
   socklen_t socket_length           = sizeof(struct sockaddr_in);
   uint32_t high_performance_socket  = SL_HIGH_PERFORMANCE_SOCKET;
 
-  server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  server_socket = sl_si91x_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (server_socket < 0) {
     SL_DEBUG_LOG("\r\nSocket creation failed with bsd error: %d\r\n", errno);
     // Set flag HTTP_SERVER_START_FAILED if socket call fails
@@ -332,18 +348,17 @@ static void sli_http_server(const void *arg)
                                             sizeof(high_performance_socket));
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    close(server_socket);
+    sl_si91x_shutdown(server_socket, SHUTDOWN_BY_ID);
     // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
     osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
     osThreadExit(); // Exit thread on failure
   }
 
-  uint8_t ap_vap = 1;
   socket_return_value =
-    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &ap_vap, sizeof(ap_vap));
+    sl_si91x_setsockopt(server_socket, SOL_SOCKET, SL_SI91X_SO_SOCK_VAP_ID, &vap_id, sizeof(vap_id));
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSet Socket option failed with bsd error: %d\r\n", errno);
-    close(server_socket);
+    sl_si91x_shutdown(server_socket, SHUTDOWN_BY_ID);
     // Set flag HTTP_SERVER_START_FAILED if setsockopt call fails
     osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
     osThreadExit(); // Exit thread on failure
@@ -352,19 +367,19 @@ static void sli_http_server(const void *arg)
   server_address.sin_family = AF_INET;
   server_address.sin_port   = server_handle->config.port;
 
-  socket_return_value = bind(server_socket, (struct sockaddr *)&server_address, socket_length);
+  socket_return_value = sl_si91x_bind(server_socket, (struct sockaddr *)&server_address, socket_length);
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket bind failed with bsd error: %d\r\n", errno);
-    close(server_socket);
+    sl_si91x_shutdown(server_socket, SHUTDOWN_BY_ID);
     // Set flag HTTP_SERVER_START_FAILED if bind call fails
     osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
     osThreadExit(); // Exit thread on failure
   }
 
-  socket_return_value = listen(server_socket, BACK_LOG);
+  socket_return_value = sl_si91x_listen(server_socket, BACK_LOG);
   if (socket_return_value < 0) {
     SL_DEBUG_LOG("\r\nSocket listen failed with bsd error: %d\r\n", errno);
-    close(server_socket);
+    sl_si91x_shutdown(server_socket, SHUTDOWN_BY_ID);
     // Set flag HTTP_SERVER_START_FAILED if listen call fails
     osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_START_FAILED);
     osThreadExit(); // Exit thread on failure
@@ -393,7 +408,7 @@ static void sli_http_server(const void *arg)
         // HTTP_SERVER_STOP_CMD flag is set
         server_handle->server_socket = -1;
         SL_DEBUG_LOG("\r\nIn http server thread: Got Stop Command\r\n");
-        close(server_socket);
+        sl_si91x_shutdown(server_socket, SHUTDOWN_BY_ID);
         osEventFlagsSet(server_handle->http_server_id, HTTP_SERVER_EXIT);
         break;
       }
@@ -405,10 +420,11 @@ static void sli_http_server(const void *arg)
         server_handle->client_socket = client_socket;
 
         if (server_handle->config.client_idle_time != 0) {
-          socket_return_value = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+          socket_return_value =
+            sl_si91x_setsockopt(client_socket, SOL_SOCKET, SL_SI91X_SO_RCVTIME, &timeout, sizeof(timeout));
           if (socket_return_value) {
             SL_DEBUG_LOG("\r\n setsockopt fail\r\n");
-            close(client_socket);
+            sl_si91x_shutdown(client_socket, SHUTDOWN_BY_ID);
             continue;
           } else {
             SL_DEBUG_LOG("\r\n setsockopt done\r\n");
@@ -418,12 +434,12 @@ static void sli_http_server(const void *arg)
         sli_process_request(server_handle, client_socket);
       }
     }
-    close(client_socket);
+    sl_si91x_shutdown(client_socket, SHUTDOWN_BY_ID);
     server_handle->rem_resp_length = 0;
   }
 
   while (1) {
-    osDelay(1000); // Delay for 1 second
+    osDelay(SLI_SYSTEM_MS_TO_TICKS(1000)); // Delay for 1 second
   }
 }
 
@@ -447,12 +463,12 @@ static int sli_process_socket_buffered_data(int fd, char *data, size_t data_leng
 
 static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_response_t *response, int window_size)
 {
-  char response_code[16]     = { 0 };
-  char content_length[32]    = { 0 };
-  char *http_version         = NULL;
-  size_t max_response_length = HTTP_MAX_HEADER_LENGTH + response->current_data_length;
-  size_t buffer_length       = 0;
-  char *response_buffer      = (char *)malloc(max_response_length);
+  char response_code[16]  = { 0 };
+  char content_length[32] = { 0 };
+  char *http_version      = NULL;
+  size_t buffer_length    = 0;
+
+  char *response_buffer = malloc(HTTP_MAX_HEADER_LENGTH);
 
   // Check if memory allocation was successful
   if (response_buffer == NULL) {
@@ -515,22 +531,28 @@ static int sli_send_response_buffer(sl_http_server_t *server, sl_http_server_res
                             "%s",
                             HTTP_CONNECTION_STATUS_HEADER);
 
-  // Add response data if available
-  if ((NULL != response->data) && (response->current_data_length > 0)) {
-    memcpy(response_buffer + buffer_length, response->data, response->current_data_length);
-    buffer_length += response->current_data_length;
-  }
-
-  // Send all headers in a single call
+  // Send headers first
   if (sli_process_socket_buffered_data(server->client_socket, (char *)response_buffer, buffer_length, window_size)
       != 0) {
-    SL_DEBUG_LOG("\r\nResponse buffer send failed.\r\n");
+    SL_DEBUG_LOG("\r\nResponse header send failed.\r\n");
     free(response_buffer);
     return -1;
   }
 
-  // Free the allocated memory
+  // Free the header buffer
   free(response_buffer);
+
+  // Send response data separately in chunks
+  if ((NULL != response->data) && (response->current_data_length > 0)) {
+    if (sli_process_socket_buffered_data(server->client_socket,
+                                         (char *)response->data,
+                                         response->current_data_length,
+                                         window_size)
+        != 0) {
+      SL_DEBUG_LOG("\r\nResponse data send failed.\r\n");
+      return -1;
+    }
+  }
 
   return 0;
 }
@@ -544,14 +566,23 @@ sl_status_t sl_http_server_init(sl_http_server_t *handle, const sl_http_server_c
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  // In AP-only mode and concurrent mode, do not initialize HTTP server when AP interface is down
-  if (((sli_get_opermode() == SL_SI91X_ACCESS_POINT_MODE) || (sli_get_opermode() == SL_SI91X_CONCURRENT_MODE))
-      && (!sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE))) {
+  // Check if the operational mode is invalid
+  sl_wifi_operation_mode_t opermode = sli_wifi_get_opermode();
+  if (opermode == 0xFFFF) {
     return SL_STATUS_WIFI_INTERFACE_NOT_UP;
   }
+
   // In STA-only mode, do not initialize HTTP server when STA interface is down
-  else if ((sli_get_opermode() == SL_SI91X_CLIENT_MODE) && (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE))) {
-    return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+  if (opermode == SL_SI91X_CLIENT_MODE) {
+    if (!sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE)) {
+      return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+    }
+  }
+  // In AP-only mode and concurrent mode, do not initialize HTTP server when AP interface is down
+  else if (opermode == SL_SI91X_ACCESS_POINT_MODE || opermode == SL_SI91X_CONCURRENT_MODE) {
+    if (!sl_wifi_is_interface_up(SL_WIFI_AP_INTERFACE) && !sl_wifi_is_interface_up(SL_WIFI_CLIENT_INTERFACE)) {
+      return SL_STATUS_WIFI_INTERFACE_NOT_UP;
+    }
   }
 
   // Initialize the server fields
@@ -855,6 +886,29 @@ sl_status_t sl_http_server_write_data(sl_http_server_t *handle, uint8_t *data, u
   }
 
   handle->rem_resp_length -= data_length;
+
+  return SL_STATUS_OK;
+}
+
+sl_status_t sl_http_server_bind_interface(sl_net_interface_t interface)
+{
+  // Default to client interface
+  vap_id = SLI_HTTP_VAP_ID_CLIENT;
+
+  // Check if the operation mode is concurrent
+  if (sli_wifi_get_opermode() == SL_SI91X_CONCURRENT_MODE) {
+    // Set wap_id based on the provided interface
+    switch (interface) {
+      case SL_NET_WIFI_CLIENT_INTERFACE:
+        vap_id = SLI_HTTP_VAP_ID_CLIENT;
+        break;
+      case SL_NET_WIFI_AP_INTERFACE:
+        vap_id = SLI_HTTP_VAP_ID_AP;
+        break;
+      default:
+        return SL_STATUS_INVALID_PARAMETER; // Return error for invalid interface
+    }
+  }
 
   return SL_STATUS_OK;
 }

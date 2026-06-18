@@ -28,12 +28,27 @@ uint32_t test_event_ack = 0; // Sensor event acknowledge
  ************************  Static Function Prototypes   ************************
  ******************************************************************************/
 void test_sensor_event_handler(uint8_t sensor_id, uint8_t event); // application event handler
+void sensorhub_test(void);
+
 /*******************************************************************************
  ***************************  Local Variables   *******************************
  ******************************************************************************/
-
-sl_sensor_id_t test_sensor_scan_info[SL_MAX_NUM_SENSORS];
+#define NUMBER_OF_SENSORS 1 //no of sensors used in testing
+sl_sensor_id_t test_sensor_scan_info[NUMBER_OF_SENSORS];
 static uint32_t test_sensor_scan_cnt = 0; // Sensor scan count
+#define SL_APP_TASK_STACK_SIZE 4096
+
+const osThreadAttr_t app_thread_attributes = {
+  .name       = "Sensorhub_test", // Name of thread
+  .attr_bits  = 0,
+  .cb_mem     = 0,
+  .cb_size    = 0,
+  .stack_mem  = 0,
+  .stack_size = SL_APP_TASK_STACK_SIZE, // Stack size of sensorhub_test task
+  .priority   = osPriorityLow,          // Priority of Sensor task
+  .tz_module  = 0,
+  .reserved   = 0,
+};
 
 /*******************************************************************************
  ************************  Test Function Prototypes  ****************************
@@ -46,11 +61,22 @@ void test_sensorhub_start_sensor(void);
 void test_sensorhub_stop_sensor(void);
 void test_sensorhub_notify_cb_register(void);
 void test_sensor_hub_start(void);
+void test_sl_si91x_fetch_adc_bus_intf_info(void);
 
 /******************************************************************************
- * Main function in which all the test cases are tested using unity framework
+ * This function will create the thread to the sensorhub_test task.
  ******************************************************************************/
-int main()
+int app_init()
+{
+  osThreadNew((osThreadFunc_t)sensorhub_test, NULL, &app_thread_attributes);
+
+  return 0;
+}
+/******************************************************************************
+   function in which all the test cases are tested using unity framework
+******************************************************************************/
+
+void sensorhub_test()
 {
   UnityBeginGroup("Sensor Hub");
 
@@ -58,10 +84,11 @@ int main()
   RUN_TEST(test_sensor_hub_init, __LINE__);
   RUN_TEST(test_sensorhub_detect_sensors, __LINE__);
   RUN_TEST(test_sensorhub_create_sensor, __LINE__);
+  RUN_TEST(test_sl_si91x_fetch_adc_bus_intf_info, __LINE__);
   RUN_TEST(test_sensor_hub_start, __LINE__);
   RUN_TEST(test_sensorhub_start_sensor, __LINE__);
-  RUN_TEST(test_sensorhub_delete_sensor, __LINE__);
   RUN_TEST(test_sensorhub_stop_sensor, __LINE__);
+  RUN_TEST(test_sensorhub_delete_sensor, __LINE__);
 
   UnityEnd();
   UnityPrintf("END");
@@ -93,10 +120,11 @@ void test_sensorhub_detect_sensors(void)
 {
   UnityPrintf("\n");
   UnityPrintf("Testing Sensor Hub detect sensor \n");
-  // Sensor should interface otherwise controller will stuck here
-  //  UnityPrintf("Testing with correct parameters \n");
-  //  test_sensor_scan_cnt = sl_si91x_sensorhub_detect_sensors((sl_sensor_id_t *)&test_sensor_scan_info, SL_MAX_NUM_SENSORS);
-  //  UnityPrintf("Status of API is correct, Sensor Hub detect sensor successfully \n");
+  //Sensor should interface otherwise controller will stuck here
+  UnityPrintf("Testing with correct parameters \n");
+  test_sensor_scan_cnt = sl_si91x_sensorhub_detect_sensors((sl_sensor_id_t *)&test_sensor_scan_info, 1);
+  TEST_ASSERT_EQUAL_HEX(NUMBER_OF_SENSORS, test_sensor_scan_cnt); //since number of sensors in testing is 1
+  UnityPrintf("Status of API is correct, Sensor Hub detect sensor successfully \n");
 
   UnityPrintf("Sensor Hub detect sensor test completed \n");
 }
@@ -220,7 +248,16 @@ void test_sensorhub_stop_sensor(void)
 
   UnityPrintf("Sensor Hub stop sensor test completed \n");
 }
-
+/*******************************************************************************
+ * Function to test fetch adc bus intf info
+ ******************************************************************************/
+void test_sl_si91x_fetch_adc_bus_intf_info(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing fetch adc bus intf info  \n");
+  sl_adc_cfg_t adc_info = *sl_si91x_fetch_adc_bus_intf_info();
+  UnityPrintf("adc init:%d \n", adc_info.adc_init); //
+}
 /**************************************************************************/ /**
  * @fn           void test_sensor_event_handler()
  * @brief        This Sensor event handle to the Sensor HUB.

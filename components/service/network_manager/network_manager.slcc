@@ -1,7 +1,9 @@
 id: network_manager
-package: wiseconnect3_sdk
-description: >
-  The Network Manager (SL Net) provides an API to manage network interfaces and their behaviour
+package: wifi
+description: 'The Network Manager (SL Net) provides an API to manage network interfaces
+  and their behaviour
+
+  '
 label: Network Manager
 category: Service|Network Management
 quality: production
@@ -16,47 +18,47 @@ source:
 - path: src/sl_net.c
 - path: src/sli_net_common_utility.c
 - path: src/sl_net_for_lwip.c
-  condition: ["sl_si91x_lwip_stack"]
+  condition:
+  - sl_si91x_lwip_stack
 - path: src/sl_net_for_dual_stack.c
-  condition: ["sl_si91x_network_dual_stack"]
+  condition:
+  - sl_si91x_network_dual_stack
 include:
 - path: inc
 - path: inc
   file_list:
-    - path: sl_net_constants.h
-    - path: sl_net_dns.h
-    - path: sl_net_ip_types.h
-    - path: sl_net_types.h
-    - path: sl_net_wifi_types.h
-    - path: sl_net.h
-    - path: sli_net_common_utility.h
-    - path: sli_net_constants.h
-    - path: sli_net_types.h
+  - path: sl_net_constants.h
+  - path: sl_net_dns.h
+  - path: sl_net_ip_types.h
+  - path: sl_net_types.h
+  - path: sl_net_wifi_types.h
+  - path: sl_net.h
+  - path: sli_net_common_utility.h
+  - path: sli_net_constants.h
+  - path: sli_net_types.h
 - path: inc
   file_list:
-    - path: sl_net_for_lwip.h
+  - path: sl_net_for_lwip.h
   condition:
-    - sl_si91x_lwip_stack
+  - sl_si91x_lwip_stack
 - path: inc
   file_list:
-    - path: sl_net_for_lwip.h
+  - path: sl_net_for_lwip.h
   condition:
-    - sl_si91x_network_dual_stack
-
+  - sl_si91x_network_dual_stack
 define:
 - name: SL_NET_COMPONENT_INCLUDED
-
-- {"name":"__STATIC_INLINE","value":"static inline"}
+- name: __STATIC_INLINE
+  value: static inline
 requires:
 - name: wifi
 - name: network_config_manager
-
 recommends:
-- id: "%extension-wiseconnect3_sdk%basic_network_config_manager"
-
+- id: '%extension-wiseconnect3_sdk%basic_network_config_manager'
+  vendor: silabs
 template_contribution:
 - name: console_headers
-  value: 'sl_net_constants.h'
+  value: sl_net_constants.h
 - name: console_enums
   value:
     credential_id:
@@ -73,12 +75,15 @@ template_contribution:
       user: SL_NET_USER_CREDENTIAL_ID
     cert_type:
       client_cert: SL_NET_CERTIFICATE
-      puiblic_key: SL_NET_PUBLIC_KEY
+      public_key: SL_NET_PUBLIC_KEY
       private_key: SL_NET_PRIVATE_KEY
       ca_cert: SL_NET_SIGNING_CERTIFICATE
       http_client: SL_NET_HTTP_CLIENT_CREDENTIAL
       eap_client: SL_NET_EAP_CLIENT_CREDENTIAL
       mqtt_client: SL_NET_MQTT_CLIENT_CREDENTIAL
+      eap_fast_client: SL_NET_PACK_FILE
+      private_key_cbc_wrap: SL_NET_TLS_PRIVATE_KEY_CBC_WRAP
+      private_key_ecb_wrap: SL_NET_TLS_PRIVATE_KEY_ECB_WRAP
     sl_net_dns_resolution_ip_type_t:
       ipv4: SL_NET_DNS_TYPE_IPV4
       ipv6: SL_NET_DNS_TYPE_IPV6

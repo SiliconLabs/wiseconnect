@@ -1,6 +1,6 @@
 id: soc_configuration_enable
 label: ENABLE USER CONFIGURATION
-package: platform
+package: platform_siwx91x
 quality: production
 metadata:
   sbom:

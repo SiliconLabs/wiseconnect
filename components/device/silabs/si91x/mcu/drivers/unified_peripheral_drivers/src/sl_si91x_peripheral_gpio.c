@@ -364,6 +364,48 @@ void sl_si91x_gpio_select_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpio_dr
 }
 
 /*******************************************************************************
+ * To select the PAD power-on-start in GPIO HP instance, GPIO initialization
+ *   needs to be done first.
+ * - The actions to be performed in GPIO initialization are:
+ *   - Enable the M4 clock of GPIO HP instance.
+ *   - Select PAD selection of the GPIO HP instance.
+ *   - Enable PAD receiver for GPIO pin number, whether GPIO pin is selected as
+ *        output/input.
+ *   - Set pin mode and direction of the GPIO pin.
+ *   - Select the PAD power-on-start selection of type @ref sl_si91x_gpio_pos_t.
+ *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
+ *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
+ ******************************************************************************/
+void sl_si91x_gpio_select_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(pos));
+  // Select the required drive strength in HP GPIO instance
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_POS = pos;
+}
+
+/*******************************************************************************
+ * To select the PAD schmitt trigger in GPIO HP instance, GPIO initialization
+ *   needs to be done first.
+ * - The actions to be performed in GPIO initialization are:
+ *   - Enable the M4 clock of GPIO HP instance.
+ *   - Select PAD selection of the GPIO HP instance.
+ *   - Enable PAD receiver for GPIO pin number, whether GPIO pin is selected as
+ *        output/input.
+ *   - Set pin mode and direction of the GPIO pin.
+ *   - Select the PAD schmitt trigger of type @ref sl_si91x_gpio_schmitt_trig_t.
+ *  @note: Select HP GPIO pins for HP instances(GPIO_6 to GPIO_57). Do not use
+ *      GPIO pin number(0 to 5) in HP instance as these are used for other functionality.
+ ******************************************************************************/
+void sl_si91x_gpio_select_pad_active_high_schmitt_trigger(uint8_t gpio_num, sl_si91x_gpio_schmitt_trig_t schmitt_trig)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PIN(gpio_num));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(schmitt_trig));
+  // Select the required drive strength in HP GPIO instance
+  PAD_REG(gpio_num)->GPIO_PAD_CONFIG_REG_b.PADCONFIG_SMT = schmitt_trig;
+}
+
+/*******************************************************************************
  * To select the PAD driver disable state in GPIO HP instance, GPIO initialization
  *   needs to be done first.
  * - The actions to be performed in GPIO initialization are:
@@ -954,6 +996,57 @@ void sl_si91x_gpio_select_ulp_pad_driver_strength(uint8_t gpio_num, sl_si91x_gpi
     ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_E1_E2_2 = strength;
   } else {
     ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_E1_E2_1 = strength;
+  }
+}
+
+/*******************************************************************************
+ * To select the ULP PAD power-on-start in GPIO ULP instance, ULP GPIO initialization
+ *   needs to be done first.
+ * - The actions to be performed in ULP GPIO initialization are:
+ *   - Enable the ULP clock of GPIO ULP instance.
+ *   - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is selected as
+ *        output/input.
+ *   - Set pin mode and direction of the GPIO pin.
+ *   - Select the PAD power-on-start of type @ref sl_si91x_gpio_pos_t.
+ *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
+ ******************************************************************************/
+void sl_si91x_gpio_select_ulp_pad_power_on_start(uint8_t gpio_num, sl_si91x_gpio_pos_t pos)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(pos));
+  // Select drive strength in ULP PAD configuration registers
+  if (gpio_num <= GPIO_PAD_3) {
+    ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_POS_1 = pos;
+  } else if ((gpio_num >= GPIO_PAD_4) && (gpio_num <= GPIO_PAD_7)) {
+    ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_POS_2 = pos;
+  } else {
+    ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_POS_1 = pos;
+  }
+}
+
+/*******************************************************************************
+ * To select the ULP PAD schmitt trigger in GPIO ULP instance, ULP GPIO initialization
+ *   needs to be done first.
+ * - The actions to be performed in ULP GPIO initialization are:
+ *   - Enable the ULP clock of GPIO ULP instance.
+ *   - Enable ULP PAD receiver for GPIO pin number, whether GPIO pin is selected as
+ *        output/input.
+ *   - Set pin mode and direction of the GPIO pin.
+ *   - Select the PAD schmitt trigger of type @ref sl_si91x_gpio_schmitt_trig_t.
+ *  @note: Select ULP GPIO pins for ULP instances(ULP_GPIO_0 to ULP_GPIO_11).
+ ******************************************************************************/
+void sl_si91x_gpio_select_ulp_pad_active_high_schmitt_trigger(uint8_t gpio_num,
+                                                              sl_si91x_gpio_schmitt_trig_t schmitt_trig)
+{
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_ULP_PIN(gpio_num));
+  SL_GPIO_ASSERT(SL_GPIO_VALIDATE_PARAMETER(schmitt_trig));
+  // Select drive strength in ULP PAD configuration registers
+  if (gpio_num <= GPIO_PAD_3) {
+    ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_SMT_1 = schmitt_trig;
+  } else if ((gpio_num >= GPIO_PAD_4) && (gpio_num <= GPIO_PAD_7)) {
+    ULP_PAD_CONFIG0_REG->ULP_GPIO_PAD_CONFIG_REG_0.PADCONFIG_SMT_2 = schmitt_trig;
+  } else {
+    ULP_PAD_CONFIG1_REG->ULP_GPIO_PAD_CONFIG_REG_1.PADCONFIG_SMT_1 = schmitt_trig;
   }
 }
 

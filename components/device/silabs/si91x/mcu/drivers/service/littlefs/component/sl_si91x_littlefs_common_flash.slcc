@@ -1,6 +1,6 @@
 id: sl_si91x_littlefs_common_flash
 label: Little FS for Common Flash
-package: platform
+package: platform_nwp_siwx91x
 description: >
   A little fail-safe filesystem. This component is used for performing file operations on Common Flash. 
 category: Device|Si91x|MCU|Service
@@ -17,19 +17,16 @@ include:
     - path: "sl_si91x_littlefs_hal.h"
 requires:
   - name: littlefs_si91x
-  - name: emlib_core
   - name: sl_assert
   - name: sl_common
   - name: status
   - name: sl_si91x_wireless
   - name: network_manager
   - name: basic_network_config_manager
-  - name: wiseconnect3_common
+  - name: wiseconnect_common
   - name: wifi
   - name: sl_si91x_mcu
   - name: wifi_resources
-  - name: freertos
-  - name: freertos_heap_4
 template_contribution:
   - name: littlefs_enable
     value: true

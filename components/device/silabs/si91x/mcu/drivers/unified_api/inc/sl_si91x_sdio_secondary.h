@@ -50,7 +50,10 @@ extern "C" {
 #define NUMGPDMADESC 10 ///< Number of GPDMA Descriptors
 
 /// Events for HIF irq handler
-#define HOST_INTR_RECEIVE_EVENT BIT(0)
+#define HOST_INTR_RECEIVE_EVENT BIT(0) ///< Host interrupt receive event.
+#define HOST_INTR_SEND_EVENT    BIT(1) ///< Host interrupt send event.
+#define HOST_INTR_CMD52_EVENT   BIT(2) ///< Host interrupt CMD52 event.
+#define HOST_INTR_ERROR_EVENT   BIT(3) ///< Host interrupt error event.
 
 /*******************************************************************************
  *****************************   DATA TYPES   *********************************
@@ -143,6 +146,22 @@ void sl_si91x_sdio_secondary_send(uint8_t num_of_blocks, uint8_t *data_buf);
  * @param[in] data_buf Reference to the destination buffer where the received data will be stored.
  ******************************************************************************/
 void sl_si91x_sdio_secondary_receive(uint8_t *data_buf);
+
+/***************************************************************************/
+/**
+ * @brief To request permission to send data to the host/primary device.
+ * 
+ * @details This API signals the host/primary device that the SDIO secondary is ready
+ *          to send data. It raises an interrupt to notify the host that data is available
+ *          for transmission.
+ * 
+ * @pre Pre-condition:
+ *      - \ref sl_si91x_sdio_secondary_init must be called prior.
+ * 
+ * @note Call this function before calling \ref sl_si91x_sdio_secondary_send
+ *       to explicitly notify the host that data is ready for transmission.
+ ******************************************************************************/
+void sl_si91x_sdio_secondary_request_to_send(void);
 
 /***************************************************************************/
 /**

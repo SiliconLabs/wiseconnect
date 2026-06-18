@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER, STM32F411xE, __Keil, SLI_SI917, SLI_SI917B0, SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2, configUSE_POSIX_ERRNO, configNUM_SDK_THREAD_LOCAL_STORAGE_POINTERS=2, SL_CATALOG_FREERTOS_KERNEL_PRESENT, SL_CATALOG_KERNEL_PRESENT, SL_SI91X_SPI_HIGH_SPEED_ENABLE, SL_NET_COMPONENT_INCLUDED, SL_WIFI_COMPONENT_INCLUDED, SLI_SI91X_ENABLE_BLE, SL_SI91X_PRINT_DBG_LOG, SL_SI91X_ENABLE_LITTLE_ENDIAN, __ICCARM__</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../examples/featured/ble_per;../../../../components/sli_wifi_command_engine/inc;../../../../components/device/silabs/si91x/wireless/firmware_upgrade;../../../../components/service/network_manager/inc;../../../../resources/defaults/;../../../../components/device/silabs/si91x/wireless/errno/inc;../../../../components/common/inc;../../../../components/device/silabs/si91x/wireless/spi_interface/inc;../../../../components/device/silabs/si91x/wireless/sl_net/inc;../../../../components/device/stm32/silabs_utility/common/inc;../../../../components/device/silabs/si91x/wireless/ble/inc;../../../../components/device/silabs/si91x/wireless/inc;../../../../components/protocol/wifi/inc;../../../../components/device/stm32/board;../../../../components/device/stm32/Core/Inc;../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc;../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/include;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F;../../../../components/device/stm32/Drivers/CMSIS/Device/ST/STM32F4xx/Include;../../../../components/device/stm32/Drivers/CMSIS/Include;../../../../components/service/bsd_socket/inc;../../../../components/service/network_manager/inc</IncludePath>
+              <IncludePath>../../../../examples/featured/ble_per;../../../../components/sli_wifi_command_engine/inc;../../../../components/device/silabs/si91x/wireless/firmware_upgrade;../../../../components/service/network_manager/inc;../../../../resources/defaults/;../../../../components/device/silabs/si91x/wireless/errno/inc;../../../../components/common/inc;../../../../components/device/silabs/si91x/wireless/spi_interface/inc;../../../../components/device/silabs/si91x/wireless/sl_net/inc;../../../../components/device/stm32/silabs_utility/common/inc;../../../../components/device/silabs/si91x/wireless/ble/inc;../../../../components/device/silabs/si91x/wireless/inc;../../../../components/protocol/wifi/inc;../../../../components/device/stm32/board;../../../../components/device/stm32/Core/Inc;../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc;../../../../components/device/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/include;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../../../../components/device/stm32/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F;../../../../components/device/stm32/Drivers/CMSIS/Device/ST/STM32F4xx/Include;../../../../components/device/stm32/Drivers/CMSIS/Include;../../../../components/service/bsd_socket/inc;../../../../components/service/network_manager/inc;../../../../components/sli_wifi/inc;../../../../components/sli_buffer_manager/inc;../../../../components/device/silabs/si91x/mcu/drivers/service/sl_log/inc;..\..\..\..\components\protocol\wifi\inc\sli_wifi_callback_framework.h</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -389,6 +389,11 @@
               <FileName>startup_stm32f411xe.s</FileName>
               <FileType>2</FileType>
               <FilePath>../../../../components/device/stm32/startup_stm32f411xe.s</FilePath>
+            </File>
+            <File>
+              <FileName>sli_wifi_callback_framework.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\protocol\wifi\src\sli_wifi_callback_framework.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -755,6 +760,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\components\device\stm32\silabs_utility\common\src\sl_host_core.c</FilePath>
             </File>
+            <File>
+              <FileName>sl_mem_pool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../components/device/stm32/silabs_utility/common/src/sl_mem_pool.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -799,6 +809,46 @@
               <FileName>sli_wifi_command_engine.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\components\sli_wifi_command_engine\src\sli_wifi_command_engine.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>components/sli_wifi/src</GroupName>
+          <Files>
+            <File>
+              <FileName>sli_wifi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\sli_wifi\src\sli_wifi.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_wifi_utility.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\sli_wifi\src\sli_wifi_utility.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>components/device/silabs/si91x/wireless/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>sli_wifi_memory_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\device\silabs\si91x\wireless\src\sli_wifi_memory_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>sli_wifi_power_profile.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\device\silabs\si91x\wireless\src\sli_wifi_power_profile.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>components/sli_buffer_manager/src</GroupName>
+          <Files>
+            <File>
+              <FileName>sli_buffer_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\components\sli_buffer_manager\src\sli_buffer_manager.c</FilePath>
             </File>
           </Files>
         </Group>

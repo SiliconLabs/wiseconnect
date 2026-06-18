@@ -1,6 +1,6 @@
 id: sl_sysrtc
 label: SysRTC
-package: platform
+package: platform_siwx91x
 description: >
   The System Real-Time Clock (SYSRTC) driver provides precise timekeeping and timer capabilities required by a variety of applications. 
   It is required for activities such as accurate time measurement and scheduling an event. 

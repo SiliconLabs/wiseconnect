@@ -72,7 +72,7 @@ While measuring the performance of 802.11 Wireless Devices, packet error test ha
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  - Install Studio and WiSeConnect 3 extension
+  - Install Studio and WiSeConnect extension
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
@@ -82,7 +82,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 ### Instructions for Keil IDE and STM32F411RE MCU (NCP Mode)
 
   - Install the [Keil IDE](https://www.keil.com/).
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board following the below steps:
    - Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
@@ -90,7 +90,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
    - After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    - Connect the setup to the computer.
-  - Open the AWS DEVICE SHADOW µVision project - **user_gain_table.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → user_gain_table → keil_project**. 
+  - Open the AWS DEVICE SHADOW µVision project - **user_gain_table.uvprojx** by navigating to **WiSeConnect SDK → examples → featured → user_gain_table → keil_project**. 
 
 ## Application Build Environment
 
@@ -126,7 +126,7 @@ The application can be configured to suit user requirements and development envi
 
     ```c
       sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-      sl_si91x_request_tx_test_info_t tx_test_info = {
+      sl_wifi_request_tx_test_info_t tx_test_info = {
         .enable      = 1,          // Enable/disable tx test mode
         .power       = 4,         // Tx RF power in the range [2:18] dBm
         .rate        = rate,      // WLAN data rate of 6Mbps
@@ -203,7 +203,7 @@ The application can be configured to suit user requirements and development envi
     }
     ```
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the application
 
@@ -228,7 +228,7 @@ The following readme provides example spectrums when the SiWx91x is configured t
 
 ```c 
   sl_wifi_data_rate_t rate = SL_WIFI_DATA_RATE_6;
-  sl_si91x_request_tx_test_info_t tx_test_info = {
+  sl_wifi_request_tx_test_info_t tx_test_info = {
     .enable      = 1,
     .power       = 127,
     .rate        = rate,

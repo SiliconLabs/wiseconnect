@@ -1,6 +1,6 @@
 id: pwm_instance
 label: PWM
-package: platform
+package: platform_siwx91x
 description: >
  The Motor Control Pulse Width Modulation (MCPWM) controller is used to generate a periodic pulse waveform, which is useful in
  motor control and power control applications.
@@ -18,6 +18,11 @@ description: >
     - External Trigger
 
  PWM Supports instances.
+ Generic channel instances must be named as channel_0, channel_1, channel_2, channel_3.
+ Pre-configured LED instances can be named as led0, led1.
+ 
+ Note: The Si91x PWM peripheral has 4 hardware channels (SL_CHANNEL_1 to SL_CHANNEL_4).
+ Multiple instances can be configured, but each must be mapped to one of these 4 physical channels via SL_PWM_<instance>_OUTPUT_CHANNEL configuration.
 category: Device|Si91x|MCU|Peripheral
 quality: production
 metadata:

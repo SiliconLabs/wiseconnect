@@ -88,7 +88,7 @@
 #define VECTOR_OFFSET 0               //< Vector offset address
 #define MODE          3               //< Sleep/wakeup mode
 #ifdef SLI_SI91X_MCU_COMMON_FLASH_MODE
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define IVT_OFFSET_ADDR 0x8202000 /*<!Application IVT location VTOR offset for B0>  */
 #else
 #define IVT_OFFSET_ADDR 0x8212000 /*<!Application IVT location VTOR offset for A0>  */
@@ -96,7 +96,7 @@
 #else
 #define IVT_OFFSET_ADDR 0x8012000 /*<!Application IVT location VTOR offset for dual flash A0 and B0>  */
 #endif
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #define WKP_RAM_USAGE_LOCATION 0x24061EFC /*<!Bootloader RAM usage location upon wake up  for B0 */
 #else
 #define WKP_RAM_USAGE_LOCATION 0x24061000 /*<!Bootloader RAM usage location upon wake up for A0  */
@@ -119,14 +119,152 @@ extern ARM_DRIVER_I2C Driver_I2C2;                             //< I2C driver st
 extern ARM_DRIVER_SPI Driver_SSI_ULP_MASTER;                   //< SPI driver structure
 extern sl_sensor_info_t sensor_hub_info_t[SL_MAX_NUM_SENSORS]; //< Sensor configuration structure
 extern sl_bus_intf_config_t bus_intf_info;                     //< Bus interface configuration structure
-osSemaphoreAttr_t sl_semaphore_attr_st;                        //< Power task semaphore attributes
-sl_sh_power_state_t sl_power_state_enum;                       //< Power state structure
-uint32_t sl_ps4_ps2_done;                                      //< Variable to check power switch status
-uint32_t sl_ps2_ps4_done;                                      //< Variable to check power switch status
-osSemaphoreId_t sl_semaphore_em_task_id;                       //< EM task semaphore
+sl_power_state_t sensorhub_current_powerstate = SL_SI91X_POWER_MANAGER_PS3;
+osSemaphoreAttr_t sl_semaphore_attr_st;  //< Power task semaphore attributes
+sl_sh_power_state_t sl_power_state_enum; //< Power state structure
+osSemaphoreId_t sl_semaphore_em_task_id; //< EM task semaphore
 
 extern uint8_t sdc_intr_done;
+/*******************************************************************************
+ ********************  Local static function prototypes   ***************************
+ ******************************************************************************/
+/**************************************************************************/ /**
+ *  @fn       static uint8_t sensorhub_i2c_init()
+ *  @brief       Initialize I2C Interface based on configuration
+ *  @return      execution status
+*******************************************************************************/
+static int32_t sensorhub_i2c_init(void);
+/**************************************************************************/ /**
+*  @fn        static sl_status_t sensorhub_spi_init(void)
+*  @brief       Initialize the SPI Interface based on the configuration.
+*******************************************************************************/
+static int32_t sensorhub_spi_init(void);
+/**************************************************************************/ /**
+ *  @fn     static void sensorhub_sensor_task(void)
+ *  @brief       Task to handle the sensor operations.
+*******************************************************************************/
+static void sensorhub_sensor_task(void);
+/**************************************************************************/ /**
+ *  @fn        static void sensorhub_em_task(void)
+ *  @brief       Task to handle the operations of the Event Manager(EM)
+*******************************************************************************/
+static void sensorhub_em_task(void);
+/**************************************************************************/ /**
+ *  @fn         static sl_status_t sensorhub_i2c_sensors_scan(uint16_t address)
+ *  @brief       Scan the i2c sensors based on the address
+ *  @param[in]   address Sensor address
+ *  @return status 0 if successful, it will wait for the sensor response.
+*******************************************************************************/
+static int32_t sensorhub_i2c_sensors_scan(uint16_t address);
+/**************************************************************************/ /**
+ *  @fn         static void sensorhub_em_post_event(sl_sensor_id_en sensor_id,
+ *  sl_sensorhub_event_en event, void* dataPtr, TickType_t ticks_to_wait)
+ *  @brief       To post the events/notifications to event manager(EM) to be notified to the application
+ *  @param[in]   sensor_id      id of the  sensor
+ *  @param[in]   event          event/notifications
+ *  @param[in]   dataPtr        pointer to the data
+ *  @param[in]   ticks_to_wait  max time to wait for the post
+*******************************************************************************/
+static void sensorhub_em_post_event(sl_sensor_id_t sensor_id,
+                                    sl_sensorhub_event_t event,
+                                    void *dataPtr,
+                                    TickType_t ticks_to_wait);
+/**************************************************************************/ /**
+ *  @fn         static sl_sensor_impl_type* sensorhub_get_sensor_implementation(int32_t sensor_id)
+ *  @brief       To get the appropriate sensor driver implementation.
+ *  @param[in]   sensor_id     ID of the target sensor
+ *  @return      Reference to the sensor driver
+*******************************************************************************/
+static sl_sensor_impl_type_t *sensorhub_get_sensor_implementation(int32_t sensor_id);
+/**************************************************************************/ /**
+ *  @fn        static int32_t sensorhub_create_sensor_list_index(void)
+ *  @brief       To create a sensor index in the list.
+ * @return if successful, returns the sensor index
+ *         else it will break the sensor list.
+*******************************************************************************/
+static int32_t sensorhub_create_sensor_list_index(void);
+/**************************************************************************/ /**
+ *  @fn      static int32_t sensorhub_get_sensor_index(sl_sensor_id_en sensor_id)
+ *  @brief       To get the index of the sensor present in the list
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return if successful, returns the sensor index
+ *         else it returns the 0XFF as a sensor index fail.
+*******************************************************************************/
+static uint32_t sensorhub_get_sensor_index(sl_sensor_id_t sensor_id);
+/**************************************************************************/ /**
+ *  @fn          static int32_t sensorhub_delete_sensor_list_index(sl_sensor_id_en sensor_id)
+ *  @brief       To delete the sensor index from the list
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return      index of the sensor
+*******************************************************************************/
+static uint32_t sensorhub_delete_sensor_list_index(sl_sensor_id_t sensor_id);
+/**************************************************************************/ /**
+ *  @fn          static sl_sensor_info_t* sensorhub_get_sensor_info(sl_sensor_id_en sensor_id)
+ *  @brief       To get the info on the configured sensor
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return      reference to the sensor info
+*******************************************************************************/
+static sl_sensor_info_t *sensorhub_get_sensor_info(sl_sensor_id_t sensor_id);
+/**************************************************************************/ /**
+ *  @fn          static void sensorhub_sensors_timer_cb(TimerHandle_t xTimer)
+ *  @brief       software timer callback
+ *  @param[in]   xTimer     handle to the timer
+*******************************************************************************/
+static void sensorhub_sensors_timer_cb(TimerHandle_t xTimer);
+/**************************************************************************/ /**
+ *  @fn          static void sensorhub_gpio_interrupt_config(uint16_t gpio_pin,sl_gpio_intr_type intr_type)
+ *  @brief       Configuring the different types of NPSS GPIO interrupts.
+ *  @param[in]   gpio_pin     GPIO pin number
+ *  @param[in]   intr_type    type of interrupt.
+*******************************************************************************/
+static sl_status_t sensorhub_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type);
+/**************************************************************************/ /**
+ *  @fn         static void sensorhub_gpio_interrupt_start(uint16_t gpio_pin)
+ *  @brief       Enable and set the priority of GPIO interrupt.
+ *  @param[in]   gpio_pin     GPIO pin number
+*******************************************************************************/
+static void sensorhub_gpio_interrupt_start(uint16_t gpio_pin);
+/**************************************************************************/ /**
+ *  @fn          static void sensorhub_gpio_interrupt_stop(uint16_t gpio_pin)
+ *  @brief       Mask and Disable the GPIO interrupt.
+ *  @param[in]   gpio_pin     GPIO pin number
+*******************************************************************************/
+static void sensorhub_gpio_interrupt_stop(uint16_t gpio_pin);
 
+/**************************************************************************/ /**
+ *  @fn          static uint8_t sensorhub_sdc_init(void)
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+#ifdef SH_SDC_ENABLE
+static sl_status_t sensorhub_sdc_init(void);
+#endif
+/**************************************************************************/ /**
+ *  @fn         static void sensorhub_sdc_config_params(sl_sdc_config_t * sdc_config)
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+#ifdef SH_SDC_ENABLE
+static void sensorhub_sdc_config_params(sl_drv_sdc_config_t *sdc_config_st_p);
+#endif
+/**************************************************************************/ /**
+ *  @fn          static sl_status_t sensorhub_adc_init(void)
+ *  @brief       Initialize the ADC Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+static sl_status_t sensorhub_adc_init(void);
 /*******************************************************************************
  ************************  Global structures   *********************************
  ******************************************************************************/
@@ -139,7 +277,7 @@ sl_sensorhub_errors_t bus_errors; //< structure to track the status of the senso
 ARM_DRIVER_I2C *I2Cdrv       = &Driver_I2C2;           //< I2C driver operations
 ARM_DRIVER_SPI *SPIdrv       = &Driver_SSI_ULP_MASTER; //< ULP SSI driver operations
 uint8_t sl_sensor_wait_flags = 0;                      //< Store the sensor event bits
-static RTC_TIME_CONFIG_T rtcConfig, alarmConfig, rtc_get_Time;
+
 /*TODO: the sensor_data_ram must be mapped to ULP RAM*/
 uint8_t sensor_data_ram[SENSORS_RAM_SIZE] __attribute__((aligned(4))); //< Ram using for the sensor data storage
 uint32_t free_ram_index = 0;                                           //< ram index for the sensor
@@ -151,6 +289,16 @@ extern uint16_t *adc_data_ptrs[];
  **************************  Callback function ***********************************
  ******************************************************************************/
 sl_sensor_cb_info_t cb_info; //< sensor call back handler
+/*******************************************************************************
+ * ADC user callback
+ * This function will be called from ADC interrupt handler
+ *
+ * @param[in] ADC channel number
+ * @param[in] ADC callback event (ADC_STATIC_MODE_CALLBACK,
+ *            ADC_THRSHOLD_CALLBACK, INTERNAL_DMA, FIFO_MODE_EVENT)
+ *
+*******************************************************************************/
+void sl_si91x_adc_callback_v2(uint8_t channel_no, uint8_t event);
 
 /*******************************************************************************
  **************************  Power Manager Variables ***************************
@@ -206,133 +354,6 @@ const osThreadAttr_t EM_thread_attributes = {
   .reserved   = 0,
 };
 
-/** @addtogroup SOC26
- * @{
- */
-/**************************************************************************/ /**
- * @fn           void sli_si91x_set_alarm_intr_time(uint16_t interval)
- * @brief        This function will update the alarm time when to get the next alarm interrupt.
- * @param[in]    interval - Alarm timer interrupt time (milliseconds)
- * @param[out]   None
-*******************************************************************************/
-void sli_si91x_set_alarm_intr_time(uint16_t interval)
-{
-  /* Get the RTC time, which is used to update alarm time as per RTC time  */
-  RSI_RTC_GetDateTime(RTC, &rtc_get_Time);
-  /*RTC alarm configuration */
-  alarmConfig.DayOfWeek    = rtc_get_Time.DayOfWeek;
-  alarmConfig.Month        = rtc_get_Time.Month;
-  alarmConfig.Century      = rtc_get_Time.Century;
-  alarmConfig.MilliSeconds = rtc_get_Time.MilliSeconds;
-  alarmConfig.Day          = rtc_get_Time.Day;
-  alarmConfig.Year         = rtc_get_Time.Year;
-  alarmConfig.Minute       = rtc_get_Time.Minute;
-  alarmConfig.Hour         = rtc_get_Time.Hour;
-  alarmConfig.Second       = rtc_get_Time.Second;
-
-  alarmConfig.MilliSeconds += (interval % 1000);
-  if (alarmConfig.MilliSeconds >= (NO_OF_MILLISECONDS_IN_A_SECOND)) {
-    alarmConfig.MilliSeconds -= NO_OF_MILLISECONDS_IN_A_SECOND;
-    alarmConfig.Second += 1;
-  }
-  /*Update seconds for next boundary alarm */
-  alarmConfig.Second = alarmConfig.Second + (uint8_t)((interval / 1000) % 60);
-  if (alarmConfig.Second >= (NO_OF_SECONDS_IN_A_MINUTE)) {
-    alarmConfig.Second -= NO_OF_SECONDS_IN_A_MINUTE;
-    alarmConfig.Minute += 1;
-  }
-  /*Update minutes for next boundary alarm */
-  alarmConfig.Minute = alarmConfig.Minute + (uint8_t)((interval / (1000 * 60)) % 60);
-  if (alarmConfig.Minute >= (NO_OF_MINUTES_IN_AN_HOUR)) {
-    alarmConfig.Minute -= NO_OF_MINUTES_IN_AN_HOUR;
-    alarmConfig.Hour += 1;
-  }
-  /*Update hour for next boundary alarm */
-  alarmConfig.Hour = alarmConfig.Hour + (uint8_t)(interval / (1000 * 3600)) % 24;
-  if (alarmConfig.Hour >= (NO_OF_HOURS_IN_A_DAY)) {
-    alarmConfig.Hour -= NO_OF_HOURS_IN_A_DAY;
-    alarmConfig.Day += 1;
-  }
-  /*Update month for next boundary alarm */
-  if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_1) {
-    if (alarmConfig.Month == February) {
-      if (alarmConfig.Year % 4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_2) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-    }
-    if (alarmConfig.Month <= July) {
-      if (alarmConfig.Month % 2 == 0) {
-        if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_3) {
-          alarmConfig.Day = 1;
-          alarmConfig.Month += 1;
-        }
-      } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-
-    } else if (alarmConfig.Month % 2 == 0) {
-      if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_4) {
-        alarmConfig.Day = 1;
-        alarmConfig.Month += 1;
-      }
-    } else if (alarmConfig.Day > NO_OF_DAYS_IN_A_MONTH_3) {
-      alarmConfig.Day = 1;
-      alarmConfig.Month += 1;
-    }
-  }
-  /*Update year  for next boundary alarm */
-  if (alarmConfig.Month > (NO_OF_MONTHS_IN_A_YEAR)) {
-    alarmConfig.Month = 1;
-    alarmConfig.Year += 1;
-  }
-
-  /*Set Alarm configuration */
-  RSI_RTC_SetAlarmDateTime(RTC, &alarmConfig);
-}
-
-/**************************************************************************/ /**
- * @fn           void sli_si91x_init_m4alarm_config(void)
- * @brief        This function is to initialize the Alarm block.
- * @param[in]    None
- * @param[out]   None
-*******************************************************************************/
-void sli_si91x_init_m4alarm_config(void)
-{
-  /*Init RTC*/
-  RSI_RTC_Init(RTC);
-
-  /*RTC configuration with some default time */
-  rtcConfig.DayOfWeek    = Saturday;
-  rtcConfig.Month        = March;
-  rtcConfig.Day          = 19;
-  rtcConfig.Century      = 0;
-  rtcConfig.Year         = 19;
-  rtcConfig.Hour         = 23;
-  rtcConfig.Minute       = 59;
-  rtcConfig.Second       = 50;
-  rtcConfig.MilliSeconds = 0;
-  /*Set the RTC configuration*/
-  RSI_RTC_SetDateTime(RTC, &rtcConfig);
-  /*Enable Alarm feature*/
-  RSI_RTC_AlamEnable(RTC, ENABLE);
-  /*Enable RTC ALARM interrupts*/
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-  /*Initialization of RTC CALIBRATION*/
-  RSI_RTC_CalibInitilization();
-  /*To calibrate rc and ro */
-  RSI_RTC_ROCLK_Calib(TIME_PERIOD, ENABLE, ENABLE, RC_TRIGGER_TIME, ENABLE, ENABLE, RO_TRIGGER_TIME);
-  /*Set Alarm as a wake-up source to wake up from deep sleep */
-  RSI_PS_SetWkpSources(ALARM_BASED_WAKEUP);
-  /*Enable the RTC alarm interrupts */
-  RSI_RTC_IntrUnMask(RTC_ALARM_INTR);
-  /*Enable NVIC for RTC */
-  NVIC_EnableIRQ(NVIC_RTC_ALARM);
-}
 /**************************************************************************/ /**
  * @fn           void RTC_ALARM_IRQHandler(void)
  * @brief        This function is to initialize the RTC alarm IRQHandler.
@@ -351,48 +372,7 @@ void RTC_ALARM_IRQHandler(void)
   }
   return;
 }
-/**************************************************************************/ /**
- * @fn           void sli_si91x_config_wakeup_source(void)
- * @brief        This function config the wakup sources.
- * @param[in]    sleep_time - sleep time for the alarm
- * @param[out]   None
-*******************************************************************************/
-void sli_si91x_config_wakeup_source(uint16_t sleep_time)
-{
-#if ALARM_WAKEUP_SOURCE
-  /* Configure the Alarm time*/
-  sli_si91x_init_m4alarm_config();
-  /* Update the alarm time interval, when to get the next interrupt  */
-  //sli_si91x_set_alarm_intr_time(SL_ALARM_PERIODIC_TIME);
-  sli_si91x_set_alarm_intr_time(sleep_time);
-#endif
 
-#if GPIO_WAKEUP_SOURCE
-  /*Configure the NPSS GPIO mode to wake up  */
-  RSI_NPSSGPIO_SetPinMux(NPSS_GPIO_2, NPSSGPIO_PIN_MUX_MODE2);
-
-  /*Configure the NPSS GPIO direction to input */
-  RSI_NPSSGPIO_SetDir(NPSS_GPIO_2, NPSS_GPIO_DIR_INPUT);
-
-  /*Configure the NPSS GPIO interrupt polarity */
-  RSI_NPSSGPIO_SetPolarity(NPSS_GPIO_2, NPSS_GPIO_INTR_LOW);
-
-  /*Enable the REN*/
-  RSI_NPSSGPIO_InputBufferEn(NPSS_GPIO_2, 1);
-
-  /* Set the GPIO to wake from deep sleep */
-  RSI_NPSSGPIO_SetWkpGpio(NPSS_GPIO_2_INTR);
-
-  /* Un mask the NPSS GPIO interrupt*/
-  RSI_NPSSGPIO_IntrUnMask(NPSS_GPIO_2_INTR);
-
-  /*Select wake up sources */
-  RSI_PS_SetWkpSources(GPIO_BASED_WAKEUP);
-
-  /*Enable the NPSS GPIO interrupt slot*/
-  NVIC_EnableIRQ(NPSS_TO_MCU_GPIO_INTR_IRQn);
-#endif
-}
 /* *******************************************************************************
  * Callback function for state transition.
  * Prints the state transition with the parameters from and to.
@@ -452,139 +432,14 @@ static void transition_callback(sl_power_state_t from, sl_power_state_t to)
       break;
   }
 }
-/**************************************************************************/ /**
- * @fn           void sli_si91x_sleep_wakeup(void)
- * @brief        This function configures sleep/wakeup sources.
- * @param[in]    sleep_time - sleep time for the alarm
- * @param[out]   None
-*******************************************************************************/
-#ifdef SL_SH_PS1_STATE
-void sli_si91x_sleep_wakeup(void)
-#else
-void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
-#endif
-{
-  uint32_t status = 0;
-#ifdef SL_SH_PS1_STATE
-#ifdef SH_ADC_ENABLE
-  /* set the ULPSS as a wake up source */
-  RSI_PS_SetWkpSources(ULPSS_BASED_WAKEUP);
-#endif
-
-#ifdef SH_SDC_ENABLE
-  /* set the ULPSS as a wake up source */
-  RSI_PS_SetWkpSources(SDCSS_BASED_WAKEUP);
-#endif
-#else
-  DEBUGOUT("\r\n idle_sleep_time:%u \r\n", sh_sleep_time);
-  sli_si91x_config_wakeup_source(sh_sleep_time);
-#endif
-  /* Trigger M4 Sleep*/
-  sl_si91x_trigger_sleep(SLEEP_WITH_RETENTION,
-                         DISABLE_LF_MODE,
-                         WKP_RAM_USAGE_LOCATION,
-                         (uint32_t)RSI_PS_RestoreCpuContext,
-                         IVT_OFFSET_ADDR,
-                         RSI_WAKEUP_FROM_FLASH_MODE);
-
-  // by using this API we programmed the RTC timer clock in SOC
-  // MSB 8-bits for the Integer part &
-  // LSB 17-bits for the Fractional part
-  // Eg:- 32KHz = 31.25µs ==> 31.25*2^17 = 4096000 = 0x3E8000
-  /* Enable M4_TA interrupt */
-  sli_m4_ta_interrupt_init();
-
-  /* Clear M4_wakeup_TA bit so that TA will go to sleep after M4 wakeup*/
-  sl_si91x_host_clear_sleep_indicator();
-
-#ifdef SLI_SI91X_ENABLE_OS
-  /*  Setup the systick timer */
-  vPortSetupTimerInterrupt();
-#endif
-#ifndef SL_SH_PS1_STATE
-  //!Initialize sensor interfaces
-  status = sl_si91x_sensorhub_init();
-  if (status != SL_STATUS_OK) {
-    DEBUGOUT("\r\n Sensor Hub Init failed \r\n");
-    while (1)
-      ;
-  }
-  sl_status_t ret = sl_si91x_adc_channel_init(&bus_intf_info.adc_config.adc_ch_cfg, &bus_intf_info.adc_config.adc_cfg);
-  if (ret != SL_STATUS_OK) {
-    DEBUGOUT("\r\n ADC sensor channel init failed after wakeup \r\n");
-    while (1)
-      ;
-  }
-#endif
-}
-/**************************************************************************/ /**
- * @fn           void sli_si91x_sensorhub_ps4tops2_state(void)
- * @brief        This function changed the system status from PS4 to PS2.
- * @param[in]    None
- * @param[out]   None
-*******************************************************************************/
-void sli_si91x_sensorhub_ps4tops2_state(void)
-{
-  /* tass_ref_clk_mux_ctr in NWP Control */
-  RSI_Set_Cntrls_To_TA();
-  __disable_irq();
-  /* Switching from PS4 to PS2 state */
-  RSI_PS_PowerStateChangePs4toPs2(ULP_MCU_MODE,
-                                  PWR_MUX_SEL_ULPSSRAM_SCDC_0_9,
-                                  PWR_MUX_SEL_M4_ULP_RAM_SCDC_0_9,
-                                  PWR_MUX_SEL_M4_ULP_RAM16K_SCDC_0_9,
-                                  PWR_MUX_SEL_M4ULP_SCDC_0_6,
-                                  PWR_MUX_SEL_ULPSS_SCDC_0_9,
-                                  DISABLE_BG_SAMPLE_ENABLE,
-                                  DISABLE_DC_DC_ENABLE,
-                                  DISABLE_SOCLDO_ENABLE,
-                                  DISABLE_STANDBYDC,
-                                  DISABLE_TA192K_RAM_RET,
-                                  ENABLE_M464K_RAM_RET);
-  __enable_irq();
-}
-void sli_si91x_sensorhub_ps2tops4_state(void)
-{
-  __disable_irq();
-  /* change the power state from PS2 to PS4 */
-  RSI_PS_PowerStateChangePs2toPs4(SL_SH_PMUBUCKTURNONWAITTIME, SL_SH_SOCLDOTURNONWAITTIME);
-  /* power_On the M4SS Flash and peripherals*/
-  RSI_PS_M4ssPeriPowerUp(M4SS_PWRGATE_ULP_QSPI_ICACHE | M4SS_PWRGATE_ULP_EFUSE_PERI);
-  /* enable the power to the QSPI-DLL module */
-  RSI_PS_QspiDllDomainEnable();
-  /* Initialize the QSPI after moving to PS4 state because it was powered down in PS2 mode. */
-  RSI_PS_FlashLdoEnable();
-  if (!(P2P_STATUS_REG & TA_is_active)) {
-    //!wakeup NWP
-    P2P_STATUS_REG |= M4_wakeup_TA;
-    //!wait for NWP active
-    while (!(P2P_STATUS_REG & TA_is_active))
-      ;
-  }
-  //! Request NWP to program flash
-  //! raise an interrupt to NWP register
-  M4SS_P2P_INTR_SET_REG = BIT(4);
-  P2P_STATUS_REG        = BIT(0);
-
-  while (!(P2P_STATUS_REG & BIT(3)))
-    ;
-  /*  Initialize the QSPI  */
-  RSI_FLASH_Initialize();
-  __enable_irq();
-  // Initialize NWP interrupt and submit RX packets
-  sli_m4_ta_interrupt_init();
-  M4SS_P2P_INTR_SET_REG = RX_BUFFER_VALID;
-  /* AON domain power supply controls from NWP to M4 */
-  RSI_Set_Cntrls_To_M4();
-}
 
 /**************************************************************************/ /**
- *  @fn          sl_sensor_impl_type* sli_si91x_get_sensor_implementation(int32_t sensor_id)
+ *  @fn         static sl_sensor_impl_type* sensorhub_get_sensor_implementation(int32_t sensor_id)
  *  @brief       To get the appropriate sensor driver implementation.
  *  @param[in]   sensor_id     ID of the target sensor
  *  @return      Reference to the sensor driver
 *******************************************************************************/
-sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id)
+static sl_sensor_impl_type_t *sensorhub_get_sensor_implementation(int32_t sensor_id)
 {
   uint32_t count = sl_si91x_get_implementation_size();
 
@@ -597,12 +452,12 @@ sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id)
 }
 
 /**************************************************************************/ /**
- *  @fn          int32_t sli_si91x_create_sensor_list_index()
+ *  @fn        static int32_t sensorhub_create_sensor_list_index(void)
  *  @brief       To create a sensor index in the list.
  * @return if successful, returns the sensor index
  *         else it will break the sensor list.
 *******************************************************************************/
-int32_t sli_si91x_create_sensor_list_index()
+static int32_t sensorhub_create_sensor_list_index(void)
 {
   int32_t sensor_index;
 
@@ -615,13 +470,13 @@ int32_t sli_si91x_create_sensor_list_index()
 }
 
 /**************************************************************************/ /**
- *  @fn          int32_t sli_si91x_get_sensor_index(sl_sensor_id_en sensor_id)
+ *  @fn      static    int32_t sensorhub_get_sensor_index(sl_sensor_id_en sensor_id)
  *  @brief       To get the index of the sensor present in the list
  *  @param[in]   sensor_id     id of the target sensor
  *  @return if successful, returns the sensor index
  *         else it returns the 0XFF as a sensor index fail.
 *******************************************************************************/
-uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id)
+static uint32_t sensorhub_get_sensor_index(sl_sensor_id_t sensor_id)
 {
   uint32_t i;
   for (i = 0; i < SL_MAX_NUM_SENSORS; i++) {
@@ -634,12 +489,12 @@ uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id)
 }
 
 /**************************************************************************/ /**
- *  @fn          int32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_en sensor_id)
+ *  @fn          static int32_t sensorhub_delete_sensor_list_index(sl_sensor_id_en sensor_id)
  *  @brief       To delete the sensor index from the list
  *  @param[in]   sensor_id     id of the target sensor
  *  @return      index of the sensor
 *******************************************************************************/
-uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id)
+static uint32_t sensorhub_delete_sensor_list_index(sl_sensor_id_t sensor_id)
 {
   uint32_t i;
   for (i = 0; i < SL_MAX_NUM_SENSORS; i++) {
@@ -651,12 +506,12 @@ uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id)
   return SL_SH_SENSOR_INDEX_NOT_FOUND;
 }
 /**************************************************************************/ /**
- *  @fn          sl_sensor_info_t* sli_si91x_get_sensor_info(sl_sensor_id_en sensor_id)
+ *  @fn          static sl_sensor_info_t* sensorhub_get_sensor_info(sl_sensor_id_en sensor_id)
  *  @brief       To get the info on the configured sensor
  *  @param[in]   sensor_id     id of the target sensor
  *  @return      reference to the sensor info
 *******************************************************************************/
-sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id)
+static sl_sensor_info_t *sensorhub_get_sensor_info(sl_sensor_id_t sensor_id)
 {
   uint8_t sens_index = 0;
   for (sens_index = 0; sens_index < SL_MAX_NUM_SENSORS; sens_index++) {
@@ -687,11 +542,11 @@ sl_status_t sl_si91x_sensorhub_notify_cb_register(sl_sensor_signalEvent_t cb_eve
 }
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer)
+ *  @fn          static void sensorhub_sensors_timer_cb(TimerHandle_t xTimer)
  *  @brief       software timer callback
  *  @param[in]   xTimer     handle to the timer
 *******************************************************************************/
-void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer)
+static void sensorhub_sensors_timer_cb(TimerHandle_t xTimer)
 {
   uint32_t event_bit = (uint32_t)pvTimerGetTimerID(xTimer);
   osEventFlagsSet(sl_event_group, (0x01 << event_bit));
@@ -719,12 +574,12 @@ void sl_si91x_button_isr(uint8_t pin, int8_t state)
   gpio_uulp_pin_interrupt_callback(pin);
 }
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_gpio_interrupt_config(uint16_t gpio_pin,sl_gpio_intr_type intr_type)
+ *  @fn          static void sensorhub_gpio_interrupt_config(uint16_t gpio_pin,sl_gpio_intr_type intr_type)
  *  @brief       Configuring the different types of NPSS GPIO interrupts.
  *  @param[in]   gpio_pin     GPIO pin number
  *  @param[in]   intr_type    type of interrupt.
 *******************************************************************************/
-sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type)
+static sl_status_t sensorhub_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type)
 {
 
   sl_status_t status;
@@ -771,11 +626,11 @@ sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_inte
 }
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)
+ *  @fn          static void sensorhub_gpio_interrupt_start(uint16_t gpio_pin)
  *  @brief       Enable and set the priority of GPIO interrupt.
  *  @param[in]   gpio_pin     GPIO pin number
 *******************************************************************************/
-void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)
+static void sensorhub_gpio_interrupt_start(uint16_t gpio_pin)
 {
   if (gpio_pin != 2) {
 
@@ -791,11 +646,11 @@ void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)
 }
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin)
+ *  @fn          static void sensorhub_gpio_interrupt_stop(uint16_t gpio_pin)
  *  @brief       Mask and Disable the GPIO interrupt.
  *  @param[in]   gpio_pin     GPIO pin number
 *******************************************************************************/
-void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin)
+static void sensorhub_gpio_interrupt_stop(uint16_t gpio_pin)
 {
   /*mask the NPSS GPIO interrupt */
   RSI_NPSSGPIO_IntrMask(BIT(gpio_pin));
@@ -813,7 +668,7 @@ void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin)
  *            ADC_THRSHOLD_CALLBACK, INTERNAL_DMA, FIFO_MODE_EVENT)
  *
 *******************************************************************************/
-void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event)
+void sl_si91x_adc_callback_v2(uint8_t channel_no, uint8_t event)
 {
   if (event == SL_INTERNAL_DMA) {
     bus_intf_info.adc_config.adc_data_ready |= BIT(channel_no);
@@ -851,7 +706,7 @@ void sl_si91x_sdc_intr_event_set(uint8_t channel_no, uint8_t event)
 }
 
 /**************************************************************************/ /**
- *  @fn          uint8_t sli_si91x_adc_init(void)
+ *  @fn          static sl_status_t sensorhub_adc_init(void)
  *  @brief       Initialize the ADC Interface based on the configuration.
  *  @param[in]   None
  *  @return      status 0 if successful,
@@ -859,7 +714,7 @@ void sl_si91x_sdc_intr_event_set(uint8_t channel_no, uint8_t event)
  *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
  *               \ref SL_STATUS_OK (0X000)- Success,
 *******************************************************************************/
-sl_status_t sli_si91x_adc_init(void)
+static sl_status_t sensorhub_adc_init(void)
 {
   uint32_t status = 0;
 
@@ -883,7 +738,7 @@ sl_status_t sli_si91x_adc_init(void)
 
   /* set callback function for ADC interrupt only in FIFO mode*/
   if (bus_intf_info.adc_config.adc_cfg.operation_mode != SL_ADC_STATIC_MODE) {
-    status = sl_si91x_adc_register_event_callback(sl_si91x_adc_callback);
+    status = sl_si91x_adc_register_event_callback(sl_si91x_adc_callback_v2);
     if (status != SL_STATUS_OK) {
       DEBUGOUT("\r\n ADC callback event fail:%lu\r\n", status);
       return SL_STATUS_FAIL;
@@ -912,7 +767,7 @@ sl_status_t sli_si91x_adc_init(void)
 }
 
 /**************************************************************************/ /**
- *  @fn          void sli_config_sdc_params(sl_sdc_config_t * sdc_config)
+ *  @fn         static void sensorhub_sdc_config_params(sl_sdc_config_t * sdc_config)
  *  @brief       Initialize the sdc Interface based on the configuration.
  *  @param[in]   None
  *  @return      status 0 if successful,
@@ -920,7 +775,8 @@ sl_status_t sli_si91x_adc_init(void)
  *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
  *               \ref SL_STATUS_OK (0X000)- Success,
 *******************************************************************************/
-void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p)
+#ifdef SH_SDC_ENABLE
+static void sensorhub_sdc_config_params(sl_drv_sdc_config_t *sdc_config_st_p)
 {
   sdc_config_st_p->sdc_clk_div = SDC_CLK_DIV_VALUE;
 
@@ -953,8 +809,9 @@ void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p)
   sdc_config_st_p->sdc_sample_ther        = bus_intf_info.sh_sdc_config.sh_sdc_sample_ther;
   sdc_config_st_p->sdc_sample_trigger_sel = bus_intf_info.sh_sdc_config.sh_sdc_sample_trigger_sel;
 }
+#endif
 /**************************************************************************/ /**
- *  @fn          uint8_t sli_si91x_sdc_init(void)
+ *  @fn          static uint8_t sensorhub_sdc_init(void)
  *  @brief       Initialize the sdc Interface based on the configuration.
  *  @param[in]   None
  *  @return      status 0 if successful,
@@ -962,13 +819,14 @@ void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p)
  *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
  *               \ref SL_STATUS_OK (0X000)- Success,
 *******************************************************************************/
-sl_status_t sli_si91x_sdc_init(void)
+#ifdef SH_SDC_ENABLE
+static sl_status_t sensorhub_sdc_init(void)
 {
   sl_drv_sdc_config_t sli_sdc_config_st;
 
   sl_si91x_sh_rtc_start(); //start the RTC
 
-  sli_config_sdc_params(&sli_sdc_config_st);
+  sensorhub_sdc_config_params(&sli_sdc_config_st);
 
   sdc_pin_mux(sli_sdc_config_st.sdc_p_channel_sel[0], sli_sdc_config_st.sdc_n_channel_sel[0], 0);
 
@@ -989,7 +847,7 @@ sl_status_t sli_si91x_sdc_init(void)
 
   return SL_STATUS_OK;
 }
-
+#endif
 /**************************************************************************/ /**
  *  @fn          uint8_t sl_si91x_fetch_adc_bus_intf_info(void)
  *  @brief       Fetch ADC bus interface information. This can be used by lower
@@ -1018,27 +876,27 @@ sl_status_t sl_si91x_sensorhub_init()
   bus_errors.adc = true;
   int32_t status = 0;
   /*TODO: SPI, ADC, and UART initializations should be handled */
-  status = sli_si91x_i2c_init();
+  status = sensorhub_i2c_init();
   if (status != SL_STATUS_OK) {
     bus_errors.i2c = false;
     DEBUGOUT("\r\n I2C Init Fail \r\n");
   }
 #if !(SH_ADC_ENABLE || SH_SDC_ENABLE)
-  status = sli_si91x_spi_init();
+  status = sensorhub_spi_init();
   if (status != SL_STATUS_OK) {
     bus_errors.spi = false;
     DEBUGOUT("\r\n SPI Init Fail \r\n");
   }
 #endif
 #ifdef SH_ADC_ENABLE
-  status = sli_si91x_adc_init();
+  status = sensorhub_adc_init();
   if (status != SL_STATUS_OK) {
     bus_errors.adc = false;
     DEBUGOUT("\r\n ADC Init Fail \r\n");
   }
 #endif
 #ifdef SH_SDC_ENABLE
-  status = sli_si91x_sdc_init();
+  status = sensorhub_sdc_init();
   if (status != SL_STATUS_OK) {
     bus_errors.sdc = false;
     DEBUGOUT("\r\n sdc Init Fail \r\n");
@@ -1071,19 +929,21 @@ sl_status_t sl_si91x_sensor_hub_start()
   }
   DEBUGOUT("Power Manager transition event is subscribed \n");
 
-  RSI_TIMEPERIOD_TimerClkSel(TIME_PERIOD, 0x003E7FFF);
-  RSI_PS_EnableFirstBootUp(1); /* Enable first boot up */
-  RSI_PS_SkipXtalWaitTime(1);  /* XTAL wait time is skipped since RC_MHZ Clock is used for Processor on wakeup */
-  RSI_PS_SetRamRetention(M4ULP_RAM16K_RETENTION_MODE_EN | ULPSS_RAM_RETENTION_MODE_EN
-                         | M4ULP_RAM_RETENTION_MODE_EN); /* Enable SRAM Retention of 16KB during Sleep */
-  status = osThreadNew((osThreadFunc_t)sl_si91x_sensor_task, NULL, &sensor_thread_attributes);
+  if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS3) {
+    sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+    sensorhub_current_powerstate = SL_SI91X_POWER_MANAGER_PS4;
+  } else {
+    sensorhub_current_powerstate = sl_si91x_power_manager_get_current_state();
+  }
+
+  status = osThreadNew((osThreadFunc_t)sensorhub_sensor_task, NULL, &sensor_thread_attributes);
   if (status == NULL) {
     DEBUGOUT("\r\n Sensor_Task create fail \r\n");
     return SL_SH_SENSOR_TASK_CREATION_FAILED;
   }
   DEBUGOUT("\r\n Sensor_Task:%p \r\n", status);
 
-  status = osThreadNew((osThreadFunc_t)sl_si91x_em_task, NULL, &EM_thread_attributes);
+  status = osThreadNew((osThreadFunc_t)sensorhub_em_task, NULL, &EM_thread_attributes);
   if (status == NULL) {
     DEBUGOUT("\r\n EM_Task create fail \r\n");
     return SL_SH_EM_TASK_CREATION_FAILED;
@@ -1111,7 +971,7 @@ sl_status_t sl_si91x_sensorhub_detect_sensors(sl_sensor_id_t *sensor_id_info, ui
     switch (sensor_hub_info_t[cnt].sensor_bus) {
       case SL_SH_I2C:
         if (bus_errors.i2c) {
-          status = sli_si91x_i2c_sensors_scan(sensor_hub_info_t[cnt].address);
+          status = sensorhub_i2c_sensors_scan(sensor_hub_info_t[cnt].address);
           if (status != SL_STATUS_OK) {
             DEBUGOUT("\r\n Failed to Scan sensor: %s I2C error code: %lu \r\n",
                      sensor_hub_info_t[cnt].sensor_name,
@@ -1161,14 +1021,14 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
   uint32_t ramAllocationSize = 0;
   char sl_sensor_timer_name[16];
 
-  local_info = sli_si91x_get_sensor_info(sensor_id);
+  local_info = sensorhub_get_sensor_info(sensor_id);
   if (NULL == local_info) {
     /*If there is no config found for the given sensor then return an error*/
     return SL_SH_CONFIG_NOT_FOUND;
   }
 
   /*Add the sensor to the sensor list*/
-  sensor_index = (uint8_t)sli_si91x_create_sensor_list_index();
+  sensor_index = (uint8_t)sensorhub_create_sensor_list_index();
 
   if (sensor_index == SL_MAX_NUM_SENSORS) {
     /* Invalid sensor index */
@@ -1234,7 +1094,7 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
 
   /*Find the Sensor HAL Implementation*/
   sensor_list.sl_sensors_st[sensor_index].sensor_impl =
-    sli_si91x_get_sensor_implementation((sensor_id & SL_SENSOR_ID_MASK) >> SL_SENSOR_ID_OFFSET);
+    sensorhub_get_sensor_implementation((sensor_id & SL_SENSOR_ID_MASK) >> SL_SENSOR_ID_OFFSET);
   if (sensor_list.sl_sensors_st[sensor_index].sensor_impl == NULL) {
     return SL_SH_SENSOR_IMPLEMENTATION_NOT_FOUND;
   }
@@ -1288,7 +1148,7 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
                      ((sensor_list.sl_sensors_st[sensor_index].config_st->sampling_interval)),
                      1,
                      (void *)(sensor_list.sl_sensors_st[sensor_index].sensor_event_bit),
-                     sl_si91x_sensors_timer_cb);
+                     sensorhub_sensors_timer_cb);
 
       if (sensor_list.sl_sensors_st[sensor_index].timer_handle == NULL) {
         DEBUGOUT("\r\n OS timer creation Failed \r\n");
@@ -1305,8 +1165,8 @@ sl_status_t sl_si91x_sensorhub_create_sensor(sl_sensor_id_t sensor_id)
       } else {
         if (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_id != SL_GPIO_SENSE_BUTTON_ID) {
           status =
-            sl_si91x_gpio_interrupt_config(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin,
-                                           sensor_list.sl_sensors_st[sensor_index].config_st->sensor_intr_type);
+            sensorhub_gpio_interrupt_config(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin,
+                                            sensor_list.sl_sensors_st[sensor_index].config_st->sensor_intr_type);
           if (status != SL_STATUS_OK) {
             return status;
           }
@@ -1344,7 +1204,7 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id)
   uint32_t sensor_index;
   osStatus_t timer_status;
   /*Delete the sensor to the sensor list*/
-  sensor_index = sli_si91x_delete_sensor_list_index(sensor_id);
+  sensor_index = sensorhub_delete_sensor_list_index(sensor_id);
   if (sensor_index == SL_MAX_NUM_SENSORS) {
     /* Invalid sensor index */
     return SL_SH_SENSOR_INDEX_NOT_FOUND;
@@ -1357,13 +1217,13 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id)
       if (timer_status != osOK) {
         /* Post-event as SL_SENSOR_START_FAILED */
         DEBUGOUT("\r\n osTimer Delete failed:%d \r\n", timer_status);
-        sl_si91x_em_post_event(sensor_id, SL_SENSOR_DELETE_FAILED, NULL, EM_POST_TIME);
+        sensorhub_em_post_event(sensor_id, SL_SENSOR_DELETE_FAILED, NULL, EM_POST_TIME);
         return SL_SH_TIMER_DELETION_FAILED;
       }
       break;
 
     case SL_SH_INTERRUPT_MODE:
-      sl_si91x_gpio_interrupt_stop(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
+      sensorhub_gpio_interrupt_stop(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
       break;
 
     default:
@@ -1382,9 +1242,9 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id)
   //!delete sensor
   sensor_list.sl_sensors_st[sensor_index].ctrl_handle =
     (void *)sensor_list.sl_sensors_st[sensor_index].sensor_impl->delete (
-      (void *)&sensor_list.sl_sensors_st[sensor_index].config_st->sensor_id);
+      (void *)&sensor_list.sl_sensors_st[sensor_index].sensor_handle);
   if (sensor_list.sl_sensors_st[sensor_index].ctrl_handle != NULL) {
-    sl_si91x_em_post_event(sensor_id, SL_SENSOR_DELETE_FAILED, NULL, EM_POST_TIME);
+    sensorhub_em_post_event(sensor_id, SL_SENSOR_DELETE_FAILED, NULL, EM_POST_TIME);
 
     return SL_SH_HAL_SENSOR_DELETION_FAILED;
   }
@@ -1393,7 +1253,7 @@ sl_status_t sl_si91x_sensorhub_delete_sensor(sl_sensor_id_t sensor_id)
   sensor_list.sl_sensors_st[sensor_index].sensor_status = SL_SENSOR_INVALID;
 
   //!post SENSOR_STARTED event to application
-  sl_si91x_em_post_event(sensor_id, SL_SENSOR_DELETED, NULL, EM_POST_TIME);
+  sensorhub_em_post_event(sensor_id, SL_SENSOR_DELETED, NULL, EM_POST_TIME);
 
   return SL_STATUS_OK;
 }
@@ -1410,9 +1270,9 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
 {
   uint32_t sensor_index, status = 0;
   osStatus_t timer_status;
-  sensor_index = sli_si91x_get_sensor_index(sensor_id);
+  sensor_index = sensorhub_get_sensor_index(sensor_id);
   if (sensor_index == SL_SH_SENSOR_INDEX_NOT_FOUND) {
-    sl_si91x_em_post_event(sensor_id, SL_SENSOR_CREATION_FAILED, NULL, EM_POST_TIME);
+    sensorhub_em_post_event(sensor_id, SL_SENSOR_CREATION_FAILED, NULL, EM_POST_TIME);
     return SL_SH_SENSOR_CREATE_FAIL;
   }
 
@@ -1422,7 +1282,7 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
       timer_status = xTimerStart(sensor_list.sl_sensors_st[sensor_index].timer_handle, portMAX_DELAY);
       if (timer_status != pdPASS) {
         /* Post event as SL_SENSOR_START_FAILED */
-        sl_si91x_em_post_event(sensor_id, SL_SENSOR_START_FAILED, NULL, EM_POST_TIME);
+        sensorhub_em_post_event(sensor_id, SL_SENSOR_START_FAILED, NULL, EM_POST_TIME);
         return SL_SH_TIMER_START_FAIL;
       }
 
@@ -1432,12 +1292,12 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
       if (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_bus == SL_SH_ADC) {
         NVIC_SetPriority(ADC_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY - 1);
       } else {
-        sl_si91x_gpio_interrupt_start(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
+        sensorhub_gpio_interrupt_start(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
       }
       break;
     default:
       //!Post-event to the application as sensor config_st invalid
-      sl_si91x_em_post_event(sensor_id, SL_SENSOR_CNFG_INVALID, NULL, EM_POST_TIME);
+      sensorhub_em_post_event(sensor_id, SL_SENSOR_CNFG_INVALID, NULL, EM_POST_TIME);
       return SL_SH_INVALID_MODE;
   }
 
@@ -1445,7 +1305,7 @@ sl_status_t sl_si91x_sensorhub_start_sensor(sl_sensor_id_t sensor_id)
   sensor_list.sl_sensors_st[sensor_index].sensor_status = SL_SENSOR_START;
 
   //!post SENSOR_STARTED event to application
-  sl_si91x_em_post_event(sensor_id, SL_SENSOR_STARTED, NULL, EM_POST_TIME);
+  sensorhub_em_post_event(sensor_id, SL_SENSOR_STARTED, NULL, EM_POST_TIME);
 
   sensor_list.sl_sensors_st[sensor_index].ctrl_handle =
     (void *)sensor_list.sl_sensors_st[sensor_index].sensor_impl->control(
@@ -1471,9 +1331,9 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
 {
   /*TODO: Need to verify the delete function*/
   uint32_t sensor_index, status = 0;
-  sensor_index = sli_si91x_get_sensor_index(sensor_id);
+  sensor_index = sensorhub_get_sensor_index(sensor_id);
   if (sensor_index == SL_SH_SENSOR_INDEX_NOT_FOUND) {
-    sl_si91x_em_post_event(sensor_id, SL_SENSOR_STOP_FAILED, NULL, EM_POST_TIME);
+    sensorhub_em_post_event(sensor_id, SL_SENSOR_STOP_FAILED, NULL, EM_POST_TIME);
     return SL_SH_SENSOR_CREATE_FAIL;
   }
   switch (sensor_list.sl_sensors_st[sensor_index].config_st->sensor_mode) {
@@ -1482,18 +1342,18 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
       if (status != osOK) {
         /* Post event as SL_SENSOR_STOP_FAILED */
         DEBUGOUT("\r\n osTimer stop failed:%lu \r\n", status);
-        sl_si91x_em_post_event(sensor_id, SL_SENSOR_STOP_FAILED, NULL, EM_POST_TIME);
+        sensorhub_em_post_event(sensor_id, SL_SENSOR_STOP_FAILED, NULL, EM_POST_TIME);
         return SL_SH_TIMER_STOP_FAIL;
       }
       break;
 
     case SL_SH_INTERRUPT_MODE:
-      sl_si91x_gpio_interrupt_stop(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
+      sensorhub_gpio_interrupt_stop(sensor_list.sl_sensors_st[sensor_index].config_st->sampling_intr_req_pin);
 
       break;
     default:
       //!Post-event to the application as sensor config invalid
-      sl_si91x_em_post_event(sensor_id, SL_SENSOR_CNFG_INVALID, NULL, EM_POST_TIME);
+      sensorhub_em_post_event(sensor_id, SL_SENSOR_CNFG_INVALID, NULL, EM_POST_TIME);
       return SL_STATUS_FAIL;
   }
 
@@ -1503,7 +1363,7 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
   sensor_list.sl_sensors_st[sensor_index].sensor_status = SL_SENSOR_STOP;
 
   //!post SENSOR_STOPPED event to application
-  sl_si91x_em_post_event(sensor_id, SL_SENSOR_STOPPED, NULL, EM_POST_TIME);
+  sensorhub_em_post_event(sensor_id, SL_SENSOR_STOPPED, NULL, EM_POST_TIME);
 
   sensor_list.sl_sensors_st[sensor_index].ctrl_handle =
     (void *)sensor_list.sl_sensors_st[sensor_index].sensor_impl->control(
@@ -1515,7 +1375,7 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
 }
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_em_post_event(sl_sensor_id_en sensor_id,
+ *  @fn        static void sensorhub_em_post_event(sl_sensor_id_en sensor_id,
  *  sl_sensorhub_event_en event, void* dataPtr, TickType_t ticks_to_wait)
  *  @brief       To post the events/notifications to event manager(EM) to be notified to the application
  *  @param[in]   sensor_id      id of the  sensor
@@ -1523,10 +1383,10 @@ sl_status_t sl_si91x_sensorhub_stop_sensor(sl_sensor_id_t sensor_id)
  *  @param[in]   dataPtr        pointer to the data
  *  @param[in]   ticks_to_wait  max time to wait for the post
 *******************************************************************************/
-void sl_si91x_em_post_event(sl_sensor_id_t sensor_id,
-                            sl_sensorhub_event_t event,
-                            void *dataPtr,
-                            TickType_t ticks_to_wait)
+static void sensorhub_em_post_event(sl_sensor_id_t sensor_id,
+                                    sl_sensorhub_event_t event,
+                                    void *dataPtr,
+                                    TickType_t ticks_to_wait)
 {
   sl_em_event_t em_event;
   em_event.sensor_id      = sensor_id;
@@ -1550,12 +1410,12 @@ void sl_si91x_em_post_event(sl_sensor_id_t sensor_id,
 }
 
 /**************************************************************************/ /**
- *  @fn          void EM_Task(void)
+ *  @fn       static void sensorhub_em_task(void)
  *  @brief       Task to handle the operations of the Event Manager(EM)
 *******************************************************************************/
-void sl_si91x_em_task(void)
+static void sensorhub_em_task(void)
 {
-
+  sl_status_t status = SL_STATUS_OK;
   sl_em_event_t em_event;
   osStatus_t sl_semcq_status;
   sl_status_t em_wlan_status;
@@ -1600,10 +1460,19 @@ void sl_si91x_em_task(void)
       }
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
-        if (sl_ps4_ps2_done == SL_PWR_STATE_SWICTH_DONE) {
-          sl_ps4_ps2_done = 0;
-          sli_si91x_sensorhub_ps2tops4_state();
-          sl_ps2_ps4_done = 1;
+        if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS2
+            && sensorhub_current_powerstate == SL_SI91X_POWER_MANAGER_PS2) {
+          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("\r\n Add PS requirement PS4 fail %lu", status);
+          }
+          status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("\r\n Remove PS requirement PS2 fail %lu", status);
+          }
+          if (status == SL_STATUS_OK) {
+            sensorhub_current_powerstate = SL_SI91X_POWER_MANAGER_PS4;
+          }
         }
       }
 #endif
@@ -1627,10 +1496,19 @@ void sl_si91x_em_task(void)
 
 #ifdef SL_SH_POWER_STATE_TRANSITIONS
       if (em_event.event == SL_SENSOR_DATA_READY) {
-        if (sl_ps4_ps2_done != SL_PWR_STATE_SWICTH_DONE) {
-          sl_power_state_enum = SL_SH_PS4TOPS2;
-          sli_si91x_sensorhub_ps4tops2_state();
-          sl_ps4_ps2_done = 1;
+        if (sl_si91x_power_manager_get_current_state() == SL_SI91X_POWER_MANAGER_PS4
+            && sensorhub_current_powerstate == SL_SI91X_POWER_MANAGER_PS4) {
+          status = sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS2);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("\r\n ADD PS requirement PS2 fail %lu", status);
+          }
+          status = sl_si91x_power_manager_remove_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
+          if (status != SL_STATUS_OK) {
+            DEBUGOUT("\r\n Remove PS requirement PS4 fail %lu", status);
+          }
+          if (status == SL_STATUS_OK) {
+            sensorhub_current_powerstate = SL_SI91X_POWER_MANAGER_PS2;
+          }
         }
       }
 #endif
@@ -1658,10 +1536,10 @@ void sl_si91x_em_task(void)
 } //end of file
 
 /**************************************************************************/ /**
- *  @fn          void sl_si91x_sensor_task(void)
+ *  @fn      static void sensorhub_sensor_task(void)
  *  @brief       Task to handle the sensor operations.
 *******************************************************************************/
-void sl_si91x_sensor_task(void)
+static void sensorhub_sensor_task(void)
 {
   uint32_t event_flags;
   static uint8_t i;
@@ -1714,15 +1592,15 @@ void sl_si91x_sensor_task(void)
           }
           if (sensor_list.sl_sensors_st[i].config_st->sensor_mode == SL_SH_POLLING_MODE) {
             if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_I2C) && !bus_errors.i2c) {
-              sli_si91x_i2c_init();
+              sensorhub_i2c_init();
               bus_errors.i2c = true;
             }
             if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_SPI) && !bus_errors.spi) {
-              sli_si91x_spi_init();
+              sensorhub_spi_init();
               bus_errors.spi = true;
             }
             if ((sensor_list.sl_sensors_st[i].config_st->sensor_bus == SL_SH_ADC) && !bus_errors.adc) {
-              sli_si91x_adc_init();
+              sensorhub_adc_init();
               sl_status_t ret =
                 sl_si91x_adc_channel_init(&bus_intf_info.adc_config.adc_ch_cfg, &bus_intf_info.adc_config.adc_cfg);
               if (ret != SL_STATUS_OK) {
@@ -1758,10 +1636,10 @@ void sl_si91x_sensor_task(void)
                   >= sensor_list.sl_sensors_st[i].config_st->data_deliver.threshold) {
                 if (sensor_list.sl_sensors_st[i].event_ack == CLEAR_EVENT_ACK) {
                   sensor_list.sl_sensors_st[i].event_ack = SET_EVENT_ACK;
-                  sl_si91x_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
-                                         SL_SENSOR_DATA_READY,
-                                         sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
-                                         EM_POST_TIME);
+                  sensorhub_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
+                                          SL_SENSOR_DATA_READY,
+                                          sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
+                                          EM_POST_TIME);
                 }
               }
             } else {
@@ -1772,10 +1650,10 @@ void sl_si91x_sensor_task(void)
                   >= sensor_list.sl_sensors_st[i].config_st->data_deliver.threshold) {
                 if (sensor_list.sl_sensors_st[i].event_ack == CLEAR_EVENT_ACK) {
                   sensor_list.sl_sensors_st[i].event_ack = SET_EVENT_ACK;
-                  sl_si91x_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
-                                         SL_SENSOR_DATA_READY,
-                                         sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
-                                         EM_POST_TIME);
+                  sensorhub_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
+                                          SL_SENSOR_DATA_READY,
+                                          sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
+                                          EM_POST_TIME);
                 }
               }
             }
@@ -1787,10 +1665,10 @@ void sl_si91x_sensor_task(void)
                     / sensor_list.sl_sensors_st[i].config_st->sampling_interval)) {
               if (sensor_list.sl_sensors_st[i].event_ack == CLEAR_EVENT_ACK) {
                 sensor_list.sl_sensors_st[i].event_ack = SET_EVENT_ACK;
-                sl_si91x_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
-                                       SL_SENSOR_DATA_READY,
-                                       sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
-                                       EM_POST_TIME);
+                sensorhub_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
+                                        SL_SENSOR_DATA_READY,
+                                        sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
+                                        EM_POST_TIME);
               }
             }
             break;
@@ -1800,10 +1678,10 @@ void sl_si91x_sensor_task(void)
                 == (sensor_list.sl_sensors_st[i].config_st->data_deliver.numofsamples)) {
               if (sensor_list.sl_sensors_st[i].event_ack == CLEAR_EVENT_ACK) {
                 sensor_list.sl_sensors_st[i].event_ack = SET_EVENT_ACK;
-                sl_si91x_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
-                                       SL_SENSOR_DATA_READY,
-                                       sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
-                                       EM_POST_TIME);
+                sensorhub_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
+                                        SL_SENSOR_DATA_READY,
+                                        sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
+                                        EM_POST_TIME);
               }
             }
 
@@ -1813,10 +1691,10 @@ void sl_si91x_sensor_task(void)
             // Reference for the Sensor interrupt Mode
             if (sensor_list.sl_sensors_st[i].event_ack == CLEAR_EVENT_ACK) {
               sensor_list.sl_sensors_st[i].event_ack = SET_EVENT_ACK;
-              sl_si91x_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
-                                     SL_SENSOR_DATA_READY,
-                                     sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
-                                     EM_POST_TIME);
+              sensorhub_em_post_event(sensor_list.sl_sensors_st[i].config_st->sensor_id,
+                                      SL_SENSOR_DATA_READY,
+                                      sensor_list.sl_sensors_st[i].config_st->sensor_data_ptr,
+                                      EM_POST_TIME);
               RSI_NPSSGPIO_IntrUnMask(BIT(sensor_list.sl_sensors_st[i].config_st->sampling_intr_req_pin));
             }
             break;
@@ -1864,10 +1742,10 @@ void mySPI_callback(uint32_t event)
 }
 
 /**************************************************************************/ /**
-*  @fn          sl_status_t sli_si91x_spi_init(void)
+*  @fn          sl_status_t sensorhub_spi_init(void)
 *  @brief       Initialize the SPI Interface based on the configuration.
 *******************************************************************************/
-int32_t sli_si91x_spi_init(void)
+static int32_t sensorhub_spi_init(void)
 {
   int32_t status = 0;
 
@@ -1943,11 +1821,11 @@ void ARM_I2C_SignalEvent(uint32_t event)
 }
 
 /**************************************************************************/ /**
- *  @fn          uint8_t sli_si91x_i2c_init()
+ *  @fn         static int32_t sensorhub_i2c_init(void)
  *  @brief       Initialize I2C Interface based on configuration
  *  @return      execution status
 *******************************************************************************/
-int32_t sli_si91x_i2c_init(void)
+static int32_t sensorhub_i2c_init(void)
 {
   int32_t status = ARM_DRIVER_OK;
 
@@ -1981,12 +1859,12 @@ int32_t sli_si91x_i2c_init(void)
 }
 
 /**************************************************************************/ /**
- *  @fn          sl_status_t sli_si91x_i2c_sensors_scan(uint16_t address)
+ *  @fn      static sl_status_t sensorhub_i2c_sensors_scan(uint16_t address)
  *  @brief       Scan the i2c sensors based on the address
  *  @param[in]   address Sensor address
  *  @return status 0 if successful, it will wait for the sensor response.
 *******************************************************************************/
-int32_t sli_si91x_i2c_sensors_scan(uint16_t address)
+static int32_t sensorhub_i2c_sensors_scan(uint16_t address)
 {
   uint8_t a[2] = "\0";
   int32_t status;
@@ -2001,4 +1879,354 @@ int32_t sli_si91x_i2c_sensors_scan(uint16_t address)
     ;
   return SL_STATUS_OK;
 }
+/**************************************************************************/ /**
+ *  @fn          uint8_t sli_si91x_i2c_init() is deprecated API not longer in use
+ *  @brief       Initialize I2C Interface based on configuration
+ *  @return      execution status
+*******************************************************************************/
+int32_t sli_si91x_i2c_init(void)
+{
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+*  @fn          sl_status_t sli_si91x_spi_init(void)is deprecated API not longer in use
+*  @brief       Initialize the SPI Interface based on the configuration.
+*******************************************************************************/
+int32_t sli_si91x_spi_init(void)
+{
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn          void sl_si91x_sensor_task(void)is deprecated API not longer in use
+ *  @brief       Task to handle the sensor operations.
+*******************************************************************************/
+void sl_si91x_sensor_task(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn          void EM_Task(void)is deprecated API not longer in use
+ *  @brief       Task to handle the operations of the Event Manager(EM)
+*******************************************************************************/
+void sl_si91x_em_task(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn         sl_status_t sli_si91x_i2c_sensors_scan(uint16_t address)is deprecated API not longer in use
+ *  @brief       Scan the i2c sensors based on the address
+ *  @param[in]   address Sensor address
+ *  @return status 0 if successful, it will wait for the sensor response.
+*******************************************************************************/
+int32_t sli_si91x_i2c_sensors_scan(uint16_t address)
+{
+  (void)address;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn         void sl_si91x_em_post_event(sl_sensor_id_en sensor_id,
+ *  sl_sensorhub_event_en event, void* dataPtr, TickType_t ticks_to_wait)is deprecated API not longer in use
+ *  @brief       To post the events/notifications to event manager(EM) to be notified to the application
+ *  @param[in]   sensor_id      id of the  sensor
+ *  @param[in]   event          event/notifications
+ *  @param[in]   dataPtr        pointer to the data
+ *  @param[in]   ticks_to_wait  max time to wait for the post
+*******************************************************************************/
+void sl_si91x_em_post_event(sl_sensor_id_t sensor_id,
+                            sl_sensorhub_event_t event,
+                            void *dataPtr,
+                            TickType_t ticks_to_wait)
+{
+  (void)sensor_id;
+  (void)event;
+  (void)dataPtr;
+  (void)ticks_to_wait;
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn          sl_sensor_impl_type* sli_si91x_get_sensor_implementation(int32_t sensor_id)is deprecated API not longer in use
+ *  @brief       To get the appropriate sensor driver implementation.
+ *  @param[in]   sensor_id     ID of the target sensor
+ *  @return      Reference to the sensor driver
+*******************************************************************************/
+sl_sensor_impl_type_t *sli_si91x_get_sensor_implementation(int32_t sensor_id)
+{
+  (void)sensor_id;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn        int32_t sli_si91x_create_sensor_list_index()is deprecated API not longer in use
+ *  @brief       To create a sensor index in the list.
+ * @return if successful, returns the sensor index
+ *         else it will break the sensor list.
+*******************************************************************************/
+int32_t sli_si91x_create_sensor_list_index()
+{
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn       int32_t sli_si91x_get_sensor_index(sl_sensor_id_en sensor_id)is deprecated API not longer in use
+ *  @brief       To get the index of the sensor present in the list
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return if successful, returns the sensor index
+ *         else it returns the 0XFF as a sensor index fail.
+*******************************************************************************/
+uint32_t sli_si91x_get_sensor_index(sl_sensor_id_t sensor_id)
+{
+  (void)sensor_id;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn          int32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_en sensor_id)is deprecated API not longer in use
+ *  @brief       To delete the sensor index from the list
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return      index of the sensor
+*******************************************************************************/
+uint32_t sli_si91x_delete_sensor_list_index(sl_sensor_id_t sensor_id)
+{
+  (void)sensor_id;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn         sl_sensor_info_t* sli_si91x_get_sensor_info(sl_sensor_id_en sensor_id)is deprecated API not longer in use
+ *  @brief       To get the info on the configured sensor
+ *  @param[in]   sensor_id     id of the target sensor
+ *  @return      reference to the sensor info
+*******************************************************************************/
+sl_sensor_info_t *sli_si91x_get_sensor_info(sl_sensor_id_t sensor_id)
+{
+  (void)sensor_id;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn          void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer)is deprecated API not longer in use
+ *  @brief       software timer callback
+ *  @param[in]   xTimer     handle to the timer
+*******************************************************************************/
+void sl_si91x_sensors_timer_cb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn          void sl_si91x_gpio_interrupt_config(uint16_t gpio_pin,sl_gpio_intr_type intr_type)is deprecated API not longer in use
+ *  @brief       Configuring the different types of NPSS GPIO interrupts.
+ *  @param[in]   gpio_pin     GPIO pin number
+ *  @param[in]   intr_type    type of interrupt.
+*******************************************************************************/
+sl_status_t sl_si91x_gpio_interrupt_config(uint16_t gpio_pin, sl_si91x_gpio_interrupt_config_flag_t intr_type)
+{
+  (void)gpio_pin;
+  (void)intr_type;
+  /* Deprecated API no longer in use */
+  return 0;
+}
+/**************************************************************************/ /**
+ *  @fn         void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)is deprecated API not longer in use
+ *  @brief       Enable and set the priority of GPIO interrupt.
+ *  @param[in]   gpio_pin     GPIO pin number
+*******************************************************************************/
+void sl_si91x_gpio_interrupt_start(uint16_t gpio_pin)
+{
+  (void)gpio_pin;
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn          void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin)is deprecated API not longer in use
+ *  @brief       Mask and Disable the GPIO interrupt.
+ *  @param[in]   gpio_pin     GPIO pin number
+*******************************************************************************/
+void sl_si91x_gpio_interrupt_stop(uint16_t gpio_pin)
+{
+  (void)gpio_pin;
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ * @fn            void sli_si91x_sensorhub_ps4tops2_state(void)is deprecated API not longer in use
+ * @brief        This function changed the system status from PS4 to PS2.
+ * @param[in]    None
+ * @param[out]   None
+*******************************************************************************/
+#ifdef SL_SH_POWER_STATE_TRANSITIONS
+void sli_si91x_sensorhub_ps4tops2_state(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ * @fn           void sli_si91x_sensorhub_ps2tops4_state(void)is deprecated API not longer in use
+ * @brief        This function changed the system status from PS4 to PS2.
+ * @param[in]    None
+ * @param[out]   None
+*******************************************************************************/
+void sli_si91x_sensorhub_ps2tops4_state(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+
+#endif
+/***************************************************************************/ /**
+  * @fn         void sli_si91x_set_alarm_intr_time(uint16_t interval) is deprecated API no longer in use
+* @brief To set the alarm interrupt time.
+*
+* @details
+* This function will set the alarm interrupt based on the periodic time.
+*
+* @param[in] interval   -   interval time
+*
+******************************************************************************/
+void sli_si91x_set_alarm_intr_time(uint16_t interval)
+{
+  (void)interval;
+  /* Deprecated API no longer in use */
+  return;
+}
+
+/**************************************************************************/ /**
+ *  @fn          sl_status_t sli_si91x_adc_init(void) is deprecated API no longer in use
+ *  @brief       Initialize the ADC Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+sl_status_t sli_si91x_adc_init(void)
+{
+  /* Deprecated API no longer in use */
+  return 0;
+}
+
+/***************************************************************************/ /**
+* @fn         void sli_si91x_init_m4alarm_config(void) is deprecated API not longer in use
+* @brief To initialize the Alarm block 
+* @details
+* This function will initialize the Alarm block.
+*
+*
+******************************************************************************/
+void sli_si91x_init_m4alarm_config(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+/***************************************************************************/ /**
+* @fn         void sl_si91x_power_state_task(void) is deprecated API not longer in use
+* @brief Task to handle the system power operations
+*
+* @details
+* Power state task changes the system from one power save mode to another power save mode like(PS4 to PS2),(PS2toPS4),(Sleep_mode) using Binary semaphore.
+*
+******************************************************************************/
+void sl_si91x_power_state_task(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+
+/***************************************************************************/ /**
+* @fn         void sli_si91x_config_wakeup_source(uint16_t sleep_time) is deprecated API not longer in use
+* @brief To configure wake-up source for the system
+*
+* @details
+* This function will configure the wake-up source to the system.
+*
+* @param[in] sleep_time  -   Sleep time for the sensor hub.
+*
+******************************************************************************/
+void sli_si91x_config_wakeup_source(uint16_t sleep_time)
+{
+  (void)sleep_time;
+  /* Deprecated API no longer in use */
+  return;
+}
+/***************************************************************************/ /**
+* @fn         void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time) is deprecated API not longer in use
+* @brief To configures sleep/wakeup sources for the system.
+*
+* @details
+* This function will configure sleep/wakeup sources.
+*
+* @param[in] sh_sleep_time  -   Sleep time for the sensor hub, in ADC PS-1 no parameters.
+*
+******************************************************************************/
+#ifdef SL_SH_PS1_STATE
+void sli_si91x_sleep_wakeup(void)
+{
+  /* Deprecated API no longer in use */
+  return;
+}
+#else
+void sli_si91x_sleep_wakeup(uint16_t sh_sleep_time)
+{
+  (void)sh_sleep_time;
+  /* Deprecated API no longer in use */
+  return;
+}
+#endif
+/*******************************************************************************
+ * ADC user callback
+ * This function will be called from ADC interrupt handler
+ *
+ * @param[in] ADC channel number
+ * @param[in] ADC callback event (ADC_STATIC_MODE_CALLBACK,
+ *            ADC_THRSHOLD_CALLBACK, INTERNAL_DMA, FIFO_MODE_EVENT)
+ *
+*******************************************************************************/
+void sl_si91x_adc_callback(uint8_t channel_no, uint8_t event)
+{
+  (void)channel_no;
+  (void)event;
+  /* Deprecated API no longer in use */
+  return;
+}
+/**************************************************************************/ /**
+ *  @fn          uint8_t sli_si91x_sdc_init(void)is deprecated API not longer in use
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+#ifdef SH_SDC_ENABLE
+sl_status_t sli_si91x_sdc_init(void)
+{
+  /* Deprecated API no longer in use */
+  return 0;
+}
+#endif
+/**************************************************************************/ /**
+ *  @fn         void sli_config_sdc_params(sl_sdc_config_t * sdc_config)is deprecated API not longer in use
+ *  @brief       Initialize the sdc Interface based on the configuration.
+ *  @param[in]   None
+ *  @return      status 0 if successful,
+ *               else error code
+ *               \ref SL_STATUS_FAIL (0x0001)- Fail ,
+ *               \ref SL_STATUS_OK (0X000)- Success,
+*******************************************************************************/
+#ifdef SH_SDC_ENABLE
+void sli_config_sdc_params(sl_drv_sdc_config_t *sdc_config_st_p)
+{
+  (void)sdc_config_st_p;
+  /* Deprecated API no longer in use */
+  return;
+}
+#endif
+///**************************************************************************/ /**
 /** @} */

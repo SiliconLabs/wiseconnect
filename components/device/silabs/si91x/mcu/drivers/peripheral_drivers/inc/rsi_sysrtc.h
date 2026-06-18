@@ -63,7 +63,7 @@ extern "C" {
 #define SYSRTC_GROUP_MAX_CHANNEL_CAPTURE 1u
 
 /// Sysrtc group number.
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 #if !defined(SYSRTC_GROUP_NUMBER)
 #define SYSRTC_GROUP_NUMBER 2u
 #endif

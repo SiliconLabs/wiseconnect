@@ -291,6 +291,25 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number);
 
 /***************************************************************************/
 /**
+ * @brief To get the DMA handle.
+ * 
+ * @details This API returns a pointer to the DMA controller's data context structure,
+ * which contains the control base address and other DMA controller information.
+ * 
+ * @pre Pre-condition:
+ *      - \ref sl_si91x_dma_init must be called prior.
+ * 
+ * @param[in] dma_number DMA number:
+ *                       - 0 for UDMA0.
+ *                       - 1 for ULP_DMA.
+ * 
+ * @return void* Pointer to the DMA data context structure.
+ *         Returns NULL if DMA is not initialized or invalid dma_number is provided.
+ ******************************************************************************/
+void *sl_si91x_get_dma_handle(uint32_t dma_number);
+
+/***************************************************************************/
+/**
  * @brief To allocate a DMA channel for the transfer.
  * 
  * @details This API checks the available DMA channels and allocates one. It sets the priority of the allocated channel

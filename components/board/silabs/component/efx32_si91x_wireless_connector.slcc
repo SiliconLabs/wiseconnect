@@ -1,6 +1,6 @@
 id: efx32_si91x_wireless_connector
 label: EFx32 - Si91x Connection Configurator
-package: platform
+package: platform_siwx91x
 description: >
   Configures the hardware connections between the EFx32 host and the SiWG91x NCP.
 category: Board|Configuration
@@ -82,5 +82,3 @@ include:
       - path: sl_hfxo_manager_config.h
       - path: sl_power_manager_config.h
       - path: sl_sleeptimer_config.h
-  - path: "config/brd8036a"
-    condition: [brd8036a]

@@ -32,18 +32,18 @@
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
 // Test callback function
-static void test_ssi_callback_event_handler(uint32_t event);
 
 /*******************************************************************************
  *************************** LOCAL VARIABLES   *******************************
  ******************************************************************************/
 static sl_ssi_handle_t test_ssi_driver_handle = NULL;
-static boolean_t test_ssi_transfer_complete;
+
 static uint32_t test_ssi_slave_number = SSI_SLAVE_0;
 
 /*******************************************************************************
  ************************  Test Function Prototypes  ****************************
  ******************************************************************************/
+void test_icm40627_ssi_interface_init(void);
 void test_icm40627_init(void);
 void test_icm40627_enable_interrupt(void);
 void test_icm40627_get_device_id(void);
@@ -86,23 +86,9 @@ int app_init()
     sl_si91x_gpio_driver_set_uulp_npss_pin_value(SENSOR_ENABLE_GPIO_PIN, SET);
   }
 #endif
-  sl_ssi_control_config_t test_ssi_master_config;
-  test_ssi_master_config.bit_width            = SSI_MASTER_BIT_WIDTH;
-  test_ssi_master_config.device_mode          = SL_SSI_ULP_MASTER_ACTIVE;
-  test_ssi_master_config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
-  test_ssi_master_config.baud_rate            = SSI_MASTER_BAUDRATE;
-  test_ssi_master_config.receive_sample_delay = SSI_MASTER_RECEIVE_SAMPLE_DELAY;
-  // Initialize the SSI driver
-  sl_si91x_ssi_init(test_ssi_master_config.device_mode, &test_ssi_driver_handle);
-
-  // Configure the SSI to Master, 16-bit mode @10000 kBits/sec
-  sl_si91x_ssi_set_configuration(test_ssi_driver_handle, &test_ssi_master_config, test_ssi_slave_number);
-  // Register the user callback
-  sl_si91x_ssi_register_event_callback(test_ssi_driver_handle, test_ssi_callback_event_handler);
-  // Set the slave number
-  sl_si91x_ssi_set_slave_number((uint8_t)test_ssi_slave_number);
 
   UnityBeginGroup("ICM40627");
+  RUN_TEST(test_icm40627_ssi_interface_init, __LINE__);
 
   RUN_TEST(test_icm40627_software_reset, __LINE__);
   RUN_TEST(test_icm40627_get_device_id, __LINE__);
@@ -132,6 +118,30 @@ int app_init()
   UnityPrintf("END");
   while (1) {
   }
+}
+/*******************************************************************************
+ * Function to test the SSI interface initialization for ICM40627
+ ******************************************************************************/
+void test_icm40627_ssi_interface_init(void)
+{
+  UnityPrintf("\n");
+  UnityPrintf("Testing ICM40627 SSI Interface Initialization \n");
+  sl_status_t status;
+
+  UnityPrintf("Testing with NULL handle parameter \n");
+  status = sl_si91x_icm40627_ssi_interface_init(NULL, 0);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_NULL_POINTER, status);
+  UnityPrintf("Test passed: NULL handle correctly returned SL_STATUS_NULL_POINTER \n");
+
+  UnityPrintf("Testing with valid parameters \n");
+  status = sl_si91x_icm40627_ssi_interface_init(&test_ssi_driver_handle, test_ssi_slave_number);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_OK, status);
+  UnityPrintf("Testing with valid parameters for status busy \n");
+  status = sl_si91x_icm40627_ssi_interface_init(&test_ssi_driver_handle, test_ssi_slave_number);
+  TEST_ASSERT_EQUAL_HEX(SL_STATUS_BUSY, status);
+  UnityPrintf("Test passed: Valid parameters initialized SSI interface successfully \n");
+
+  UnityPrintf("ICM40627 SSI Interface Initialization tests completed \n");
 }
 
 /*******************************************************************************
@@ -623,30 +633,4 @@ void test_icm40627_deinit(void)
   UnityPrintf("Status of API is correct, ICM40627 deinit successfully \n");
 
   UnityPrintf("ICM40627 deinit completed \n");
-}
-
-/*******************************************************************************
- * @brief  SSI Master callback handler
- * @param[in]event SSI Master transmit and receive events
- * @return   None
-*******************************************************************************/
-static void test_ssi_callback_event_handler(uint32_t event)
-{
-  switch (event) {
-    case SSI_EVENT_TRANSFER_COMPLETE:
-      test_ssi_transfer_complete = true;
-      break;
-
-    case SSI_EVENT_DATA_LOST:
-      // Occurs in slave mode when data is requested/sent by master
-      // but send/receive/transfer operation has not been started
-      // and indicates that data is lost. Occurs also in master mode
-      // when driver cannot transfer data fast enough.
-      break;
-
-    case SSI_EVENT_MODE_FAULT:
-      // Occurs in master mode when Slave Select is deactivated and
-      // indicates Master Mode Fault.
-      break;
-  }
 }

@@ -76,7 +76,12 @@ class PUTHandler(BaseHTTPRequestHandler):
             if (self.path == "/"):
                 self.path = "/sample.html"
 
-            with open(curdir + self.path, "wb") as dst:
+            safe_root = curdir  # Define the safe root directory
+            requested_path = os.path.normpath(curdir + self.path)  # Normalize the path
+            if not requested_path.startswith(safe_root):  # Ensure the path is within the safe root
+                self.send_error(403, 'Access Denied: %s' % self.path)
+                return
+            with open(requested_path, "wb") as dst:
                 dst.write(data_content)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
@@ -92,7 +97,12 @@ class PUTHandler(BaseHTTPRequestHandler):
         print(self.headers)
         length = int(self.headers['Content-Length'])
         try:
-            with open(curdir + self.path, "wb") as dst:
+            safe_root = curdir  # Define the safe root directory
+            requested_path = os.path.normpath(curdir + self.path)  # Normalize the path
+            if not requested_path.startswith(safe_root):  # Ensure the path is within the safe root
+                self.send_error(403, 'Access Denied: %s' % self.path)
+                return
+            with open(requested_path, "wb") as dst:
                 dst.write(self.rfile.read(length))
 
             self.send_response(200)
@@ -141,7 +151,12 @@ class PUTHandler(BaseHTTPRequestHandler):
                 sendReply = True
             if sendReply == True:
                 # Open the static file requested and send it
-                f = open(curdir + sep + self.path, 'rb')
+                safe_root = curdir  # Define the safe root directory
+                requested_path = os.path.normpath(curdir + sep + self.path)  # Normalize the path
+                if not requested_path.startswith(safe_root):  # Ensure the path is within the safe root
+                    self.send_error(403, 'Access Denied: %s' % self.path)
+                    return
+                f = open(requested_path, 'rb')
                 self.send_response(200)
                 print('--------------   GET SUCCESS  --------------\n')
                 self.send_header('Content-type', mimetype)

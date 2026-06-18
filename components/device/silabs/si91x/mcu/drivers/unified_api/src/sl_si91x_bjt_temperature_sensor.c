@@ -72,10 +72,10 @@ static boolean_t chnl0_complete_flag               = false;
 static float adc_output_bjt[CHANNEL_SAMPLE_LENGTH] = { 0 };
 static float adc_output_bg[CHANNEL_SAMPLE_LENGTH]  = { 0 };
 
-adc_config_t sl_bjt_config            = { SL_ADC_STATIC_MODE, NUMBER_OF_CHANNELS };
-adc_ch_config_t sl_bjt_channel_config = { .input_type[0]     = SL_ADC_SINGLE_ENDED,
-                                          .sampling_rate[0]  = SAMPLING_RATE,
-                                          .num_of_samples[0] = CHANNEL_SAMPLE_LENGTH };
+const adc_config_t sl_bjt_config            = { SL_ADC_STATIC_MODE, NUMBER_OF_CHANNELS };
+const adc_ch_config_t sl_bjt_channel_config = { .input_type[0]     = SL_ADC_SINGLE_ENDED,
+                                                .sampling_rate[0]  = SAMPLING_RATE,
+                                                .num_of_samples[0] = CHANNEL_SAMPLE_LENGTH };
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -84,48 +84,48 @@ static sl_status_t sl_si91x_bjt_temperature_sensor_disable(void);
 static void callback_event(uint8_t channel_no, uint8_t event);
 static sl_status_t validate_bjt_parameters(const adc_config_t *sl_bjt_temperature_sensor_config);
 static sl_status_t validate_bjt_channel_parameters(const adc_ch_config_t *sl_bjt_temperature_sensor_channel_config);
-static OPAMP_CONFIG_T UnityGB = { { 0,
+static const OPAMP_CONFIG_T UnityGB = { { 0,
 #ifdef SL_SI91X_ACX_MODULE
-                                    5,
+                                          5,
 #else
-                                    1,
+                                          1,
 #endif
-                                    4,
-                                    0,
-                                    1,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    1,
-                                    0,
-                                    1 },
-                                  {
-                                    0,
-                                    2,
-                                    3,
-                                    0,
-                                    1,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    1,
-                                    1,
-                                  },
-                                  {
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                  } };
+                                          4,
+                                          0,
+                                          1,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          1,
+                                          0,
+                                          1 },
+                                        {
+                                          0,
+                                          2,
+                                          3,
+                                          0,
+                                          1,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          1,
+                                          1,
+                                        },
+                                        {
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                          0,
+                                        } };
 
 /*******************************************************************************
  * To validate the parameters BJT configuration
@@ -391,7 +391,9 @@ sl_status_t sl_si91x_bjt_temperature_sensor_deinit(adc_config_t sl_bjt_temperatu
 }
 
 /******************************************************************************
-* This api converts a temperature measurement to temperature in degree, fahrenheit, kelvin
+ * Converts temperature from degrees Celsius to Fahrenheit and Kelvin.
+ * This API takes a temperature measurement in degrees Celsius and converts it
+ * to the temperature scale specified by current_temperature_mode parameter(Fahrenheit or Kelvin).
  *****************************************************************************/
 sl_status_t sl_si91x_get_bjt_temperature_sensor_conversion(double *temp_data,
                                                            sl_bjt_temperature_sensor_enum_t current_temperature_mode)

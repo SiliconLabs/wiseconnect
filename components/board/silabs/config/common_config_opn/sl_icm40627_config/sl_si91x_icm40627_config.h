@@ -41,7 +41,7 @@ extern "C" {
 #ifndef SL_SI91X_ICM40627_PERIPHERAL
 #define SL_SI91X_ICM40627_PERIPHERAL ULP_SSI
 #endif
-#warning "ICM40627 peripheral not configured"
+
 // ULP_SSI MOSI_ on ULP_GPIO_1/GPIO_65
 #ifndef SL_SI91X_ICM40627_MOSI__PORT
 #define SL_SI91X_ICM40627_MOSI__PORT ULP
@@ -98,7 +98,12 @@ extern "C" {
 // [GPIO_SL_SI91X_IMU_ALS_INT]$
 
 // <<< sl:end pin_tool >>>
-#endif
+#else
+
+#warning \
+  "ICM40627 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
 #ifdef __cplusplus
 }
 #endif

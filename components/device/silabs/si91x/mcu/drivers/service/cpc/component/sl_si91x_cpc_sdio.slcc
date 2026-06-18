@@ -1,6 +1,6 @@
 id: sl_si91x_cpc_sdio
 label: sl_si91x_cpc_sdio
-package: platform
+package: platform_nwp_siwx91x
 description: >
   Provides Co-Processor Communication (CPC) protocol service for SDIO driver.
 category: Device|Si91x|MCU|Service

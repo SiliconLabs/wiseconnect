@@ -139,8 +139,14 @@
 // $[QEI]
 // [QEI]$
 
+// $[SDIO]
+// [SDIO]$
+
 // $[HSPI_SECONDARY]
 // [HSPI_SECONDARY]$
+
+// $[MCU_CLK_OUT]
+// [MCU_CLK_OUT]$
 
 // $[CUSTOM_PIN_NAME]
 #ifndef _PORT

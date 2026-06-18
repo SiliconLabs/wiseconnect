@@ -1,5 +1,5 @@
 id: sl_si91x_mem_pool_buffers_with_quota
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Si91x Memory Pool based buffer system with quota based allocation and deallocation
 label: Memory Pool buffers With Quota

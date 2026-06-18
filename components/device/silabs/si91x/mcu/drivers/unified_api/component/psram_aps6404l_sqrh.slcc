@@ -1,6 +1,6 @@
 id: psram_aps6404l_sqrh
 label: APS6404L_SQRH PSRAM Device
-package: platform
+package: platform_siwx91x
 description: >
   This component includes the AP Memory APS6404L-SQRH PSRAM device related configurations.
   Selecting this component will also include the PSRAM Core component, which is 

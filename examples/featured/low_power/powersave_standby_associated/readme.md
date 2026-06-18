@@ -82,7 +82,7 @@ The application connects to a remote server to send UDP data and also enables th
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-1. Install Studio and WiSeConnect 3 extension.
+1. Install Studio and WiSeConnect extension.
 2. Connect your device to the computer.
 3. Upgrade your connectivity firmware.
 4. Create a Studio project.
@@ -94,7 +94,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Install the [Keil IDE](https://www.keil.com/).
-2. Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+2. Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
 3. Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
 4. Connect the SiWx91x NCP to STM32F411RE Nucleo Board by completing the following  steps:
    1. Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
@@ -102,7 +102,7 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
    3. After connecting all the boards, the setup should look like the image shown below:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    4. Connect the setup to the computer.
-5. Open the Powersave standby associated µVision project - **powersave_standby_associated.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → powersave_standby_associated → keil_project**.
+5. Open the Powersave standby associated µVision project - **powersave_standby_associated.uvprojx** by navigating to **WiSeConnect SDK → examples → featured → powersave_standby_associated → keil_project**.
 
 ## Application Build Environment
 
@@ -156,7 +156,7 @@ The application can be configured to suit user requirements and development envi
     - The user can configure monitor interval through `sl_wifi_set_performance_profile_v2()` API. The default interval is set to 50 millisecs if montior_interval is set to 0. This is only valid when the performance profile is set to ASSOCIATED_POWER_SAVE_LOW_LATENCY.
     - The user can configure listen interval through `sl_wifi_set_listen_interval_v2()` API. The default interval is set to 1 millisec.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 

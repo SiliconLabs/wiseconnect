@@ -41,10 +41,11 @@
 #include "sl_net_wifi_types.h"
 #include "sl_si91x_socket_utility.h"
 #include "sl_si91x_socket_constants.h"
+#include "sl_si91x_core_utilities.h"
 #ifdef SLI_SI91X_MCU_INTERFACE
 #include "rsi_rom_clks.h"
 #endif
-
+#include "sl_wifi_callback_framework.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -155,19 +156,23 @@ static const sl_wifi_device_configuration_t throughput_configuration = {
   .mac_address = NULL,
   .band        = SL_SI91X_WIFI_BAND_2_4GHZ,
   .region_code = US,
-  .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
-                   .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_WPS_DISABLE),
+  .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
+                   .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION
+                                         | SL_WIFI_FEAT_WPS_DISABLE
+#ifdef ENABLE_UART_NCP_BITMAP
+                                           SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE,
+#endif
+                                       ),
                    .tcp_ip_feature_bit_map = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT | SL_SI91X_TCP_IP_FEAT_EXTENSION_VALID
 #if (THROUGHPUT_TYPE == TLS_TX || THROUGHPUT_TYPE == TLS_RX)
                                               | SL_SI91X_TCP_IP_FEAT_SSL
 #endif
                                               ),
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_SI91X_CUSTOM_FEAT_SOC_CLK_CONFIG_160MHZ),
                    .ext_custom_feature_bit_map = (MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#ifdef SLI_SI917
                                                   | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                                                   ),
@@ -215,9 +220,8 @@ static void measure_and_print_throughput(uint32_t total_num_of_bytes, uint32_t t
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -488,8 +492,8 @@ void receive_data_from_tcp_client(void)
   printf("\r\nTCP_RX Throughput test finished\r\n");
   printf("\r\nTotal bytes received : %ld\r\n", bytes_read);
 
-  sl_si91x_shutdown(server_socket, 0);
   sl_si91x_shutdown(client_socket, 0);
+  sl_si91x_shutdown(server_socket, 0);
 
   measure_and_print_throughput(bytes_read, (now - start));
 #else
@@ -540,13 +544,21 @@ void receive_data_from_tcp_client(void)
 
   printf("\r\nTCP_RX Throughput test start\r\n");
   start = osKernelGetTickCount();
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      close(server_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
@@ -561,8 +573,8 @@ void receive_data_from_tcp_client(void)
 
   measure_and_print_throughput(total_bytes_received, (now - start));
 
-  close(server_socket);
   close(client_socket);
+  close(server_socket);
 
 #endif
 }
@@ -651,6 +663,7 @@ void receive_data_from_udp_client(void)
 
   sl_si91x_shutdown(client_socket, 0);
 #else
+  sl_status_t status            = SL_STATUS_OK;
   int read_bytes                = 1;
   uint32_t total_bytes_received = 0;
   client_socket                 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -676,10 +689,20 @@ void receive_data_from_udp_client(void)
   while (total_bytes_received < BYTES_TO_RECEIVE) {
     read_bytes = recvfrom(client_socket, data_buffer, sizeof(data_buffer), 0, NULL, NULL);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error: %d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
+
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();
     if ((now - start) > TEST_TIMEOUT) {
@@ -806,12 +829,21 @@ void receive_data_from_tls_server(void)
   start          = osKernelGetTickCount();
   now            = start;
   int read_bytes = 1;
-  while (read_bytes > 0) {
+  while (1) {
     read_bytes = recv(client_socket, data_buffer, sizeof(data_buffer), 0);
     if (read_bytes < 0) {
-      printf("\r\nReceive failed with bsd error:%d\r\n", errno);
-      close(client_socket);
-      return;
+      if (errno == 0) {
+        // get the error code returned by the firmware
+        status = sl_wifi_get_saved_firmware_status();
+        if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
+          continue;
+        } else {
+          printf("\r\nrecv failed with BSD error = %d and status = 0x%lx\r\n", errno, status);
+        }
+      } else {
+        printf("\r\nrecv failed with BSD error = %d\r\n", errno);
+      }
+      break;
     }
     total_bytes_received = total_bytes_received + read_bytes;
     now                  = osKernelGetTickCount();

@@ -61,7 +61,7 @@
 #define DAC_RELEASE_VERSION           0 // DAC Release version
 #define DAC_SQA_VERSION               0 // DAC SQA version
 #define DAC_DEV_VERSION               1 // DAC Developer version
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
 //DAC1 with OPAMP1
 #define OPAMP_OUT_MUX_SEL      1 /* set 1 to send OpAmp output at GPIO_30 */
 #define OPAMP_DYN_MODE_EN      0 /*OPAMP Dynamic mode*/
@@ -172,7 +172,7 @@ sl_status_t sl_si91x_dac_set_configuration(sl_dac_config_t dac_config, float vre
     DAC_Init(dac_config.operating_mode, dac_config.dac_sample_rate, dac_callback_event_handler);
     DAC_PinMux_config(dac_config.dac_pin, dac_config.dac_port);
     if (dac_config.operating_mode != SL_DAC_OUTPUT_REF_VOLTAGE_FOR_ADC) {
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
       // Setting up the DAC output to be an input for OPAMP1.
       RSI_OPAMP1_UGB(DAC_OUTPUT_INPUT_OPAMP,
                      ENABLE,

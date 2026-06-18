@@ -27,7 +27,7 @@
 #include "sl_si91x_driver_gpio.h"
 #include "sl_si91x_power_manager.h"
 #include "sl_si91x_wireless_shutdown.h"
-
+#include "sl_si91x_clock_manager.h"
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
@@ -49,9 +49,7 @@
 #define PAD_SELECT_9      9      // GPIO PAD selection number
 #define MAX_PAD_SELECT    34     // Maximum GPIO PAD selection number
 #define PINS              0x0c40 // Pins in a port to mask
-#define DELAY             1000   // Delay for 1sec
 #define FIVE_SECOND_DELAY 5000   // Delay for 5 sec
-#define MS_DELAY_COUNTER  4600   // Delay count
 #define UULP_GPIO_INTR_2  2      // UULP GPIO pin interrupt 2
 #define TOGGLE_COUNT      10     // Count for number of times to repeat
 /*******************************************************************************
@@ -87,7 +85,6 @@ uint8_t gpio_toggle_count;
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static void delay(uint32_t idelay);
 static void gpio_driver_ulp_initialization(void);
 static void gpio_driver_uulp_initialization(void);
 static void gpio_uulp_pin_interrupt_callback(uint32_t pin_intr);
@@ -257,21 +254,17 @@ void gpio_example_process_action(void)
     case SL_ULP_GPIO_PROCESS_ACTION:
       gpio_toggle_count = 0;
       do {
-        // Initialize GPIO ULP instance
+        // Toggle GPIO ULP Pin
         if (ULP_GPIO_PIN == SET) {
-#ifdef SLI_SI915
-          sl_si91x_gpio_t port_pin = { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN };
-#else
           sl_si91x_gpio_t port_pin = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
-#endif
-          status = sl_gpio_driver_toggle_pin(&port_pin); // Toggle ULP GPIO pin
+          status                   = sl_gpio_driver_toggle_pin(&port_pin); // Toggle ULP GPIO pin
           if (status != SL_STATUS_OK) {
             DEBUGOUT("sl_gpio_driver_toggle_pin, Error code: %lu", status);
             break;
           }
         }
-        // Initialize GPIO UULP instance
-        else if (UULP_GPIO_PIN == SET) {
+        // Toggle GPIO UULP Pin
+        if (UULP_GPIO_PIN == SET) {
           // Set UULP GPIO pin
           status = sl_si91x_gpio_driver_set_uulp_npss_pin_value(SL_SI91X_UULP_GPIO_0_PIN, SET);
           if (status != SL_STATUS_OK) {
@@ -307,7 +300,7 @@ void gpio_example_process_action(void)
         // the ram retention and removing the unused peripherals
         configuring_ps2_power_state();
         // giving 5 sec delay for current consumption verification
-        delay(FIVE_SECOND_DELAY);
+        sl_si91x_delay_ms(FIVE_SECOND_DELAY);
         // current power state is updated to PS2
         current_power_state = SL_SI91X_POWER_MANAGER_PS2;
         // current mode is updated with process action for verifying the
@@ -319,7 +312,7 @@ void gpio_example_process_action(void)
         sl_si91x_power_manager_add_ps_requirement(SL_SI91X_POWER_MANAGER_PS4);
         DEBUGINIT();
         // giving 5 sec delay for current consumption verification
-        delay(FIVE_SECOND_DELAY);
+        sl_si91x_delay_ms(FIVE_SECOND_DELAY);
         // current power state is updated to last enum after the power state cycle
         // is completed
         current_power_state = LAST_ENUM_POWER_STATE;
@@ -345,16 +338,6 @@ void gpio_example_process_action(void)
 }
 
 /*******************************************************************************
- * Delay function for 1ms
- ******************************************************************************/
-static void delay(uint32_t idelay)
-{
-  for (uint32_t x = 0; x < MS_DELAY_COUNTER * idelay; x++) {
-    __NOP();
-  }
-}
-
-/*******************************************************************************
  * ULP GPIO initialization function
  ******************************************************************************/
 static void gpio_driver_ulp_initialization(void)
@@ -362,11 +345,7 @@ static void gpio_driver_ulp_initialization(void)
   sl_status_t status;
   sl_gpio_driver_init();
   sl_si91x_gpio_t gpio_port_pin1 = { SL_SI91X_ULP_GPIO_1_PORT, SL_SI91X_ULP_GPIO_1_PIN };
-#ifdef SLI_SI915
-  sl_si91x_gpio_t gpio_port_pin10 = { SL_SI91X_GPIO_10_PORT, SL_SI91X_GPIO_10_PIN };
-#else
   sl_si91x_gpio_t gpio_port_pin2 = { SL_SI91X_ULP_GPIO_2_PORT, SL_SI91X_ULP_GPIO_2_PIN };
-#endif
   sl_si91x_gpio_t gpio_port_pin8 = { SL_SI91X_ULP_GPIO_8_PORT, SL_SI91X_ULP_GPIO_8_PIN };
   sl_gpio_mode_t mode            = MODE_0;
 
@@ -385,11 +364,7 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver ulp pad receiver enable is successful \n");
-#ifdef SLI_SI915
-    status = sl_si91x_gpio_driver_enable_ulp_pad_receiver(SL_SI91X_GPIO_10_PIN);
-#else
     status = sl_si91x_gpio_driver_enable_ulp_pad_receiver(SL_SI91X_ULP_GPIO_2_PIN);
-#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_gpio_driver_enable_ulp_pad_receiver, Error code: %lu", status);
       break;
@@ -430,11 +405,7 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver set pin mode is successful \n");
-#ifdef SLI_SI915
-    status = sl_gpio_driver_set_pin_mode(&gpio_port_pin10, mode, OUTPUT_VALUE);
-#else
     status = sl_gpio_driver_set_pin_mode(&gpio_port_pin2, mode, OUTPUT_VALUE);
-#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_gpio_driver_set_pin_mode, Error code: %lu", status);
       break;
@@ -456,15 +427,9 @@ static void gpio_driver_ulp_initialization(void)
       break;
     }
     DEBUGOUT("GPIO driver set pin direction is successful \n");
-#ifdef SLI_SI915
-    status = sl_si91x_gpio_driver_set_pin_direction(SL_SI91X_GPIO_10_PORT,
-                                                    SL_SI91X_GPIO_10_PIN,
-                                                    (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
-#else
     status = sl_si91x_gpio_driver_set_pin_direction(SL_SI91X_ULP_GPIO_2_PORT,
                                                     SL_SI91X_ULP_GPIO_2_PIN,
                                                     (sl_si91x_gpio_direction_t)GPIO_OUTPUT);
-#endif
     if (status != SL_STATUS_OK) {
       DEBUGOUT("sl_si91x_gpio_driver_set_pin_direction, Error code: %lu", status);
       break;

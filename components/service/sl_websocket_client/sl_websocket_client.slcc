@@ -1,5 +1,5 @@
 id: sl_websocket_client
-package: wiseconnect3_sdk
+package: wifi
 description: >
   The WebSocket Client provides an API to create a WebSocket client, connect to a WebSocket server, and send/receive messages.
 label: WebSocket Client

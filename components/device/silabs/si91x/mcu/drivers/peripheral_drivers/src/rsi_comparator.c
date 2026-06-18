@@ -210,7 +210,7 @@ rsi_error_t RSI_COMP_Enable(AUX_ADC_DAC_COMP_Type *comp, uint8_t comp_number, ui
     }
   }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   /* Enable comparator1 */
   if (comp_number == COMP1) {
     RSI_COMP_IntrEnableDisable(comp_number, DISABLE);
@@ -286,7 +286,7 @@ rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
       NVIC_EnableIRQ(COMP1_IRQn);
     }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_COMP_IntrEnableDisable(COMP1, DISABLE);
 
     comp->BOD_b.BOD_THRSH = (unsigned int)(value_thrsh & 0x1F);
@@ -316,7 +316,7 @@ rsi_error_t RSI_COMP_ResBank(AUX_ADC_DAC_COMP_Type *comp, uint16_t value_thrsh)
       NVIC_EnableIRQ(COMP2_IRQn);
     }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_COMP_IntrEnableDisable(COMP2, DISABLE);
 
     comp->BOD_b.BOD_THRSH = (unsigned int)(value_thrsh & 0x1F);
@@ -369,7 +369,7 @@ rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scala
       NVIC_EnableIRQ(COMP1_IRQn);
     }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_COMP_IntrEnableDisable(COMP1, DISABLE);
 
     comp->BOD_b.REFBUF_VOLT_SEL = (unsigned int)(scalar_factor_value & 0x0F);
@@ -399,7 +399,7 @@ rsi_error_t RSI_COMP_ReferenceScaler(AUX_ADC_DAC_COMP_Type *comp, uint16_t scala
       NVIC_EnableIRQ(COMP2_IRQn);
     }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
     RSI_COMP_IntrEnableDisable(COMP2, DISABLE);
 
     comp->BOD_b.REFBUF_VOLT_SEL = (unsigned int)(scalar_factor_value & 0x0F);
@@ -480,7 +480,7 @@ rsi_error_t RSI_COMP_OutputMaskConfig(uint8_t comp_number, uint8_t MaskConfig)
     }
   }
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   if (comp_number == COMP1) {
     /* Mask the comparator1 interrupt */
     if (MaskConfig) {

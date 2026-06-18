@@ -80,6 +80,8 @@
 #define BLE_AE_PERODIC_DUPLICATE_FILTERING_DISABLED 0x00
 /// Periodic list usage flag.
 #define BLE_AE_PERIODIC_LIST_USED 0x01
+// BLE_VENDOR_ACCEPTLIST_ON_TYPE
+#define BLE_VENDOR_ACCEPTLIST_ON_TYPE 0xFC27
 
 /******************************************************
  * *                    Constants
@@ -358,6 +360,7 @@ typedef enum rsi_ble_event_e {
   RSI_BLE_EVENT_ADV_SET_TERMINATED          = 0x1549,
   RSI_BLE_EVENT_SCAN_REQ_RECVD              = 0x154a,
   RSI_BLE_EVENT_RCP_DATA_RCVD               = 0x15FF,
+  RSI_BT_EVT_CONTROLLER_LOGS                = 0x1020,
 } rsi_ble_event_t;
 
 /// Enumerations for smp failure error
@@ -395,6 +398,8 @@ typedef enum rsi_ble_coex_role_id_e {
  * ******************************************************/
 /** @addtogroup BT_BLE_TYPES
   * @{ */
+// enumerations for call back types
+enum rsi_bt_debug_logs_callback_id_e { RSI_BT_ON_CONTROLLER_LOGS = 1, RSI_BT_MAX_NUM_DEBUG_LOGS_CALLBACKS };
 
 // GAP command structures
 
@@ -536,6 +541,16 @@ typedef struct rsi_ble_req_adv_data_s {
   uint8_t adv_data[31];
 } rsi_ble_req_adv_data_t;
 
+/**
+ * @brief Structure representing the BLE request to manage the accept list using AD type, length, and value.
+ */
+typedef struct rsi_ble_req_acceptlist_on_type_s {
+  uint8_t opcode[2];    // Operation code for the request
+  uint8_t enable;       // Enable or disable the accept list
+  uint8_t ad_type;      // Advertising data type to filter
+  uint8_t value_length; // Length of the value to compare
+  uint8_t value[31];    // Value to compare (payload)
+} rsi_ble_req_acceptlist_on_type_t;
 /**
  * @brief Structure representing the BLE request to manage the accept list using a payload.
  *
@@ -2831,6 +2846,8 @@ struct rsi_ble_cb_s {
   rsi_ble_on_rcp_resp_rcvd_t ble_on_rcp_resp_rcvd_event;
 
   /** @} */ // end of ae_callbacks_group
+
+  rsi_bt_on_controller_logs_t bt_on_controller_logs_event;
 };
 
 /** @} */ // end of rsi_ble_cb_s_group

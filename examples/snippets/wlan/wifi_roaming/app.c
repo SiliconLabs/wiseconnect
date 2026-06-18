@@ -66,10 +66,15 @@
   ******************************************************/
 static void application_start(void *argument);
 sl_status_t send_data(void);
-static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t module_status_handler(sl_wifi_event_t event,
+                                         sl_status_t status_code,
+                                         void *data,
+                                         uint32_t data_length,
+                                         void *arg);
 void print_status_info(uint8_t state_code, uint8_t reason_code);
 sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result);
 sl_status_t scan_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
                                   sl_wifi_scan_result_t *result,
                                   uint32_t result_length,
                                   void *arg);
@@ -100,18 +105,18 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .boot_config = { .oper_mode = SL_SI91X_CLIENT_MODE,
                    .coex_mode = SL_SI91X_WLAN_ONLY_MODE,
                    .feature_bit_map =
-                     (SL_SI91X_FEAT_SECURITY_OPEN | SL_SI91X_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
+                     (SL_WIFI_FEAT_SECURITY_OPEN | SL_WIFI_FEAT_AGGREGATION | SL_SI91X_FEAT_ULP_GPIO_BASED_HANDSHAKE
 #ifdef SLI_SI91X_MCU_INTERFACE
-                      | SL_SI91X_FEAT_WPS_DISABLE
+                      | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                       ),
                    .tcp_ip_feature_bit_map = SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT,
                    .custom_feature_bit_map =
-                     (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID | SL_SI91X_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS
-                      | SL_SI91X_CUSTOM_FEAT_ROAM_WITH_DEAUTH_OR_NULL_DATA),
+                     (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID | SL_WIFI_CUSTOM_FEAT_ASYNC_CONNECTION_STATUS
+                      | SL_WIFI_CUSTOM_FEAT_ROAM_WITH_DEAUTH_OR_NULL_DATA),
                    .ext_custom_feature_bit_map =
-                     (SL_SI91X_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
-#if defined(SLI_SI917) || defined(SLI_SI915)
+                     (SL_WIFI_SYSTEM_EXT_FEAT_LOW_POWER_MODE | SL_SI91X_EXT_FEAT_XTAL_CLK | MEMORY_CONFIG
+#ifdef SLI_SI917
                       | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                       ),
@@ -119,7 +124,7 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
                    .ext_tcp_ip_feature_bit_map = 0,
                    .ble_feature_bit_map        = 0,
                    .ble_ext_feature_bit_map    = 0,
-                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_SI91X_ENABLE_ENHANCED_MAX_PSP) }
+                   .config_feature_bit_map = (SL_SI91X_FEAT_SLEEP_GPIO_SEL_BITMAP | SL_WIFI_ENABLE_ENHANCED_MAX_PSP) }
 };
 
 volatile bool scan_results_complete  = false;
@@ -128,9 +133,8 @@ volatile sl_status_t callback_status = SL_STATUS_OK;
 /******************************************************
   *               Function Definitions
   ******************************************************/
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -138,7 +142,7 @@ static void application_start(void *argument)
 {
   UNUSED_PARAMETER(argument);
   sl_status_t status;
-  sl_wifi_performance_profile_t performance_profile                 = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
+  sl_wifi_performance_profile_v2_t performance_profile              = { .profile = ASSOCIATED_POWER_SAVE_LOW_LATENCY };
   sl_wifi_scan_configuration_t wifi_scan_configuration              = { 0 };
   sl_wifi_advanced_scan_configuration_t advanced_scan_configuration = { 0 };
   sl_wifi_roam_configuration_t roam_configuration;
@@ -167,7 +171,7 @@ static void application_start(void *argument)
   }
 
   //! set performance profile
-  status = sl_wifi_set_performance_profile(&performance_profile);
+  status = sl_wifi_set_performance_profile_v2(&performance_profile);
   if (status != SL_STATUS_OK) {
     printf("\r\nPower save configuration Failed, Error Code : 0x%lX\r\n", status);
     return;
@@ -175,7 +179,7 @@ static void application_start(void *argument)
   printf("\r\nPower save configuration success\r\n");
 
   //! Register the module status handler
-  sl_wifi_set_callback(SL_WIFI_STATS_RESPONSE_EVENTS, module_status_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_STATS_RESPONSE_EVENTS, module_status_handler, NULL);
 
   //! Set the advanced scan configuration
   advanced_scan_configuration.active_channel_time  = ADV_ACTIVE_SCAN_DURATION;
@@ -194,8 +198,10 @@ static void application_start(void *argument)
   //! Register the scan callback handler
   wifi_scan_configuration.type                   = SL_WIFI_SCAN_TYPE_ADV_SCAN;
   wifi_scan_configuration.periodic_scan_interval = ADV_SCAN_PERIODICITY;
+  scan_results_complete                          = false;
+  callback_status                                = SL_STATUS_FAIL;
 
-  sl_wifi_set_scan_callback(scan_callback_handler, NULL);
+  sl_wifi_set_scan_callback_v2(scan_callback_handler, NULL);
 
   //! Set roaming configuration
   roam_configuration.trigger_level        = ROAMING_THRESHOLD;
@@ -250,11 +256,19 @@ static void application_start(void *argument)
 #endif
 }
 
-static sl_status_t module_status_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t module_status_handler(sl_wifi_event_t event,
+                                         sl_status_t status_code,
+                                         void *data,
+                                         uint32_t data_length,
+                                         void *arg)
 {
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
-  sl_si91x_module_state_stats_response_t *notif = (sl_si91x_module_state_stats_response_t *)data;
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  sl_wifi_module_state_stats_response_t *notif = (sl_wifi_module_state_stats_response_t *)data;
 
   printf("\r\n---> Module status handler event with length : %lu\r\n", data_length);
   printf("  <> Timestamp : %lu, state_code : 0x%02X, reason_code : 0x%02X, channel : %u, rssi : -%u.\n",
@@ -306,6 +320,7 @@ sl_status_t show_scan_results(sl_wifi_scan_result_t *scan_result)
 }
 
 sl_status_t scan_callback_handler(sl_wifi_event_t event,
+                                  sl_status_t status_code,
                                   sl_wifi_scan_result_t *result,
                                   uint32_t result_length,
                                   void *arg)
@@ -313,9 +328,9 @@ sl_status_t scan_callback_handler(sl_wifi_event_t event,
   UNUSED_PARAMETER(result_length);
   UNUSED_PARAMETER(arg);
   if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
-    callback_status       = *(sl_status_t *)result;
+    callback_status       = status_code;
     scan_results_complete = true;
-    return SL_STATUS_FAIL;
+    return status_code;
   }
 
   if (result_length != 0) {

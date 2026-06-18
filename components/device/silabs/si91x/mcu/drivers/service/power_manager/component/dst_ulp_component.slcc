@@ -1,6 +1,6 @@
 id: dst_ulp_component
 label: PM UULP Deep Sleep Timer
-package: platform
+package: platform_siwx91x
 description: >
   ULP DST component will enable DST in the low-power mode. 
   It moves all the peripheral dependencies to RAM. 

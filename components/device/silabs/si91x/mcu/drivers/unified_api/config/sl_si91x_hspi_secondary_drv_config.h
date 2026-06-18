@@ -20,20 +20,21 @@
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h>HSPI Configuration
 
-//  HSPI TX buffer Size
-#define SL_HSPI_TX_BUFFER_SIZE 1024
-
-// HSPI RX buffer Size
-#define SL_HSPI_RX_BUFFER_SIZE 1024
-
-// <e> SL_HSPI_DMA Enable DMA
+// <e> DMA
 // <i> Default: 1
 #define SL_HSPI_DMA 1
-// <o SL_HSPI_DMA_BLOCK_SIZE> HSPI DMA block Size <256=>256 <512=>512 <1024=>1024
+// <o SL_HSPI_DMA_BLOCK_SIZE> DMA Block Size <256=>256 <512=>512 <1024=>1024
 // <i> Default: 1024
 // <i> This option is available only if DMA is enabled
 #define SL_HSPI_DMA_BLOCK_SIZE 1024
-
+// <o SL_HSPI_TX_BUFFER_SIZE> TX Size <0-4096>
+// <i> Default: 1024
+// <i> This option is available only if DMA is enabled
+#define SL_HSPI_TX_BUFFER_SIZE 1024
+// <o SL_HSPI_RX_BUFFER_SIZE> RX Size <0-4096>
+// <i> Default: 1024
+// <i> This option is available only if DMA is enabled
+#define SL_HSPI_RX_BUFFER_SIZE 1024
 // </e>
 
 // </h>

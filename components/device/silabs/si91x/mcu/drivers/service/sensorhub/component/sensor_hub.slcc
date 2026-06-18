@@ -1,6 +1,6 @@
 id: sensor_hub
 label: Sensor Hub
-package: platform
+package: platform_siwx91x
 description: >
   Si91x Sensor Hub API. 
 category: Device|Si91x|MCU|Service

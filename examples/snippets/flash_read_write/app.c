@@ -41,6 +41,7 @@
 #define NWP_FLASH_ADDRESS 0
 
 #define LENGTH_OF_BUFFER           (1024 * 4)
+#define DISPLAY_LENGTH             64
 #define FLASH_SECTOR_ERASE_ENABLE  1
 #define FLASH_SECTOR_ERASE_DISABLE 0
 
@@ -64,14 +65,24 @@ const osThreadAttr_t thread_attributes = {
  ******************************************************/
 
 static void application_start(void *argument);
+static void print_data(const char *message, const unsigned char *data, uint32_t length);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+static void print_data(const char *message, const unsigned char *data, uint32_t length)
 {
-  UNUSED_PARAMETER(unused);
+  printf("%s", message);
+  for (uint32_t i = 0; i < length; i++) {
+    printf("%02X ", data[i]);
+    if ((i + 1) % 16 == 0)
+      printf("\r\n");
+  }
+}
+
+void app_init(void)
+{
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -93,12 +104,7 @@ static void application_start(void *argument)
     data_write_buffer[i] = i;
   }
 
-  SL_DEBUG_LOG("data_write_buffer: \r\n");
-  for (int i = 0; i < 64; i++) {
-    SL_DEBUG_LOG("%02X ", data_write_buffer[i]);
-    if ((i + 1) % 16 == 0)
-      SL_DEBUG_LOG("\r\n");
-  }
+  print_data("\r\nData to write to M4 flash memory (first 64 bytes):\r\n", data_write_buffer, DISPLAY_LENGTH);
 
   // M4 flash memory
   status = (int)sl_si91x_command_to_write_common_flash(M4_FLASH_ADDRESS,
@@ -118,19 +124,14 @@ static void application_start(void *argument)
   // Read from M4 flash memory
   memcpy((uint8_t *)data_read_buffer, (uint8_t *)M4_FLASH_ADDRESS, LENGTH_OF_BUFFER);
 
+  print_data("\r\nData read from M4 flash memory (first 64 bytes):\r\n", data_read_buffer, DISPLAY_LENGTH);
+
   // Check if the read data matches the written data
   if (memcmp(data_read_buffer, data_write_buffer, LENGTH_OF_BUFFER * sizeof(unsigned char)) == 0) {
     printf("\r\nData read from M4 flash memory matches written data.\r\n");
   } else {
     printf("\r\nData read from M4 flash memory does NOT match written data.\r\n");
     return;
-  }
-
-  SL_DEBUG_LOG("data_read_buffer: \r\n");
-  for (int i = 0; i < 64; i++) {
-    SL_DEBUG_LOG("%02X ", data_read_buffer[i]);
-    if ((i + 1) % 16 == 0)
-      SL_DEBUG_LOG("\r\n");
   }
 
   // NWP flash memory erase
@@ -144,6 +145,8 @@ static void application_start(void *argument)
     printf("\r\nError erasing NWP flash memory.\r\n");
     return;
   }
+
+  print_data("\r\nData to write to NWP flash memory (first 64 bytes):\r\n", data_write_buffer, DISPLAY_LENGTH);
 
   // NWP flash memory write
   status = (int)sl_si91x_command_to_write_common_flash(NWP_FLASH_ADDRESS,
@@ -163,7 +166,9 @@ static void application_start(void *argument)
   status = (int)sl_si91x_command_to_read_common_flash(NWP_FLASH_ADDRESS, LENGTH_OF_BUFFER, data_read_buffer);
 
   if (status == SL_STATUS_OK) {
-    printf("\r\nData successfully read from NWP flash memory.\r\n");
+    print_data("\r\nData successfully read from NWP flash memory (first 64 bytes):\r\n",
+               data_read_buffer,
+               DISPLAY_LENGTH);
   } else {
     printf("\r\nError reading data from NWP flash memory.\r\n");
     return;
@@ -177,14 +182,7 @@ static void application_start(void *argument)
     return;
   }
 
-  SL_DEBUG_LOG("data_read_buffer: \r\n");
-  for (int i = 0; i < 64; i++) {
-    SL_DEBUG_LOG("%02X ", data_read_buffer[i]);
-    if ((i + 1) % 16 == 0)
-      SL_DEBUG_LOG("\r\n");
-  }
-
-  printf("\r\nSuccessfully demonstarted the Flash Read Write Example.\r\n");
+  printf("\r\nSuccessfully demonstrated the flash read write example.\r\n");
 
   while (1) {
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)

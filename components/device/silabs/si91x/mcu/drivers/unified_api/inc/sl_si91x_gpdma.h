@@ -297,7 +297,7 @@ sl_status_t sl_si91x_gpdma_allocate_channel(uint32_t *channel_no, uint32_t prior
 *         - SL_STATUS_BUSY  - Cannot deallocate channel due to an ongoing transfer.
 *         - SL_STATUS_NOT_INITIALIZED  - GPDMA not initialized.
 *         - SL_STATUS_INVALID_PARAMETER  - Channel number is invalid.
- *        - SL_STATUS_GPDMA_CHANNEL_ALREADY_UNALLOCATED  - Channel already deallocated
+ *        - SL_STATUS_GPDMA_CHANNEL_NOT_ALLOCATED  - Given channel is not allocated
  * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
  ******************************************************************************/
 sl_status_t sl_si91x_gpdma_deallocate_channel(uint32_t channel_no);
@@ -547,6 +547,22 @@ sl_status_t sl_si91x_get_channel_fifo_size(uint32_t channel_no, uint32_t *fifo_s
  *
  */
 sl_status_t sl_si91x_gpdma_get_channel_status(uint32_t channel_number);
+
+/**
+ * @brief This function deinitializes the GPDMA driver.
+ *
+ * @details This API performs the following actions:
+ * 1. Deinitializes the GPDMA driver by disabling the GPDMA clock and NVIC interrupt.
+ * 2. Clears any pending interrupts and resets the GPDMA driver context to NULL.
+ * 3. Clears the callback functions for transfer completion, descriptor fetch completion, HRESP error, and GPDMA controller error.
+ * 4. Resets the GPDMA resource data and channel allocation data to the default state.
+ *
+ * @return Status of the operation.
+ *        - SL_STATUS_OK: de-Initialization success.
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ */
+sl_status_t sl_si91x_gpdma_deinit(void);
+
 /// @} end group GPDMA ********************************************************/
 
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY! ***********************
@@ -573,17 +589,17 @@ sl_status_t sl_si91x_gpdma_get_channel_status(uint32_t channel_number);
  *
  * @section GPDMA_Config Configuration
  *
- * GPDMA can be configured for various transfer types and operational modes, including:
- * - **Memory-to-memory**: Direct transfer between two memory locations.
- * - **Memory-to-peripheral**: Transfer from memory to a peripheral register.
- * - **Peripheral-to-memory**: Transfer from a peripheral register to memory.
- * - **Peripheral-to-peripheral**: Transfer between two peripheral registers.
- * - **Linked list mode**: Use descriptors for chained or scatter-gather transfers.
+ * The GPDMA can be configured for various transfer types and operational modes, including:
+ * - **Memory-to-Memory**: Direct transfer between two memory locations.
+ * - **Memory-to-Peripheral**: Transfer from memory to a peripheral register.
+ * - **Peripheral-to-Memory**: Transfer from a peripheral register to memory.
+ * - **Peripheral-to-Peripheral**: Transfer between two peripheral registers.
+ * - **Linked List Mode**: Use descriptors for chained or scatter-gather transfers.
  * - **FIFO Allocation**: Assign FIFO buffers to channels for burst transfers.
  * - **Callback Registration**: Register callbacks for transfer complete, descriptor fetch, and error events.
  * These configurations are encapsulated in the @ref sl_si91x_gpdma_channel_config_t and related structures, and initialized using the provided GPDMA APIs.
  *
- * For more details on configuration parameters, see the respective peripheral example README document.
+ * For more details on configuration parameters, see the respective peripheral example readme document.
  *
  * @section GPDMA_Usage Usage
  *

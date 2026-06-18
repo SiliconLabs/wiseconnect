@@ -1,10 +1,11 @@
 project_name: wifi_commander_soc
-package: wifi
+package: wifi_app
 quality: production
 label: wifi_commander_soc
 category: Example|Wi-Fi
-description: >
-  Demonstrates to run all commands individually
+description: 'Demonstrates to run all commands individually
+
+  '
 filter:
 - name: Wireless Technology
   value:
@@ -12,12 +13,6 @@ filter:
 - name: Project Difficulty
   value:
   - Beginner
-sdk:
-  id: simplicity_sdk
-  version: "2025.6.1"
-sdk_extension:
-- id: wiseconnect3_sdk
-  version: 3.5.2
 source:
 - path: demo.c
 - path: xapi/xapi/xapi.c
@@ -50,7 +45,6 @@ source:
 - path: xapi/app_xapi/app_xapi_ping.c
 - path: xapi/app_xapi/app_xapi_client.c
 - path: xapi/app_xapi/app_xapi_mqtt_client.c
-
 include:
 - path: .
   file_list:
@@ -81,7 +75,7 @@ include:
   file_list:
   - path: app_ncp_config.h
   - path: app_ncp_freertos_config.h
-- path:  xapi/app_xapi
+- path: xapi/app_xapi
   file_list:
   - path: app_xapi_global.h
   - path: app_xapi_cmd_event.h
@@ -98,46 +92,30 @@ component:
 - id: freertos
 - id: freertos_heap_4
 - id: syscalls
-  from: wiseconnect3_sdk
 - id: si91x_memory_default_config
-  from: wiseconnect3_sdk
-- id: wiseconnect3_common
-  from: wiseconnect3_sdk
+- id: wiseconnect_common
 - id: wifi
-  from: wiseconnect3_sdk
 - id: sl_si91x_internal_stack
-  from: wiseconnect3_sdk
 - id: wifi_resources
-  from: wiseconnect3_sdk
 - id: network_manager
-  from: wiseconnect3_sdk
 - id: basic_network_config_manager
-  from: wiseconnect3_sdk
 - id: device_needs_ram_execution
-  from: wiseconnect3_sdk
 - id: iot_socket
-  from: wiseconnect3_sdk
 - id: sl_si91x_basic_buffers
-  from: wiseconnect3_sdk
 - id: sl_usart
-  from: wiseconnect3_sdk
 - id: app_timer
 - id: sl_ulp_uart
-  from: wiseconnect3_sdk
 - id: sl_si91x_soc_soft_reset
-  from: wiseconnect3_sdk
 - id: mqtt
-  from: wiseconnect3_sdk
 toolchain_settings:
-  - option: gcc_compiler_option
-    value: -Wall -Werror
+- option: gcc_compiler_option
+  value: -Wall -Werror
 configuration:
 - name: SL_BOARD_ENABLE_VCOM
   value: '1'
 readme:
 - path: readme.md
 other_file:
-
 - path: resources/readme/wifi_commander_demo.png
 - path: resources/readme/wifi_commander_launcher.png
 - path: resources/readme/wifi_commander_connection_interface.png
@@ -147,10 +125,18 @@ other_file:
 - path: resources/readme/wifi_commander_ap_outcome.png
 - path: resources/readme/wifi_commander_smart_console.png
 - path: resources/readme/wifi_commander_hello_command.png
-
+- path: resources/readme/wifi_commander_api_ref_guide.png
 ui_hints:
   highlight:
   - path: readme.md
     focus: true
 post_build:
-  path: ../../../utilities/postbuild_profile/wiseconnect_soc.slpb
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.0.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2025.12.2

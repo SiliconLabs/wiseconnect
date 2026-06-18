@@ -1,6 +1,6 @@
 id: driver_mvp_hal_si91x
 label: MVP HAL
-package: platform
+package: platform_siwx91x
 description: >
   This component provides the HAL part of the MVP driver. It is customized for
   si91x parts with MVP.

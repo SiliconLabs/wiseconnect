@@ -39,17 +39,11 @@
 #include <string.h>
 #include "sl_string.h"
 #include "at_utility.h"
+#include "sli_wifi_utility.h"
 
 /******************************************************
  *                    Constants
  ******************************************************/
-
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-#define IP_ADDRESS "192.168.10.2"
-#define GATEWAY    "192.168.10.2"
-#define NETMASK    "255.255.255.0"
-#define AP_PSK     "123456789"
-#endif
 
 #ifdef SLI_SI91X_LWIP_NETWORK_INTERFACE
 #include "sl_net_ethernet_types.h"
@@ -80,31 +74,70 @@ static sl_net_wifi_lwip_context_t wifi_ap_context;
 #include "sl_net_ping.h"
 
 extern char *strtok_r(char *, const char *, char **);
+extern void wifi_set_default_configuration(void);
 static sl_status_t convert_string_to_sl_ipv6_address(char *line, uint16_t *ipv6);
 
 sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data);
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+sl_status_t ota_fw_up_response_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data);
+static sl_status_t net_event_response_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
 
-  printf("at+WIFI_AP_CLIENT_CONNECTED=");
-  print_mac_address((sl_mac_address_t *)data);
-  printf("\r\n>\r\n");
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  sl_mac_address_t *mac_address = (sl_mac_address_t *)data;
+  if (mac_address == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  AT_PRINTF("at+WIFI_AP_CLIENT_CONNECTED=");
+  AT_PRINTF("%2X:%2X:%2X:%2X:%2X:%2X",
+            mac_address->octet[0],
+            mac_address->octet[1],
+            mac_address->octet[2],
+            mac_address->octet[3],
+            mac_address->octet[4],
+            mac_address->octet[5]);
+  AT_PRINTF("\r\n>\r\n");
 
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
 
-  printf("at+WIFI_AP_CLIENT_DISCONNECTED=");
-  print_mac_address((sl_mac_address_t *)data);
-  printf("\r\n>\r\n");
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
+
+  sl_mac_address_t *mac_address = (sl_mac_address_t *)data;
+  if (mac_address == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  AT_PRINTF("at+WIFI_AP_CLIENT_DISCONNECTED=");
+  AT_PRINTF("%2X:%2X:%2X:%2X:%2X:%2X",
+            mac_address->octet[0],
+            mac_address->octet[1],
+            mac_address->octet[2],
+            mac_address->octet[3],
+            mac_address->octet[4],
+            mac_address->octet[5]);
+  AT_PRINTF("\r\n>\r\n");
 
   return SL_STATUS_OK;
 }
@@ -120,7 +153,6 @@ static sl_net_wifi_client_profile_t *wifi_client_profiles[MAX_WIFI_PROFILES] = {
 static sl_net_ip_configuration_t ip_config                                   = { 0 };
 
 extern sl_wifi_device_configuration_t si91x_init_configuration;
-void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile);
 
 void initialize_wifi_profiles(sl_net_profile_id_t profile_id)
 {
@@ -153,14 +185,16 @@ sl_net_wifi_client_profile_t *get_wifi_profile(sl_net_profile_id_t profile_id)
   return wifi_client_profiles[profile_id];
 }
 
+// at+net-init?
 sl_status_t net_init_check_command_handler(console_args_t *arguments)
 {
   UNUSED_PARAMETER(arguments);
   PRINT_AT_CMD_SUCCESS;
-  printf("%d\r\n", sl_si91x_is_device_initialized());
+  AT_PRINTF("%d\r\n", sl_si91x_is_device_initialized());
   return SL_STATUS_OK;
 }
 
+// at+net-init=<interface>
 sl_status_t net_init_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
@@ -184,7 +218,7 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
 #ifdef SL_WIFI_COMPONENT_INCLUDED
     case SL_NET_WIFI_CLIENT_INTERFACE:
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-      event_handler = ping_response_callback_handler;
+      event_handler = net_event_response_handler;
       status        = sl_net_init(interface, config, NULL, event_handler);
 #elif SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
       status = sl_net_init(interface, config, &wifi_client_context, event_handler);
@@ -198,8 +232,8 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
       status = sl_net_init(interface, (const void *)config, (void *)&wifi_ap_context, NULL);
 #endif
       VERIFY_STATUS_AND_RETURN(status);
-      sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-      sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+      sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+      sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
       break;
 #endif
     default:
@@ -210,112 +244,55 @@ sl_status_t net_init_command_handler(console_args_t *arguments)
   return status;
 }
 
+// at+net-deinit=<interface>
 sl_status_t net_deinit_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
-  sl_status_t status;
   sl_net_interface_t interface = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
 
-  memset(&si91x_init_configuration, 0, sizeof(si91x_init_configuration));
-  switch (SL_NET_INTERFACE_TYPE(interface)) {
-#ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE:
-      status = sl_net_wifi_client_deinit(interface);
-      VERIFY_STATUS_AND_RETURN(status);
-      break;
+  sl_status_t status = sl_net_deinit(interface);
+  VERIFY_STATUS_AND_RETURN(status);
 
-    case SL_NET_WIFI_AP_INTERFACE:
-      status = sl_net_wifi_ap_deinit(interface);
-      VERIFY_STATUS_AND_RETURN(status);
-      break;
-#endif
-    default:
-      return SL_STATUS_INVALID_PARAMETER;
-  }
+  wifi_set_default_configuration();
+
   PRINT_AT_CMD_SUCCESS;
   return status;
 }
 
+// at+net-up=<interface>,<profile-id>
 sl_status_t net_up_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
-  sl_status_t status;
+
   sl_net_interface_t interface   = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
   sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
 
-  switch (SL_NET_INTERFACE_TYPE(interface)) {
-#ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE: {
-
-      if (profile_id == SL_NET_AUTO_JOIN) {
-        status = sl_net_wifi_client_up(interface, profile_id);
-        VERIFY_STATUS_AND_RETURN(status);
-        break;
-      }
-      // Fetch the profile and print some information about it
-      sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
-      if (profile == NULL) {
-        return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
-      }
-      SL_DEBUG_LOG("Connecting to '%s'\r\n", profile->config.ssid.value);
-      status = sl_net_wifi_client_up(interface, profile_id);
-      VERIFY_STATUS_AND_RETURN(status);
-
-      status = sl_net_get_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
-      if (status == SL_STATUS_OK) {
-        display_wifi_client_profile(profile);
-      }
-
-    } break;
-
-    case SL_NET_WIFI_AP_INTERFACE: {
-      sl_net_wifi_ap_profile_t profile;
-
-      // Fetch the profile and print some information about it
-      status = sl_net_get_profile(SL_NET_WIFI_AP_INTERFACE, profile_id, &profile);
-      if (status != SL_STATUS_OK) {
-        printf("Failed to load profile with id: %u\r\n", profile_id);
-        return status;
-      }
-      printf("Starting AP with SSID '%s'\r\n", profile.config.ssid.value);
-      status = sl_net_wifi_ap_up(interface, profile_id);
-      VERIFY_STATUS_AND_RETURN(status);
-    } break;
-#endif
-    default:
-      return SL_STATUS_INVALID_PARAMETER;
+  sl_net_wifi_client_profile_t *profile = get_wifi_profile(profile_id);
+  if (profile == NULL) {
+    return SL_STATUS_INVALID_PARAMETER; // Invalid profile ID
   }
+
+  sl_status_t status = sl_net_up(interface, profile_id);
+  VERIFY_STATUS_AND_RETURN(status);
+
   PRINT_AT_CMD_SUCCESS;
   return status;
 }
 
+// at+net-down=<interface>
 sl_status_t net_down_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
-  sl_status_t status;
   sl_net_interface_t interface = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
 
-  switch (SL_NET_INTERFACE_TYPE(interface)) {
-#ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE:
-      status = sl_net_wifi_client_down(interface);
-      VERIFY_STATUS_AND_RETURN(status);
-      break;
-
-    case SL_NET_WIFI_AP_INTERFACE:
-      status = sl_net_wifi_ap_down(interface);
-      VERIFY_STATUS_AND_RETURN(status);
-      break;
-#endif
-
-    default:
-      return SL_STATUS_INVALID_PARAMETER;
-  }
+  sl_status_t status = sl_net_down(interface);
+  VERIFY_STATUS_AND_RETURN(status);
 
   PRINT_AT_CMD_SUCCESS;
   return SL_STATUS_OK;
 }
 
+// at+net-cred-wifipsk=<credential-id>,<psk>
 sl_status_t net_cred_wifipsk_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
@@ -332,116 +309,7 @@ sl_status_t net_cred_wifipsk_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
-void display_wifi_client_profile(const sl_net_wifi_client_profile_t *profile)
-{
-  UNUSED_PARAMETER(profile);
-#ifdef AT_DEBUG_ENABLE
-  if (profile == NULL) {
-    printf("Wi-Fi client profile is NULL.\n");
-    return;
-  }
-
-  printf("Wi-Fi Client Profile Details:\n");
-  printf("---------------------------------\n");
-
-  // Display SSID
-  printf("SSID: %s\n", profile->config.ssid.value);
-  printf("SSID Length: %d\n", profile->config.ssid.length);
-
-  // Display Channel Information
-  printf("Channel: %d\n", profile->config.channel.channel);
-  printf("Band: %d\n", profile->config.channel.band);
-  printf("Bandwidth: %d\n", profile->config.channel.bandwidth);
-
-  // Display BSSID
-  printf("BSSID: ");
-  for (uint8_t i = 0; i < sizeof(profile->config.bssid.octet); i++) {
-    printf("%02X", profile->config.bssid.octet[i]);
-    if (i < sizeof(profile->config.bssid.octet) - 1) {
-      printf(":");
-    }
-  }
-  printf("\n BSS type : %d\r\n", profile->config.bss_type);
-
-  // Display Security and Encryption
-  printf("Security: %d\n", profile->config.security);
-  printf("Encryption: %d\n", profile->config.encryption);
-
-  // Display Client Options
-  printf("Client Options: %d\n", profile->config.client_options);
-
-  // Display Credential ID
-  printf("Credential ID: %ld\n", profile->config.credential_id);
-
-  // Display IP Configuration
-  printf("IP Mode: %d\n", profile->ip.mode);
-  printf("IP Type: %d\n", profile->ip.type);
-  if (profile->ip.host_name != NULL) {
-    printf("Host Name: %s\n", profile->ip.host_name);
-  } else {
-    printf("Host Name: NULL\n");
-  }
-
-  if (profile->ip.type == SL_IPV4) {
-    printf("IPv4 Address: %d.%d.%d.%d\n",
-           profile->ip.ip.v4.ip_address.bytes[0],
-           profile->ip.ip.v4.ip_address.bytes[1],
-           profile->ip.ip.v4.ip_address.bytes[2],
-           profile->ip.ip.v4.ip_address.bytes[3]);
-
-    printf("Gateway: %d.%d.%d.%d\n",
-           profile->ip.ip.v4.gateway.bytes[0],
-           profile->ip.ip.v4.gateway.bytes[1],
-           profile->ip.ip.v4.gateway.bytes[2],
-           profile->ip.ip.v4.gateway.bytes[3]);
-
-    printf("Netmask: %d.%d.%d.%d\n",
-           profile->ip.ip.v4.netmask.bytes[0],
-           profile->ip.ip.v4.netmask.bytes[1],
-           profile->ip.ip.v4.netmask.bytes[2],
-           profile->ip.ip.v4.netmask.bytes[3]);
-  } else if (profile->ip.type == SL_IPV6) {
-    printf("IPv6 Global Address: ");
-    for (int i = 0; i < SL_IPV6_ADDRESS_LENGTH; i++) {
-      printf("%02X", profile->ip.ip.v6.global_address.bytes[i]);
-      if (i < SL_IPV6_ADDRESS_LENGTH - 1) {
-        printf(":");
-      }
-    }
-    printf("\n");
-
-    printf("IPv6 Link Local Address: ");
-    for (int i = 0; i < SL_IPV6_ADDRESS_LENGTH; i++) {
-      printf("%02X", profile->ip.ip.v6.link_local_address.bytes[i]);
-      if (i < SL_IPV6_ADDRESS_LENGTH - 1) {
-        printf(":");
-      }
-    }
-    printf("\n");
-
-    printf("IPv6 Gateway: ");
-    for (int i = 0; i < SL_IPV6_ADDRESS_LENGTH; i++) {
-      printf("%02X", profile->ip.ip.v6.gateway.bytes[i]);
-      if (i < SL_IPV6_ADDRESS_LENGTH - 1) {
-        printf(":");
-      }
-    }
-    printf("\n");
-  }
-
-  // Print DHCP configuration
-  printf("DHCP Configuration:\n");
-  printf("  Min Discover Retry Interval: %d ms\n", profile->ip.dhcp_config.min_discover_retry_interval);
-  printf("  Max Discover Retry Interval: %d ms\n", profile->ip.dhcp_config.max_discover_retry_interval);
-  printf("  Min Request Retry Interval: %d ms\n", profile->ip.dhcp_config.min_request_retry_interval);
-  printf("  Max Request Retry Interval: %d ms\n", profile->ip.dhcp_config.max_request_retry_interval);
-  printf("  Max Discover Retries: %d\n", profile->ip.dhcp_config.max_discover_retries);
-  printf("  Max Request Retries: %d\n", profile->ip.dhcp_config.max_request_retries);
-
-  printf("---------------------------------\n");
-#endif
-}
-
+// at+net-sta-cred=<profile-id>,<ssid>,<credential-id>,<security>,<encryption>
 sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x07);
@@ -466,8 +334,6 @@ sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
   memcpy(profile->config.ssid.value, ssid, profile->config.ssid.length);
   profile->config.ssid.value[profile->config.ssid.length] = 0;
 
-  display_wifi_client_profile(profile);
-
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
   PRINT_AT_CMD_SUCCESS;
@@ -475,6 +341,7 @@ sl_status_t net_sta_credential_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-sta-chan=<profile-id>,<channel>,<band>,<bandwidth>
 sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
@@ -489,8 +356,6 @@ sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
   profile->config.channel.band      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_WIFI_AUTO_BAND, uint8_t);
   profile->config.channel.bandwidth = GET_OPTIONAL_COMMAND_ARG(arguments, 3, SL_WIFI_AUTO_BANDWIDTH, uint8_t);
 
-  display_wifi_client_profile(profile);
-
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
   PRINT_AT_CMD_SUCCESS;
@@ -498,6 +363,7 @@ sl_status_t net_sta_channel_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-sta-bss=<profile-id>,<bssid>,<bss-type>
 sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x03);
@@ -515,15 +381,13 @@ sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
   if (bssid != NULL) {
     convert_string_to_mac_address(bssid, &profile->config.bssid);
   }
-  display_wifi_client_profile(profile);
 
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
 
-  status = sl_si91x_set_join_configuration(SL_WIFI_CLIENT_INTERFACE,
-                                           SL_SI91X_JOIN_FEAT_LISTEN_INTERVAL_VALID | SL_SI91X_JOIN_FEAT_BSSID_BASED);
+  status = sl_wifi_set_join_configuration(SL_WIFI_CLIENT_INTERFACE,
+                                          SL_WIFI_JOIN_FEAT_LISTEN_INTERVAL_VALID | SL_WIFI_JOIN_FEAT_BSSID_BASED);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start set join configuration: 0x%lx\r\n", status);
     return SL_STATUS_FAIL;
   }
   PRINT_AT_CMD_SUCCESS;
@@ -531,6 +395,8 @@ sl_status_t net_sta_bss_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-sta-opt=<profile-id>,<client-options>,<channel-bitmap-2-4>,
+//                <channel-bitmap-5>
 sl_status_t net_sta_options_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x01);
@@ -546,8 +412,6 @@ sl_status_t net_sta_options_command_handler(console_args_t *arguments)
   profile->config.channel_bitmap.channel_bitmap_5   = GET_OPTIONAL_COMMAND_ARG(arguments, 3, 0, uint32_t);
   profile->priority                                 = GET_OPTIONAL_COMMAND_ARG(arguments, 4, 0, uint32_t);
 
-  display_wifi_client_profile(profile);
-
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
   PRINT_AT_CMD_SUCCESS;
@@ -555,6 +419,8 @@ sl_status_t net_sta_options_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-sta-ip=<profile-id>,<ip-mode>,<ip-type>,<host-name>,<station-ip>,
+//               <ipv6-global-ip>,<gateway-ip>,<ipv4-netmask>
 sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x07);
@@ -591,8 +457,6 @@ sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
     }
   }
 
-  display_wifi_client_profile(profile);
-
   sl_status_t status = sl_net_set_profile(SL_NET_WIFI_CLIENT_INTERFACE, profile_id, profile);
   VERIFY_STATUS_AND_RETURN(status);
   PRINT_AT_CMD_SUCCESS;
@@ -600,6 +464,9 @@ sl_status_t net_sta_ip_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-dhcp-conf=<min-discover-retry-interval>,<max-discover-retry-interval>,
+//                  <min-request-retry-interval>,<max-request-retry-interval>,
+//                  <max-discover-retries>,<max-request-retries>
 sl_status_t net_dhcp_config_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x3f);
@@ -614,12 +481,15 @@ sl_status_t net_dhcp_config_command_handler(console_args_t *arguments)
   return SL_STATUS_OK;
 }
 
+// at+net-conf-ip=<interface>,<mode>,<type>,<host-name>,<ipv4-address>,
+//                <ipv4-gateway>,<ipv4-netmask>,<ipv6-link-local-address>,
+//                <ipv6-global-address>,<ipv6-gateway>,<timeout>
 sl_status_t net_configure_ip_command_handler(console_args_t *arguments)
 {
   CHECK_ARGUMENT_BITMAP(arguments, 0x07);
   sl_net_interface_t interface =
     (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
-  uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SLI_SI91X_WAIT_FOR_EVER, uint32_t);
+  uint32_t timeout = GET_OPTIONAL_COMMAND_ARG(arguments, 10, SL_NET_WAIT_FOREVER, uint32_t);
 
   ip_config.mode      = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_IP_MANAGEMENT_DHCP, uint8_t);
   ip_config.type      = GET_OPTIONAL_COMMAND_ARG(arguments, 2, SL_IPV4, uint8_t);
@@ -688,102 +558,7 @@ static sl_status_t convert_string_to_sl_ipv6_address(char *line, uint16_t *ipv6)
   return SL_STATUS_OK;
 }
 
-// This is used before calling net_up as NVM3 storage isn't implemented yet to store the profile configuration.
-sl_status_t set_nvm_profile_command_handler(console_args_t *arguments)
-{
-  sl_status_t status             = SL_STATUS_OK;
-  sl_net_interface_t interface   = (sl_net_interface_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, 0, sl_net_interface_t);
-  sl_net_profile_id_t profile_id = GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_NET_PROFILE_ID_0, sl_net_profile_id_t);
-
-  if (profile_id == SL_NET_PROFILE_ID_0) {
-    profile_id = (interface == SL_NET_WIFI_CLIENT_INTERFACE) ? SL_NET_DEFAULT_WIFI_CLIENT_PROFILE_ID
-                                                             : SL_NET_DEFAULT_WIFI_AP_PROFILE_ID;
-  }
-
-  switch (interface) {
-#ifdef SL_WIFI_COMPONENT_INCLUDED
-    case SL_NET_WIFI_CLIENT_INTERFACE: {
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-      sl_net_wifi_client_profile_t wifi_client_profile = {
-          .config = {
-              .ssid.value = DEFAULT_WIFI_CLIENT_PROFILE_SSID,
-              .ssid.length = sizeof(DEFAULT_WIFI_CLIENT_PROFILE_SSID)-1,
-              .channel.channel = SL_WIFI_AUTO_CHANNEL,
-              .channel.band = SL_WIFI_AUTO_BAND,
-              .channel.bandwidth = SL_WIFI_AUTO_BANDWIDTH,
-              .bssid = {{0}},
-              .bss_type = SL_WIFI_BSS_TYPE_INFRASTRUCTURE,
-              .security = SL_WIFI_WPA_WPA2_MIXED,
-              .encryption = SL_WIFI_DEFAULT_ENCRYPTION,
-              .client_options = 0,
-              .credential_id = SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-          },
-          .ip = {
-              .mode = SL_IP_MANAGEMENT_DHCP,
-              .type = SL_IPV4,
-              .host_name = NULL,
-              .ip = {{{0}}},
-          }
-      };
-
-      status = sl_net_set_profile(interface, profile_id, &wifi_client_profile);
-      VERIFY_STATUS_AND_RETURN(status);
-
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_CLIENT_CREDENTIAL_ID,
-                                     SL_NET_WIFI_PSK,
-                                     DEFAULT_WIFI_CLIENT_CREDENTIAL,
-                                     strlen(DEFAULT_WIFI_CLIENT_CREDENTIAL));
-      VERIFY_STATUS_AND_RETURN(status);
-#endif
-    } break;
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-    case SL_NET_WIFI_AP_INTERFACE: {
-      sl_net_wifi_ap_profile_t wifi_ap_profile = {
-    		    .config = {
-    		        .ssid.value = DEFAULT_WIFI_AP_PROFILE_SSID,
-    		        .ssid.length = sizeof(DEFAULT_WIFI_AP_PROFILE_SSID)-1,
-                .channel.channel = SL_WIFI_AUTO_CHANNEL,
-                .channel.band = SL_WIFI_AUTO_BAND,
-                .channel.bandwidth = SL_WIFI_AUTO_BANDWIDTH,
-                .security = SL_WIFI_WPA_WPA2_MIXED,
-    		        .encryption = SL_WIFI_CCMP_ENCRYPTION,
-    		        .rate_protocol = SL_WIFI_RATE_PROTOCOL_AUTO,
-    		        .options = 0,
-    		        .credential_id = SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-    		        .keepalive_type = SL_SI91X_AP_NULL_BASED_KEEP_ALIVE,
-    		        .beacon_interval = 100,
-    		        .client_idle_timeout = 0xFF,
-    		        .dtim_beacon_count = 3,
-    		        .maximum_clients = 3,
-    		        .beacon_stop = 0,
-    		    },
-    		    .ip = {
-    		      .mode = SL_IP_MANAGEMENT_DHCP,
-    		      .type = SL_IPV4,
-              .host_name = NULL,
-              .ip = {{{0}}},
-    		    }
-      };
-
-      status = sl_net_set_profile(interface, profile_id, &wifi_ap_profile);
-      VERIFY_STATUS_AND_RETURN(status);
-
-      status = sl_net_set_credential(SL_NET_DEFAULT_WIFI_AP_CREDENTIAL_ID,
-                                     SL_NET_WIFI_PSK,
-                                     DEFAULT_WIFI_AP_CREDENTIAL,
-                                     strlen(DEFAULT_WIFI_AP_CREDENTIAL));
-      VERIFY_STATUS_AND_RETURN(status);
-    } break;
-#endif
-#endif
-    default:
-      printf("Unsupported interface\n");
-      return SL_STATUS_FAIL;
-  }
-
-  return status;
-}
-
+// ?
 sl_status_t dns_hostgetbyname_command_handler(console_args_t *arguments)
 {
 #ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
@@ -812,7 +587,7 @@ sl_status_t dns_hostgetbyname_command_handler(console_args_t *arguments)
 sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data)
 {
   UNUSED_PARAMETER(user_data);
-  sl_si91x_ping_response_t *response = (sl_si91x_ping_response_t *)data;
+  sl_net_ping_response_t *response = (sl_net_ping_response_t *)data;
 
   if (SL_NET_PING_RESPONSE_EVENT == event) {
     if (status != SL_STATUS_OK) {
@@ -830,6 +605,29 @@ sl_status_t ping_response_callback_handler(sl_net_event_t event, sl_status_t sta
   return status;
 }
 
+SL_WEAK sl_status_t ota_fw_up_response_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data)
+{
+  UNUSED_PARAMETER(event);
+  UNUSED_PARAMETER(data);
+  UNUSED_PARAMETER(user_data);
+
+  return status;
+}
+
+sl_status_t net_event_response_handler(sl_net_event_t event, sl_status_t status, void *data, uint32_t user_data)
+{
+  if (SL_NET_PING_RESPONSE_EVENT == event) {
+    return ping_response_callback_handler(event, status, data, user_data);
+  } else if (SL_NET_OTA_FW_UPDATE_EVENT == event) {
+    return ota_fw_up_response_handler(event, status, data, user_data);
+  } else {
+    // MISRA
+  }
+
+  return status;
+}
+
+// ?
 sl_status_t sl_net_ping_command_handler(console_args_t *arguments)
 {
   sl_status_t status         = SL_STATUS_OK;
@@ -848,6 +646,8 @@ sl_status_t sl_net_ping_command_handler(console_args_t *arguments)
   return status;
 }
 
+// at+http-otaf=<flags>,<server_ip_addr>,<port>,<resource_url>,<host_name>,
+//              <extended_header>,<user_name>,<password>
 sl_status_t http_otaf_upgrade_command_handler(const console_args_t *arguments)
 {
 
@@ -870,94 +670,9 @@ sl_status_t http_otaf_upgrade_command_handler(const console_args_t *arguments)
   return status;
 }
 
-sl_status_t start_dhcp_command_handler(console_args_t *arguments)
-{
-  sl_status_t status                   = SL_STATUS_OK;
-  sl_net_ip_configuration_t ip_address = { 0 };
-  sl_ip_address_type_t ip_version =
-    (sl_ip_address_type_t)GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_IPV4, sl_ip_address_type_t);
-  sl_ip_management_t ip_mode =
-    (sl_ip_management_t)GET_OPTIONAL_COMMAND_ARG(arguments, 1, SL_IP_MANAGEMENT_DHCP, sl_ip_management_t);
-
-  if (ip_version == SL_IPV4) {
-    ip_address.type = SL_IPV4;
-  } else if (ip_version == SL_IPV6) {
-    ip_address.type = SL_IPV6;
-  } else {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  ip_address.mode = (ip_mode == SL_IP_MANAGEMENT_DHCP) ? SL_IP_MANAGEMENT_DHCP : SL_IP_MANAGEMENT_STATIC_IP;
-
-  status = sl_si91x_configure_ip_address(&ip_address, SL_SI91X_WIFI_CLIENT_VAP_ID);
-  VERIFY_STATUS_AND_RETURN(status);
-  if (ip_address.type == SL_IPV4) {
-    {
-      sl_ip_address_t temp;
-      temp.type  = ip_address.type;
-      temp.ip.v4 = ip_address.ip.v4.ip_address;
-      print_sl_ip_address(&temp);
-    }
-  } else if (ip_address.type == SL_IPV6) {
-    sl_ip_address_t link_local_address;
-    memcpy(&link_local_address.ip.v6, &ip_address.ip.v6.link_local_address, SL_IPV6_ADDRESS_LENGTH);
-    link_local_address.type = SL_IPV6;
-    printf("Link Local Address: ");
-    print_sl_ip_address(&link_local_address);
-
-    sl_ip_address_t global_address;
-    memcpy(&global_address.ip.v6, &ip_address.ip.v6.global_address, SL_IPV6_ADDRESS_LENGTH);
-    global_address.type = SL_IPV6;
-    printf("Global Address: ");
-    print_sl_ip_address(&global_address);
-
-    sl_ip_address_t gateway;
-    gateway.ip.v6 = ip_address.ip.v6.gateway;
-    memcpy(&gateway.ip.v6, &ip_address.ip.v6.gateway, SL_IPV6_ADDRESS_LENGTH);
-    gateway.type = SL_IPV6;
-    printf("Gateway Address: ");
-    print_sl_ip_address(&gateway);
-  }
-
-  return status;
-}
 #elif SLI_SI91X_LWIP_HOSTED_NETWORK_STACK
 sl_status_t sl_net_ping_command_handler(console_args_t *arguments)
 {
   return SL_STATUS_NOT_SUPPORTED;
 }
-sl_status_t start_dhcp_command_handler(console_args_t *arguments)
-{
-  return SL_STATUS_NOT_SUPPORTED;
-}
 #endif
-
-sl_status_t net_join_multicast_address_command_handler(console_args_t *arguments)
-{
-  sl_ip_address_t ip_address = { 0 };
-
-  sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip_address.ip.v4);
-  ip_address.type = SL_IPV4;
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-  sl_net_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
-  return sl_net_join_multicast_address(interface, &ip_address);
-#else
-  return SL_STATUS_NOT_SUPPORTED;
-#endif
-}
-
-sl_status_t net_leave_multicast_address_command_handler(console_args_t *arguments)
-{
-  sl_ip_address_t ip_address = { 0 };
-
-  sl_net_inet_addr((char *)arguments->arg[1], (uint32_t *)&ip_address.ip.v4);
-  ip_address.type = SL_IPV4;
-#ifdef SLI_SI91X_OFFLOAD_NETWORK_STACK
-  sl_net_interface_t interface =
-    GET_OPTIONAL_COMMAND_ARG(arguments, 0, SL_NET_WIFI_CLIENT_INTERFACE, sl_net_interface_t);
-  return sl_net_leave_multicast_address(interface, &ip_address);
-#else
-  return SL_STATUS_NOT_SUPPORTED;
-#endif
-}

@@ -3,11 +3,10 @@
 ## Table of Contents
 
 - [SL COMBO APP](#sl-combo-app)
-  - [Table of Contents](#table-of-contents)
   - [Purpose/Scope](#purposescope)
   - [Overview](#overview)
-    - [1. I2C](#1-i2c)
-    - [2. PWM](#2-pwm)
+    - [I2C](#1-i2c)
+    - [PWM](#2-pwm)
   - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
     - [Hardware Requirements](#hardware-requirements)
     - [Software Requirements](#software-requirements)
@@ -35,7 +34,7 @@ The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts
 
 - Semaphores
 - Event Flags
-- This application contains a comprehensive sample application which includes multiple perpherals listed below
+- This application contains a comprehensive sample application which includes the following peripherals listed below
   - PWM
   - I2C (as Driver Leader application)
   - GPIO Interrupts
@@ -53,7 +52,7 @@ The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts
 - I2C instances will be configured in Leader mode. The SCL and SDA lines of Leader controller are connected to another I2C Follower's SCL and SDA pins.
 
 - From Leader, the Follower address is sent after START on bus and waits till it gets the ACK respose from the Follower.
-- The write data to other Follower application and sends back the same data. Once received, it compares and produces the results.
+- The application writes the date to the other follower application, which sends the same data back. Upon receipt, the application compares the returned data with the original data and reports the results.
 - I2C can be configured with following features:
   - I2C standard compliant bus interface with open-drain pins
   - Configurable as Leader or Follower
@@ -76,14 +75,14 @@ The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002) + BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-ek2708a-explorer-kit)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - For Serial Console setup instructions, refer to [link name](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -93,11 +92,11 @@ The purpose of this application is to demonstrate the use of CMSIS-RTOS concepts
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -118,7 +117,6 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 - After the above UC configurations, configure following macros in the `i2c_leader_example.c` file and update/modify following macros, if required.
 
     ```C
-      #define I2C_INSTANCE_USED        // Update it with i2c instance number used for this application: 0 for i2c0, 1 for i2c1 and 2 for i2c2
       #define FOLLOWER_I2C_ADDR        // Update I2C follower address
       #define I2C_SIZE_BUFFERS         // To change the number of bytes to send and receive.Its value should be less than maximum buffer size macro value.
     ```
@@ -141,17 +139,17 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### I2C0
 
-| PIN |   917 GPIO  |   915 GPIO  | Explorer kit GPIO  | Description      |
-| --- | ----------- | ------------- | -----------------| -----------------|
-| SCL |  GPIO_7 [P20] | GPIO_7 [EXP_HEADER-15]  | GPIO_7 [SCL] | Connect to Follower SCL pin |
-| SDA |  GPIO_6 [P19] | GPIO_6 [EXP_HEADER-16]  | GPIO_6 [SDA] |Connect to Follower SDA pin |
+| PIN |   917 GPIO      |    Explorer kit GPIO  |           Description       |
+| --- | ----------------| ----------------------| ----------------------------| 
+| SCL |  GPIO_7 [P20]   | GPIO_7 [SCL]          | Connect to Follower SCL pin |
+| SDA |  GPIO_6 [P19]   | GPIO_6 [SDA]          |Connect to Follower SDA pin  |
 
 ### I2C1
 
-| PIN |     917 GPIO     |        915 GPIO        |   Explorer kit GPIO   |   Description    |
-| --- | ---------------- | ---------------------- | --------------------- | -----------------|
-| SCL |    GPIO_50[P32]  | GPIO_6 [EXP_HEADER-16] | GPIO_50 [EXP_HEADER-13] | Connect to Follower SCL pin |
-| SDA |    GPIO_51[P34]  | GPIO_7 [EXP_HEADER-15] | GPIO_51 [EXP_HEADER-15] | Connect to Follower SDA pin |
+| PIN |     917 GPIO      |   Explorer kit GPIO     |   Description               |
+| --- | ----------------  | ----------------------  | ----------------------------| 
+| SCL |    GPIO_50[P32]   | GPIO_50 [EXP_HEADER-13] | Connect to Follower SCL pin |
+| SDA |    GPIO_51[P34]   | GPIO_51 [EXP_HEADER-15] | Connect to Follower SDA pin |
 
 ### ULP_I2C
 
@@ -172,34 +170,32 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 ### PWM Channel0
 
-  | Description   | GPIO    | 917 Breakout pin  | 915 Breakout pin | Explorer kit Breakout pin |
-  | ------------- | ------- | ------------ | --------------- | --------------- |
-  | PWM_H         | GPIO_7  | P20          | [EXP_HEADER-15] | [SCL] |
-  | PWM_L         | GPIO_6  | P19          | [EXP_HEADER-16] | [SDA] |
+  | Description   | GPIO    | 917 Breakout pin   | Explorer kit Breakout pin |
+  | ------------- | ------- | ------------ | --------------- |
+  | PWM_H         | GPIO_7  | P20           | [SCL] |
+  | PWM_L         | GPIO_6  | P19          | [SDA] |
 
 ### PWM Channel1
 
-  | Description   | GPIO    | 917 Breakout pin    | 915 Breakout pin |
-  | ------------- | ------- | ------------ | --------------- |
-  | PWM_H         | GPIO_9  | F9           | F9           |
-  | PWM_L         | GPIO_8  | F8           | F8           |
+  | Description   | GPIO    | 917 Breakout pin    | 
+  | ------------- | ------- | ------------ | 
+  | PWM_H         | GPIO_9  | F9           | 
+  | PWM_L         | GPIO_8  | F8           | 
 
 ### PWM Channel2
 
-  | Description   | GPIO    | 917 Breakout pin    |915 Breakout pin |
-  | ------------- | ------- | ------------ | ------------- |
-  | PWM_H         | GPIO_11 | F13          | [EXP_HEADER-5]|
-  | PWM_L         | GPIO_10 | F11          | F10           |
+  | Description   | GPIO    | 917 Breakout pin    |
+  | ------------- | ------- | ------------ | 
+  | PWM_H         | GPIO_11 | F13          | 
+  | PWM_L         | GPIO_10 | F11          | 
 
 ### PWM Channel3
 
-  | Description   | GPIO        | 917 Breakout pin    |915 Breakout pin | Explorer kit Breakout pin|
-  | ------------- | -------     | ----------- | ------------- | --------------- |
-  | PWM_H         | ULP_GPIO_7  | P12         | F6           | [TX] |
-  | PWM_L         | ULP_GPIO_6  | P13         | F7           | [RX] |
+  | Description   | GPIO        | 917 Breakout pin    |Explorer kit Breakout pin|
+  | ------------- | -------     | ----------- | --------------- |
+  | PWM_H         | ULP_GPIO_7  | P12         |  [TX] |
+  | PWM_L         | ULP_GPIO_6  | P13         |  [RX] |
   
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
-
 ## Test the Application
 
 1. Compile and run the application.

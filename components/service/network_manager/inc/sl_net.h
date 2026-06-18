@@ -114,6 +114,8 @@ sl_status_t sl_net_init(sl_net_interface_t interface,
  * This function should not be called after an M4 OTA firmware upgrade, as it only resets the TA while the M4 application continues to run, which could cause unexpected issues. Instead, use [sl_si91x_soc_nvic_reset()](../wiseconnect-api-reference-guide-common/soft-reset-functions#sl-si91x-soc-nvic-reset) to perform a complete reset of both the TA and M4.
  * @note
  * It is recommended not to access the interfaces once the sl_net_deinit is performed to avoid unintended behavior.
+ * @note
+ * It is recommended to call @ref sl_net_deinit for a particular interface from the same thread in which it was initialized to ensure thread safety and proper cleanup.
  ******************************************************************************/
 sl_status_t sl_net_deinit(sl_net_interface_t interface);
 
@@ -149,8 +151,52 @@ sl_status_t sl_net_deinit(sl_net_interface_t interface);
  * The user can define their profile and credential configurations for an interface by calling @ref sl_net_set_profile and @ref sl_net_set_credential APIs before calling @ref sl_net_up API.
  * @note
  * The user is advised to reset the NWP with @ref sl_net_deinit() if this API fails with error SL_STATUS_TIMEOUT.
+ * @note
+ * This API is not atomic. It performs multiple operations (network scanning, connection, IP configuration) sequentially. If any step fails after previous steps have completed, you may leave the interface in a partially configured state (e.g., connected to Wi-Fi but without an IP address). In such cases, call @ref sl_net_down to properly clean up before retrying.
  * ******************************************************************************/
 sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
+
+/***************************************************************************/ /**
+ * @brief
+ *   Bring a network interface up asynchronously.
+ * 
+ * @details
+ *   This function initiates bringing the specified network interface up in an asynchronous manner.
+ *   The function returns immediately after posting the request to the network manager thread.
+ *   Progress and completion are reported via the registered event handler set by @ref sl_net_init().
+ * 
+ * @pre Pre-conditions:
+ * - @ref sl_net_init should be called before this API.
+ * - An event handler must be registered via @ref sl_net_init() to receive completion notifications.
+ * 
+ * @param[in] interface
+ *   Interface identified by @ref sl_net_interface_t.
+ * 
+ * @param[in] profile_id
+ *   Network profile identifier for the specific interface of type @ref sl_net_profile_id_t
+ * 
+ * @return
+ *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
+ *   - SL_STATUS_IN_PROGRESS: Request accepted and processing has started
+ *   - SL_STATUS_BUSY: Another async operation is already in progress for this interface
+ *   - SL_STATUS_INVALID_PARAMETER: Invalid interface or profile_id
+ *   - SL_STATUS_NOT_INITIALIZED: Network manager not initialized
+ *   - SL_STATUS_FAIL: Failed to post request to network manager queue
+ * 
+ * @note
+ * By default, profile and credential configurations in sl_net_defaults.h are used by SDK.
+ * @note
+ * To enable support for both IPv4 and IPv6, the ip.type in the profile should be set to (SL_IPV4|SL_IPV6).
+ * @note
+ * The user can define their profile and credential configurations for an interface by calling @ref sl_net_set_profile and @ref sl_net_set_credential APIs before calling this API.
+ * @note
+ * Only one asynchronous bring-up operation is allowed per interface at a time. Calling this API while an async operation is in progress will return SL_STATUS_BUSY.
+ * @note
+ * The registered event handler will receive events indicating connection progress, success, or failure.
+ * @note
+ * This API does not support auto-join (SL_NET_AUTO_JOIN) profile. Use @ref sl_net_up with SL_NET_AUTO_JOIN for auto-join functionality.
+ * ******************************************************************************/
+sl_status_t sl_net_up_async(sl_net_interface_t interface, sl_net_profile_id_t profile_id);
 
 /***************************************************************************/ /**
  * @brief
@@ -175,6 +221,20 @@ sl_status_t sl_net_up(sl_net_interface_t interface, sl_net_profile_id_t profile_
  ******************************************************************************/
 sl_status_t sl_net_down(sl_net_interface_t interface);
 
+/***************************************************************************/ /**
+ * @brief
+ *   Gets network interface information for WLAN in AP mode or Client (Station) mode.
+ * @pre Pre-conditions:
+ *   - The device must be initialized by calling @ref sl_net_init before using this API.
+ * @param[in] interface
+ *   The network interface to query. Supported values are SL_NET_WIFI_CLIENT_INTERFACE (Station mode) and SL_NET_WIFI_AP_INTERFACE (AP mode).
+ * @param[out] info
+ *   Pointer to a `sl_net_interface_info_t` structure that will be populated with the interface information.
+ * @return
+ *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
+ ******************************************************************************/
+sl_status_t sl_net_get_interface_info(sl_net_interface_t interface, sl_net_interface_info_t *info);
+
 /** @} */
 
 /** 
@@ -193,11 +253,10 @@ sl_status_t sl_net_down(sl_net_interface_t interface);
  * @param[in] ip_config
  *   Multicast IP address of type @ref sl_net_ip_configuration_t
  * @param[in] timeout
- *   The maximum time to wait for the IP address Configuration, in milliseconds.
+ *   Allowed range for finite timeout: [1,(1<<30)-1] milliseconds.
+ *   If bit (1 << 31) is set and bit (1<<30) is not set, the value is treated as an indefinite timeout, regardless of the other bits.
  * @return
  *   sl_status_t. See https://docs.silabs.com/gecko-platform/latest/platform-common/status for details.
-@note
- * - This API doesn't support async mode operation, so passing 0 in timeout parameter leads to an error.
  ******************************************************************************/
 sl_status_t sl_net_configure_ip(sl_net_interface_t interface,
                                 const sl_net_ip_configuration_t *ip_config,
@@ -240,8 +299,6 @@ sl_status_t sl_net_get_ip_address(sl_net_interface_t interface, sl_net_ip_addres
  *         - SL_STATUS_OK: On successful completion of the operation.
  *         - SL_STATUS_FAIL: If the operation fails.
  *         - SL_STATUS_INVALID_PARAMETER: If the nat_config parameter is NULL.
- * @note
- * NAT feature is internal test feature only, not recommended for Production.
  ******************************************************************************/
 sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config);
 
@@ -260,8 +317,6 @@ sl_status_t sl_net_nat_enable(const sl_net_nat_config_t *nat_config);
  * @return Status of the operation.
  *         - SL_STATUS_OK: On successful completion of the operation.
  *         - SL_STATUS_FAIL: If the operation fails.
- * @note
- * NAT feature is internal test feature only, not recommended for Production.
  ******************************************************************************/
 sl_status_t sl_net_nat_disable(const sl_net_interface_t interface);
 
@@ -296,6 +351,13 @@ sl_status_t sl_net_nat_disable(const sl_net_interface_t interface);
  * 
  * @return
  *   sl_status_t. See [Status Codes](https://docs.silabs.com/gecko-platform/latest/platform-common/status) and [WiSeConnect Status Codes](../wiseconnect-api-reference-guide-err-codes/wiseconnect-status-codes) for details.
+ * 
+ * @note
+ * When configuring Wi-Fi clients or Access Points with open security (SL_WIFI_OPEN), 
+ * set the credential_id field to SL_WIFI_NO_CREDENTIAL_ID within the respective 
+ * configuration structures (sl_wifi_client_configuration_t in sl_net_wifi_client_profile_t for clients 
+ * and sl_wifi_ap_configuration_t in sl_net_wifi_ap_profile_t for APs). 
+ * This ensures the stack does not attempt to fetch credentials that are not required for open security.
  ******************************************************************************/
 sl_status_t sl_net_set_profile(sl_net_interface_t interface, sl_net_profile_id_t id, const sl_net_profile_t *profile);
 
@@ -507,7 +569,10 @@ sl_status_t sl_net_inet_addr(const char *addr, uint32_t *value);
  * 
  * @details
  *   This function enables multicast for the specified IP address on the given interface.
- *   It allows the interface to receive/send multicast packets sent to the specified IP address.
+ *   It allows the interface to receive or send multicast packets to the specified IP address.
+ *
+ * @note
+ *   IGMPv1 and IGMPv2 are supported.
  * 
  *   Users can use [sendto](../wiseconnect-api-reference-guide-sockets/bsd-socket-functions#sendto) and [recvfrom](../wiseconnect-api-reference-guide-sockets/bsd-socket-functions#recvfrom) socket APIs to send and receive data.  
  * 
@@ -530,7 +595,10 @@ sl_status_t sl_net_join_multicast_address(sl_net_interface_t interface, const sl
  * 
  * @details
  *   This function disables multicast for the specified IP address on the given interface.
- * It prevents the interface from receiving/sending multicast packets sent to the specified IP address.
+ *   It prevents the interface from receiving or sending multicast packets to the specified IP address.
+ *
+ * @note
+ *   IGMPv1 and IGMPv2 are supported.
  * 
  * @pre Pre-conditions:
  * - @ref sl_net_up should be called before this API.

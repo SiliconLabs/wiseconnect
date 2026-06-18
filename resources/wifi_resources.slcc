@@ -1,8 +1,8 @@
 id: wifi_resources
-package: wiseconnect3_sdk
+package: wifi
 description: >
-  WiSeConnect3 SDK default values and certificates
-label: WiSeConnect3 Resources
+  WiSeConnect SDK default values and certificates
+label: WiSeConnect Resources
 category: Resources
 quality: production
 metadata:

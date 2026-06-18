@@ -24,13 +24,14 @@
 This application demonstrates the ADC peripheral, including:
 
 - Conversion of analog input to 12-bit digital output.
-- Sampling the data.
+- Sampling the data at configurable rates from **80 Hz to 2.5 MHz**.
 - Converting data into equivalent input voltage based on operation mode.
 
 ## Overview
 
 - The ADC Controller works on an ADC with a resolution of 12bits at 10Msps when ADC reference Voltage is greater than 2.8v or 5Msps when ADC reference Voltage is less than 2.8v.
 - Sample application will be 12 bit ADC Output in 2's complement representation.
+- **Sampling Rate Range**: The ADC supports a sampling rate range from **80 Hz to 2.5 MHz**, providing flexibility for various application requirements from low-frequency sensor monitoring to high-speed signal acquisition.
 - There are two operating mode in AUX ADC controller:
   - Static Mode Operation: ADC data input will be sampled and written to a register in this mode.
   - FIFO Mode Operation: ADC data input will be sampled and written to the ADC FIFO in this mode.
@@ -43,29 +44,60 @@ This application demonstrates the ADC peripheral, including:
 
 - This example demonstrates ADC in FIFO mode of operation. It reads the sampled data from specific channel buffer of ADC and converts it into equivalent input voltage.
 - Various parameters like Number of Channel, ADC operation mode, Input Type, Sampling Rate and Sample Length can be configured using UC.
-- The [`sl_si91x_adc_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_common_config.h) file contains the common configurations for ADC, and [`sl_si91x_adc_init_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/master/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_init_inst_config.h) contains channel instance configuration.
-- This example is working on ADC FIFO mode and it samples the data using DMA.
+- The [`sl_si91x_adc_common_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_common_config.h) file contains the common configurations for ADC, and [`sl_si91x_adc_init_inst_config.h`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/components/device/silabs/si91x/mcu/drivers/unified_api/config/sl_si91x_adc_init_inst_config.h) contains channel instance configuration.
+- This example is working on ADC FIFO mode and it samples the data using **internal DMA** with **Ping/Pong dual-buffer** operation.
+
+### DMA Ping/Pong Buffer Configuration
+
+When using FIFO mode with internal DMA, you **must** configure Ping/Pong buffer addresses before starting ADC operations:
+
+**Required Structure Fields (sl_adc_channel_config_t):**
+- `chnl_ping_address[channel]` : DMA base address for the Ping buffer  
+- `chnl_pong_address[channel]` : DMA base address for the Pong buffer
+- `rx_buf[channel]`            : CPU-accessible buffer for reading samples
+
+**Example Configuration (from this demo):**
+```c
+uint8_t adc_channel = sl_adc_channel_config.channel;
+
+// Configure Ping/Pong DMA buffer addresses - REQUIRED for FIFO+DMA mode
+sl_adc_channel_config.rx_buf[adc_channel]            = adc_output;
+sl_adc_channel_config.chnl_ping_address[adc_channel] = ADC_PING_BUFFER; 
+sl_adc_channel_config.chnl_pong_address[adc_channel] =
+  ADC_PING_BUFFER + (sl_adc_channel_config.num_of_samples[adc_channel]);
+
+// Initialize and configure ADC
+sl_si91x_adc_init(sl_adc_channel_config, sl_adc_config, vref_value);
+sl_si91x_adc_set_channel_configuration(sl_adc_channel_config, sl_adc_config);
+```
+
+**Important Notes:**
+- Ping/Pong addresses must be valid ULP SRAM memory locations
+- These addresses are configured **before** calling `sl_si91x_adc_init()` and `sl_si91x_adc_set_channel_configuration()`
+- The init function does NOT automatically set these addresses - you must configure them explicitly
+- Static mode does not use Ping/Pong buffers
+
 - Firmware version of API is fetched using [sl_si91x_adc_get_version](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-get-version) which includes release version, major version and minor version [sl_adc_version_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-version-t).
 - ADC initialization should call [sl_si91x_adc_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-init) API and passing parameters [sl_adc_channel_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-channel-config-t), [sl_adc_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-config-t) and reference voltage value.
 - All the necessary parameters are configured using [sl_si91x_adc_set_channel_configuration](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-set-channel-configuration) API. It expects a structure with required parameters [sl_adc_channel_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-channel-config-t) and [sl_adc_config_t](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-adc-config-t).
 - After configuration, a callback register API is called to register the callback at the time of events [sl_si91x_adc_register_event_callback](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-register-event-callback).
 - Then start the ADC to sample the data using [sl_si91x_adc_start](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-start) API.
 - Once sampling is done, the callback will hit and set the true "data_sample_complete_flag" flag to read the sampled data using [sl_si91x_adc_read_data](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-read-data) API for FIFO mode of ADC. This process will run continuously.
-- If ADC is started, it is recommended to stop it before de-initializing. This is general flow of API calls for ADC: [sl_si91x_adc_init](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-init) -> [sl_si91x_adc_start](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-start) -> [sl_si91x_adc_stop](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-stop) -> [sl_si91x_adc_deinit](https://docs.silabs.com/wiseconnect/3.5.0/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-deinit).
+- If ADC is started, it is recommended to stop it before de-initializing. This is general flow of API calls for ADC: [sl_si91x_adc_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-init) -> [sl_si91x_adc_start](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-start) -> [sl_si91x_adc_stop](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-stop) -> [sl_si91x_adc_deinit](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/adc#sl-si91x-adc-deinit).
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-ek2708a-explorer-kit)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial Console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - For Serial Console setup instructions, refer to [link name](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -75,11 +107,11 @@ This application demonstrates the ADC peripheral, including:
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -95,11 +127,16 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
     - Number of channel: By default channel is set to '1'. When the channel number is changed, then care must be taken to create instance of that respective channel number. Otherwise, an error is thrown.
     - ADC operation mode: There are 2 modes, FIFO mode and Static mode. By default it is in FIFO mode. When static mode is set, sample length should be '1'.
+    - The user can install up to sixteen instances of the channel, which will execute in sequential order. To configure this, follow the steps below:
 
-  - **ADC Channel Configuration**
+       1. Install the channel instances.
+       2. Update the `Number of Channel(s)` value in the **ADC Peripheral Common Configuration** section and number of channels should be equal to the number of instances added in UC.
+    - The order of instances must be strictly sequential, starting from 1 and increasing consecutively (e.g., 1, 2, 3). Non-sequential orders such as 1, 4, 6 or 1, 5, 2 are not permitted.
 
-    - Input Type: ADC input type can be configured to either single ended (or) differential.
-    - Sampling rate: Sample rate can be configurable to ADC channel, sample rate unit is samples/second. The configuration range from 1sps to 2.5 Msps.
+- **ADC Channel Configuration**
+
+   - Input Type: ADC input type can be configured to either single ended (or) differential.
+    - Sampling rate: Sample rate can be configurable to ADC channel, sample rate unit is samples/second. **The configuration range is from 80 Hz to 2.5 MHz (2,500,000 samples/second)**, allowing for both low-frequency precision measurements and high-speed data acquisition.
     - Sample length: Set the length of ADC samples (that is, the number of ADC samples collected for operation). It should be minimum value set to 1 and maximum of 1023.
 
       ![Figure: sl_adc_channel_uc_screen](resources/uc_screen/sl_adc_channel_uc_screen.png)
@@ -163,16 +200,16 @@ The following table lists the mentioned pin numbers for the radio board. If you 
   | 15 | GPIO_28 [CS] | GPIO_26 [MISO] |
   | 16 | GPIO_30 [RST] | ULP_GPIO_7 [TX] |
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer to the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
 1. Compile and run the application.
-2. When the project is generated, the ADC channel by default is configured with the channel_1 instance for the Si917 board and the channel_2 instance for the Si915 board. Also note the following:
-   - For single-ended mode, the positive analog input is set to ULP_GPIO_1 for Si917 and GPIO_27 for Si915.
-   - For differential mode, the positive analog input is set to ULP_GPIO_1 and the negative input to GPIO_28. For Si915, the positive analog input is set to GPIO_27 and the negative input to GPIO_30.
+2. When the project is generated, the ADC channel by default is configured with the channel_1 instance for the Si917 board. Also note the following:
+   - For single-ended mode, the positive analog input is set to ULP_GPIO_1 for Si917.
+   - For differential mode, the positive analog input is set to ULP_GPIO_1 and the negative input to GPIO_28.
 3. When the application runs, the ADC configures the settings as per the user and start ADC conversion.
 4. After completion of conversion ADC input, it will print all the captured samples data in the console by connecting to the serial console.
 5. After successful program execution the prints in serial console looks as shown below when the input voltage provided is 3.25v (approximately).

@@ -57,6 +57,22 @@ static uint8_t sl_m4_upadter_ota_flag = 0;
 
 #define SL_SI91X_SELECT_DEFAULT_NWP_FW_IMAGE 0x35 // Command value for selecting default NWP firmware image
 
+#define HOST_INTERFACE_OUT_REGISTER_FW_FALLBACK (*(volatile uint32_t *)(HOST_INTF_REG_OUT))
+
+#define SI91X_INTERFACE_IN_REGISTER_FW_FALLBACK (*(volatile uint32_t *)(HOST_INTF_REG_IN))
+
+// MBR magic word for flash initialization
+
+#ifdef SLI_SI91X_MCU_4MB_LITE_IMAGE
+
+#define MBR_MAGIC_WORD_FW_FALLBACK (*(volatile uint32_t *)(0x8160000))
+
+#else
+
+#define MBR_MAGIC_WORD_FW_FALLBACK (*(volatile uint32_t *)(0x81F0000))
+
+#endif
+
 #ifdef SL_SI91X_FW_FALLBACK
 /***************************************************************************/ /**
  *  @fn          sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota_image_info_t *ota_st)
@@ -76,7 +92,7 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
     return SL_STATUS_NULL_POINTER;
   }
 
-  const sl_si91x_firmware_header_t *rps_config_t = (const sl_si91x_firmware_header_t *)image_buffer;
+  const sl_wifi_firmware_header_t *rps_config_t = (const sl_wifi_firmware_header_t *)image_buffer;
   DEBUGOUT("\r\n[get_rps_cfgs] Magic number: %lx\r\n", rps_config_t->magic_no);
 
   if (rps_config_t->magic_no == SLI_SI91X_RPS_MAGIC_NO) {
@@ -117,10 +133,7 @@ sl_status_t sl_si91x_ab_upgrade_get_rps_configs(const uint8_t *image_buffer, ota
  ******************************************************************************/
 int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number)
 {
-  uint16_t boot_cmd   = 0;
-  int16_t retval      = 0;
-  uint16_t read_value = 0;
-
+  uint16_t boot_cmd = 0;
   if (fw_image_number != 0 && fw_image_number != 1) {
     return SL_STATUS_INVALID_PARAMETER; // Error if firmware image number is not 0 or 1
   }
@@ -131,39 +144,26 @@ int16_t sl_si91x_select_default_nwp_fw(const uint8_t fw_image_number)
   boot_cmd &= 0xF0FF;                                // Clear the lower nibble of the second byte
   boot_cmd |= (uint16_t)(fw_image_number << 8);      // Add the firmware image number
 
+  __asm volatile("cpsid i" ::: "memory");
+
+  // Wait for MBR to be ready
+  while (MBR_MAGIC_WORD_FW_FALLBACK != 0x5A5A)
+    ;
+
   // Write the command to the interface register
-  retval = rsi_boot_insn(REG_WRITE, &boot_cmd);
-  if (retval < 0) {
-    return retval;
+  SI91X_INTERFACE_IN_REGISTER_FW_FALLBACK = (uint32_t)boot_cmd;
+  __asm volatile("dsb");
+  __asm volatile("isb");
+
+  // Wait for command acknowledgment
+  while ((uint16_t)(HOST_INTERFACE_OUT_REGISTER_FW_FALLBACK) != 0xAB35) {
+    ;
   }
 
-  // Wait for a short duration to allow the command to be processed
-  for (uint32_t i = 0; i < SL_SI91X_DEFAULT_FW_SELECT_CMD_TIMEOUT; i++) {
-    __NOP();
-  }
+  // Enable the NVIC interrupts.
+  __asm volatile("cpsie i" ::: "memory");
 
-  // Read the response from the interface register
-  retval = rsi_boot_insn(REG_READ, &read_value);
-  if (retval < 0) {
-    return retval;
-  }
-
-  // Check for firmware not present error
-  if ((read_value & 0xFF) == SLI_VALID_FIRMWARE_NOT_PRESENT) {
-#ifdef RSI_DEBUG_PRINT
-    RSI_DPRINT(RSI_PL3, "SLI_VALID_FIRMWARE_NOT_PRESENT\n");
-#endif
-    return RSI_ERROR_VALID_FIRMWARE_NOT_PRESENT;
-  }
-
-  // Check for invalid option error
-  if ((read_value & 0xFF) == SLI_INVALID_OPTION) {
-#ifdef RSI_DEBUG_PRINT
-    RSI_DPRINT(RSI_PL3, "INVALID CMD\n");
-#endif
-    return RSI_ERROR_COMMAND_NOT_SUPPORTED;
-  }
-  return retval;
+  return SL_STATUS_OK;
 }
 
 /***************************************************************************/ /**
@@ -199,10 +199,10 @@ sl_status_t sl_si91x_flash_write(uint32_t address, const uint8_t *buffer, uint32
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
 
@@ -252,10 +252,10 @@ sl_status_t sl_si91x_fw_fallback_ota_flash_write(const sl_si91x_fw_fallback_conf
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
 
@@ -295,10 +295,10 @@ sl_status_t sl_si91x_verify_image(uint32_t flash_address)
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
   return status;
@@ -409,10 +409,10 @@ sl_status_t sl_si91x_flash_erase(uint32_t address, uint32_t length)
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
   DEBUGOUT("\r\n [flash_erase] Erase Success %lX\n", status);
@@ -765,10 +765,10 @@ sl_status_t sl_si91x_burn_nwp_security_version(uint32_t flash_address)
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
   return status;
@@ -798,10 +798,10 @@ sl_status_t sl_si91x_fallback_load_qspi_keys(uint32_t image_offset)
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(SL_SI91X_NWP_RESPONSE_TIMEOUT),
                                          NULL,
                                          NULL);
   return status;
@@ -834,10 +834,10 @@ void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
 
   // Send firmware update command
   status = sli_si91x_driver_send_command(SLI_SI91X_FW_FALLBACK_REQ_FROM_HOST,
-                                         SI91X_COMMON_CMD,
+                                         SLI_WIFI_COMMON_CMD,
                                          &fw_request,
                                          request_size,
-                                         SL_SI91X_WAIT_FOR_RESPONSE(3000),
+                                         SLI_WIFI_WAIT_FOR_RESPONSE(3000),
                                          NULL,
                                          NULL);
   (void)status;
@@ -851,7 +851,7 @@ void sl_si91x_nwp_soft_reset_from_updater(const uint32_t m4_slot_image_offset)
   M4SS_P2P_INTR_CLR_REG = RX_BUFFER_VALID;
   M4SS_P2P_INTR_CLR_REG;
 
-  const sl_si91x_firmware_header_t *m4_rps_configs = (const sl_si91x_firmware_header_t *)m4_slot_image_offset;
+  const sl_wifi_firmware_header_t *m4_rps_configs = (const sl_wifi_firmware_header_t *)m4_slot_image_offset;
   *(volatile uint32_t *)OCTASPI_BUS_CONTROLLER_2 |=
     BIT(13); // Enable bit 13 to enable the next QSPI banks in OCTASPI BUS CONTROLLER 2
   *(volatile uint32_t *)QSPI_AES_SEC_SEG_LS_ADDR_2 =

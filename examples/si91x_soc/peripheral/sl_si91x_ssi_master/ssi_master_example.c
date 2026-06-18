@@ -22,32 +22,26 @@
 #include "ssi_master_example.h"
 #include "sl_ulp_timer_instances.h"
 #include "sl_si91x_ulp_timer_common_config.h"
-
+#include "sl_si91x_clock_manager.h"
+#include "sl_si91x_ssi_primary_config.h"
 #include "rsi_rom_clks.h"
 
 /*******************************************************************************
  ***************************  Defines / Macros  ********************************
  ******************************************************************************/
-#define SSI_MASTER_BUFFER_SIZE             1024      // Length of data to be sent through SPI
-#define SSI_MASTER_DIVISION_FACTOR         0         // Division Factor
-#define SSI_MASTER_INTF_PLL_CLK            180000000 // PLL Clock frequency
-#define SSI_MASTER_INTF_PLL_REF_CLK        40000000  // PLL Ref Clock frequency
-#define SSI_MASTER_SOC_PLL_CLK             20000000  // SOC PLL Clock frequency
-#define SSI_MASTER_SOC_PLL_REF_CLK         40000000  // SOC PLL REFERENCE CLOCK frequency
-#define SSI_MASTER_INTF_PLL_500_CTRL_VALUE 0xD900    // Interface PLL control value
-#define SSI_MASTER_SOC_PLL_MM_COUNT_LIMIT  0xA4      // SOC PLL count limit
-#define SSI_MASTER_BIT_WIDTH               8         // SSI bit width
-#define SSI_MASTER_BAUDRATE                10000000  // SSI baudrate
-#define SSI_MASTER_MAX_BIT_WIDTH           16        // Maximum Bit width
-#define SSI_MASTER_RECEIVE_SAMPLE_DELAY    0         // By default sample delay is 0
-#define TIMER_FREQUENCY                    32000     // Timer frequency for delay
-#define INITIAL_COUNT                      7000      // Count configured at timer init
-#define SYNC_TIME                          5000      // Delay to sync master and slave
-#define RECEIVE_SYNC_TIME                  500       // Delay to settle the slave after send
+#define SSI_MASTER_BUFFER_SIZE          1024     // Length of data to be sent through SPI
+#define SSI_MASTER_INTF_PLL_REF_CLK     40000000 // PLL Ref Clock frequency
+#define SSI_MASTER_BIT_WIDTH            8        // SSI bit width
+#define SSI_MASTER_BAUDRATE             10000000 // SSI baudrate
+#define SSI_MASTER_MAX_BIT_WIDTH        16       // Maximum Bit width
+#define SSI_MASTER_RECEIVE_SAMPLE_DELAY 0        // By default sample delay is 0
+#define TIMER_FREQUENCY                 32000    // Timer frequency for delay
+#define INITIAL_COUNT                   7000     // Count configured at timer init
+#define SYNC_TIME                       5000     // Delay to sync master and slave
+#define RECEIVE_SYNC_TIME               500      // Delay to settle the slave after send
 /*******************************************************************************
  **********************  Local Function prototypes   ***************************
  ******************************************************************************/
-static sl_status_t ssi_master_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config);
 static void ssi_master_callback_event_handler(uint32_t event);
 static void ssi_master_compare_loopback_data(void);
 static void init_timer_for_sync(void);
@@ -84,7 +78,6 @@ void ssi_master_example_init(void)
 {
   uint16_t i            = 0;
   sl_status_t sl_status = 0;
-  sl_ssi_clock_config_t ssi_clock_config;
   sl_ssi_version_t ssi_version;
   // Configuring the user configuration structure
   sl_ssi_control_config_t ssi_master_config;
@@ -93,31 +86,33 @@ void ssi_master_example_init(void)
   ssi_master_config.clock_mode           = SL_SSI_PERIPHERAL_CPOL0_CPHA0;
   ssi_master_config.baud_rate            = SSI_MASTER_BAUDRATE;
   ssi_master_config.receive_sample_delay = SSI_MASTER_RECEIVE_SAMPLE_DELAY;
+  ssi_master_config.transfer_mode        = SL_SSI_PRIMARY_TRANSFER_MODE;
 
   // Filled data into input buffer
   for (i = 0; i < SSI_MASTER_BUFFER_SIZE; i++) {
     ssi_master_tx_buffer[i] = (uint8_t)(i + 1);
   }
   do {
+    // Set the Clock for SSI interface based on configuration
+    // The maximum frequency of the SSI Primary bit-rate clock (sclk_out) is one-half the frequency of ssi_clk.
+    DEBUGOUT("Configuring Clock for SSI interface...\n");
+    DEBUGOUT("Setting SSI interface clock: sclk_out <= ssi_clk/2\n");
+#if (SSI_PRIMARY_UC == ENABLE)
+    sl_status = sl_si91x_clock_manager_set_pll_freq(INTF_PLL, SL_SSI_PRIMARY_BAUD * 2, SSI_MASTER_INTF_PLL_REF_CLK);
+#else
+    sl_status = sl_si91x_clock_manager_set_pll_freq(INTF_PLL, SSI_MASTER_BAUDRATE * 2, SSI_MASTER_INTF_PLL_REF_CLK);
+#endif
+    if (sl_status != SL_STATUS_OK) {
+      DEBUGOUT("Failed to set SSI interface clock, Error Code : %lu\n", sl_status);
+      break;
+    }
+    DEBUGOUT("SSI interface clock set successfully\n");
     // Initialzing the timer
     init_timer_for_sync();
     // Version information of SSI driver
     ssi_version = sl_si91x_ssi_get_version();
     DEBUGOUT("SSI version is fetched successfully \n");
     DEBUGOUT("API version is %d.%d.%d\n", ssi_version.release, ssi_version.major, ssi_version.minor);
-    // Clock Config for the SSI driver
-    sl_status = ssi_master_init_clock_configuration_structure(&ssi_clock_config);
-    if (sl_status != SL_STATUS_OK) {
-      DEBUGOUT("SSI Clock get Configuration Failed, Error Code : %lu \n", sl_status);
-      break;
-    }
-    DEBUGOUT("SSI Clock get Configuration Success\n");
-    sl_status = sl_si91x_ssi_configure_clock(&ssi_clock_config);
-    if (sl_status != SL_STATUS_OK) {
-      DEBUGOUT("SSI Clock Configuration Failed, Error Code : %lu \n", sl_status);
-      break;
-    }
-    DEBUGOUT("SSI Clock Configuration Success \n");
     // Initialize the SSI driver
     sl_status = sl_si91x_ssi_init(ssi_master_config.device_mode, &ssi_driver_handle);
     if (sl_status != SL_STATUS_OK) {
@@ -304,30 +299,6 @@ static void ssi_master_compare_loopback_data(void)
   } else {
     DEBUGOUT("Data comparison failed, Loop Back Test failed \n");
   }
-}
-
-/*******************************************************************************
- * To set the values in the SSI Master clock config structure
- *
- * @param[in] clock config structure
- * @return    SL_STATUS_OK if set was fine, SL_STATUS_NULL_POINTER if NULL ptr
- *            passed in.
- * *
-*******************************************************************************/
-static sl_status_t ssi_master_init_clock_configuration_structure(sl_ssi_clock_config_t *clock_config)
-{
-  if (clock_config == NULL) {
-    return SL_STATUS_NULL_POINTER;
-  }
-
-  clock_config->soc_pll_mm_count_value     = SSI_MASTER_SOC_PLL_MM_COUNT_LIMIT;
-  clock_config->intf_pll_500_control_value = SSI_MASTER_INTF_PLL_500_CTRL_VALUE;
-  clock_config->intf_pll_clock             = SSI_MASTER_INTF_PLL_CLK;
-  clock_config->intf_pll_reference_clock   = SSI_MASTER_INTF_PLL_REF_CLK;
-  clock_config->soc_pll_clock              = SSI_MASTER_SOC_PLL_CLK;
-  clock_config->soc_pll_reference_clock    = SSI_MASTER_SOC_PLL_REF_CLK;
-  clock_config->division_factor            = SSI_MASTER_DIVISION_FACTOR;
-  return SL_STATUS_OK;
 }
 
 /*******************************************************************************

@@ -52,17 +52,29 @@ const osThreadAttr_t thread_attributes = {
  *               Function Declarations
  ******************************************************/
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg);
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg);
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg);
+static sl_status_t wifi_command_engine_status_handler(sl_wifi_event_t event,
+                                                      sl_status_t status_code,
+                                                      void *data,
+                                                      uint32_t data_length,
+                                                      void *optional_arg);
 static void application_start(void *argument);
 
 /******************************************************
  *               Function Definitions
  ******************************************************/
 
-void app_init(const void *unused)
+void app_init(void)
 {
-  UNUSED_PARAMETER(unused);
   osThreadNew((osThreadFunc_t)application_start, NULL, &thread_attributes);
 }
 
@@ -77,8 +89,10 @@ static void application_start(void *argument)
     return;
   }
 
-  sl_wifi_set_callback(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
-  sl_wifi_set_callback(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_CONNECTED_EVENTS, ap_connected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_CLIENT_DISCONNECTED_EVENTS, ap_disconnected_event_handler, NULL);
+  sl_wifi_set_callback_v2(SL_WIFI_COMMAND_ENGINE_STATUS_EVENTS, wifi_command_engine_status_handler, NULL);
+
   printf("\r\nWi-Fi AP interface init Success");
   status = sl_net_up(SL_NET_WIFI_AP_INTERFACE, SL_NET_DEFAULT_WIFI_AP_PROFILE_ID);
   if (status != SL_STATUS_OK) {
@@ -97,11 +111,18 @@ static void application_start(void *argument)
   }
 }
 
-static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_connected_event_handler(sl_wifi_event_t event,
+                                              sl_status_t status_code,
+                                              void *data,
+                                              uint32_t data_length,
+                                              void *arg)
 {
   UNUSED_PARAMETER(data_length);
-  UNUSED_PARAMETER(event);
   UNUSED_PARAMETER(arg);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client connected: ");
   print_mac_address((sl_mac_address_t *)data);
@@ -110,15 +131,43 @@ static sl_status_t ap_connected_event_handler(sl_wifi_event_t event, void *data,
   return SL_STATUS_OK;
 }
 
-static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event, void *data, uint32_t data_length, void *arg)
+static sl_status_t ap_disconnected_event_handler(sl_wifi_event_t event,
+                                                 sl_status_t status_code,
+                                                 void *data,
+                                                 uint32_t data_length,
+                                                 void *arg)
 {
   UNUSED_PARAMETER(data_length);
   UNUSED_PARAMETER(arg);
-  UNUSED_PARAMETER(event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    return status_code;
+  }
 
   printf("Remote Client disconnected: ");
   print_mac_address((sl_mac_address_t *)data);
   printf("\n");
+
+  return SL_STATUS_OK;
+}
+
+static sl_status_t wifi_command_engine_status_handler(sl_wifi_event_t event,
+                                                      sl_status_t status_code,
+                                                      void *data,
+                                                      uint32_t data_length,
+                                                      void *optional_arg)
+{
+  UNUSED_PARAMETER(data_length);
+  UNUSED_PARAMETER(optional_arg);
+  UNUSED_PARAMETER(data);
+
+  printf("Event: 0x%llx\r\n", event);
+
+  if (SL_WIFI_CHECK_IF_EVENT_FAILED(event)) {
+    printf("Command engine status: FAILURE 0x%lx\r\n", status_code);
+  } else {
+    printf("Command engine status: SUCCESS 0x%lx\r\n", status_code);
+  }
 
   return SL_STATUS_OK;
 }

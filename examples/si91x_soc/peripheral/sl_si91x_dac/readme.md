@@ -27,28 +27,27 @@ This application demonstrate the DAC peripheral, including:
 ## Overview
 
 - The DAC Controller works on a DAC with a resolution of 10 bits at 5MHZ sampling frequency maximum.
-- For the clock setup to the DAC controller, the sample application default values are recommended.
-- There are three operating mode in AUX DAC controller:
+- These are the following operating modes in AUX DAC controller:
   - Static Mode Operation: DAC will give out constant voltage output for a programmed DAC.
   - FIFO Mode Operation: DAC controller can be kept in FIFO mode to play continuously digital word on DAC. This mode can be used for playing Single tone waveform in DAC.
   - Reference voltage for ADC operation: This mode is currently not supported
 - DAC will work only in single ended.
 - Monotonic by design - based on input sample it will give equivalent output.
-- If DAC is started, it is recommended to **stop it before de-initializing**. This is general flow of API calls for DAC:  sl_si91x_dac_init -> sl_si91x_dac_start -> sl_si91x_dac_stop -> sl_si91x_dac_deinit.
+- If DAC is started, it is recommended to **stop it before de-initializing**. This is general flow of API calls for DAC:  [sl_si91x_dac_init](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dac#sl-si91x-dac-init) -> [sl_si91x_dac_start](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dac#sl-si91x-dac-start) -> [sl_si91x_dac_stop](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dac#sl-si91x-dac-stop) -> [sl_si91x_dac_deinit](https://docs.silabs.com/wiseconnect/latest/wiseconnect-api-reference-guide-si91x-peripherals/dac#sl-si91x-dac-deinit).
 
 ## Prerequisites/Setup Requirements
 
 ### Hardware Requirements
 
 - Windows PC
-- Silicon Labs Si917 Evaluation Kit [WPK(BRD4002)+ BRD4338A / BRD4342A / BRD4343A ]
-- SiWx917 AC1 Module Explorer Kit (BRD2708A)
+- Silicon Labs Si917 Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
+- SiWx917 AC1 Module Explorer Kit [BRD2708A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-ek2708a-explorer-kit)
 
 ### Software Requirements
 
 - Simplicity Studio
 - Serial console setup
-  - For serial console setup instructions, refer [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#console-input-and-output).
+  - For Serial Console setup instructions, refer to [link name](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
 
 ### Setup Diagram
 
@@ -58,11 +57,11 @@ This application demonstrate the DAC peripheral, including:
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-simplicity-studio)
-- [Install WiSeConnect 3 extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#install-the-wi-se-connect-3-extension)
-- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#connect-si-wx91x-to-computer)
-- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#update-si-wx91x-connectivity-firmware)
-- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/#create-a-project)
+- [Install Simplicity Studio](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-simplicity-studio)
+- [Install WiSeConnect extension](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#install-the-wiseconnect-3-extension)
+- [Connect your device to the computer](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#connect-siwx91x-to-computer)
+- [Upgrade your connectivity firmware](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#update-siwx91x-connectivity-firmware)
+- [Create a Studio project](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#create-a-project)
 
 For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
 
@@ -76,7 +75,7 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
   - **DAC Peripheral Configuration**
 
-    - DAC operation mode: There are 3 modes, Static mode and FIFO mode. By default it is in Static mode.
+    - DAC operation mode: Static mode and FIFO mode. By default it is in Static mode.
     - Sample rate: Sample rate can be configurable to DAC, sample rate unit is samples/second. The configuration range from 63sps to 5Msps.
     - FIFO Threshold: This is applicable only for FIFO mode. There is no impact even configure for other modes. The configuration range from 0 to 7.
 
@@ -90,19 +89,18 @@ For details on the project folder structure, see the [WiSeConnect Examples](http
 
 - The following table lists the mentioned pin numbers for BRD4338a. If you want to use a different radio board, see the board-specific user guide.
 
-  | DAC | GPIO's |
-  | --- | --- |
-  | DAC0 | ULP_GPIO_4 |
-  | DAC1 | ULP_GPIO_15 |
+  | DAC | GPIO's | Breakout pin on WPK (4002A baseboard)|
+  | --- | --- | --- |
+  | DAC0 | ULP_GPIO_4 | NA |
+  | DAC1 | GPIO_30 | [P35] |
   
-- Because of the GPIO workarounds described above, the DAC output in BRD4338a is read internally, supplied to OPAMP1, and allows the user to see the OPAMP1 output on the GPIO_30[P35] pin.
+- Because of the GPIO workarounds described below, the DAC output in BRD4338a is read internally, supplied to OPAMP1, and allows the user to see the OPAMP1 output on the GPIO_30[P35] pin.
 
 > **Note:**
 >
 > - For BRD4338A, ULP GPIO_4 is not available, so the pintool annotation for DAC is bypassed.
-> - Some boards do not have the DAC output pin ULP_GPIO_4. Therefore, the output is internally redirected to OPAMP pin GPIO_30.
+> - Before configuring DAC pins, review your board’s pinout to ensure the necessary GPIOs are available and not assigned to other functions. Assign DAC pins in your project according to your hardware setup, especially when working with different OPNs.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ## Test the Application
 
@@ -133,16 +131,11 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
        ![Figure: dac_fifo_analyzer_output](resources/readme/dac_fifo_analyzer_output.png)
 
 > **Note:**
+> - In the [`dac_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/peripheral/sl_si91x_dac/dac_example.c) file, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
+> - BUFFER_SIZE should be '1' for DAC static mode in [`dac_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/si91x_soc/peripheral/sl_si91x_dac/dac_example.c).
+> - Use following formula to find equivalent output analog voltage of DAC
 >
-- In the [`sl_ulp_dac_example.c`](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/si91x_soc/peripheral/sl_si91x_ulp_dac/sl_ulp_dac_example.c) file, locate the 'STATIC_MODE' macro. If the DAC operation mode is set to Static, make sure to set the value to '1' for this macro. If the FIFO mode is selected, substitute '0' for this macro.
->- Buffer length should be '1' for DAC static mode.
+>         DAC_output = ((input sample/(2^10)) * Vref Voltage);
 >
- Use following formula to find equivalent output analog voltage of DAC
->
-> DAC_output = ((input sample/1024(2^10)) * Vref Voltage);
->
-> **Note:** If input sample value is '0x33A' and voltage reference is 2.8v, then DAC_output = ((0x33A/1024) * 2.8).
->
-> **Note:**
->
+> - If input sample value is '0x33A' and voltage reference is 2.8v, then DAC_output = ((0x33A/1024) * 2.8).
 > - Interrupt handlers are implemented in the driver layer, and user callbacks are provided for custom code. If you want to write your own interrupt handler instead of using the default one, make the driver interrupt handler a weak handler. Then, copy the necessary code from the driver handler to your custom interrupt handler.

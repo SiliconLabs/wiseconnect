@@ -40,7 +40,7 @@
 #include "sl_si91x_socket_constants.h"
 #include "sl_si91x_core_utilities.h"
 #include "sl_si91x_socket.h"
-
+#include "sl_wifi_callback_framework.h"
 #include "app.h"
 
 /******************************************************
@@ -406,7 +406,7 @@ void receive_data_from_tcp_server(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -597,7 +597,7 @@ void receive_data_from_tcp_client(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -776,7 +776,7 @@ void receive_data_from_udp_client(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {
@@ -944,7 +944,7 @@ void receive_data_from_tls_server(void *userinfo)
       if (read_bytes < 0) {
         if (errno == 0) {
           // get the error code returned by the firmware
-          sl_status_t status = sl_si91x_get_saved_firmware_status();
+          sl_status_t status = sl_wifi_get_saved_firmware_status();
           if (status == SL_STATUS_SI91X_MEMORY_FAILED_FROM_MODULE) {
             continue;
           } else {

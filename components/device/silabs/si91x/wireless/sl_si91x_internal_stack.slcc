@@ -1,8 +1,8 @@
 id: sl_si91x_internal_stack
-package: wiseconnect3_sdk
+package: wifi
 description: >
-  The internal network stack component offloads the network stack to the Si91x Wireless Subsystem
-label: Internal Network Stack
+  The offload network stack component offloads the network stack to the Si91x Wireless Subsystem
+label: Offload Network Stack
 category: Device|Si91x|Wireless|Network Stack
 quality: production
 metadata:

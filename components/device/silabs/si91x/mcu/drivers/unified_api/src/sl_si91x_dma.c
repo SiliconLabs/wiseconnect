@@ -323,6 +323,25 @@ sl_status_t sl_si91x_dma_deinit(uint32_t dma_number)
   return status;
 }
 
+/*******************************************************************************
+ * This function returns the DMA handle for the specified DMA instance
+ * 
+ * @param[in] dma_number DMA instance number:
+ *                       - 0 for UDMA0
+ *                       - 1 for ULP_DMA
+ * 
+ * @return void* Pointer to the DMA handle context
+ *         - Valid pointer if dma_number is valid and DMA is initialized
+ *         - NULL if dma_number is invalid
+ * *****************************************************************************/
+void *sl_si91x_get_dma_handle(uint32_t dma_number)
+{
+  if (dma_number > ULP_DMA_INSTANCE) {
+    return NULL;
+  }
+  return udmaHandle[dma_number];
+}
+
 /*===================================================*/
 /**
  * @fn          sl_status_t scan_available_dma_channel(uint32_t dma_number, uint32_t **channel_no, uint32_t priority)

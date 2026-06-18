@@ -1,6 +1,6 @@
 id: wiseconnect_toolchain_gcc_standard
 label: GCC Toolchain Standard Linker
-package: platform
+package: platform_siwx91x
 description: Provides the GCC Standard linker file.
 category: Platform|Toolchain
 quality: production

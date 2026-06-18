@@ -117,7 +117,7 @@ extern "C" {
 #define PADSELECTION \
   (*(volatile uint32_t *)(0x41300000 + 0x610)) //  PAD selection (0 t0 21) A value of 1 on this gives control to M4SS
 
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
 #define PADSELECTION_1 \
   (*(volatile uint32_t *)(0x41300000 + 0x618)) //  PAD selection (22 to 33) A value of 1 on this gives control to M4SS
 #endif

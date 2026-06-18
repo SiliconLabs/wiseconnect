@@ -96,6 +96,13 @@ typedef enum {
 typedef struct {
   uint8_t opamp_number;               ///< OPAMP number, \ref sl_opamp_number_t for possible values.
   sl_opamp_feature_config_t features; ///< OPAMP features, \ref sl_opamp_feature_config_t for possible values.
+  Configure_OPAMP_t opamp_config;     ///< Configuration parameters for all three OPAMPs (OPAMP1, OPAMP2, OPAMP3)
+  Configure_OPAMP1_OPAMP2_t
+    opamp1_opamp2_config; ///< Configuration parameters for cascaded OPAMP1 and OPAMP2 operation.
+  Configure_OPAMP2_OPAMP3_t
+    opamp2_opamp3_config; ///< Configuration parameters for cascaded OPAMP2 and OPAMP3 operation.
+  OPAMP_CONFIG_T
+  opamp123_config; ///< Combined configuration for OPAMP1, OPAMP2, and OPAMP3 (used for multi-opamp setups).
 } sl_opamp_config_t;
 
 /***************************************************************************/

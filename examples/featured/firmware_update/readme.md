@@ -80,7 +80,7 @@ This process allows the device to update its software over the air (OTA) without
 
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
-  - Install Studio and WiSeConnect 3 extension
+  - Install Studio and WiSeConnect extension
   - Connect your device to the computer
   - Upgrade your connectivity firmware
   - Create a Studio project
@@ -89,7 +89,7 @@ This process allows the device to update its software over the air (OTA) without
   Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32) to:
 
   - Install the [Keil IDE](https://www.keil.com/).
-  - Download [WiSeConnect 3 SDK](https://github.com/SiliconLabs/wiseconnect)
+  - Download [WiSeConnect SDK](https://github.com/SiliconLabs/wiseconnect)
   - Update the device's connectivity firmware as mentioned [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/getting-started-with-ncp-mode-with-stm32#upgrade-the-si-wx91x-connectivity-firmware).
   - Connect the SiWx91x NCP to STM32F411RE Nucleo Board follow the below steps:
    	- Connect the male Arduino compatible header on carrier board to female Arduino compatible header on STM32F411RE Nucleo board.
@@ -97,7 +97,7 @@ This process allows the device to update its software over the air (OTA) without
    	- After connecting all the boards, the setup should look like the following image:
     ![Figure: Setup](resources/readme/stm32_setup.png)
    	- Connect the setup to the computer.
-  - Open the FIRMWARE UPDATE µVision project - **firmware_update.uvprojx** by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update → keil_project**. 
+  - Open the FIRMWARE UPDATE µVision project - **firmware_update.uvprojx** by navigating to **WiSeConnect SDK → examples → featured → firmware_update → keil_project**. 
 
 ## Application Build Environment
 
@@ -134,7 +134,7 @@ The application can be configured to suit user requirements and development envi
 
 - Other STA instance configurations can be modified if required in `default_wifi_client_profile` configuration structure.
 
-> **Note**: For recommended settings, see the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
 
 ### TCP Configuration
 
@@ -149,9 +149,15 @@ The application can be configured to suit user requirements and development envi
 #define COMBINED_IMAGE    0        //Set 1 for combined image upgrade and 0 for NWP firmware upgrade
 ```
 
+> **Note:**
+> - Use a combined image to update the firmware whenever possible. A combined image includes both the Network Processor (NWP) and Application Processor (M4) images in a single package.
+> - When generating a combined image, use the NWP and M4 images from the same release package. Using different versions may result in undefined behavior due to a version mismatch.
+> - For devices with 4 MB flash, updating with a combined image is not supported because of memory limitations. In this case, update the NWP image first, and then update the M4 image.
+> - For NCP mode, update the NWP image first, followed by the host image from the same release version.
+
 ## Test the Application
 
-### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC, and NCP Modes)
+### Instructions for Simplicity Studio IDE and Silicon Labs Devices (SoC and NCP Modes)
 
 Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) to:
 
@@ -205,14 +211,14 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Build and Run the TCP Server (Linux PC)
 
-  1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect/blob/master/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
+  1. Copy the TCP server application [firmware_update_tcp_server_9117.c](https://github.com/SiliconLabs/wiseconnect/blob/v4.0.1-content-for-docs/examples/featured/firmware_update/firmware_update_tcp_server_9117.c) provided with the application source to a Linux PC connected to the Wi-Fi access point.
   2. Compile the application
   
      ```c
 	  user@linux:~$ gcc firmware_update_tcp_server_9117.c -o ota_server.bin
 	  ```
 
-  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) is the firmware image to be sent to SiWx91x.
+  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/v4.0.1-content-for-docs/connectivity_firmware) is the firmware image to be sent to SiWx91x.
 
       ```c
       user@linux:~$ ./ota_server.bin 5001 SiWG917-B.2.x.x.x.x.x.rps
@@ -220,14 +226,16 @@ Refer to the instructions [here](https://docs.silabs.com/wiseconnect/latest/wise
 
 ### Build and Run the TCP Server (Windows PC)
 
-  1. Open the FIRMWARE UPDATE project in cygwin terminal - by navigating to **WiSeConnect 3 SDK → examples → featured → firmware_update**.  
+  1. Open the FIRMWARE UPDATE project in cygwin terminal - by navigating to **WiSeConnect SDK → examples → featured → firmware_update**.  
   
   2. Compile the application
 
       ![Figure: cygwin server compilation](resources/readme/cygwin_server_compilation.png)
   
-  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/master/connectivity_firmware) is the firmware image to be sent to SiWx91x.
+  3. Run the application providing the TCP port number (specified in the SiWx91x app) together with the firmware file and path where [SiWG917-B.2.x.x.x.x.x.rps](https://github.com/SiliconLabs/wiseconnect/tree/v4.0.1-content-for-docs/connectivity_firmware) is the firmware image to be sent to SiWx91x.
 
       ```c
       ./ota_server 5001 SiWG917-B.2.x.x.x.x.x.rps
       ```
+
+

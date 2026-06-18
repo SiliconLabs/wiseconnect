@@ -111,6 +111,7 @@ extern "C" {
 
 #define UNUSED_VAR(expr) ((void)(expr))
 
+#define GPIO_PA_PIN_0_5_VALIDATE 6  ///< GPIO port A validate pins (0-5)
 #define GPIO_PA_PIN_MAX_VALIDATE 75 ///< GPIO port A maximum pins to validate
 #define GPIO_PB_PIN_MAX_VALIDATE 59 ///< GPIO port B maximum pins to validate
 #define GPIO_PC_PIN_MAX_VALIDATE 43 ///< GPIO port C maximum pins to validate
@@ -126,7 +127,7 @@ extern "C" {
 #define SL_GPIO_VALIDATE_PARAMETER(value)             (value > 1 ? 0 : 1)         ///< Validate GPIO parameters
 #define SL_GPIO_VALIDATE_DISABLE_STATE(disable_state) (disable_state > 3 ? 0 : 1) ///< Validate driver disable state
 #define SL_GPIO_VALIDATE_PAD(pad_num)                 ((pad_num > 34) && (pad_num < 1) ? 0 : 1) ///< Validate GPIO HP pad selection
-#define SL_GPIO_VALIDATE_PIN(pin_num)                 ((pin_num > 63) ? 0 : 1)   ///< Validate GPIO HP pin number
+#define SL_GPIO_VALIDATE_PIN(pin_num)                 (((pin_num < 6) || (pin_num > 63)) ? 0 : 1) ///< Validate GPIO HP pin number
 #define SL_GPIO_VALIDATE_FLAG(flag)                   ((flag > 0x0F) ? 0 : 1)    ///< Validate GPIO flags
 #define SL_GPIO_VALIDATE_ULP_INTR(ulp_intr)           ((ulp_intr > 12) ? 0 : 1)  ///< Validate ULP interrupts
 #define SL_GPIO_VALIDATE_ULP_PIN(pin_num)             ((pin_num > 12) ? 0 : 1)   ///< Validate ULP pins
@@ -137,11 +138,11 @@ extern "C" {
 #define SL_GPIO_VALIDATE_MODE(mode)                   ((mode) > 15 ? 0 : 1)      ///< Validate GPIO mode
 #define SL_GPIO_VALIDATE_INTR(interrupt)              ((interrupt > 8) ? 0 : 1)  ///< Validate GPIO interrupt
 ///< Validate GPIO port and pin
-#define SL_GPIO_NDEBUG_PORT_PIN(port, pin)                  \
-  (port == 0   ? ((pin > GPIO_PA_PIN_MAX_VALIDATE) ? 0 : 1) \
-   : port == 1 ? ((pin > GPIO_PB_PIN_MAX_VALIDATE) ? 0 : 1) \
-   : port == 2 ? ((pin > GPIO_PC_PIN_MAX_VALIDATE) ? 0 : 1) \
-   : port == 3 ? ((pin > GPIO_PD_PIN_MAX_VALIDATE) ? 0 : 1) \
+#define SL_GPIO_NDEBUG_PORT_PIN(port, pin)                                                        \
+  (port == 0   ? (((pin < GPIO_PA_PIN_0_5_VALIDATE) || (pin > GPIO_PA_PIN_MAX_VALIDATE)) ? 0 : 1) \
+   : port == 1 ? ((pin > GPIO_PB_PIN_MAX_VALIDATE) ? 0 : 1)                                       \
+   : port == 2 ? ((pin > GPIO_PC_PIN_MAX_VALIDATE) ? 0 : 1)                                       \
+   : port == 3 ? ((pin > GPIO_PD_PIN_MAX_VALIDATE) ? 0 : 1)                                       \
                : 0)
 ///< Validate GPIO host pad port and pin
 #define SL_GPIO_VALIDATE_HOST_PIN(port, pin)                                                             \
@@ -239,6 +240,7 @@ extern "C" {
 #define _MODE8  8  ///< GPIO mode 8
 #define _MODE9  9  ///< GPIO mode 9
 #define _MODE10 10 ///< GPIO mode 10
+#define _MODE12 12 ///< GPIO mode 12
 #define _MODE14 14 ///< GPIO mode 14
 
 #define _GPIO_P_MODEL_MODE0_DISABLED                0x00000000UL ///< Mode DISABLED for GPIO_P_MODEL

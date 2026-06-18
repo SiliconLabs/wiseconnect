@@ -371,6 +371,12 @@ typedef struct {
   uint8_t out_mux_sel;
 } Configure_OPAMP2_OPAMP3_t;
 
+typedef struct {
+  Configure_OPAMP_t opamp;
+  Configure_OPAMP1_OPAMP2_t opamp1_opamp2;
+  Configure_OPAMP2_OPAMP3_t opamp2_opamp3;
+} Configure_OPAMP_All_t;
+
 //<-- OPAMP instance -->
 #define OPAMP1_INSTANCE 1 //<-- OPAMP1 instance -->
 #define OPAMP2_INSTANCE 2 //<-- OPAMP2 instance -->

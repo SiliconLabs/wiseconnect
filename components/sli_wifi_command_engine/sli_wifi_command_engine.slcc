@@ -1,6 +1,6 @@
 id: sli_wifi_command_engine
 label: WiFi Command Engine
-package: wiseconnect3_sdk
+package: wifi
 description: >
     This package contains core Command Engine thread which receives the TX and RX events.
 category: Command Engine

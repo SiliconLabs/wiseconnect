@@ -1,5 +1,5 @@
 id: sl_si91x_psa_trng
-package: wiseconnect3_sdk
+package: wifi
 description: >
   True Random Number Generator (TRNG) APIs
 label: PSA TRNG

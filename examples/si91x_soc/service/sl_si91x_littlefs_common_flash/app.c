@@ -83,20 +83,20 @@ static const sl_wifi_device_configuration_t station_init_configuration = {
   .region_code = US,
   .boot_config = { .oper_mode       = SL_SI91X_CLIENT_MODE,
                    .coex_mode       = SL_SI91X_WLAN_ONLY_MODE,
-                   .feature_bit_map = (SL_SI91X_FEAT_SECURITY_PSK | SL_SI91X_FEAT_AGGREGATION
+                   .feature_bit_map = (SL_WIFI_FEAT_SECURITY_PSK | SL_WIFI_FEAT_AGGREGATION
 #ifdef SLI_SI91X_MCU_INTERFACE
-                                       | SL_SI91X_FEAT_WPS_DISABLE
+                                       | SL_WIFI_FEAT_WPS_DISABLE
 #endif
                                        ),
                    .tcp_ip_feature_bit_map     = (SL_SI91X_TCP_IP_FEAT_DHCPV4_CLIENT),
-                   .custom_feature_bit_map     = (SL_SI91X_CUSTOM_FEAT_EXTENTION_VALID),
+                   .custom_feature_bit_map     = (SL_WIFI_SYSTEM_CUSTOM_FEAT_EXTENSION_VALID),
                    .ext_custom_feature_bit_map = (
 #ifdef SLI_SI91X_MCU_INTERFACE
                      SL_SI91X_RAM_LEVEL_NWP_ADV_MCU_BASIC
 #else
                      SL_SI91X_RAM_LEVEL_NWP_ALL_MCU_ZERO
 #endif
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
                      | SL_SI91X_EXT_FEAT_FRONT_END_SWITCH_PINS_ULP_GPIO_4_5_0
 #endif
                      ),
@@ -137,41 +137,55 @@ void application_start(const void *unused)
   uint32_t status;
   uint32_t boot_count = 0;
 
+  DEBUGOUT("\r\nInitializing wireless stack\r\n");
   status = sl_net_init(SL_NET_WIFI_CLIENT_INTERFACE, &station_init_configuration, NULL, NULL);
   if (status != SL_STATUS_OK) {
-    printf("Failed to start Wi-Fi client interface: 0x%lx\r\n", status);
+    DEBUGOUT("\r\nFailed to start Wi-Fi client interface: 0x%lx\r\n", status);
     return;
   }
+  DEBUGOUT("\r\nWireless stack initialized successfully\r\n");
 
+  DEBUGOUT("\r\nMounting file system\r\n");
   // mount the filesystem
   err = lfs_mount(&lfs, &cfg);
 
   // reformat if we can't mount the filesystem
   // this should only happen on the first boot
   if (err) {
+    DEBUGOUT("\r\nFile system not found, formatting\r\n");
     err = lfs_format(&lfs, &cfg);
     err = lfs_mount(&lfs, &cfg);
+    DEBUGOUT("\r\nFile system formatted and mounted\r\n");
+  } else {
+    DEBUGOUT("\r\nFile system mounted successfully\r\n");
   }
 
+  DEBUGOUT("\r\nBoot count operations\r\n");
   // read current count
   err = lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
   if (err) {
-    printf("Failed to open the file \n");
+    DEBUGOUT("\r\nFailed to open the file \r\n");
     return;
   }
+  DEBUGOUT("\r\nBoot count file opened\r\n");
+
   lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+  DEBUGOUT("\r\nCurrent boot count read: %ld\r\n", boot_count);
 
   // update boot count
   boot_count += 1;
   lfs_file_rewind(&lfs, &file);
   lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
+  DEBUGOUT("\r\nBoot count written: %ld\r\n", boot_count);
 
   // remember the storage is not updated until the file is closed successfully
   lfs_file_close(&lfs, &file);
+  DEBUGOUT("\r\nBoot count file closed\r\n");
 
   // release any resources we were using
   lfs_unmount(&lfs);
+  DEBUGOUT("\r\nFile system unmounted\r\n");
 
   // print the boot count
-  printf("boot_count: %ld\n", boot_count);
+  DEBUGOUT("\r\nboot_count: %ld\r\n", boot_count);
 }

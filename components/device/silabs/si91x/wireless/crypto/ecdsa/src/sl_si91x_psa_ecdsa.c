@@ -95,6 +95,9 @@ static psa_status_t check_curve_availability(const psa_key_attributes_t *attribu
   } else
 #endif // SLI_PSA_DRIVER_FEATURE_ECDSA
   {
+#if !defined(SLI_PSA_DRIVER_FEATURE_ECDSA)
+    UNUSED_VARIABLE(key_type);
+#endif
     return PSA_ERROR_NOT_SUPPORTED;
   }
 
@@ -176,7 +179,7 @@ psa_status_t sli_si91x_crypto_sign_message(const psa_key_attributes_t *attribute
   config.public_key_length  = 0;
   config.signature_length   = 0;
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   /* Fetch key type from attributes */
   psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location == 0) {
@@ -353,7 +356,7 @@ psa_status_t sli_si91x_crypto_verify_message(const psa_key_attributes_t *attribu
   config.public_key         = key_buffer;
   config.public_key_length  = key_buffer_size;
 
-#if defined(SLI_SI917B0) || defined(SLI_SI915)
+#if defined(SLI_SI917B0)
   /* Fetch key type from attributes */
   psa_key_location_t location = PSA_KEY_LIFETIME_GET_LOCATION(psa_get_key_lifetime(attributes));
   if (location == 0) {

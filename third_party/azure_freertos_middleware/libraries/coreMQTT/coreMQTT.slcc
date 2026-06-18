@@ -1,5 +1,5 @@
 id: coreMQTT
-package: wiseconnect3_sdk
+package: wifi
 description: >
   Core MQTT
 label: Core MQTT

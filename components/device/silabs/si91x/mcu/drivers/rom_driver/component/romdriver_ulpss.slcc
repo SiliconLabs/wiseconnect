@@ -1,6 +1,6 @@
 id: romdriver_ulpss
 label: ROM DRIVER ULPSS
-package: platform
+package: platform_siwx91x
 description: >
   Rom Driver ULPSS
 category: Device|Si91x|MCU|Internal|ROM Drivers

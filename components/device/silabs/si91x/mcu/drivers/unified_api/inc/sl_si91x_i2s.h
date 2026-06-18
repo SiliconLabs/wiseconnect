@@ -37,6 +37,7 @@ extern "C" {
 
 #include "sl_status.h"
 #include "SAI.h"
+#include "base_types.h"
 
 /***************************************************************************/
 /**
@@ -237,7 +238,7 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
 
 /***************************************************************************/
 /**
- * @brief To uninitialize the I2S peripheral.
+ * @brief To uninitialize the I2S peripheral. This API is deprecated; please use sl_si91x_i2s_deinit_v2() instead.
  * 
  * @details This API disables the DMA instance used for I2S transfer and powers down the I2S peripheral
  *          by disabling the clock supply to I2S.
@@ -268,7 +269,41 @@ sl_status_t sl_si91x_i2s_init(uint32_t i2s_instance, sl_i2s_handle_t *i2s_handle
  *    The ULP_UART has a separate power domain, ULPSS_PWRGATE_ULP_UART, which can be powered down independently. 
  *    See the rsi_power_save.h file for all power gate definitions.
  ******************************************************************************/
-sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle);
+sl_status_t sl_si91x_i2s_deinit(sl_i2s_handle_t *i2s_handle) SL_DEPRECATED_API_WISECONNECT_4_0;
+/***************************************************************************/
+/**
+ * @brief To uninitialize the I2S peripheral,new verison v2.
+ *
+ * @details This API disables the DMA instance used for I2S transfer and powers down the I2S peripheral
+ *          by disabling the clock supply to I2S.
+ *
+ * @pre Pre-condition:
+ *      - \ref sl_si91x_i2s_init must be called before this function.
+ *
+ * @param[in] i2s_handle Pointer to the I2S driver handle.
+ *
+ * @return sl_status_t Status code indicating the result:
+ *         - SL_STATUS_OK  - Operation successful.
+ *         - SL_STATUS_INVALID_PARAMETER  - Parameters are invalid.
+ *         - SL_STATUS_NULL_POINTER  - Invalid null pointer received as an argument.
+ *
+ * For more information on status codes, see [SL STATUS DOCUMENTATION](https://docs.silabs.com/gecko-platform/latest/platform-common/status).
+ *
+ * @note
+ * When the I2S module is used in combination with other peripherals, see the notes below while deinitializing in the application:
+ * 1. Whenever sl_si91x_i2s_deinit_v2() is called, it will disable the clock for the peripheral. To power off the peripheral,
+ *    you have to power down the power domain (PERI_EFUSE) which contains the following peripherals:
+ *    USART, UART, I2C, SSI Master, SSI Slave, Generic-SPI Master, I2S Master, I2S Slave, Micro-DMA Controller, Config Timer,
+ *    Random-Number Generator, CRC Accelerator, SIO, QEI, MCPWM, and EFUSE.
+ *    Use the following API to power down the particular power domain if other peripherals are not being used:
+ *    sl_si91x_peri_efuse_power_down()
+ *
+ * 2. Some peripherals (ULP Peripherals, UULP Peripherals, GPDMA, and SDIO-SPI) have separate domains and can be powered down independently.
+ *    For additional details, see the Power Architecture section in the Hardware Reference Manual.
+ *    The ULP_UART has a separate power domain, ULPSS_PWRGATE_ULP_UART, which can be powered down independently.
+ *    See the rsi_power_save.h file for all power gate definitions.
+ ******************************************************************************/
+sl_status_t sl_si91x_i2s_deinit_v2(sl_i2s_handle_t i2s_handle);
 
 /***************************************************************************/
 /**

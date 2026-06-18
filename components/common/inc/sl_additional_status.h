@@ -290,6 +290,8 @@
   ((sl_status_t)0x10069) ///< SAE authentication failed due to multiple confirm frames received from the Access Point.
 #define SL_STATUS_SI91X_EC_GROUP_STATION_UNSUPPORTED_BY_AP \
   ((sl_status_t)0x1006A) ///< The Access Point does not support the EC-group set by the station.
+#define SL_STATUS_SI91X_WPS_CREDENTIALS_RECEIVED_WITHOUT_JOIN_COMMAND \
+  ((sl_status_t)0x1006B) ///< WPS credentials have been received, but the device did not join the network.
 #define SL_STATUS_SI91X_NO_11AX_SUPPORT_IN_AP \
   ((sl_status_t)0x1006C) ///< 802.11ax (Wi-Fi 6) is not supported in Access Point mode.
 #define SL_STATUS_SI91X_NON_PREF_CHAN_CONFIG_FAILED \
@@ -378,8 +380,17 @@
   ((sl_status_t)0x100FA) ///< Efuse data is already populated. Write prohibited.
 #define SL_STATUS_SI91X_SNMP_INTERNAL_ERROR      ((sl_status_t)0x10100) ///< SNMP internal error.
 #define SL_STATUS_SI91X_SNMP_INVALID_IP_PROTOCOL ((sl_status_t)0x10104) ///< SNMP invalid IP protocol error.
-#define SL_STATUS_SI91X_UNSUPPORTED_PWR_IDX_915  ((sl_status_t)0x10105) ///< Unsupported power index for 915
 #define SL_STATUS_SI91X_EFUSE_DATA_INVALID       ((sl_status_t)0x10106) ///< Efuse data is invalid.
+#define SL_STATUS_SI91X_VENDOR_IE_INVALID_IE_LENGTH \
+  ((sl_status_t)0x1010E) ///< Vendor IE buffer length is invalid or exceeds maximum allowed size.
+#define SL_STATUS_SI91X_VENDOR_IE_INVALID_UNIQUE_ID \
+  ((sl_status_t)0x1010F) ///< Vendor IE unique ID is out of valid range or not found.
+#define SL_STATUS_SI91X_VENDOR_IE_INVALID_ACTION \
+  ((sl_status_t)0x10110) ///< Vendor IE operation is not supported or invalid action specified.
+#define SL_STATUS_SI91X_VENDOR_IE_INVALID_PACKET_BITMAP \
+  ((sl_status_t)0x10111) ///< Vendor IE management frame bitmap contains invalid or unsupported frame types.
+#define SL_STATUS_SI91X_VENDOR_IE_NO_SLOTS_AVAILABLE \
+  ((sl_status_t)0x10112) ///< No firmware memory slots available for adding new vendor IE.
 #define SL_STATUS_SI91X_NO_DATA_RECEIVED_OR_RECEIVE_TIMEOUT \
   ((sl_status_t)0x1BB01) ///< No data received or receive timeout.
 #define SL_STATUS_SI91X_INSUFFICIENT_DATA_FOR_TIME_CONVERSION \
@@ -610,13 +621,7 @@
   ((sl_status_t)0x1FF2C) ///< Memory limit exceeded in the given operating mode.
 #define SL_STATUS_SI91X_MEMORY_LIMIT_EXCEEDED_DURING_AUTO_JOIN \
   ((sl_status_t)0x1FF2A) ///< Memory limit exceeded in the operating mode during auto join/create.
-#define SL_STATUS_SI91X_MDNS_COMMAND_NOT_SUPPORTED   ((sl_status_t)0x1FF2B) ///< The MDNS command type is invalid.
-#define SL_STATUS_SI91X_PUF_OPERATION_BLOCKED        ((sl_status_t)0x1CC2F) ///< The PUF operation is blocked.
-#define SL_STATUS_SI91X_PUF_ACTIVATION_CODE_INVALID  ((sl_status_t)0x1CC31) ///< The PUF activation code is invalid.
-#define SL_STATUS_SI91X_PUF_INPUT_PARAMETERS_INVALID ((sl_status_t)0x1CC32) ///< The PUF input parameters are invalid.
-#define SL_STATUS_SI91X_PUF_IN_ERROR_STATE           ((sl_status_t)0x1CC33) ///< The PUF is in an error state.
-#define SL_STATUS_SI91X_PUF_OPERATION_NOT_ALLOWED    ((sl_status_t)0x1CC34) ///< The PUF operation is not allowed.
-#define SL_STATUS_SI91X_PUF_OPERATION_FAILED         ((sl_status_t)0x1CC35) ///< The PUF operation failed.
+#define SL_STATUS_SI91X_MDNS_COMMAND_NOT_SUPPORTED ((sl_status_t)0x1FF2B) ///< The MDNS command type is invalid.
 #define SL_STATUS_SI91X_CRYPTO_INVALID_SECURITY_MODE \
   ((sl_status_t)0x1CC43) ///< Invalid security mode in SI91X crypto operations.
 #define SL_STATUS_SI91X_CRYPTO_ERR_DATA_ALIGNMENT_16BYTE \
@@ -815,5 +820,6 @@
 #define SL_STATUS_SI91X_BLE_CONNECTION_SOCK_NOT_AVAILABLE    (0x4D10) ///< BLE Connection Sock not Available.
 #define SL_STATUS_SI91X_BLE_REMOTE_CREDITS_NOT_AVAILABLE     (0x4D11) ///< BLE Remote Credits not Available.
 #define SL_STATUS_SI91X_PARAMETER_OUTOFF_MANADATORY_RANGE    (0x4D14) ///< Parameter is outoff the manadatory range.
+#define SL_STATUS_SI91X_ERROR_BLE_HW_BUF_OVERFLOW            (0x4D16) ///< Sufficient buffers are not available in TA.
 
 /** @} */

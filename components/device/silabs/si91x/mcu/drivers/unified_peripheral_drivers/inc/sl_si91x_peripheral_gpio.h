@@ -183,6 +183,7 @@ typedef enum {
   SL_GPIO_MODE_8          = _MODE8,                        ///< Pin MUX GPIO Mode 8.
   SL_GPIO_MODE_9          = _MODE9,                        ///< Pin MUX GPIO Mode 9.
   SL_GPIO_MODE_10         = _MODE10,                       ///< Pin MUX GPIO Mode 10.
+  SL_GPIO_MODE_12         = _MODE12,                       ///< Pin MUX GPIO Mode 12.
   SL_GPIO_MODE_14         = _MODE14,                       ///< Pin MUX GPIO Mode 14.
   SL_GPIO_MODE_DISABLED   = _GPIO_P_MODEL_MODE0_DISABLED,  ///< Input disabled. Pull-up if DOUT is set.
   SL_GPIO_MODE_INPUT      = _GPIO_P_MODEL_MODE0_INPUT,     ///< Input enabled. Filter if DOUT is set.

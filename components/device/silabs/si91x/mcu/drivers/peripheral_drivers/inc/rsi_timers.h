@@ -63,11 +63,11 @@ extern "C" {
 #define TIMER_3 3
 
 #define ULP_TIMER_RF_REF_CLK         0
-#define ULP_TIMER_ULP_32KHZ_RO_CLK   1
+#define ULP_TIMER_ULP_32KHZ_RO_CLK   1 /*!32KHZ RO clock not supported*/
 #define ULP_TIMER_ULP_32KHZ_RC_CLK   2
 #define ULP_TIMER_ULP_32KHZ_XTAL_CLK 3
 #define ULP_TIMER_ULP_MHZ_RC_CLK     4
-#define ULP_TIMER_ULP_20MHZ_RO_CLK   5
+#define ULP_TIMER_ULP_20MHZ_RO_CLK   5 /*!20MHZ RO clock not supported*/
 #define ULP_TIMER_SOC_CLK            6
 
 #define ULP_TIMER_CLK_DIV_FACT 0

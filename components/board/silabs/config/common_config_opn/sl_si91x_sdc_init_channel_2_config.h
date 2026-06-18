@@ -61,7 +61,7 @@ extern "C" {
 #ifndef SL_SDC_CH2_PERIPHERAL
 #define SL_SDC_CH2_PERIPHERAL SDC_CH2
 #endif
-#warning "SDC peripheral is not configured. Please configure the SDC pins according to the board connections."
+
 // SDC_CH2 P on ULP_GPIO_10/GPIO_65
 #ifndef SL_SDC_CH2_P_PORT
 #define SL_SDC_CH2_P_PORT ULP
@@ -80,7 +80,13 @@ extern "C" {
 #warning "Channel_2's SDC_N pin is not set up for a differential input type"
 #endif
 
-#endif
+#else
+
+#warning \
+  "SDC Channel 2 pins are not configured. To configure, either install [ENABLE USER CONFIGURATION] component or define USER_CONFIGURATION_ENABLE macro to 1, then configure the pins as per the Custom board."
+
+#endif // USER_CONFIGURATION_ENABLE
+
 // Positive Input Channel Selection
 #ifdef SL_SDC_CH2_P_PIN
 #define SL_SDC_CHANNEL_2_POS_INPUT_CHNL_SEL \

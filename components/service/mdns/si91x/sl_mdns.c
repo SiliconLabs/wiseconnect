@@ -31,36 +31,47 @@
 #include "sl_slist.h"
 #include "sl_si91x_driver.h"
 #include "sl_string.h"
+#include "sli_wifi_utility.h"
 
 #define MAX_MDNS_SERVICE_COUNT 1
 #define MDNSD_BUFFER_SIZE      1000
 
-#define SI91X_MDNSD_INIT             1 //! MDNSD Initialize
-#define SI91X_MDNSD_REGISTER_SERVICE 3 //! MDNSD register service
-#define SI91X_MDNSD_DEINIT           6 //! MDNSD deinitialize
+#define SI91X_MDNSD_INIT                    1 //! MDNSD Initialize
+#define SI91X_MDNS_COMMAND_DISCOVER_SERVICE 2 //! MDNSD Discover Service
+#define SI91X_MDNSD_REGISTER_SERVICE        3 //! MDNSD register service
+#define SI91X_MDNSD_DEINIT                  6 //! MDNSD deinitialize
+#define SI91X_MDNS_COMMAND_STOP_DISCOVERY   7 //! MDNSD Stop Service Discovery
 
 // mdnsd init structure
 typedef struct {
   uint8_t ip_version; // ip version
   uint8_t ttl[2];     // time to live
-} sl_si91x_mdns_init_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_mdns_init_t;
 
 // mdnsd register-service structure
 typedef struct {
   uint8_t port[2]; // port number
   uint8_t ttl[2];  // time to live
   uint8_t more;    // reset if it is last service in the list
-} sl_si91x_mdns_reg_srv_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_mdns_reg_srv_t;
+
+// mdnsd discover-service structure
+typedef struct {
+  char host_srv_name[31]; // Full service name (e.g., "_http._tcp.local.")
+  uint8_t type;           // Query type (e.g., PTR, SRV, A, AAAA)
+  uint32_t timeout;       // Timeout for discovery in milliseconds
+} SL_ATTRIBUTE_PACKED sl_si91x_mdns_discover_t;
 
 // mdnsd structure
 typedef struct {
   uint8_t command_type; // command type 1-MDNSD init, 3- Register service, 6- Deinit
   union {
-    sl_si91x_mdns_init_t init;       // mdns init
-    sl_si91x_mdns_reg_srv_t reg_srv; // mdns register
+    sl_si91x_mdns_init_t init;             // mdns init
+    sl_si91x_mdns_reg_srv_t reg_srv;       // mdns register
+    sl_si91x_mdns_discover_t discover_srv; // mdns discovery
   } req_conf;
   uint8_t buffer[MDNSD_BUFFER_SIZE]; //Data buffer
-} sl_si91x_mdns_req_t;
+} SL_ATTRIBUTE_PACKED sl_si91x_mdns_req_t;
 
 /**********************************************************************************************************************
  *                                                Static Functions                                                    *
@@ -70,7 +81,7 @@ static void sli_si91x_clean_service_handle(sl_wifi_buffer_t *service_handle)
   const sl_mdns_service_t *service = NULL;
   uint16_t buffer_length           = 0;
 
-  service = (sl_mdns_service_t *)sl_si91x_host_get_buffer_data(service_handle, 0, &buffer_length);
+  service = (sl_mdns_service_t *)sli_wifi_host_get_buffer_data(service_handle, 0, &buffer_length);
   free((char *)service->instance_name);
   free((char *)service->service_type);
   free((char *)service->service_message);
@@ -107,7 +118,7 @@ static void sli_si91x_clean_mdns_handle(sl_mdns_t *mdns)
   while (interface != NULL) {
     block     = interface;
     interface = (sl_wifi_buffer_t *)interface->node.node;
-    in        = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(block, 0, &buffer_length);
+    in        = (sl_mdns_interface_t *)sli_wifi_host_get_buffer_data(block, 0, &buffer_length);
     sli_si91x_clean_service_list(in);
     sli_si91x_host_free_buffer(block);
   }
@@ -149,7 +160,7 @@ sl_status_t sl_mdns_init(sl_mdns_t *mdns, const sl_mdns_configuration_t *config,
                                          SLI_SI91X_NETWORK_CMD,
                                          &req,
                                          length,
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_MDNSD_WAIT_TIME,
                                          NULL,
                                          NULL);
 
@@ -169,7 +180,7 @@ sl_status_t sl_mdns_deinit(sl_mdns_t *mdns)
                                          SLI_SI91X_NETWORK_CMD,
                                          &req,
                                          length,
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_MDNSD_WAIT_TIME,
                                          NULL,
                                          NULL);
 
@@ -187,7 +198,7 @@ sl_status_t sl_mdns_add_interface(sl_mdns_t *mdns, sl_net_interface_t interface)
 
   status = sli_si91x_host_allocate_buffer(&new_interface, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_interface_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
-  in               = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(new_interface, 0, &buffer_length);
+  in               = (sl_mdns_interface_t *)sli_wifi_host_get_buffer_data(new_interface, 0, &buffer_length);
   in->interface    = interface;
   in->service_list = NULL;
 
@@ -247,7 +258,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
 
   for (sl_wifi_buffer_t *target_in = mdns->interface_list; (NULL != target_in);
        target_in                   = (sl_wifi_buffer_t *)target_in->node.node) {
-    in = (sl_mdns_interface_t *)sl_si91x_host_get_buffer_data(target_in, 0, &buffer_length);
+    in = (sl_mdns_interface_t *)sli_wifi_host_get_buffer_data(target_in, 0, &buffer_length);
 
     if (in->interface == interface) {
       break;
@@ -262,7 +273,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
 
   status = sli_si91x_host_allocate_buffer(&new_service, SL_WIFI_CONTROL_BUFFER, sizeof(sl_mdns_service_t), 1000);
   VERIFY_STATUS_AND_RETURN(status);
-  srv                = (sl_mdns_service_t *)sl_si91x_host_get_buffer_data(new_service, 0, &buffer_length);
+  srv                = (sl_mdns_service_t *)sli_wifi_host_get_buffer_data(new_service, 0, &buffer_length);
   srv->instance_name = malloc(length_instance_name);
   memcpy((char *)srv->instance_name, service->instance_name, length_instance_name);
 
@@ -297,7 +308,7 @@ sl_status_t sl_mdns_register_service(sl_mdns_t *mdns, sl_net_interface_t interfa
                                          SLI_SI91X_NETWORK_CMD,
                                          &req,
                                          length,
-                                         SLI_SI91X_WAIT_FOR_COMMAND_SUCCESS,
+                                         SLI_WLAN_RSP_MDNSD_WAIT_TIME,
                                          NULL,
                                          NULL);
   if (SL_STATUS_OK != status) {
@@ -330,9 +341,71 @@ sl_status_t sl_mdns_update_service_message(const sl_mdns_t *mdns,
   return SL_STATUS_NOT_SUPPORTED;
 }
 
-sl_status_t sl_mdns_discover_service(const sl_mdns_t *mdns, const sl_mdns_service_query_t *service_query)
+sl_status_t sl_mdns_service_discovery_start(const sl_mdns_t *mdns,
+                                            sl_net_interface_t interface,
+                                            const sl_mdns_service_query_t *service_query)
 {
   UNUSED_PARAMETER(mdns);
-  UNUSED_PARAMETER(service_query);
-  return SL_STATUS_NOT_SUPPORTED;
+  UNUSED_PARAMETER(interface);
+
+  // NULL check for service_query
+  if (service_query == NULL || service_query->service_type == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (service_query->service_type[0] == '\0') {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  sl_si91x_mdns_req_t req = { 0 };
+  sl_status_t status      = SL_STATUS_FAIL;
+
+  // Set the discover command type
+  req.command_type = SI91X_MDNS_COMMAND_DISCOVER_SERVICE;
+
+  // Calculate length of service_type string
+  uint32_t service_type_len =
+    sl_strnlen((char *)service_query->service_type, sizeof(req.req_conf.discover_srv.host_srv_name) - 1);
+
+  memcpy((char *)req.req_conf.discover_srv.host_srv_name, service_query->service_type, service_type_len);
+
+  // Ensure null termination
+  req.req_conf.discover_srv.host_srv_name[service_type_len] = '\0';
+
+  // Fill the discover service fields
+  req.req_conf.discover_srv.type    = (uint8_t)service_query->query_type;
+  req.req_conf.discover_srv.timeout = service_query->timeout;
+
+  // Send command to firmware
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_DISCOVER_SERVICE,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         sizeof(sl_si91x_mdns_req_t),
+                                         SLI_WIFI_RETURN_IMMEDIATELY,
+                                         NULL,
+                                         NULL);
+
+  return status;
+}
+
+sl_status_t sl_mdns_service_discovery_stop(const sl_mdns_t *mdns, const sl_net_interface_t interface)
+{
+  UNUSED_PARAMETER(mdns);
+  UNUSED_PARAMETER(interface);
+  sl_si91x_mdns_req_t req = { 0 };
+  sl_status_t status      = SL_STATUS_FAIL;
+
+  // Set the discover command type
+  req.command_type = SI91X_MDNS_COMMAND_STOP_DISCOVERY;
+
+  // Send command to firmware
+  status = sli_si91x_driver_send_command(SLI_WLAN_REQ_MDNSD,
+                                         SLI_SI91X_NETWORK_CMD,
+                                         &req,
+                                         sizeof(sl_si91x_mdns_req_t),
+                                         SLI_WLAN_RSP_MDNSD_WAIT_TIME,
+                                         NULL,
+                                         NULL);
+
+  return status;
 }

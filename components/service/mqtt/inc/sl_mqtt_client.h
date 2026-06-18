@@ -118,12 +118,82 @@ sl_status_t sl_mqtt_client_deinit(sl_mqtt_client_t *client);
  *   The topic length of the last_will_message must be less than SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH.
  *   The client ID length should be less than SI91X_MQTT_CLIENT_CLIENT_ID_MAXIMUM_LENGTH.
  *   The username and password length must be less than SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH and SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH, respectively.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
+ * 
+ * @note
+ *   Moving forward, this API will be deprecated. Instead, use the [sl-mqtt-client-connect-v2](../wiseconnect-api-reference-guide-mqtt/service-mqtt-functions#sl-mqtt-client-connect-v2) API. This is retained for backward compatibility.
  */
 sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
                                    const sl_mqtt_broker_t *broker,
                                    const sl_mqtt_client_last_will_message_t *last_will_message,
                                    const sl_mqtt_client_configuration_t *configuration,
-                                   uint32_t timeout);
+                                   uint32_t timeout) SL_DEPRECATED_API_WISECONNECT_4_0;
+
+/***************************************************************************/
+/**
+ * @brief
+ *   Connect the client to an MQTT broker using the extended v2 configuration.
+ *
+ * @details
+ *   This function connects the MQTT client to the specified broker using the provided v2 configuration and last will message. It supports both synchronous and asynchronous operations based on the connect_timeout value. The v2 configuration allows enabling Server Name Indication (SNI) via the 'enable_sni' field and passing additional parameters for advanced TLS features.
+ *
+ * @pre
+ *   @ref sl_mqtt_client_init should be called before this API.
+ *
+ * @param[in] client
+ *   Pointer to the MQTT client structure of type @ref sl_mqtt_client_t that would be connected to the broker.
+ *
+ * @param[in] broker
+ *   Pointer to the broker configuration of type @ref sl_mqtt_broker_v2_t. You can set this parameter to NULL in later calls to reuse the previous broker configuration.
+ *
+ * @param[in] last_will_message
+ *   Pointer to the last will message of the client of type @ref sl_mqtt_client_last_will_message_t. You can set this parameter to NULL in later calls if no will message is to be sent.
+ *
+ * @param[in] configuration
+ *   Pointer to the client configuration of type @ref sl_mqtt_client_configuration_t. You can set this parameter to NULL in later calls to reuse the previous broker configuration.
+ *
+ * @param[in] connect_timeout
+ *   Timeout for the API is in milliseconds. If the value is zero, the API operates in asynchronous mode.
+ *
+ * @return
+ *   sl_status_t - Status of the operation. For more details, see https://docs.silabs.com/gecko-platform/latest/platform-common/status.
+ *   - SL_STATUS_OK: Operation successful.
+ *   - SL_STATUS_IN_PROGRESS: Operation is in progress (for asynchronous calls).
+ *   - SL_STATUS_INVALID_PARAMETER: One or more parameters are invalid.
+ *   - SL_STATUS_FAIL: Operation failed.
+ *
+ * @note
+ *   In subsequent calls to connect, it is optional to provide broker, last_will, and configuration parameters.
+ *   If broker and configuration parameters are assigned as NULL, the values are retained from the first connect_v2() call.
+ *   For the last_will parameter, values assigned in each connect_v2() call are considered. If the last_will parameter value is NULL, no will message is sent to the broker.
+ *   The v2 configuration allows enabling SNI via the 'enable_sni' field and passing a hostname or SNI extension for advanced TLS features.
+ *   The topic length of the last_will message must be less than SI91X_MQTT_CLIENT_WILL_TOPIC_MAXIMUM_LENGTH.
+ *   The client ID length should be less than SI91X_MQTT_CLIENT_CLIENT_ID_MAXIMUM_LENGTH.
+ *   The username and password length must be less than SI91X_MQTT_CLIENT_USERNAME_MAXIMUM_LENGTH and SI91X_MQTT_CLIENT_PASSWORD_MAXIMUM_LENGTH, respectively.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
+ * 
+ * @note
+ *   SNI Limitation:
+ *   - Only one SNI command can be active at a time, irrespective of protocol (MQTT or HTTP).
+ *   - You must wait for the connection to be fully established before initiating another connection with SNI.
+ *   - If multiple SNI commands are sent simultaneously, SL_STATUS_SI91X_FEATURE_NOT_AVAILABLE will be returned.
+ *   - For reconnection scenarios, set SNI before calling reconnect.
+ */
+sl_status_t sl_mqtt_client_connect_v2(sl_mqtt_client_t *client,
+                                      const sl_mqtt_broker_v2_t *broker,
+                                      const sl_mqtt_client_last_will_message_t *last_will_message,
+                                      const sl_mqtt_client_configuration_t *configuration,
+                                      uint32_t connect_timeout);
 
 /***************************************************************************/ /**
  * @brief
@@ -154,6 +224,12 @@ sl_status_t sl_mqtt_client_connect(sl_mqtt_client_t *client,
  * @note
  *   The function deinitializes the MQTT client context after the disconnection.
  *   The client must be in one of the following states to call this function: SL_MQTT_CLIENT_CONNECTED, SL_MQTT_CLIENT_TA_DISCONNECTED, or SL_MQTT_CLIENT_CONNECTION_FAILED.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout);
 
@@ -191,6 +267,12 @@ sl_status_t sl_mqtt_client_disconnect(sl_mqtt_client_t *client, uint32_t timeout
  * @note
  *   The maximum length of the topic must be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
  *   The function allocates memory for the publish request, and free the space after the operation.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
                                    const sl_mqtt_client_message_t *message,
@@ -239,6 +321,12 @@ sl_status_t sl_mqtt_client_publish(sl_mqtt_client_t *client,
  * 
  * @note
  *   The maximum length of the topic should be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
                                      const uint8_t *topic,
@@ -284,6 +372,12 @@ sl_status_t sl_mqtt_client_subscribe(sl_mqtt_client_t *client,
  * 
  * @note
  *   The maximum length of the topic must be less than SI91X_MQTT_CLIENT_TOPIC_MAXIMUM_LENGTH.
+ *
+ * @note
+ *   This function uses a user-configurable timeout parameter that is not affected
+ *   by the global timeout scaling factors (SL_WIFI_INTERNAL_COMMANDS_TIMEOUT_SF,
+ *   SL_WIFI_MANAGEMENT_COMMANDS_TIMEOUT_SF, SL_WIFI_NETWORK_COMMANDS_TIMEOUT_SF)
+ *   or the additional wait time configuration (SL_TX_ADDITIONAL_WAIT_TIME).
  ******************************************************************************/
 sl_status_t sl_mqtt_client_unsubscribe(sl_mqtt_client_t *client,
                                        const uint8_t *topic,

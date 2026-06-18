@@ -26,7 +26,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
+#include "sli_wifi_utility.h"
 #include "sl_si91x_types.h"
 #include "sl_constants.h"
 #include "sl_status.h"
@@ -277,12 +277,12 @@ sl_status_t sli_m4_interrupt_isr(void)
 
     mask_ta_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
 
-    sli_si91x_set_event(SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT);
+    sli_wifi_set_event(SL_SI91X_TA_BUFFER_FULL_CLEAR_EVENT);
 
     // Clear the interrupt
     clear_ta_to_m4_interrupt(TA_RSI_BUFFER_FULL_CLEAR_EVENT);
   }
-#if defined(SLI_SI917) || defined(SLI_SI915)
+#if defined(SLI_SI917)
   else if (TASS_P2P_INTR_CLEAR & TA_WRITING_ON_COMM_FLASH) {
     //! moves m4 app to RAM and polls for NWP done
     sli_mv_m4_app_from_flash_to_ram(TA_WRITES_ON_COMM_FLASH);
@@ -312,7 +312,7 @@ sl_status_t sli_m4_interrupt_isr(void)
 #endif
   else {
     SL_DEBUG_LOG("\r\n INVALID INTERRUPT \r\n", 0);
-    BREAKPOINT();
+    return SL_STATUS_FAIL;
   }
   return SL_STATUS_OK;
 }
@@ -327,13 +327,13 @@ sl_status_t sli_receive_from_ta_done_isr(void)
 {
 #ifdef SL_WIFI_COMPONENT_INCLUDED
   extern sl_wifi_buffer_t *rx_pkt_buffer;
-  extern sli_si91x_buffer_queue_t sli_ahb_bus_rx_queue;
+  extern sli_wifi_buffer_queue_t sli_ahb_bus_rx_queue;
   // Add to rx packet to CCP queue
   sl_status_t status = sli_si91x_add_to_queue(&sli_ahb_bus_rx_queue, rx_pkt_buffer);
   VERIFY_STATUS_AND_RETURN(status);
 
   //! Set event RX pending event to host
-  sli_si91x_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
+  sli_wifi_set_event(SL_SI91X_NCP_HOST_BUS_RX_EVENT);
 #endif
 
   return SL_STATUS_OK;

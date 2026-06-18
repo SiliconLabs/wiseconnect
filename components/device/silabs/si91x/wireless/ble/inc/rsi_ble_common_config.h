@@ -219,6 +219,30 @@
 #define RSI_BLE_NUM_CONN_EVENTS 20 ///< Defines the number of BLE connection events.
 #endif
 
+#ifndef RSI_BLE_PACKET_CHUNK_SIZE
+#define RSI_BLE_PACKET_CHUNK_SIZE 320
+#endif
+
+#ifndef RSI_BLE_SMALL_BUFF_LEN
+#define RSI_BLE_SMALL_BUFF_LEN 32
+#endif
+
+#ifndef RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK
+#define RSI_BLE_SMALL_BUFF_COUNT_PER_PACKET_CHUNK (RSI_BLE_PACKET_CHUNK_SIZE / RSI_BLE_SMALL_BUFF_LEN)
+#endif
+
+#ifndef RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED
+#define RSI_BLE_PER_CONN_MIN_PACKET_BUFFS_REQUIRED 2
+#endif
+
+#ifndef RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_SMALL_BUFF_MODE
+#define RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_SMALL_BUFF_MODE 5
+#endif
+
+#ifndef RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_BIG_BUFF_MODE
+#define RSI_BLE_MIN_CE_BUFFS_REQUIRED_INCASE_BIG_BUFF_MODE 4
+#endif
+
 #if !RSI_BLE_MAX_NBR_PERIPHERALS /* Wireless initialization is failing with error 
 SL_STATUS_SI91X_INVALID_CONFIG_RANGE_PROVIDED(0x10063) for the 0P + 2C configuration. Therefore, for the 0P configuration, 
 the number of peripherals has been updated to 1, and the number of connection events has been set to 8. */
@@ -242,13 +266,9 @@ the number of peripherals has been updated to 1, and the number of connection ev
 #define RSI_BLE_ADV_CHANNEL_MAP \
   0x07 ///< Defines the advertising channel map for BLE. Setting all bits to 1 (0x07) enables advertising on all three channels.
 #endif
-///< BLE Tx Power Index On Air
+
 #ifndef RSI_BLE_PWR_INX
-#ifdef SLI_SI915
-#define RSI_BLE_PWR_INX 75 ///< HP chain for Si915
-#else
-#define RSI_BLE_PWR_INX 30 ///< LP chain
-#endif
+#define RSI_BLE_PWR_INX 30 ///< BLE Tx Power Index On Air
 #endif
 
 #ifndef RSI_BLE_PWR_INX_DBM

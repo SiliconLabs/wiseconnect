@@ -1,6 +1,6 @@
 id: external_psram_8mb
 label: 8MB PSRAM (External)
-package: platform
+package: platform_siwx91x
 description: It is necessary to initialize this component, if the external flash connected to the SiWG91x part is of size 8MB.
 category: Device|Si91x|MCU|PSRAM
 quality: production
