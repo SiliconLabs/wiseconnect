@@ -270,7 +270,7 @@ typedef struct {
 #define SL_SI91X_GET_CHANNEL_TIMEOUT 30200
 
 /// Timeout used in get_interface_info API (milliseconds)
-#define SL_SI91X_GET_INTERFACE_INFO_TIMEOUT 1000
+#define SL_SI91X_GET_INTERFACE_INFO_TIMEOUT 15000
 
 //! @endcond
 
