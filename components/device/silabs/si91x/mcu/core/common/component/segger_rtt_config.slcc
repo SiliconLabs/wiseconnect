@@ -1,0 +1,23 @@
+id: segger_rtt_config_siwx91x
+label: SEGGER RTT Config define
+package: platform_siwx91x
+description: >
+  SiWx91x-specific override of segger_rtt's SEGGER_RTT_Conf.h. Sets
+  SEGGER_RTT_MAX_INTERRUPT_PRIORITY to the value derived from the SiWx91x
+  FreeRTOS port (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY=5,
+  configPRIO_BITS=6 -> 0x14) so wireless/P2P/DMA ISRs are actually masked
+  during RTT/SystemView critical sections.
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+category: Third Party|Segger|RTT|Configuration
+ui_hints:
+  visibility: never
+provides:
+  - name: segger_rtt_config_siwx91x
+requires:
+  - name: segger_rtt
+define:
+  - name: SEGGER_RTT_MAX_INTERRUPT_PRIORITY
+    value: '0x14'

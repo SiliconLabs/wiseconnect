@@ -1,0 +1,81 @@
+project_name: ble_testmodes_soc
+package: bluetooth_le_siwx91x_app
+quality: production
+label: BLE - SoC Testmodes FreeRTOS
+category: Example|BLE
+description: 'Demonstrates BLE GAP peripheral test procedures on SiWx91x in SoC FreeRTOS. Demonstrated by controlled GAP test behavior for validation with peers or test gear.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Device Type
+  value:
+  - SoC
+- name: Project Difficulty
+  value:
+  - Advanced
+- name: Quality
+  value:
+  - Production
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+- id: si91x_memory_default_config
+- id: wiseconnect_common
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: wifi_resources
+- id: network_manager
+- id: basic_network_config_manager
+- id: ble
+- id: log_none
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/blerxtestmode1.png
+- path: resources/readme/blerxtestmodebtmonlog.png
+- path: resources/readme/bletestmodeserialteriminalsocprints.png
+- path: resources/readme/bletxtestmode1.png
+- path: resources/readme/bletxtestmodebtmon1.png
+- path: resources/readme/setup_diagram.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

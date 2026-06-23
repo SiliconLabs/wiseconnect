@@ -1,0 +1,88 @@
+project_name: ble_per_uart_ncp
+package: bluetooth_le_siwx91x_app
+quality: production
+label: BLE UART NCP PER FreeRTOS
+category: Example|BLE
+description: 'Demonstrates BLE Packet Error Rate (PER) TX/RX testing on SiWx91x over UART NCP with FreeRTOS. Demonstrated by configuring parameters to transmit or receive PER packets.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Device Type
+  value:
+  - NCP
+- name: Project Difficulty
+  value:
+  - Beginner
+- name: Quality
+  value:
+  - Production
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: device_init
+- id: iostream_retarget_stdio
+- id: iostream_rtt
+- id: iostream_stdlib_config
+- id: uartdrv_usart
+  instance:
+  - exp
+- id: wiseconnect_common
+- id: ble
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: sl_si91x_uart_bus
+- id: wifi_resources
+- id: network_manager
+- id: basic_network_config_manager
+- id: log_none
+- id: log_backend_iostream
+- id: log_backend_iostream_formatted
+- id: log_platform_specific
+toolchain_settings:
+- option: gcc_linker_option
+  value: -u _printf_float
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: configUSE_POSIX_ERRNO
+  value: '1'
+- name: configTOTAL_HEAP_SIZE
+  value: '51200'
+- name: configTIMER_TASK_PRIORITY
+  value: '55'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/output_1.png
+- path: resources/readme/output_2.png
+- path: resources/readme/ble_per_soc_ncp.png
+- path: resources/readme/bleperspectrum.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

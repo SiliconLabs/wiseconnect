@@ -1,0 +1,75 @@
+project_name: sl_si91x_nvm3_common_flash
+package: platform_nwp_siwx91x_app
+description: 'This application demonstrates how to use the NVM3 library to store and retrieve data in the common flash of the Si91x SoC device.
+
+  '
+category: Example|Service
+quality: production
+label: SiWx91x Platform - NVM3 Common Flash
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: nvm3_lib
+- id: slist
+- id: syscalls
+- id: wifi
+- id: network_manager
+- id: basic_network_config_manager
+- id: sl_si91x_internal_stack
+- id: si91x_memory_default_config
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/output.png
+- path: resources/uc_screen/si91x_nvm3_uc_screen.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+post_build:
+  profile: wiseconnect_soc
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

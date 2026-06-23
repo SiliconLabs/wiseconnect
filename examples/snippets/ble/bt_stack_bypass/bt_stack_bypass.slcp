@@ -1,0 +1,115 @@
+project_name: bt_stack_bypass
+package: bluetooth_le_siwx91x_app
+quality: production
+label: BLE - BT_STACK_BYPASS FreeRTOS
+category: Example|BLE
+description: 'Demonstrates raw BLE HCI over UART on SiWx91x in SoC FreeRTOS for low-level controller testing. Demonstrated by bypassing the host stack with direct HCI.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Device Type
+  value:
+  - SoC
+- name: Project Difficulty
+  value:
+  - Beginner
+- name: Quality
+  value:
+  - Production
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SLI_SI91X_MCU_INTERFACE
+- name: SLI_SI91X_MCU_MOV_ROM_API_TO_FLASH
+component:
+- id: si91x_memory_default_config
+- id: si91x_debug
+- id: rsilib_userconfig
+- id: romdriver_egpio
+- id: rsilib_clock_update
+- id: udma_linker_config
+- id: syscalls
+- id: sl_usart
+- id: sl_clock_manager
+- id: log_none
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_rtt_si91x
+requires:
+- name: sl_main
+- name: network_manager
+- name: basic_network_config_manager
+- name: wiseconnect_common
+- name: wifi
+- name: ble
+- name: sl_si91x_internal_stack
+- name: wifi_resources
+- name: freertos
+- name: freertos_heap_4
+- name: slist
+- name: sl_si91x_soc_soft_reset
+- name: iostream_retarget_stdio
+  condition:
+  - device_has_devinfo
+- name: iostream_recommended_stream
+  condition:
+  - device_has_devinfo
+- name: iostream_stdlib_config
+  condition:
+  - device_has_devinfo
+- name: device_init
+  condition:
+  - device_has_devinfo
+- name: emlib_common
+  condition:
+  - device_has_devinfo
+- name: emlib_ldma
+  condition:
+  - device_has_devinfo
+- name: device_needs_ram_execution
+  condition:
+  - si91x_common_flash
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: SL_USART_MODE
+  value: SL_USART_MODE_ASYNCHRONOUS
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/blenewappsoc.png
+- path: resources/readme/LinuxLogs1.png
+- path: resources/readme/LinuxLogs2.png
+- path: resources/readme/LinuxLogs3.png
+- path: resources/readme/Mobile.png
+- path: resources/readme/NCPConsoleLogs.png
+- path: resources/readme/RTTLogs.png
+- path: resources/readme/SOCConsoleLogs.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

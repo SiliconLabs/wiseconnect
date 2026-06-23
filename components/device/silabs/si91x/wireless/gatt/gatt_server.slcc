@@ -1,0 +1,148 @@
+id: gatt_server
+package: bluetooth_le_siwx91x
+description: >
+  GATT Server event handlers for BLE
+label: GATT Server
+category: Device|Si91x|Wireless|BLE|GATT
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/device/silabs/si91x/wireless/gatt
+provides:
+  - name: gatt_server
+define:
+  - name: SL_SI91X_BLE_GATT_SERVER_COMPONENT
+source:
+  - path: server/src/gatt_server_init.c
+  - path: server/src/gatt_server_utilities.c
+  - path: server/src/gatt_server_event_hdlrs.c
+
+include:
+  - path: server/inc
+    file_list:
+      - path: gatt_server.h
+
+config_file:
+  - path: server/inc/gatt_server_config.h
+    directory: ble_config
+    file_id: gatt_server_config
+
+requires:
+  - name: ble_unified_framework
+  - name: gap
+  - name: gatt_common
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "gatt_server_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_gatt_server_init
+      ble_unified_init_label: "GATT Server"
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_MAX_NBR_ATT_SERV(RSI_BLE_MAX_NBR_ATT_SERV)
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_MAX_NBR_ATT_REC(RSI_BLE_MAX_NBR_ATT_REC)
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES)
+  - name: wrapper_implementations
+    value:
+      name: sl_btc_ble_gatt_server_register_callbacks_wrapper
+      registration_api: rsi_ble_gatt_server_register_callbacks
+      callbacks:
+        - event_prepare_write
+        - event_execute_write
+        - read_req
+        - event_indication_confirmation
+  - name: wrapper_implementations
+    value:
+      name: sl_btc_ble_gatt_extended_register_callbacks_wrapper
+      registration_api: rsi_ble_gatt_extended_register_callbacks
+      callbacks:
+        - event_mtu_exchange_information
+  - name: ble_events
+    value:
+      event_mtu_exchange_information:
+        callback_params:
+          - name: rsi_ble_event_mtu_exchange_information
+            type: rsi_ble_event_mtu_exchange_information_p
+        event_data:
+          name: rsi_ble_event_mtu_exchange_information
+      
+      read_req:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_read_req
+            type: rsi_ble_read_req_p
+        event_data:
+          name: rsi_ble_read_req
+      
+      event_prepare_write:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_prepare_write
+            type: rsi_ble_event_prepare_write_p
+        event_data:
+          name: rsi_ble_event_prepare_write
+      
+      event_execute_write:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_execute_write
+            type: rsi_ble_execute_write_p
+        event_data:
+          name: rsi_ble_execute_write
+      
+      event_indication_confirmation:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_set_att_rsp
+            type: rsi_ble_set_att_resp_p
+        event_data:
+          name: rsi_ble_event_set_att_rsp
+      
+      event_data_transmit_server:
+        callback_params:
+          - name: conn_id
+            type: uint8_t
+        event_data:
+          name: conn_id
+      
+      event_set_buffer_config_server:
+        callback_params:
+          - name: conn_id
+            type: uint8_t*
+        event_data:
+          name: conn_id
+  - name: agents_slab
+    value:
+      id: gatt_server
+      context: |
+        ## GATT Server Component (Si91x Wireless BLE Unified)
+        Local GATT database, attribute table, and server-side request handling (read/write/prepare-write/execute-write/indication confirmation). Selecting this component defines `SL_SI91X_BLE_GATT_SERVER_COMPONENT` and brings in `gap` + `gatt_common` automatically.
+        ### Init hook
+        - Function: `ble_gatt_server_init` (registered via `ble_unified_init_hooks`) — builds the default attribute table from `gatt_server_config.h` macros and registers callbacks.
+        - Registers two wrappers: `sl_btc_ble_gatt_server_register_callbacks_wrapper()` (`event_prepare_write`, `event_execute_write`, `read_req`, `event_indication_confirmation`) and `sl_btc_ble_gatt_extended_register_callbacks_wrapper()` (`event_mtu_exchange_information`).
+        ### Configuration (`gatt_server_config.h` — copied to `config/ble_config/`)
+        Key macros: `LOCAL_MTU_SIZE` (default ATT MTU advertised), `TX_NOTIFICATIONS_TO_*` / `TX_INDICATIONS_TO_*` (per-conn flags for transmitting notifications/indications), and the included service/characteristic UUID set. Feature-bitmap entries contributed automatically: `SL_SI91X_BLE_MAX_NBR_ATT_SERV(RSI_BLE_MAX_NBR_ATT_SERV)`, `SL_SI91X_BLE_MAX_NBR_ATT_REC(RSI_BLE_MAX_NBR_ATT_REC)`, `SL_SI91X_BLE_NUM_REC_BYTES(RSI_BLE_NUM_REC_BYTES)`.
+        ### Adding a New Service/Characteristic
+        1. Define UUIDs and value buffers in `gatt_server_config.h` (or the application's `ble_config.h`).
+        2. Add `rsi_ble_add_service()` / `rsi_ble_add_char_serv_att()` / `rsi_ble_add_char_val_att()` calls inside or after `ble_gatt_server_init` (via an application-level extension hook).
+        3. Increase `RSI_BLE_MAX_NBR_ATT_SERV`, `RSI_BLE_MAX_NBR_ATT_REC`, and `RSI_BLE_NUM_REC_BYTES` if the new attributes overflow the existing budget — these directly size the controller's attribute table.
+        ### Common Mistakes to Avoid
+        - Sending notifications without first verifying the peer enabled them (peer writes 0x0001 to the CCCD; check the `event_gatt_write` from `gatt_common` and store per-conn state).
+        - Calling `rsi_ble_notify_value()` from a non-BLE task without serializing through the BLE event loop — the SDK's BLE APIs are not thread-safe across arbitrary RTOS contexts.
+        - Setting `LOCAL_MTU_SIZE` larger than the buffer pool can satisfy — pairs may negotiate but data-length update can fail.
+        - Writing handles obtained from a previous connection — handles are stable for the life of the database, but you must re-resolve indices into per-connection state on `event_disconnect` → `event_conn_status`.
+    priority: -5306

@@ -1,0 +1,174 @@
+upgrade:
+  - sdk:
+      id: wiseconnect3_sdk
+      version: "3.5.0"
+    component:
+      - trigger: debug_ulp_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: comparator_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: dac_ulp_component
+        description: >
+                  
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: timer_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: calender_ulp_component
+        description: >
+                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: bod_ulp_component
+        description: >
+                      
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: adc_ulp_component
+        description: >
+                       
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: cts_ulp_component
+        description: >
+                      
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: dma_ulp_component
+        description: >
+                          
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: gpio_npss_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: gpio_ulp_component
+        description: >
+                               
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: i2c_ulp_component
+        description: >
+                             
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: i2s_ulp_component
+        description: >
+                             
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: wdt_ulp_component
+        description: >
+                               
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: usart_ulp_component
+        description: >
+                                    
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: sysrtc_ulp_component
+        description: >
+                                
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: user_files
+        description: >
+                                   
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - trigger: ssi_ulp_component
+        description: >
+                                 
+        status: automatic  
+        add:
+           - pm_ps2_component
+      - script: upgrade_script.lua
+        description: >
+                          
+  - sdk:
+      id: wiseconnect3_sdk
+      version: "4.0.0"
+    component:
+      - trigger: wiseconnect3_common
+        description: >
+                                
+        status: automatic  
+        add:
+           - wiseconnect_common
+        remove:
+           - wiseconnect3_common
+      - trigger: wiseconnect3_logger
+        description: >
+                                
+        status: automatic  
+        add:
+           - wiseconnect_logger
+        remove:
+           - wiseconnect3_logger
+      - trigger: sl_si91x_littlefs_common_flash
+        description: >
+                      Adding freertos_heap_4 component          
+        status: automatic  
+        add:
+           - sl_si91x_freertos_heap4_for_littlefs
+      - script: upgrade_component_nvm3_network_manager.lua
+        description: >
+                          
+  - sdk:
+      id: wiseconnect3_sdk
+      vendor: silabs
+      version: "4.1.0"
+    component:
+      - trigger: psram_aps6404l_sqh
+        description: >
+                                
+        status: automatic  
+        remove:
+           - psram_aps6404l_sqh
+      - trigger: sl_si91x_basic_buffers
+        description: >
+          The 'Basic Buffer Manager' component is deprecated with a deprecation period of 18 months. 
+          Its replacement, 'Buffer Manager', is pulled in automatically 
+          when you select the 'Wi-Fi' component.
+        status: automatic
+      - trigger: sl_si91x_mem_pool_buffers
+        description: >
+          The 'Memory Pool Buffer' component is deprecated with a deprecation period of 18 months. 
+          Its replacement, 'Buffer Manager', is pulled in automatically 
+          when you select the 'Wi-Fi' component.
+        status: automatic
+      - trigger: sl_si91x_mem_pool_buffers_with_quota
+        description: >
+          The 'Memory Pool Buffer With Quota' component is deprecated with a deprecation period of 18 months. 
+          Its replacement, 'Buffer Manager', is pulled in automatically 
+          when you select the 'Wi-Fi' component.
+        status: automatic

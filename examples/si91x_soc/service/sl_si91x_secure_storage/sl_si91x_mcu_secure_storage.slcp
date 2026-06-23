@@ -1,0 +1,91 @@
+project_name: sl_si91x_secure_storage
+package: platform_nwp_siwx91x_app
+description: 'This application demonstrates MCU Secure Storage Registers.
+
+  '
+category: example|service
+quality: production
+label: SiWx91x Platform - MCU Secure Storage
+component:
+- id: freertos
+- id: freertos_heap_4
+- id: sl_main
+- id: status
+- id: basic_network_config_manager
+- id: network_manager
+- id: si91x_memory_default_config
+- id: sl_power_manager
+- id: sl_si91x_internal_stack
+- id: sl_si91x_mcu_secure_storage
+- id: sl_uart
+- id: syscalls
+- id: wifi
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+- id: wifi_resources
+- id: wiseconnect_common
+- id: sl_wdt_manager
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+define:
+- name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+- name: SL_SI91X_PRINT_DBG_LOG
+requires:
+- name: device_needs_ram_execution
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: SL_SI91X_WC_FEAT_SECURITY_OPEN
+  value: '1'
+- name: SL_SI91X_WC_FEAT_AGGREGATION
+  value: '1'
+- name: SL_SI91X_WC_FEAT_ULP_GPIO_BASED_HANDSHAKE
+  value: '1'
+- name: SL_SI91X_WC_TCP_IP_FEAT_DHCPV4_CLIENT
+  value: '1'
+- name: SL_SI91X_WC_TCP_IP_FEAT_DNS_CLIENT
+  value: '1'
+- name: SL_SI91X_WC_EXT_FEAT_LOW_POWER_MODE
+  value: '1'
+- name: SL_SI91X_WC_EXT_FEAT_UART_SEL_FOR_DEBUG_PRINTS
+  value: '1'
+- name: SL_SI91X_WC_FRONT_END_SWITCH_CONFIG
+  value: '1'
+- name: SL_SI91X_WC_FEAT_SLEEP_GPIO_SEL_BITMAP
+  value: '1'
+- name: SL_SI91X_WC_ENABLE_ENHANCED_MAX_PSP
+  value: '1'
+- name: SL_SI91X_WC_FEAT_WPS_DISABLE
+  value: '1'
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: resources/readme/setupdiagram.png
+ui_hints:
+  highlight:
+  - path: config/sl_si91x_secure_storage_config.h
+    focus: true
+  - path: readme.md
+readme:
+- path: readme.md
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

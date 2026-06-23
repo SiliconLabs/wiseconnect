@@ -1,0 +1,19 @@
+id: sl_si91x_agents_md
+label: AGENTS.md (Generative AI project context)
+package: platform_siwx91x
+description: >
+  This component provides baseline AGENTS.md at project root and generates autogen/AGENTS-SLAB.md
+  for AI-enabled IDEs (e.g. Cursor). Per IOTREQ-12094.
+category: Services|Generative AI
+quality: production
+metadata:
+  sbom:
+    license: MSLA
+root_path: components/device/silabs/si91x/sl_si91x_generative_ai/component
+ui_hints:
+  visibility: never
+
+provides:
+  - name: sl_si91x_agents_md
+requires:
+  - name: agents_md

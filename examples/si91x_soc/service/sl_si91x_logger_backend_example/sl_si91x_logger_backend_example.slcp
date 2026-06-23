@@ -1,0 +1,93 @@
+project_name: sl_si91x_logger_backend_example
+package: platform_nwp_siwx91x_app
+description: This application demonstrates the use of different backends for the logger service on the SI91x SoC device.
+category: example|service
+quality: production
+label: SiWx91x Platform - Logger Backend Example
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+- id: si91x_mem_config_3
+- id: wiseconnect_common
+- id: debug_ulp_component
+- id: basic_credential_manager
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: sl_si91x_button_917
+  instance:
+  - btn0
+source:
+- path: app.c
+- path: sl_si91x_logger_example.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: sl_si91x_logger_example.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BUTTON_CONFIG_BTN0_INTR
+  value: FALL_EDGE_INTERRUPT
+- name: SL_LOG_CONFIG_ARG
+  value: SL_LOG_CONFIG_ARG5
+other_file:
+- path: Log_script.py
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/backend_replace.png
+- path: resources/readme/iostream_formatted_install.png
+- path: resources/readme/iostream_rtt_default.png
+- path: resources/readme/iostream_base_installed.png
+- path: resources/readme/iostream_uart_install.png
+- path: resources/readme/iostream_uart_instance_vcom.png
+- path: resources/readme/iostream_uart_installed.png
+- path: resources/readme/systemview_component_install.png
+- path: resources/readme/systemview_01_file_new_project.png
+- path: resources/readme/systemview_02_new_project_dialog.png
+- path: resources/readme/systemview_03_recorder_select_jlink.png
+- path: resources/readme/systemview_04_recorder_rtt_read_elf.png
+- path: resources/readme/systemview_06_project_tab.png
+- path: resources/readme/systemview_07_select_elf_files.png
+- path: resources/readme/systemview_08_add_elf_file.png
+- path: resources/readme/systemview_09_select_message_files.png
+- path: resources/readme/systemview_10_double_click_on_msg_file.png
+- path: resources/readme/systemview_11_change_the_section_to_log_fmt.png
+- path: resources/readme/console_iostream_rtt_commander.png
+- path: resources/readme/console_systemview.png
+- path: resources/readme/console_iostream_uart_docklight.png
+- path: resources/readme/logger_uc_general.png
+- path: resources/readme/logger_uc_proprietary.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

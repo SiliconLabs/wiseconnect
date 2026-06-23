@@ -1,0 +1,71 @@
+project_name: siwx91x_platform_psram_blinky_freertos
+package: platform_siwx91x_app
+description: 'PSRAM blinky example running under FreeRTOS on the SiWx91x SoC.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - PSRAM Blinky FreeRTOS
+component:
+- id: freertos_heap_4
+- id: sl_main
+- id: status
+- id: syscalls
+- id: si91x_memory_default_config
+- id: psram_core
+- id: data_segment_in_psram
+- id: text_segment_in_psram
+- id: sl_si91x_led_917
+  instance:
+  - led0
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+source:
+- path: psram_blinky_freertos.c
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: psram_blinky_freertos.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: ./resources/readme/setupdiagram.png
+- path: ./resources/readme/section_component_installation.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

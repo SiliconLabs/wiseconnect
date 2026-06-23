@@ -1,0 +1,119 @@
+project_name: bt_stack_bypass_spi_ncp
+package: bluetooth_le_siwx91x_app
+quality: production
+label: BLE - NCP BT Stack Bypass
+category: Example|BLE
+description: 'BLE HCI raw (stack bypass) on NCP host MCU (EFR32 + Si91x module) over SPI.
+
+  Open this .slcp in Simplicity Studio to generate CMake/autogen for the host target.
+
+  Application source: app.c (NCP path when SLI_SI91X_MCU_INTERFACE is not defined).
+
+  NCP host bus matches wireless_test_ncp: sl_si91x_spi_bus + spidrv (EXP header); HCI to host PC uses VCOM/iostream (recommended stream), not the SPI link.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Device Type
+  value:
+  - NCP
+- name: Project Difficulty
+  value:
+  - Beginner
+- name: Quality
+  value:
+  - Production
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+define:
+- name: SLI_SI91X_MCU_INTR_BASED_RX_ON_UART
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: device_init
+- id: spidrv
+  instance:
+  - exp
+- id: iostream_eusart
+  instance:
+  - vcom
+  condition:
+  - brd4186c
+- id: iostream_usart
+  instance:
+  - vcom
+  condition:
+  - brd4180a
+- id: iostream_usart
+  instance:
+  - vcom
+  condition:
+  - brd4180b
+- id: iostream_usart
+  instance:
+  - vcom
+  condition:
+  - brd4120a
+- id: iostream_retarget_stdio
+- id: iostream_recommended_stream
+- id: iostream_stdlib_config
+- id: wiseconnect_common
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: wifi_resources
+- id: sl_si91x_spi_bus
+- id: network_manager
+- id: basic_network_config_manager
+- id: ble
+- id: iot_socket
+- id: log
+- id: log_backend_iostream_formatted
+- id: log_platform_specific
+- id: iostream_rtt
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+- name: configUSE_POSIX_ERRNO
+  value: '1'
+- name: configTOTAL_HEAP_SIZE
+  value: '51200'
+- name: configTIMER_TASK_PRIORITY
+  value: '55'
+- name: NVM3_DEFAULT_MAX_OBJECT_SIZE
+  value: '280'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/blenewappsoc.png
+- path: resources/readme/LinuxLogs1.png
+- path: resources/readme/LinuxLogs2.png
+- path: resources/readme/LinuxLogs3.png
+- path: resources/readme/Mobile.png
+- path: resources/readme/NCPConsoleLogs.png
+- path: resources/readme/RTTLogs.png
+- path: resources/readme/SOCConsoleLogs.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

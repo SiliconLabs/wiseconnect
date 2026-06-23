@@ -1,0 +1,77 @@
+project_name: ble_unified_coex_app
+package: bluetooth_le_siwx91x_app
+quality: production
+label: BLE Unified Coex Application (SoC)
+category: Example|BLE
+description: 'Demonstrates BLE Unified Component Framework with modular protocol architecture on Si91x SoC. Supports GAP, GATT Server/Client, SMP, and Extended/Legacy Advertising.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - BLE
+- name: Project Difficulty
+  value:
+  - Advanced
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ble_config.h
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+- id: si91x_mem_config_2
+- id: wiseconnect_common
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: sl_power_manager
+- id: wifi_resources
+- id: network_manager
+- id: basic_network_config_manager
+- id: ble
+- id: ble_unified
+- id: log_none
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+- id: gap
+- id: si91x_ble_adv_scan_default_config
+- id: smp
+- id: gatt_server
+- id: gatt_client
+requires:
+- name: device_needs_ram_execution
+  condition:
+  - si91x_common_flash
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: README.md
+ui_hints:
+  highlight:
+  - path: README.md
+    focus: true
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0

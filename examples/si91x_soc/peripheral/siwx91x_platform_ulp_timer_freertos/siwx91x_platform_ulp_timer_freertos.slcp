@@ -1,0 +1,110 @@
+project_name: siwx91x_platform_ulp_timer_freertos
+package: platform_siwx91x_app
+description: 'ULP Timer example running under FreeRTOS on the SiWx91x SoC.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - ULP Timer FreeRTOS
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: status
+- id: syscalls
+- id: wiseconnect_common
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: network_manager
+- id: basic_network_config_manager
+- id: wifi_resources
+- id: si91x_mem_config_3
+- id: sllib_wireless_shutdown
+- id: sl_si91x_led_917
+  instance:
+  - led0
+- id: ulp_timers_instance
+  instance:
+  - timer0
+- id: sl_ulp_timer
+- id: sl_power_manager
+- id: pm_ps2_component
+- id: debug_ulp_component
+- id: timer_ulp_component
+- id: si91x_log
+- id: si91x_log_iostream_compact
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+source:
+- path: ulp_timer_freertos.c
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: ulp_timer_freertos.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+define:
+- name: SLI_SI91X_MCU_ENABLE_RAM_BASED_EXECUTION
+- name: SL_SI91X_ULP_STATE_ENABLE
+- name: SL_SI91X_ENABLE_LOWPWR_RET_LDO
+  value: '1'
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/image512d.png
+- path: resources/readme/image512f.png
+- path: resources/uc_screen/ulp_timer_uc_screen.png
+- path: resources/readme/output.png
+template_contribution:
+- name: ulp_platform
+  priority: 0
+  value: 1
+- name: user_files_ps2
+  priority: 0
+  value: ulp_timer_freertos.*
+- name: user_files_ps2
+  priority: 0
+  value: app.*
+- name: user_files_ps2
+  priority: 0
+  value: main.*
+- name: user_files_ps2
+  priority: 0
+  value: sl_event_handler.*
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+requires:
+- name: device_needs_ram_execution
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.0
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.0
