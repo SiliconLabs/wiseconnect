@@ -1,0 +1,122 @@
+# SiWx91x Platform PS1 STATE
+
+## Table of Contents
+
+- [SiWx91x Platform PS1 STATE](#platform-siwx91x-ps1-state)
+  - [Table of Contents](#table-of-contents)
+  - [Purpose/Scope](#purposescope)
+  - [About Example Code](#about-example-code)
+  - [Prerequisites/Setup Requirements](#prerequisitessetup-requirements)
+    - [Hardware Requirements](#hardware-requirements)
+    - [Software Requirements](#software-requirements)
+    - [Setup Diagram](#setup-diagram)
+  - [Getting Started](#getting-started)
+  - [Application Build Environment](#application-build-environment)
+  - [Test the Application](#test-the-application)
+  - [Troubleshooting](#troubleshooting)
+  - [Resources](#resources)
+  - [Report Bugs/Support](#report-bugssupport)
+
+## Purpose/Scope
+
+- This application demonstrates the PS1 state with RAM retention and NWP shutdown.
+  ```c
+  Note: This application is designed to validate the MCU's power consumption values specified in the datasheet, and thus contain meticulous optimizations. This application should not be taken as reference for a real-time use case project bring up. This application does not support wake-up sources.
+  ```
+
+## About Example Code
+
+- This example demonstrates the transition to the PS1 state, with RAM retention and NWP shutdown. By default, our application is configured to retain 320KB RAM.
+- Initially, the Power Manager service is initialized, transitioning the processor to the PS3 state with the clock set to 40 MHz (Power Save) using sl_si91x_power_manager_init.
+- The power domains will be disabled and NWP will be shutdown.
+- The application will then switch to the PS2 state and clock is at 20 MHz. Then transition to PS1 state, stay at that state for 2 sec based on configuration of ULP timer and again change back to PS2 state.
+- Finally, the application will enter the PS2 sleep mode.
+
+## Prerequisites/Setup Requirements
+
+- To use this application following Hardware, Software and Project Setup is required.
+
+### Hardware Requirements
+
+- Windows PC
+- Silicon Labs SiWx91x Evaluation Kit [[BRD4002](https://www.silabs.com/development-tools/wireless/wireless-pro-kit-mainboard?tab=overview) + [BRD4338A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx917-rb4338a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4342A](https://www.silabs.com/development-tools/wireless/wi-fi/siwx91x-rb4342a-wifi-6-bluetooth-le-soc-radio-board?tab=overview) / [BRD4343A](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343a-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview) / [BRD4343C](https://www.silabs.com/development-tools/wireless/wi-fi/siw917y-rb4343c-wi-fi-6-bluetooth-le-8mb-flash-radio-board-for-module?tab=overview)]
+  - The Serial Console setup instructions are provided below:
+Refer to instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-developing-for-silabs-hosts/using-the-simplicity-studio-ide#console-input-and-output).
+
+### Software Requirements
+
+- Simplicity Studio
+- Embedded Development Environment
+  - For Silicon Labs SiWx91x, use the latest version of Simplicity Studio (refer **"Download and Install Simplicity Studio"** section in **getting-started-with-siwx917-soc** guide at **release_package/docs/index.html**)
+
+### Setup Diagram
+
+![Figure: setupdiagram](resources/readme/setupdiagram.png)
+
+## Getting Started
+
+Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
+
+- Install Studio and WiSeConnect extension
+- Connect your device to the computer
+- Upgrade your connectivity firmware
+- Create a Studio project
+
+For details on the project folder structure, see the [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/#example-folder-structure) page.
+
+> **Note**: For recommended settings, please refer the [recommendations guide](https://docs.silabs.com/wiseconnect/latest/wiseconnect-developers-guide-prog-recommended-settings/).
+
+## Application Build Environment
+
+Configure the following macros in `ps1_state.c` if required:
+
+- `ULP_TIMER_MATCH_VALUE`: Specifies the ULP timer match count used to schedule the wakeup from the PS1 state. By default, it is set to 40000000, which corresponds to approximately 2 seconds when operating with a 20 MHz down-counter reference.
+
+  ```c
+  #define ULP_TIMER_MATCH_VALUE 40000000          // Timer match value for down-counter type with 20MHz clock for 2 seconds
+  ```
+
+- `ULP_TIMER_INSTANCE`: Selects the ULP timer instance used to generate the wakeup event from the PS1 state. By default, it is set to `SL_ULP_TIMER_TIMER0`.
+
+  ```c
+  #define ULP_TIMER_INSTANCE    SL_ULP_TIMER_TIMER0 // ULP timer instance to be used
+  ```
+
+## Test the Application
+
+Refer instructions [here](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/) for the following tasks:
+
+1. Compile and run the application.
+
+   > **Note:** Use `Log_script.py` from the [SiWx91x Platform Logger example](https://github.com/SiliconLabs/wiseconnect/tree/v4.1.1-content-for-docs/examples/si91x_soc/service/sl_si91x_logger/) (`examples/si91x_soc/service/sl_si91x_logger/`) to decode structured console log output. Run:
+   >
+   > ```bash
+   > python Log_script.py --out firmware.out --port COM5 --max-args 3
+   > ```
+   >
+   > Replace `COM5` with the serial port your board uses on the host PC.
+   >
+   > Refer to the instructions [here](https://github.com/SiliconLabs/wiseconnect/blob/v4.1.1-content-for-docs/examples/si91x_soc/service/sl_si91x_logger/readme.md#test-the-application) to build, flash, and decode logger output.
+
+2. By default, application turns off the NWP, enters the PS2 state, then switches to PS1, returns to PS2, and finally goes to PS2 sleep.
+3. After successful program execution, the prints in the serial console look as shown below.
+  ![Figure: PS1 State](resources/readme/ps1_state.png)
+4. The following power plots shows the transition of application to PS1 state and then goes back to sleep.
+  ![Figure: PS1 Power Plot](resources/readme/ps1_power_plot.png)
+
+
+## Troubleshooting
+
+- If the project does not build, ensure Simplicity Studio and the WiSeConnect extension are installed and the board is connected.
+- If the device is not detected, reinstall the connectivity firmware and check USB drivers.
+
+## Resources
+
+- [WiSeConnect Getting Started](https://docs.silabs.com/wiseconnect/latest/wiseconnect-getting-started/)
+- [WiSeConnect Examples](https://docs.silabs.com/wiseconnect/latest/wiseconnect-examples/)
+- [SiWx91x SoC Documentation](https://docs.silabs.com/wiseconnect/latest/)
+
+## Report Bugs/Support
+
+For issues and support, use the Silicon Labs Community or your normal support channel.
+

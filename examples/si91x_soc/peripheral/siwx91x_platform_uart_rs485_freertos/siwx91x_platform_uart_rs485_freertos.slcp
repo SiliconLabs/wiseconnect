@@ -1,0 +1,80 @@
+project_name: platform_siwx91x_uart_rs485_freertos
+package: platform_siwx91x_app
+description: 'This application demonstrates the configuration and usage of the UART RS485 peripheral in multidrop mode on the SiWx91x SoC device, transmitting and receiving data with FreeRTOS and supporting hardware- and software-controlled half-duplex modes.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - UART RS485 FreeRTOS
+component:
+- id: freertos_heap_4
+- id: sl_main
+- id: status
+- id: syscalls
+- id: si91x_memory_default_config
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+- id: sl_clock_manager
+- id: sl_gpio
+- id: rsilib_usart_rs485
+- id: sl_uart1_rs485
+source:
+- path: uart_rs485_mode_freertos.c
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: uart_rs485_mode_freertos.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+define:
+- name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+- name: SLI_SI91X_MCU_RS485_MODE
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/3_board_setup.png
+- path: resources/readme/N_board_setup.png
+- path: resources/readme/uart1_rs485_output_console.png
+- path: resources/uc_screen/uart0_rs485_hardware_controlled_half_duplex_receive_mode_uc.png
+- path: resources/uc_screen/uart0_rs485_hardware_controlled_half_duplex_transmit_mode_uc.png
+- path: resources/uc_screen/uart0_rs485_software_controlled_half_duplex_uc.png
+- path: resources/uc_screen/uart1_rs485_hardware_controlled_half_duplex_receive_mode_uc.png
+- path: resources/uc_screen/uart1_rs485_hardware_controlled_half_duplex_transmit_mode_uc.png
+- path: resources/uc_screen/uart1_rs485_software_controlled_half_duplex_uc.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.1

@@ -1,0 +1,886 @@
+/***************************************************************************//**
+ * GCC/CMake Linker script for Silicon Labs devices
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
+
+{#-
+  Device specific sizes and addresses. These variables describes the physical
+  memory of the device.
+#}
+{%- set sram_addr = device_ram_addr | first %}
+{%- set sram_size = device_ram_size | first %}
+{%- if flash_present %}
+	{%- set flash_addr = device_flash_addr | first %}
+	{%- set flash_size = device_flash_size | first %}
+{%- endif %}
+{%- set flash_page_size = device_flash_page_size | first %}
+
+
+{%- if psram_present %}
+	{%- set psram_addr = device_psram_addr | first %}
+	{%- set psram_size = device_psram_size | first %}
+{%- endif %}
+
+{%- if udma_enable %}
+  {%- set udma0_main_size = udma0_size | sum %}
+  {%- set udma0_start_addr = udma0 | sum %}
+  {%- set udma1_main_size = udma1_size | sum %}
+  {%- set udma1_start_addr = udma1 | sum %}
+{%- endif %}
+
+{#-
+  Application specific sizes. Here we start to calculate the application view
+  of the physical memory.
+#}
+{%- if flash_present %}
+	{%- set app_flash_start = flash_addr %}
+	{%- set app_flash_end = flash_addr + flash_size %}
+{%- endif %}
+{%- set app_ram_start = sram_addr %}
+{%- set app_ram_end = sram_size %}
+
+{%- if psram_present %}	
+	{%- set app_psram_start = psram_addr %}
+
+	{#- This linker file is only used when wiseconnect_toolchain_psram_linker is installed #}
+
+	{#- Always apply 0x1000 offset (4096 in decimal) to skip reserved area #}
+
+	{%- set psram_start_offset = 4096 %}
+
+	{%- set app_psram_start = psram_addr + psram_start_offset %}
+
+	{%- set app_psram_end = psram_addr + psram_size %}
+
+{%- endif %}
+
+{#-
+  Calculate application flash and ram size based on start and end address.
+#}
+{%- if flash_present %}
+{%- set app_flash_size = app_flash_end - app_flash_start %}
+{%- endif %}
+{%- set app_ram_size = app_ram_end - app_ram_start %}
+
+{%- if udma_enable %}
+  {%- set udma_buffer = udma_buffer | sum %}
+  {%- set app_ram_size = app_ram_size - udma_buffer %}
+  {%- set udma0_start_addr = app_ram_size + app_ram_start %}
+  {%- set udma1_start_addr = udma1_start_addr -  udma_buffer%}
+{%- endif %}
+
+{%- if psram_present %}	
+	{%- set app_psram_size = app_psram_end - app_psram_start %}
+{%- endif %}
+
+{%- set rtt = 0 %}
+{% if linker_rtt_section is defined %}
+{%-   set rtt = 1 %}
+{% endif %}
+
+{%- if nvm3_flash_size %}
+	{%- set nvm_size = nvm3_size | first%}
+	{%- set app_flash_size = app_flash_size - nvm_size %}
+{%- endif %}
+
+{%- if nvm3_enable or littlefs_enable %}
+	{%- set nvm_app_max_flash_size = max_flash_size | first %}
+{%- endif %}
+
+ MEMORY
+ {
+{%- if flash_present %}
+   rom   (rx)  : ORIGIN = 0x{{ '%0x' % app_flash_start }}, LENGTH = 0x{{ '%0x' % app_flash_size }}
+   DUMMY (!ax) : ORIGIN = 0x{{ '%0x' % (0x100000000 - app_flash_size) }}, LENGTH = 0x{{ '%0x' % app_flash_size }}
+{% endif %}
+   ram   (rwx) : ORIGIN = 0x{{ '%0x' % app_ram_start }}, LENGTH = 0x{{ '%0x' % app_ram_size }}
+   {%- if psram_present %}
+   psram (rwx) : ORIGIN = 0x{{ '%0x' % app_psram_start }}, LENGTH = 0x{{ '%0x' % app_psram_size }}
+   {%- endif %}
+ }
+
+{%- if udma_enable %}
+ MEMORY
+ {
+   udma0   (rwx)  : ORIGIN = 0x{{ '%0x' % udma0_start_addr }}, LENGTH = 0x{{ '%0x' % udma0_main_size }}
+   udma1   (rwx)  : ORIGIN = 0x{{ '%0x' % udma1_start_addr }}, LENGTH = 0x{{ '%0x' % udma1_main_size }}
+ }
+{%- endif %}
+
+{%- if flash_present %}
+/*******************************************************************************
+ * Program headers: explicit PT_LOAD with correct p_flags so the linker does not
+ * apply wrong access flags when a single flash region holds both executable and
+ * read-only data. ELF p_flags: 4=read, 5=read+execute, 6=read+write.
+ *
+ * When ram_execution is set, output section text_ram (VMA in RAM, LMA in flash)
+ * follows the usual ramfunc pattern: startup copies (or uses tables) before .data init.
+ ******************************************************************************/
+PHDRS
+{
+  vectors PT_LOAD FLAGS(4);      /* Flash: vector table (separate segment so ram_code LMA doesn't overlap) */
+  readonly PT_LOAD FLAGS(4);     /* Flash: .rodata */
+  text PT_LOAD FLAGS(5);         /* Flash: executable code, unwind tables */
+  tables PT_LOAD FLAGS(4);       /* Flash: .copy.table / .zero.table */
+{%- if not text_segment_in_psram %}
+  empty PT_LOAD FLAGS(4);        /* Flash: terminates LMA chain before NOLOAD */
+{%- endif %}
+
+{%- if not text_segment_in_psram %}
+  ram_pre_code PT_LOAD FLAGS(6); /* RAM: BSS, stack before heap */
+{%- endif %}
+  ram_code PT_LOAD FLAGS(5);     /* text_ram: VMA in RAM, LMA in PSRAM (ram_execution) */
+{%- if text_segment_in_psram and data_segment_in_psram %}
+  ram_classified PT_LOAD FLAGS(6); /* classified text+data: VMA in RAM, LMA in PSRAM */
+{%- endif %}
+  ram_data PT_LOAD FLAGS(6);     /* RAM: .data (init values only) AT>rom */
+{%- if not text_segment_in_psram %}
+  ram_post_data PT_LOAD FLAGS(6); /* RAM: heap */
+{%- endif %}
+{%- if udma_enable and not text_segment_in_psram %}
+  udma0_init PT_LOAD FLAGS(6);   /* .udma_addr0: VMA udma0, LMA rom */
+  udma1_init PT_LOAD FLAGS(6);   /* .udma_addr1: VMA udma1, LMA rom */
+{%- endif %}
+}
+{%- endif %}
+
+{%- if psram_present and psram_linker_config_enabled %}
+_last_psram_location = ORIGIN(psram);
+_last_ram_location = ALIGN(ORIGIN(ram), 16);
+{%- endif %}
+
+ENTRY(Reset_Handler)
+ 
+SECTIONS
+{
+{#- _si91x_text_ram_layout from code_classification_components; gates text_ram output only. #}
+{%- set _cc_components = code_classification_components | default([]) %}
+{%- set _si91x_text_ram_layout = (_cc_components | length > 0) %}
+	.vectors :
+	{
+		KEEP(*(.isr_vector))
+		. = ALIGN(32);
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :vectors
+	{%- elif flash_present %}
+	} > rom :vectors
+	{%- else %}
+	} > ram
+	{% endif %}
+
+{%- if (flash_present or text_segment_in_psram or data_segment_in_psram) and (ram_execution or _si91x_text_ram_layout) %}
+{%- if text_segment_in_psram %}
+	text_ram _last_ram_location :
+	{
+		. = ALIGN(4);
+		__ramfuncs_start__ = .;
+		*(text_application_ram)
+{%- for component in code_classification_components %}
+{%-   for selection in code_classification_selections %}
+{%-     if selection['component'] == component %}
+		*(text_{{selection['component']}}_*{{selection['class']}}*)
+{%-     endif %}
+{%-   endfor %}
+{%-   for selection in code_classification_standard_selections %}
+		*(text_{{component}}_*{{selection}}*)
+{%-   endfor %}
+{%- endfor %}
+{%- if "freertos_kernel" in component_catalog %}
+		*(text_freertos_kernel_*timecritical*)
+{%- endif %}
+{%- if data_segment_in_psram %}
+{%-   for file in psram_ram_data_files | default([]) %}
+		*/{{ file }}.*(.data*)
+{%-   endfor %}
+		*(.common_ipmu_ram*)
+{%- endif %}
+{%- if ram_execution and data_segment_in_psram %}
+		. = ALIGN(512);
+		KEEP(*(.ramVector))
+{%- endif %}
+		. = ALIGN(4);
+		__ramfuncs_end__ = .;
+		_last_ram_location = .;
+	} > ram AT> psram :ram_code
+
+	__lma_ramfuncs_start__ = LOADADDR(text_ram);
+	__lma_ramfuncs_end__ = LOADADDR(text_ram) + SIZEOF(text_ram);
+{%- for component in code_classification_components %}
+	__text_{{component}}_ram_start__ = __ramfuncs_start__;
+	__text_{{component}}_ram_end__ = __ramfuncs_end__;
+{%- endfor %}
+{%- else %}
+	text_ram :
+	{
+		. = ALIGN(4);
+		__ramfuncs_start__ = .;
+		*(text_application_ram)
+{%- for component in code_classification_components %}
+		__text_{{component}}_ram_start__ = .;
+{%-   for selection in code_classification_selections %}
+{%-     if selection['component'] == component %}
+		*(text_{{selection['component']}}_*{{selection['class']}}*)
+{%-     endif %}
+{%-   endfor %}
+{%-   for selection in code_classification_standard_selections %}
+		*(text_{{component}}_*{{selection}}*)
+{%-   endfor %}
+		. = ALIGN(4);
+		__text_{{component}}_ram_end__ = .;
+{%- endfor %}
+{%- if "freertos_kernel" in component_catalog %}
+		*(text_freertos_kernel_*timecritical*)
+{%- endif %}
+{%- if data_segment_in_psram %}
+		/* PSRAM-critical drivers: move .data* into RAM (contributed via psram_ram_data_files). */
+{%-   for file in psram_ram_data_files | default([]) %}
+		*/{{ file }}.*(.data*)
+{%-   endfor %}
+		/* ipmu calibration data */
+		*(.common_ipmu_ram*)
+{%- endif %}
+{%- if ram_execution and data_segment_in_psram %}
+		. = ALIGN(512);
+		KEEP(*(.ramVector))
+{%- endif %}
+		. = ALIGN(4);
+		__ramfuncs_end__ = .;
+	{%- if psram_present and psram_linker_config_enabled %}
+		. = ALIGN(8);
+		_last_ram_location = .;
+	{%- endif %}
+	} > ram AT> rom :ram_code
+
+	__lma_ramfuncs_start__ = LOADADDR(text_ram);
+	__lma_ramfuncs_end__ = LOADADDR(text_ram) + SIZEOF(text_ram);
+{%- endif %}
+{%- else %}
+	/* Fallback symbols for copy_functions_to_ram() in startup_si91x.c.
+	   PSRAM linker has no text_ram section; these zero-length spans make the copy loop a no-op. */
+	PROVIDE(__ramfuncs_start__     = 0);
+	PROVIDE(__ramfuncs_end__       = 0);
+	PROVIDE(__lma_ramfuncs_start__ = 0);
+	PROVIDE(__lma_ramfuncs_end__   = 0);
+{%- endif %}
+
+	.rodata : ALIGN(32)
+	{
+		*(.rodata*)
+		*(.rodata.*)
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :readonly
+	{%- elif flash_present %}
+	} > rom :readonly
+	{%- else %}
+	} > ram
+	{% endif %}
+
+	.text :
+	{
+		KEEP(*(.reset_handler))
+		*(SORT_BY_ALIGNMENT(.text*))
+		{%- if not (data_segment_in_psram and text_segment_in_psram and psram_linker_config_enabled) %}
+			*(SORT_BY_ALIGNMENT(text_*))
+		{%- endif %}
+		KEEP(*(.init))
+		KEEP(*(.fini))	
+
+		/* .ctors */
+		*/crtbegin.*(.ctors)
+		*/crtbegin?.*(.ctors)
+		*(EXCLUDE_FILE(*/crtend?.* */crtend.*) .ctors)
+		*(SORT(.ctors.*))
+		*(.ctors)
+		
+		/* .dtors */
+		*/crtbegin.*(.dtors)
+		*/crtbegin?.*(.dtors)
+		*(EXCLUDE_FILE(*/crtend?.* */crtend.*) .dtors)
+		*(SORT(.dtors.*))
+		*(.dtors)
+		
+		KEEP(*(.eh_frame*))
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :text
+	{%- elif flash_present %}			
+	} > rom :text
+	{%- else %}			
+	} > ram 
+	{% endif %}	
+	
+	.common_tcm_code :
+	{
+		*(.common_tcm_code*)
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :text
+	{%- elif flash_present %}
+	} > rom :text
+	{%- else %}
+	} > ram
+	{% endif %}
+
+	.ARM.extab : 
+	{
+		*(.ARM.extab* .gnu.linkonce.armextab.*)
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :text
+	{%- elif flash_present %}			
+	} > rom :text
+	{%- else %}			
+	} > ram 
+	{% endif %}
+	
+	__exidx_start = .;
+	.ARM.exidx :
+	{
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+	{%- if psram_present and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :text
+	{%- elif flash_present %}			
+	} > rom :text
+	{%- else %}			
+	} > ram
+	{% endif %} 
+	__exidx_end = .;
+
+{%- if si91x_platform_core and si91x_log_formatted_output_enable %}
+ /* Formatted on-device logging: format strings must be loaded into the image
+    so the firmware can dereference them at runtime. */
+ .log_fmt :
+ {
+  . = ALIGN(4);
+  __log_start__ = .;
+  *(.log_fmt*)
+  . = ALIGN(4);
+  __log_end__ = .;
+ {%- if psram_present and text_segment_in_psram %}
+  _last_psram_location = .;
+ } > psram :text
+ {%- elif flash_present %}   
+ } > rom :text
+ {%- else %}   
+ } > ram
+ {% endif %}
+{%- endif %}
+
+{%- if crash_manager_enable and crash_manager_backend_ram %}
+   .ram_crash_data (NOLOAD) :
+	{
+		. = ALIGN(4);
+		__crash_data_start__ = .;
+		KEEP(*(.ram_crash_data*))
+		. = ALIGN(4);
+		__crash_data_end__ = .;
+	{%- if psram_present and text_segment_in_psram %}
+	} > ram :NONE
+	{%- elif flash_present %}			
+	} > ram :ram_pre_code
+	{%- else %}
+	} > ram
+	{%- endif %}
+{%- endif %}
+
+{%- if flash_present and not text_segment_in_psram %}
+	.copy.table :
+	{
+		. = ALIGN(4);
+		__copy_table_start__ = .;
+		LONG (__etext)
+		LONG (__data_start__)
+		LONG ((__data_end__ - __data_start__) / 4)
+		__copy_table_end__ = .;
+	} > rom :tables
+
+	.zero.table :
+	{
+		. = ALIGN(4);
+		__zero_table_start__ = .;
+		LONG (__bss_start__)
+		LONG ((__bss_end__ - __bss_start__) / 4)
+		__zero_table_end__ = .;
+	} > rom :tables
+{%- else %}
+	.copy.table :
+	{
+		__copy_table_start__ = .;
+		__copy_table_end__ = .;
+	{%- if psram_present and text_segment_in_psram %}
+	} > psram :tables
+	{%- else %}
+	} > ram
+	{%- endif %}
+
+	.zero.table :
+	{
+		__zero_table_start__ = .;
+		__zero_table_end__ = .;
+	{%- if psram_present and text_segment_in_psram %}
+	} > psram :tables
+	{%- else %}
+	} > ram
+	{%- endif %}
+{%- endif %}
+
+	__etext = .;
+
+	
+{% if data_segment_in_psram %}
+	{% if psram_present and psram_linker_config_enabled %}
+	  	{%- if text_segment_in_psram %}
+
+		.classified_text _last_ram_location :
+		{
+		    . = ALIGN(4);
+		    /* One initialized word so the section is never zero-size. LLD keeps the
+		       SHF_ALLOC flag on empty output sections placed at a RAM VMA, which makes
+		       Commander measure a RAM->PSRAM image span >100 MB. A 4-byte loadable
+		       sentinel keeps the section non-empty for both GNU ld and LLD. The word is
+		       copied PSRAM(LMA)->RAM(VMA) at startup like any other classified data. */
+		    LONG(0);
+		    *(text_*)
+		    . = ALIGN(4);
+		} > ram AT> psram :ram_classified
+		_classified_text_ = LOADADDR(.classified_text);
+		_classified_text_section_start_ = ADDR(.classified_text);
+		_classified_text_section_end_ = ADDR(.classified_text) + SIZEOF(.classified_text);
+
+		.classified_data _classified_text_section_end_ :
+		{
+		    . = ALIGN(4);
+		    /* Same non-empty sentinel as .classified_text (see note above). */
+		    LONG(0);
+		    *(data_*)
+		    . = ALIGN(4);
+		} > ram AT> psram :ram_classified
+		_classified_data_ = LOADADDR(.classified_data);
+		_classified_data_section_start_ = ADDR(.classified_data);
+		_classified_data_section_end_ = ADDR(.classified_data) + SIZEOF(.classified_data);
+		_last_ram_location = _classified_data_section_end_;
+		_last_psram_location = LOADADDR(.classified_data) + SIZEOF(.classified_data);
+
+		  {%- else %}
+
+		 /* _sidata is used in code startup code */
+		_sidata = __etext;
+
+	  	{%- endif %}
+	{%- else %}
+	/* _sidata is used in code startup code */
+	_sidata = __etext;
+	{% endif %}
+{%- else %}
+	/* _sidata is used in code startup code */
+	_sidata = __etext;
+{% endif %}
+	
+	{%- if psram_present and psram_linker_config_enabled and not data_segment_in_psram %}
+	.data _last_ram_location : ALIGN(8)
+	{%- else %}
+	.data : ALIGN(8)
+	{% endif %}
+	{
+		__data_start__ = .;
+		
+		/* _sdata is used in startup code */
+		_sdata = __data_start__;
+
+	{%- if ram_execution and not data_segment_in_psram %}
+		KEEP(*(.ramVector))
+	{%- endif %}
+		*(.data*)
+		/* ipmu calibration data */
+		*(.common_ipmu_ram*)
+		  
+		. = ALIGN(4);
+		/* preinit data */
+		PROVIDE_HIDDEN (__preinit_array_start = .);
+		KEEP(*(.preinit_array))
+		PROVIDE_HIDDEN (__preinit_array_end = .);
+		
+		. = ALIGN(4);
+		/* init data */
+		
+		PROVIDE_HIDDEN (__init_array_start = .);
+		KEEP(*(SORT(.init_array.*)))
+		KEEP(*(.init_array))
+		PROVIDE_HIDDEN (__init_array_end = .);
+		
+		. = ALIGN(4);
+		/* finit data */
+		PROVIDE_HIDDEN (__fini_array_start = .);
+		KEEP(*(SORT(.fini_array.*)))
+		KEEP(*(.fini_array))
+		PROVIDE_HIDDEN (__fini_array_end = .);
+		
+		KEEP(*(.jcr*))
+		. = ALIGN(4);
+		/* All data end */
+		__data_end__ = .;
+		
+		/* _edata is used in startup code */
+		_edata = __data_end__;
+	{%- if psram_present and data_segment_in_psram and not text_segment_in_psram and flash_present %}
+		_last_psram_location = .;
+	} > psram	AT> rom :ram_data
+	{%- elif psram_present and data_segment_in_psram and text_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :ram_data
+	{%- elif psram_present and text_segment_in_psram %}	
+		_last_ram_location = .;	
+	} > ram AT> psram :ram_data
+	{%- elif psram_present and psram_linker_config_enabled and flash_present %}
+		_last_ram_location = .;	
+	} > ram AT> rom :ram_data
+	{%- elif flash_present %} 
+	} > ram AT> rom :ram_data
+	{%- else %} 
+	} > ram
+	{% endif %}
+
+{%- if flash_present and not data_segment_in_psram %}
+ __etext = LOADADDR(.data);
+ _sidata = __etext;
+ __rom_start  = ORIGIN(rom);
+ __rom_length = LENGTH(rom);
+
+ ASSERT((__etext % 4) == 0, "Data LMA must be word-aligned (Clang copy table)")
+ ASSERT((__data_start__ % 4) == 0, "Data VMA must be word-aligned (Clang copy table)")
+ ASSERT((__data_end__ % 4) == 0, "Data section must be word-multiple (Clang copy table)")
+{%- elif data_segment_in_psram %}
+ _sidata = LOADADDR(.data);
+ __rom_start  = ORIGIN(rom);
+ __rom_length = LENGTH(rom);
+{%- endif %}
+
+{%- if flash_present and not text_segment_in_psram %}
+	.empty :
+	{
+	} > rom :empty
+{%- endif %}
+
+  {%- if psram_present and psram_linker_config_enabled and not bss_segment_in_psram %}
+
+	.classified_bss _last_psram_location (NOLOAD) :
+	{
+		_classified_bss_section_start_ = .;
+		
+		. = ALIGN(4);
+		*(bss_to_psram*)
+		
+		_classified_bss_section_end_ = .;
+		_last_psram_location = .;
+	} > psram :NONE
+	{%- endif %}
+
+	.bss {%- if psram_present and psram_linker_config_enabled and bss_segment_in_psram %} ALIGN(_last_psram_location, 8) {%- elif psram_present and psram_linker_config_enabled %} ALIGN(_last_ram_location, 8) {%- endif %} (NOLOAD) :
+	{
+		. = ALIGN(8);
+		__bss_start__ = .;
+		*(.bss*)
+		*(COMMON)
+		. = ALIGN(4);
+		__bss_end__ = .;
+	{%- if psram_present and bss_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :NONE
+	{%- elif psram_present and psram_linker_config_enabled %}
+		_last_ram_location = .;			
+	} > ram :NONE
+	{%- elif flash_present %}
+	} > ram :ram_pre_code
+ ASSERT(((__bss_end__ - __bss_start__) % 4) == 0, "BSS must be word-multiple (Clang zero table)")
+	{%- else %} 
+	} > ram 
+	{% endif %}
+		
+	.stack {%- if psram_present and psram_linker_config_enabled and stack_segment_in_psram %} ALIGN(_last_psram_location, 8) {%- elif psram_present and psram_linker_config_enabled %} ALIGN(_last_ram_location, 8) {%- endif %} (NOLOAD):
+	{
+		__StackLimit = .;
+		KEEP(*(.stack*))
+		. = ALIGN(4);
+		__StackTop = .;
+		PROVIDE(__stack = __StackTop);
+	{%- if psram_present and stack_segment_in_psram %}
+		_last_psram_location = .;
+	} > psram :NONE
+	{%- elif psram_present and psram_linker_config_enabled %}	
+		_last_ram_location = .;
+	} > ram :NONE
+	{%- elif flash_present %}
+	} > ram :ram_pre_code
+	{%- else %}			
+	} > ram
+	{% endif %}
+{%- if not (psram_present and stack_segment_in_psram) %}
+	/* RAM overflow detection (only valid when stack is in RAM) */
+	__current_ram_used = . - ORIGIN(ram);
+	__ram_total = LENGTH(ram);
+	__ram_remaining = __ram_total - __current_ram_used;
+	
+	ASSERT((. <= (ORIGIN(ram) + LENGTH(ram))), "RAM OVERFLOW: RAM usage exceeds available memory region")
+	ASSERT((__ram_remaining >= 1024), "WARNING: Less than 1KB RAM left for heap - application may run out of dynamic memory")
+	ASSERT((__StackLimit >= __bss_end__), "CRITICAL: Stack overlaps with BSS section - increase RAM or reduce static allocation")
+{%- endif %}
+
+	__ram_start__ = ORIGIN(ram);
+	__ram_end__   = ORIGIN(ram) + LENGTH(ram);
+
+  	.heap {%- if psram_present and psram_linker_config_enabled and heap_segment_in_psram %} _last_psram_location {%- elif psram_present and psram_linker_config_enabled %} _last_ram_location {%- endif %} (NOLOAD):
+  	{
+		. = ALIGN(8);
+		__HeapBase = .;
+		__end__ = .;
+		end = __end__;
+		_end = __end__;
+		KEEP(*(.heap*))
+  		{%- if psram_present and heap_segment_in_psram %}
+	  	. = ORIGIN(psram) + LENGTH(psram);	
+		{%- else %}	
+		. = ORIGIN(ram) + LENGTH(ram);
+  		{% endif %}
+		__HeapLimit = .;
+  {%- if psram_present and heap_segment_in_psram %}
+  		_last_psram_location = .;
+  } > psram :NONE
+  {%- elif psram_present and text_segment_in_psram %}
+  	} > ram :NONE
+  {%- elif flash_present %}
+  	} > ram :ram_post_data
+  {%- else %}			
+  	} > ram
+  {% endif %}
+	__heap_size = __HeapLimit - __HeapBase;
+
+	/* Final heap validation */
+	ASSERT((__heap_size >= 0), "CRITICAL: Heap region is invalid (negative size) - stack and heap are overlapping")
+
+{%- if flash_present %}
+{%- if udma_enable %}
+{%- if psram_present and text_segment_in_psram %}
+	.udma_addr0 (NOLOAD) :
+	{
+		*(.udma_addr0*)
+	} > udma0 :NONE
+
+	.udma_addr1 (NOLOAD) :
+	{
+		*(.udma_addr1*)
+	} > udma1 :NONE
+{%- else %}
+	.udma_addr0 :
+	{
+		*(.udma_addr0*)
+	} > udma0 AT> rom :udma0_init
+
+	.udma_addr1 :
+	{
+		*(.udma_addr1*)		
+	} > udma1 AT> rom :udma1_init
+{%- endif %}
+{%- endif %}	
+{% endif %}
+
+{%- if flash_present %}
+{%- if nvm3_enable %}
+  __app_ram_end__ = 0x{{ '%0x' % app_ram_start }} + 0x{{ '%0x' % app_ram_size }};
+  {%- if app_flash_size >= nvm_app_max_flash_size %}
+   __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % nvm_app_max_flash_size }};
+   {%- else %}
+   __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
+  {% endif %}
+	   /* This is where we handle flash storage blocks. We use dummy sections for finding the configured
+   * block sizes and then "place" them at the end of flash when the size is known. */
+  .internal_storage1 (NOLOAD) : {
+    KEEP(*(.internal_storage1*))
+  } > DUMMY
+  .nvm (NOLOAD) : {
+    KEEP(*(.simee*))
+  } > DUMMY
+ 
+  linker_nvm_end = __main_flash_end__;
+  linker_nvm_begin = linker_nvm_end - SIZEOF(.nvm);
+  linker_nvm_size = SIZEOF(.nvm);
+  linker_storage_end = linker_nvm_begin;
+  __nvm3Base = linker_nvm_begin;	
+  linker_storage_begin = linker_storage_end - SIZEOF(.internal_storage1);
+  linker_storage_size = SIZEOF(.internal_storage1);
+ {%- if text_segment_in_psram %}
+  /* Program executes from PSRAM, so `rom` (internal flash) holds no program bytes.
+     NVM3 storage is laid out top-down from the top of flash; `linker_storage_begin`
+     is its LOWEST address. Overflow = storage grows past the flash floor, i.e. its
+     lowest address drops below ORIGIN(rom). `.data` is not counted (its LMA is in
+     PSRAM, not rom). */
+  ASSERT((linker_storage_begin >= ORIGIN(rom)), "FLASH memory overflowed: NVM3 storage does not fit in flash")
+ {%- else %}
+  ASSERT((linker_storage_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- endif %} 
+ 
+{%- endif %}  /* nvm3 enable*/
+{%- endif %}  /* Flash Present*/
+
+{%- if flash_present %}
+{%- if littlefs_enable %}
+{%- if nvm3_enable %}
+  __main_flash_end__ = linker_nvm_begin;
+{%- elif app_flash_size >= nvm_app_max_flash_size %}
+  __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % nvm_app_max_flash_size }};
+{%- else %}
+  __main_flash_end__ = 0x{{ '%0x' % app_flash_start }} + 0x{{ '%0x' % app_flash_size }};
+{%- endif %}
+	   /* This is where we handle littlefs flash storage blocks. We use dummy sections for finding the configured
+   * block sizes and then "place" them at the end of flash when the size is known. */
+  .internal_storage2 (NOLOAD) : {
+    KEEP(*(.internal_storage2*))
+  } > DUMMY
+  .littlefs (NOLOAD) : {
+    KEEP(*(.ltfs*))
+  } > DUMMY
+ 
+  linker_littlefs_end = __main_flash_end__;
+  linker_littlefs_begin = linker_littlefs_end - SIZEOF(.littlefs);
+  linker_littlefs_size = SIZEOF(.littlefs);
+  linker_storage2_end = linker_littlefs_begin;
+  __littlefsBase = linker_littlefs_begin;
+  linker_storage2_begin = linker_storage2_end - SIZEOF(.internal_storage2);
+  linker_storage2_size = SIZEOF(.internal_storage2);
+ {%- if text_segment_in_psram %}
+  /* Program executes from PSRAM, so `rom` (internal flash) holds no program bytes.
+     LittleFS storage is laid out top-down (below NVM3 when present); its LOWEST
+     address is `linker_storage2_begin`. Overflow = it drops below ORIGIN(rom).
+     `.data` is not counted (its LMA is in PSRAM, not rom). */
+  ASSERT((linker_storage2_begin >= ORIGIN(rom)), "FLASH memory overflowed: LittleFS storage does not fit in flash")
+ {%- else %}
+  ASSERT((linker_storage2_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
+ {%- endif %}
+ 
+{%- endif %}  /* littlefs_enable */
+{%- endif %}  /* Flash Present */
+
+{%- if si91x_platform_core and not si91x_log_formatted_output_enable %}
+ /* Compact/proprietary logging: the firmware transmits only pointer IDs, not the
+    format strings, so the strings do NOT need to be in the programmed image (.bin).
+    Emit them as a non-allocatable (INFO) section: the bytes stay in the ELF (.out)
+    for the host-side log decoder to read, but are excluded from the loadable image.
+    Placed at the very end of SECTIONS (with the other non-allocatable sections):
+    a non-alloc section positioned amid the allocatable flow makes LLD drop the
+    SHF_ALLOC flag on the following classified sections. No ">" memory region is
+    used because LLD warns and forces the address to 0 for a region-assigned
+    non-allocatable section; GNU ld and LLD both keep the data in the ELF regardless. */
+ .log_fmt (INFO) :
+ {
+  . = ALIGN(4);
+  __log_start__ = .;
+  KEEP(*(.log_fmt*))
+  . = ALIGN(4);
+  __log_end__ = .;
+ }
+{%- endif %}
+
+  /* Stabs debugging sections. */
+  .stab          0 : { *(.stab) }
+  .stabstr       0 : { *(.stabstr) }
+  .stab.excl     0 : { *(.stab.excl) }
+  .stab.exclstr  0 : { *(.stab.exclstr) }
+  .stab.index    0 : { *(.stab.index) }
+  .stab.indexstr 0 : { *(.stab.indexstr) }
+
+  /* DWARF debug sections.
+   * Each DWARF section must be kept in its own uniquely-named output section
+   * so that debuggers (GDB, LLDB) and tools can locate them by their
+   * canonical names. Merging them into a single catch-all section makes the
+   * DWARF info unreadable. */
+  .debug              0 : { *(.debug) }
+  .line               0 : { *(.line) }
+  .debug_srcinfo      0 : { *(.debug_srcinfo) }
+  .debug_sfnames      0 : { *(.debug_sfnames) }
+  .debug_aranges      0 : { *(.debug_aranges) }
+  .debug_pubnames     0 : { *(.debug_pubnames) }
+  .debug_info         0 : { *(.debug_info .gnu.linkonce.wi.*) }
+  .debug_abbrev       0 : { *(.debug_abbrev) }
+  .debug_line         0 : { *(.debug_line .debug_line.* .debug_line_end) }
+  .debug_frame        0 : { *(.debug_frame) }
+  .debug_str          0 : { *(.debug_str) }
+  .debug_loc          0 : { *(.debug_loc) }
+  .debug_macinfo      0 : { *(.debug_macinfo) }
+  .debug_weaknames    0 : { *(.debug_weaknames) }
+  .debug_funcnames    0 : { *(.debug_funcnames) }
+  .debug_typenames    0 : { *(.debug_typenames) }
+  .debug_varnames     0 : { *(.debug_varnames) }
+  .debug_pubtypes     0 : { *(.debug_pubtypes) }
+  .debug_ranges       0 : { *(.debug_ranges) }
+  .debug_macro        0 : { *(.debug_macro) }
+  .debug_addr         0 : { *(.debug_addr) }
+  .debug_line_str     0 : { *(.debug_line_str) }
+  .debug_loclists     0 : { *(.debug_loclists) }
+  .debug_rnglists     0 : { *(.debug_rnglists) }
+  .debug_str_offsets  0 : { *(.debug_str_offsets) }
+  .debug_names        0 : { *(.debug_names) }
+  .zdebug_info        0 : { *(.zdebug_info) }
+  .zdebug_abbrev      0 : { *(.zdebug_abbrev) }
+  .zdebug_line        0 : { *(.zdebug_line) }
+  .zdebug_frame       0 : { *(.zdebug_frame) }
+  .zdebug_str         0 : { *(.zdebug_str) }
+  .zdebug_loc         0 : { *(.zdebug_loc) }
+  .zdebug_macinfo     0 : { *(.zdebug_macinfo) }
+  .zdebug_macro       0 : { *(.zdebug_macro) }
+  .zdebug_pubnames    0 : { *(.zdebug_pubnames) }
+  .zdebug_pubtypes    0 : { *(.zdebug_pubtypes) }
+  .zdebug_aranges     0 : { *(.zdebug_aranges) }
+  .zdebug_ranges      0 : { *(.zdebug_ranges) }
+  .zdebug_addr        0 : { *(.zdebug_addr) }
+  .zdebug_line_str    0 : { *(.zdebug_line_str) }
+  .zdebug_loclists    0 : { *(.zdebug_loclists) }
+  .zdebug_rnglists    0 : { *(.zdebug_rnglists) }
+  .zdebug_str_offsets 0 : { *(.zdebug_str_offsets) }
+  .zdebug_names       0 : { *(.zdebug_names) }
+
+/*
+ * Flash overflow guards.
+ *
+ * Verify that the firmware image fits in the available flash region:
+ *   - `rom`   : code + initialized `.data` LMA, when text is in internal flash.
+ *   - `psram` : sum of all PSRAM-resident sections (the QSPI XIP-mapped flash),
+ *               when text/data are placed in PSRAM.
+ * Without these checks, an oversized image can link successfully and only fail
+ * at programming time.
+ */
+{%- if flash_present and not text_segment_in_psram %}
+ASSERT(((__etext + SIZEOF(.data)) <= (ORIGIN(rom) + LENGTH(rom))),
+       "FLASH memory overflowed: firmware exceeds available flash (rom) region. Reduce code/data or move sections to PSRAM.")
+{%- endif %}
+
+{%- if psram_present and psram_linker_config_enabled %}
+ASSERT((_last_psram_location <= (ORIGIN(psram) + LENGTH(psram))),
+       "FLASH memory overflowed: firmware exceeds available flash (PSRAM-mapped) region. Reduce code/data/bss placed in PSRAM or select a part with a larger flash.")
+{%- endif %}
+}

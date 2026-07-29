@@ -1,0 +1,76 @@
+project_name: sl_si91x_m4_updater_security
+package: platform_nwp_siwx91x_app
+description: 'Demonstrates secure M4 firmware update (A/B fallback with signature verification) on Si91x SoC. Use with signed slot A/B images and host tooling.
+
+  '
+category: Example|si91x_soc
+quality: production
+label: SiWx91x Platform - M4 Updater Security
+component:
+- id: sl_main
+- id: freertos_heap_4
+- id: freertos
+- id: syscalls
+- id: wiseconnect_common
+- id: wifi
+- id: si91x_memory_default_config
+- id: bsd_socket
+- id: basic_network_config_manager
+- id: si91x_memory_default_config
+- id: sl_si91x_fw_fallback
+- id: device_needs_ram_execution
+source:
+- path: app.c
+- path: sl_si91x_m4_updater_security.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+define:
+- name: SYSCALLS_WRITE
+- name: SL_SI91X_FW_FALLBACK_UPDATER
+- name: SL_SI91X_FW_FALLBACK
+template_contribution:
+- name: device_flash_addr
+  value: 136323072
+  priority: -100
+- name: device_flash_size
+  value: 512000
+  priority: -100
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/updater.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Advanced
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.1

@@ -1,0 +1,67 @@
+project_name: platform_siwx91x_sdio_secondary_freertos
+package: platform_siwx91x_app
+description: 'This application demonstrates the configuration and usage of the SDIO Secondary interface on the SiWx917 SoC, showcasing its ability to transfer data between host and device using the SDIO protocol with semaphore-based synchronization.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - SDIO Secondary FreeRTOS
+component:
+- id: freertos_heap_4
+- id: sl_main
+- id: status
+- id: syscalls
+- id: si91x_memory_default_config
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+- id: sl_sdio_secondary
+source:
+- path: sdio_secondary_mode_freertos.c
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: sdio_secondary_mode_freertos.h
+  - path: app.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/readme/output_sdio.png
+- path: resources/uc_screen/sdio_secondary.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.1

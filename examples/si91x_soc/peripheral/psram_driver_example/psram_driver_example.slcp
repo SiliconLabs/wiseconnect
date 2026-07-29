@@ -1,0 +1,58 @@
+project_name: psram_driver_example
+package: platform_siwx91x_app
+description: 'This application demonstrates the use of PSRAM Driver APIs through the QSPI interface.  It includes writing and reading data to/from PSRAM using auto mode, manual blocking mode,  and DMA mode. The example leverages the PSRAM device''s default configurations,  utilizing fast quad read and write operations in QPI (Quad IO) mode for efficient data handling.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - Peripheral PSRAM Driver Example
+component:
+- id: psram_core
+- id: syscalls
+- id: si91x_memory_default_config
+- id: si91x_log
+- id: si91x_log_backend_uart
+source:
+- path: main.c
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: ./resources/readme/setupdiagram.png
+- path: ./resources/readme/outputConsole_PSRAM_DRIVER_Example.png
+- path: ./resources/readme/core_component.png
+- path: ./resources/readme/device_config.png
+- path: ./resources/readme/pin_configs.png
+requires:
+- name: wiseconnect_toolchain_psram_linker
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.1

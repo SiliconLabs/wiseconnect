@@ -1,0 +1,70 @@
+project_name: sl_si91x_sht4x
+package: platform_siwx91x_app
+description: 'SHT4x temperature and humidity sensor example using the compatibility
+
+  layer. Uses the unchanged platform SHT4x driver (Gecko) on WiseConnect over
+
+  sl_si91x_i2c. Measures T and RH every 1 second and prints to debug UART.
+
+  '
+category: example|peripheral
+quality: production
+label: SiWx91x Platform - SHT4x
+component:
+- id: sl_main
+- id: syscalls
+- id: si91x_memory_default_config
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+- id: sl_i2c
+- id: enum
+- id: sl_si91x_sht4x
+- id: i2c_instance
+  instance:
+  - i2c2
+source:
+- path: app.c
+- path: sht4x_example.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+  - path: sht4x_example.h
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+other_file:
+- path: resources/readme/setupdiagram.png
+- path: resources/uc_screen/sht4x_component.png
+- path: resources/readme/output1.png
+readme:
+- path: readme.md
+filter:
+- name: Device Type
+  value:
+  - SoC
+- name: MCU
+  value:
+  - 32-bit MCU
+- name: Level
+  value:
+  - Beginner
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.1
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.1
