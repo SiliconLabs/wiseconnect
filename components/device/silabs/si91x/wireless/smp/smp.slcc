@@ -1,0 +1,156 @@
+id: smp
+package: bluetooth_le_siwx91x
+description: >
+  SMP (Security Manager Protocol) event handlers for BLE
+label: SMP
+category: Device|Si91x|Wireless|BLE|SMP
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/device/silabs/si91x/wireless/smp
+provides:
+  - name: smp
+define:
+  - name: SL_SI91X_BLE_SMP_COMPONENT
+source:
+  - path: src/smp_user_event_hdlrs.c
+  - path: src/smp_init.c
+  - path: src/smp_utilities.c
+
+include:
+  - path: inc
+    file_list:
+      - path: smp.h
+
+config_file:
+  - path: inc/smp_config.h
+    directory: ble_config
+    file_id: smp_config
+
+requires:
+  - name: ble_unified_framework
+  - name: gap
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "smp_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_smp_init
+      ble_unified_init_label: "SMP"
+  - name: wrapper_implementations
+    value:
+      name: sl_btc_ble_smp_register_callbacks_wrapper
+      registration_api: rsi_ble_smp_register_callbacks
+      callbacks:
+        - event_smp_req
+        - event_smp_resp
+        - event_smp_passkey
+        - event_smp_failed
+        - event_encryption_enabled
+        - event_smp_passkey_display
+        - event_sc_passkey
+        - event_le_ltk_request
+        - event_le_security_keys
+        - NULL
+        - NULL
+  - name: ble_events
+    value:
+      event_smp_req:
+        callback_params:
+          - name: rsi_bt_event_smp_req
+            type: rsi_bt_event_smp_req_p
+        event_data:
+          name: rsi_bt_event_smp_req
+      
+      event_smp_resp:
+        callback_params:
+          - name: rsi_bt_event_smp_resp
+            type: rsi_bt_event_smp_resp_p
+        event_data:
+          name: rsi_bt_event_smp_resp
+      
+      event_smp_passkey:
+        callback_params:
+          - name: rsi_bt_event_smp_passkey
+            type: rsi_bt_event_smp_passkey_p
+        event_data:
+          name: rsi_bt_event_smp_passkey
+      
+      event_smp_failed:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_bt_event_smp_failed
+            type: rsi_bt_event_smp_failed_p
+        event_data:
+          name: rsi_bt_event_smp_failed
+      
+      event_encryption_enabled:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_bt_event_encryption_enabled
+            type: rsi_bt_event_encryption_enabled_p
+        event_data:
+          name: rsi_bt_event_encryption_enabled
+      
+      event_smp_passkey_display:
+        callback_params:
+          - name: rsi_bt_event_smp_passkey_display
+            type: rsi_bt_event_smp_passkey_display_p
+        event_data:
+          name: rsi_bt_event_smp_passkey_display
+      
+      event_sc_passkey:
+        callback_params:
+          - name: rsi_bt_event_sc_passkey
+            type: rsi_bt_event_sc_passkey_p
+        event_data:
+          name: rsi_bt_event_sc_passkey
+      
+      event_le_ltk_request:
+        callback_params:
+          - name: rsi_bt_event_le_ltk_request
+            type: rsi_bt_event_le_ltk_request_p
+        event_data:
+          name: rsi_bt_event_le_ltk_request
+      
+      event_le_security_keys:
+        callback_params:
+          - name: rsi_bt_event_le_security_keys
+            type: rsi_bt_event_le_security_keys_p
+        event_data:
+          name: rsi_bt_event_le_security_keys
+      
+      event_smp_pending:
+        callback_params:
+          - name: conn_id
+            type: uint8_t*
+        event_data:
+          name: conn_id
+  - name: agents_slab
+    value:
+      id: smp
+      context: |
+        ## SMP Component (Si91x Wireless BLE Unified)
+        Security Manager Protocol — pairing, bonding, and link encryption. Pulls in `gap` (connection table) and `ble_unified_framework` (event loop). Defines `SL_SI91X_BLE_SMP_COMPONENT` so optional SMP code paths in other components compile only when SMP is selected.
+        ### Init hook
+        - Function: `ble_smp_init` (registered via `ble_unified_init_hooks`).
+        - Registers SMP callback wrapper `sl_btc_ble_smp_register_callbacks_wrapper()` covering: `event_smp_req`, `event_smp_resp`, `event_smp_passkey`, `event_smp_failed`, `event_encryption_enabled`, `event_smp_passkey_display`, `event_sc_passkey`, `event_le_ltk_request`, `event_le_security_keys`.
+        ### Configuration (`smp_config.h` — copied to `config/ble_config/`)
+        Key macros: `MITM_ENABLE` (Man-in-the-Middle protection), `RSI_BLE_SMP_IO_CAPABILITY` (e.g. `KEYBOARD_ONLY`, `DISPLAY_ONLY`, `KEYBOARD_DISPLAY`, `NO_INPUT_NO_OUTPUT`), `RSI_BLE_APP_SMP_PASSKEY`, secure-connection toggles. The IO capability dictates which pairing method is selected by the BLE controller (Just Works, Passkey Entry, Numeric Comparison, OOB).
+        ### Pairing Workflow (Central-initiated)
+        1. After `event_conn_status`/`event_enhance_conn_status` indicates a connection.
+        2. Set capabilities: `rsi_ble_set_smp_pairing_cap_data()`.
+        3. Initiate: `rsi_ble_smp_pair_request()`.
+        4. On `event_smp_req` / `event_smp_resp`: respond via `rsi_ble_smp_pair_response()`.
+        5. On `event_smp_passkey` / `event_smp_passkey_display`: send passkey with `rsi_ble_smp_passkey()`.
+        6. On `event_encryption_enabled`: link is encrypted; LTK is exchanged in `event_le_security_keys`.
+        ### Common Mistakes to Avoid
+        - Initiating pairing before the GAP connection is fully established (wait for `event_enhance_conn_status` with status==success).
+        - Setting `MITM_ENABLE=1` with `NO_INPUT_NO_OUTPUT` IO capability — controller will fall back to Just Works (no MITM) and the configuration is effectively ignored.
+        - Forgetting to handle `event_smp_failed` — pairing can fail for many reasons (MITM mismatch, OOB unavailable, DH-key check failed); the connection stays up but is unencrypted.
+        - Calling SMP APIs without `gatt_client` selected when the remote requires service discovery as part of bonding flows.
+    priority: -5304

@@ -1,0 +1,17 @@
+id: soc_configuration_enable
+label: Enable User Configuration
+package: platform_siwx91x
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+category: Device|Si91x|MCU|Core
+description: >
+  This component enables SiWx91x SoC user configuration macros.
+define:
+  - name: USER_CONFIGURATION_ENABLE
+    value: '1'
+  - name: SLI_SI91X_MCU_COMMON_FLASH_MODE
+    value: '1'
+provides:
+  - name: soc_configuration_enable

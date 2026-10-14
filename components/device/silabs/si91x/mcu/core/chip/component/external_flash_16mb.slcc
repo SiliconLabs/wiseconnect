@@ -1,0 +1,30 @@
+id: external_flash_16mb
+label: 16MB Flash (External)
+package: platform_siwx91x
+description: >
+  Select this component when the SiWx91x board uses 16 MB of external flash.
+  M4 linker region ends at 0x08C00000 (before backup area). NVM3 size is capped
+  at 32 KB (8 flash pages) so the partition fits within the TA MBR user region.
+category: Device|Si91x|MCU|Flash
+quality: production
+provides:
+  - name: external_flash_16mb
+  - name: external_flash_implementation
+
+template_contribution:
+    - name: flash_present
+      value: 1
+    - name: device_flash_addr
+      value: 136323072 # 0x0820 2000
+      priority: -1
+    - name: device_flash_size
+      value: 10477568 # 0x009F E000, M4 user region ends at 0x08C00000 (before backup)
+      priority: -1
+    - name: max_flash_size
+      value: 10477568 # 0x009F E000, NVM3/LittleFS linker cap (default is 0x1fe000)
+      priority: -1
+    - name: device_flash_page_size
+      value: 256
+metadata:
+    sbom:
+      license: Zlib

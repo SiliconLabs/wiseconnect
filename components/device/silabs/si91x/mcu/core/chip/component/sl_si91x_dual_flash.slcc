@@ -1,0 +1,13 @@
+id: si91x_dual_flash
+label: Dual Flash Component
+package: platform_siwx91x
+description: >
+  This component provides dual flash capabilities for the board. Install it when the board supports dual flash.
+category: Board|Flash
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+provides:
+  - name: si91x_dual_flash
+  - name: sl_si91x_dual_flash

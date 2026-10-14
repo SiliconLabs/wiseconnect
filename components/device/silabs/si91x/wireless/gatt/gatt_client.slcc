@@ -1,0 +1,211 @@
+id: gatt_client
+package: bluetooth_le_siwx91x
+description: >
+  GATT Client event handlers for BLE
+label: GATT Client
+category: Device|Si91x|Wireless|BLE|GATT
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/device/silabs/si91x/wireless/gatt
+provides:
+  - name: gatt_client
+define:
+  - name: SL_SI91X_BLE_GATT_CLIENT_COMPONENT
+source:
+  - path: client/src/gatt_client_init.c
+  - path: client/src/gatt_client_utilities.c
+  - path: client/src/gatt_client_event_hdlrs.c
+
+include:
+  - path: client/inc
+    file_list:
+      - path: gatt_client.h
+
+config_file:
+  - path: client/inc/gatt_client_config.h
+    directory: ble_config
+    file_id: gatt_client_config
+
+requires:
+  - name: ble_unified_framework
+  - name: gap
+  - name: gatt_common
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "gatt_client_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_gatt_client_init
+      ble_unified_init_label: "GATT Client"
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST
+      ble_unified_bt_bitmap_guard: RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST
+  - name: wrapper_implementations
+    value:
+      name: sl_btc_ble_gatt_client_register_callbacks_wrapper
+      registration_api: rsi_ble_gatt_client_register_callbacks
+      callbacks:
+        - NULL
+        - NULL
+        - NULL
+        - NULL
+        - NULL
+        - NULL
+        - NULL
+        - event_mtu
+        - gatt_error_event
+        - NULL
+        - event_profiles_list
+        - event_profile
+        - event_char_services
+        - NULL
+        - NULL
+        - on_read_resp_event
+        - event_write_resp
+        - NULL
+  - name: ble_events
+    value:
+      event_mtu:
+        callback_params:
+          - name: rsi_ble_event_mtu
+            type: rsi_ble_event_mtu_p
+        event_data:
+          name: rsi_ble_event_mtu
+      
+      gatt_error_event:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_error_resp
+            type: rsi_ble_event_error_resp_p
+        event_data:
+          name: rsi_ble_event_error_resp
+      
+      event_gatt_desc:
+        callback_params:
+          - name: rsi_ble_event_gatt_desc
+            type: rsi_ble_event_gatt_desc_p
+        event_data:
+          name: rsi_ble_event_gatt_desc
+      
+      event_char_services:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_read_by_type1
+            type: rsi_ble_event_read_by_type1_p
+        event_data:
+          name: rsi_ble_event_read_by_type1
+      
+      event_profile:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_profile_by_uuid
+            type: rsi_ble_event_profile_by_uuid_p
+        event_data:
+          name: rsi_ble_event_profile_by_uuid
+      
+      event_profiles_list:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_profiles_list
+            type: rsi_ble_event_profiles_list_p
+        event_data:
+          name: rsi_ble_event_profiles_list
+      
+      event_write_resp:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_set_att_resp
+            type: rsi_ble_set_att_resp_p
+        event_data:
+          name: rsi_ble_set_att_resp
+      
+      prepare_write_resp:
+        callback_params:
+          - name: rsi_ble_prepare_write_resp
+            type: rsi_ble_prepare_write_resp_p
+        event_data:
+          name: rsi_ble_prepare_write_resp
+      
+      on_read_resp_event:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_att_value
+            type: rsi_ble_event_att_value_p
+        event_data:
+          name: rsi_ble_event_att_value
+      
+      event_on_data_receive:
+        callback_params:
+          - name: conn_id
+            type: uint8_t
+        event_data:
+          name: conn_id
+      
+      event_data_transmit_client:
+        callback_params:
+          - name: conn_id
+            type: uint8_t
+        event_data:
+          name: conn_id
+      
+      event_set_buffer_config_client:
+        callback_params:
+          - name: conn_id
+            type: uint8_t*
+        event_data:
+          name: conn_id
+                
+      event_select_data_transfer:
+        callback_params:
+          - name: conn_id
+            type: uint8_t*
+        event_data:
+          name: conn_id
+      
+      event_profile_discovery:
+        callback_params:
+          - name: conn_id
+            type: uint8_t*
+        event_data:
+          name: conn_id
+      
+      event_profile_dummy:
+        callback_params:
+          - name: profile_dummy_data
+            type: sli_profile_dummy_data_t*
+        event_data:
+          name: profile_dummy_data
+  - name: agents_slab
+    value:
+      id: gatt_client
+      context: |
+        ## GATT Client Component (Si91x Wireless BLE Unified)
+        Service/characteristic discovery and read/write operations against a remote GATT server. Selecting this component defines `SL_SI91X_BLE_GATT_CLIENT_COMPONENT` and brings in `gap` + `gatt_common` automatically.
+        ### Init hook
+        - Function: `ble_gatt_client_init` (registered via `ble_unified_init_hooks`).
+        - Registers `sl_btc_ble_gatt_client_register_callbacks_wrapper()` covering: `event_mtu`, `gatt_error_event`, `event_profiles_list`, `event_profile`, `event_char_services`, `on_read_resp_event`, `event_write_resp` (and several internally-mapped slots that are NULL for this profile).
+        ### Configuration (`gatt_client_config.h` — copied to `config/ble_config/`)
+        Key macros: `PROFILE_QUERY_*` (which profiles to discover automatically post-connect), `DATA_TRANSFER_*` (notification/indication subscription flags), `RX_NOTIFICATIONS_FROM_*` and `RX_INDICATIONS_FROM_*` (per-peer subscriptions), client UUIDs to subscribe to. Optional bitmap contribution `SL_SI91X_BLE_INDICATE_CONFIRMATION_FROM_HOST` (gated by `RSI_BLE_INDICATE_CONFIRMATION_FROM_HOST`) — when set, the host explicitly sends indication confirmations instead of the controller doing so automatically.
+        ### Discovery / Operation Order (CRITICAL)
+        All GATT client operations require an active connection. Typical sequence after `event_enhance_conn_status` (status==success):
+        1. `rsi_ble_get_profiles_async()` → completes in `event_profiles_list`.
+        2. For each profile of interest: `rsi_ble_get_char_services_async()` → completes in `event_char_services`.
+        3. (Optional) Subscribe to notifications: `rsi_ble_set_att_value_async()` writing 0x0001 to the CCCD (handle = char_value_handle + 1).
+        4. Read/Write: `rsi_ble_get_att_value_async()` / `rsi_ble_set_att_value_async()` → complete in `on_read_resp_event` / `event_write_resp`. Errors arrive via `gatt_error_event`.
+        ### Common Mistakes to Avoid
+        - Issuing a GATT API before connection has fully established (wait for `event_enhance_conn_status`).
+        - Pipelining multiple async GATT requests on the same connection — most paths assume one in-flight request per connection. Wait for the response/error event before issuing the next.
+        - Computing CCCD handles by guesswork — always discover descriptors via `rsi_ble_get_att_descriptors_async()` (or pull them from the cached profile list) instead of assuming `value_handle + 1`.
+        - Forgetting MTU exchange: notifications larger than the negotiated MTU-3 are silently truncated. After `event_mtu` reports the peer MTU, gate large writes/notify-payloads accordingly.
+    priority: -5307

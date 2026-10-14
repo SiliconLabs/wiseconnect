@@ -1,0 +1,75 @@
+id: si91x_log_iostream_compact
+label: Log Backend I/O Stream – Compact Binary Output
+package: platform_siwx91x
+description: |
+  Compact binary output for the I/O Stream log backend. Events are emitted individually as 
+  raw sl_log_event_t records (timestamp, event_id, args, core_id, version) with no framing or 
+  text formatting. Decode host-side using the companion Log_script.py tool.
+
+  NOTE:
+  1. When writing log messages, always:
+     - Use only the "%lu" format specifier; cast every argument to (uint32_t).
+       Strings cannot be rendered by this backend (decode them on the host
+       using the companion Log_script.py tool).
+     - Enclose every log print statement in its own block within any control
+       flow structure (such as if, else, for, while, etc.).
+
+       Example:
+         if (condition) {
+           SL_PRINT_STRING_INFO("value: %lu", (uint32_t)i);
+         }
+         for (int i = 0; i < N; i++) {
+           SL_PRINT_STRING_DEBUG("count: %lu", (uint32_t)i);
+         }
+
+  2. By default, RTT will be installed as the I/O Stream transport. To install
+     UART VCOM instead, follow the documentation.
+
+category: Device|Si91x|MCU|Service|Log
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+root_path: components/device/silabs/si91x/mcu/drivers/service/sl_log    
+provides:
+  - name: si91x_log_iostream_compact
+  - name: si91x_log_iostream
+  - name: iostream_recommended_console 
+    condition: [device_si91x]   
+  - name: log_backend
+    condition: [si91x_log_backend_uart]
+  - name: log_backend
+    condition: [log_backend_systemview]  
+requires:
+  - name: si91x_iostream_transport
+  - name: log_backend_iostream_compact
+recommends:
+  - id: si91x_log     
+  - id: iostream_rtt_si91x
+include:
+  - path: inc
+    file_list:
+      - path: sl_log_iostream_recommends.h  
+source:
+  - path: src/sl_log_iostream_recommends.c   
+config_file:
+  - path: config/sl_log_proprietary_config.h
+    unless:  [iostream_rtt_si91x]
+  - path: config/sl_log_common_config.h  
+template_contribution:
+  - name: component_catalog
+    value: si91x_log_backend_iostream_compact
+  - name: component_catalog
+    value: si91x_log_backend_iostream    
+  - name: component_catalog
+    value: log_default_ring_buffer
+    condition: [iostream_rtt_si91x]
+  - name: component_catalog
+    value: log_backend_proprietary 
+    unless:  [iostream_rtt_si91x]   
+  - name: event_handler
+    value:
+      event: iostream_instance_init_stage_2
+      include: sl_log_iostream_recommends.h
+      handler: sl_si91x_iostream_set_console_instance
+    priority: 9999   

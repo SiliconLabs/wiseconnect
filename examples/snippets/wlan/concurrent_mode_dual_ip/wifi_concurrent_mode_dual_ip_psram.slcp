@@ -1,0 +1,78 @@
+project_name: wifi_concurrent_mode_dual_ip_psram
+package: wifi_app
+quality: production
+label: Wi-Fi - Concurrent Mode Dual IP (PSRAM)
+category: Example|Wi-Fi
+description: 'Demonstrates concurrent Wi-Fi Client and Wi-Fi Access Point with data transfer in IPv6 UDP on STA and IPv4 TCP RX on AP.
+
+  '
+filter:
+- name: Wireless Technology
+  value:
+  - Wi-Fi
+- name: Project Difficulty
+  value:
+  - Beginner
+source:
+- path: app.c
+include:
+- path: .
+  file_list:
+  - path: app.h
+define:
+- name: SLI_SI91X_MCU_ENABLE_PSRAM_FEATURE
+- name: SL_SI91X_PRINT_DBG_LOG
+- name: SLI_SI91X_ENABLE_IPV6
+component:
+- id: sl_main
+- id: freertos
+- id: freertos_heap_4
+- id: syscalls
+- id: si91x_memory_default_config
+- id: wiseconnect_common
+- id: text_segment_in_psram
+- id: data_segment_in_psram
+- id: udma_linker_config
+- id: psram_core
+- id: wifi
+- id: sl_si91x_internal_stack
+- id: wifi_resources
+- id: network_manager
+- id: basic_network_config_manager
+- id: bsd_socket
+- id: sl_si91x_asynchronous_socket
+- id: sl_si91x_wireless
+- id: log_none
+- id: si91x_log
+- id: si91x_log_iostream_formatted
+- id: iostream_si91x
+- id: iostream_uart_si91x
+  instance:
+  - vcom
+toolchain_settings:
+- option: gcc_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+- option: llvm_compiler_option
+  value: -Wall -Werror -Wno-error=deprecated-declarations
+configuration:
+- name: SL_BOARD_ENABLE_VCOM
+  value: '1'
+readme:
+- path: readme.md
+other_file:
+- path: resources/readme/concurrent_dual_ip_ncp.png
+- path: resources/readme/application_console_output_ncp.png
+ui_hints:
+  highlight:
+  - path: readme.md
+    focus: true
+post_build:
+  profile: wiseconnect_soc
+sdk_extension:
+- id: wiseconnect3_sdk
+  vendor: silabs
+  version: 4.1.2
+sdk:
+  id: simplicity_sdk
+  vendor: silabs
+  version: 2026.6.2

@@ -1,0 +1,37 @@
+id: si91x_iostream_log
+label: IO Stream Log
+package: platform_siwx91x
+description: >
+  This component enables redirection of printf to the default IO Stream output.
+  It configures printf to use the active IO Stream interface (SWO, RTT, VUART, etc.)
+  for convenient debug and console output in SiWx91x applications.
+
+  No additional configuration is required; the active IO Stream interface at runtime is used.
+category: Device|Si91x|MCU|Service
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+root_path: components/device/silabs/si91x/mcu/drivers/service/iostream
+config_file:
+  - path: "config/sl_si91x_iostream_log_config.h"
+include:
+  - path: inc
+    file_list:
+      - path: sl_si91x_iostream_log.h
+source:
+  - path: src/sl_si91x_iostream_log.c
+provides:
+  - name: si91x_iostream_log
+requires:
+  - name: si91x_iostream_transport
+  - name: component_catalog
+template_contribution:
+  - name: component_catalog
+    value: si91x_iostream_prints
+  - name: event_handler
+    value:
+      event: iostream_instance_init_stage_2
+      include: sl_si91x_iostream_log.h
+      handler: sl_si91x_set_log_iostream
+      priority: 1000

@@ -1,0 +1,77 @@
+id: brd9084b
+label: BRD9084B
+package: platform_siwx91x
+description: Board support for BRD9084B(SoC).
+category: Board|Radio Board
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+root_path: components/board/silabs/config/brd9084b
+requires:
+- name: siwg917m111mgtba
+- name: brd9084b_config
+- name: hardware_board_mainboard
+- name: external_flash_16mb
+- name: external_psram_none
+- name: rsilib_board
+- name: si91x_common_flash
+provides:
+- name: brd9084b
+- name: hardware_board
+- name: hardware_board_rb
+- name: hardware_board_supports_multi_slave
+- name: si91x_b0_board
+- name: si917_prod_board
+- name: si917_radio_board
+recommends:
+- id: brd4002a
+  vendor: silabs
+define:
+- name: SL_BOARD_NAME
+  value: '"BRD9084B"'
+- name: SL_BOARD_REV
+  value: '"A02"'
+- name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_BASE_VER
+  value: '1'
+- name: SLI_SI91X_MCU_CONFIG_RADIO_BOARD_VER2
+  value: '1'
+- name: SLI_SI91X_MCU_COMMON_FLASH_MODE
+  value: '1'
+template_contribution:
+- name: device_flash_addr
+  value: 136323072
+  priority: -1
+  condition:
+  - si91x_mem_config_1
+- name: device_flash_size
+  value: 10477568
+  priority: -1
+  condition:
+  - si91x_mem_config_1
+- name: device_flash_addr
+  value: 136323072
+  priority: -1
+  condition:
+  - si91x_mem_config_2
+- name: device_flash_size
+  value: 10477568
+  priority: -1
+  condition:
+  - si91x_mem_config_2
+- name: device_flash_addr
+  value: 136323072
+  priority: -1
+  condition:
+  - si91x_mem_config_3
+- name: device_flash_size
+  value: 10477568
+  priority: -1
+  condition:
+  - si91x_mem_config_3
+tag:
+- board:pn:BRD9084
+- board:variant:B
+- board:revision:A02
+- board:device:siwg917m111mgtba
+- hardware:has:vcom

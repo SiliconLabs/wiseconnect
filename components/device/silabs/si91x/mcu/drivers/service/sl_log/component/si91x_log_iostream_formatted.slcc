@@ -1,0 +1,73 @@
+id: si91x_log_iostream_formatted
+label: Log Backend I/O Stream – Formatted Output
+package: platform_siwx91x
+description: |
+  Human-readable text output for the I/O Stream log backend. Each log line is
+  formatted as [LEVEL|TYPE|TIMESTAMP] followed by the payload and terminated
+  with CRLF. String logs expand printf-style specifiers (%d, %x, %s, %p);
+  event logs emit hex-encoded event_id, arguments, core_id, and version.
+  Requires the log_backend_iostream component for transport.
+
+  NOTE:
+  1. When writing log messages, always:
+     - Typecast arguments for format specifiers as follows:
+       - For "%s" and "%p", cast to (uintptr_t).
+       - For "%d" and "%x", cast to (uint32_t) if the argument is not already
+         uint32_t.
+     - Enclose every log print statement in its own block within any control
+       flow structure (such as if, else, for, while, etc.).
+
+       Example:
+         if (condition) {
+           SL_PRINT_STRING_INFO("val: %d, ptr: %p, hex: %x, msg: %s",
+                                (uint32_t)i, (uintptr_t)ptr,
+                                (uint32_t)hex, (uintptr_t)msg);
+         }
+         for (int i = 0; i < N; i++) {
+           SL_PRINT_STRING_DEBUG("count: %d", (uint32_t)i);
+         }
+
+  2. By default, RTT will be installed as the I/O Stream transport. To install
+     UART VCOM instead, follow the documentation.
+category: Device|Si91x|MCU|Service|Log
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+root_path: components/device/silabs/si91x/mcu/drivers/service/sl_log    
+provides:
+  - name: si91x_log_iostream_formatted
+  - name: si91x_log_iostream
+  - name: iostream_recommended_console 
+    condition: [device_si91x] 
+requires:
+  - name: si91x_iostream_transport
+  - name: log
+  - name: log_platform_core
+  - name: log_backend_iostream_formatted
+recommends:
+  - id: si91x_log 
+  - id: iostream_rtt_si91x
+include:
+  - path: inc
+    file_list:
+      - path: sl_log_iostream_recommends.h  
+source:
+  - path: src/sl_log_iostream_recommends.c   
+config_file:
+  - path: config/sl_log_common_config.h  
+template_contribution:
+  - name: component_catalog
+    value: si91x_log_backend_iostream_formatted
+  - name: component_catalog
+    value: si91x_log_backend_iostream 
+  - name: si91x_log_formatted_output_enable
+    value: 1   
+  - name: component_catalog
+    value: log_default_ring_buffer    
+  - name: event_handler
+    value:
+      event: iostream_instance_init_stage_2
+      include: sl_log_iostream_recommends.h
+      handler: sl_si91x_iostream_set_console_instance
+    priority: 9999      

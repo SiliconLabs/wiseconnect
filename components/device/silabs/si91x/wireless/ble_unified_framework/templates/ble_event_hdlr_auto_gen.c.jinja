@@ -1,0 +1,280 @@
+#include <stdio.h>
+#include "ble_event_hdlr_auto_gen.h"
+#include "event_loop.h"
+#include <stdlib.h>
+#include "rsi_common_utils.h"
+#include "rsi_common_apis.h"
+#include "sl_constants.h"
+#include "string.h"
+
+generic_task_cb_t ble_generic_cb;
+
+{# Macro to derive handler name from event name #}
+{%- macro get_handler_name(event_name, event_config) -%}
+{%- if "handler" in event_config and event_config["handler"] != Null -%}
+{{ event_config["handler"] }}
+{%- else -%}
+rsi_ble_{{ event_name }}
+{%- endif -%}
+{%- endmacro -%}
+
+{# Macro to derive data type from parameter type #}
+{%- macro get_data_type(event_config) -%}
+{%- for param in event_config.callback_params -%}
+{%- if param.name == event_config.event_data.name -%}
+{%- if param.type.endswith('_p') -%}
+{{ param.type[:-2] }}_t
+{%- elif '*' in param.type -%}
+{{ param.type.replace('*', '').strip() }}
+{%- else -%}
+{{ param.type }}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{# Macro to check if address operator (&) is needed for event_data #}
+{%- macro needs_address_operator(event_config) -%}
+{%- for param in event_config.callback_params -%}
+{%- if param.name == event_config.event_data.name -%}
+{%- if param.type.endswith('_p') or '*' in param.type -%}
+False
+{%- else -%}
+True
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{# Generate LUT (lookup table) for all event handlers #}
+generic_event_handler_lut_entry_t ble_events_lut[] = 
+{
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+    { {{ get_handler_name(event_name, event_config) }} },
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+    { {{ get_handler_name(event_name, event_config) }} },
+  {%- endfor -%}
+{%- endif %}
+    { NULL }
+};
+
+{# Single unified macro for all events #}
+{% macro render_driver_callback(event_name, event_config) %}
+/*==============================================*/
+/**
+ * @fn          void rsi_ble_{{ event_name }}_driver_callback(
+{%- if event_config.callback_params -%}
+{%- for param in event_config.callback_params -%}
+{{ param.type }} {{ param.name }}
+{%- if not loop.last %}, {% endif -%}
+{%- endfor -%}
+{%- else %}void{%- endif %})
+ * @brief       function enqueues received event data in driver context to ble_generic_cb.event_queues to be processed in ble task context
+{%- if event_config.callback_params %}
+{%- for param in event_config.callback_params %}
+ * @param[in]   {{ param.type }} {{ param.name }}
+{%- endfor %}
+{%- endif %}
+ * @param[out]  None
+ * @return      None
+ *
+ * @section description
+ * This function enqueues event data received in driver context to ble_generic_cb.event_queues to be processed in ble task context
+ */
+
+APP_WEAK void rsi_ble_{{ event_name }}_driver_callback(
+{%- if event_config.callback_params -%}
+{%- for param in event_config.callback_params -%}
+{{ param.type }} {{ param.name }}
+{%- if not loop.last %}, {% endif -%}
+{%- endfor -%}
+{%- else %}void{%- endif %})
+{
+{%- if event_config.unused_params %}
+{%- for unused in event_config.unused_params %}
+    UNUSED_PARAMETER({{ unused }});
+{%- endfor %}
+{%- endif %}
+    LOG_PRINT_D("\n in rsi_ble_{{ event_name }}_driver_callback \n");
+    generic_event_message_t *msg;
+
+    //! allocate message
+{%- if event_config.event_data %}
+    msg = malloc(sizeof(generic_event_message_t) + sizeof({{ get_data_type(event_config) }}));
+{%- else %}
+    msg = malloc(sizeof(generic_event_message_t));
+{%- endif %}
+    if (msg == NULL) {
+        printf("Out of Memory assert\n");
+        _assert((uint8_t *)"Out Of Memory\n", __LINE__);
+    } else {
+        LOG_PRINT_D("Malloc passed\n");
+    }
+    
+    //! init message details
+    msg->next = NULL;
+    msg->event_id = {{ event_name }}_event_id;
+    msg->free_callback = free;
+    
+{%- set has_status = event_config.callback_params | selectattr("name", "equalto", "status") | list | length > 0 %}
+{%- set status_unused = ("unused_params" in event_config) and ("status" in event_config["unused_params"]) %}
+{%- if has_status and not status_unused %}
+    msg->status = status;
+{%- else %}
+    //msg->status = status;
+{%- endif %}
+
+{%- if event_config.event_data %}
+    //! copy event data to msg
+{%- if needs_address_operator(event_config) == 'True' %}
+    memcpy((void *)&msg->event_data[0], (void *)&{{ event_config.event_data.name }}, sizeof({{ get_data_type(event_config) }}));
+{%- else %}
+    memcpy((void *)&msg->event_data[0], (void *){{ event_config.event_data.name }}, sizeof({{ get_data_type(event_config) }}));
+{%- endif %}
+{%- endif %}
+
+    //! enqueue message to ble_generic_cb.event_queues[0]
+    rsi_app_enqueue_pkt_with_mutex(&ble_generic_cb.event_queues[0], (rsi_app_pkt_t *)msg, &ble_generic_cb.event_mutex);
+    osSemaphoreRelease(ble_generic_cb.semaphore);
+}
+
+{% endmacro %}
+
+{# Generate driver callbacks for all events #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+{{ render_driver_callback(event_name, event_config) -}}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+{{ render_driver_callback(event_name, event_config) -}}
+  {%- endfor -%}
+{%- endif -%}
+
+{# Generate handler stubs #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+/*==============================================*/
+/**
+ * @fn          void {{ get_handler_name(event_name, event_config) }}(uint16_t __attribute__((unused))status, void __attribute__((unused))*event_data)
+ * @brief       handler for {{ event_name }} to be executed in ble task context
+ * @param[in]   uint16_t , event_status 
+ * @param[in]   void, event_data
+ * @return      None
+ *
+ * @section description
+ * handler for {{ event_name }} to be executed in ble task context
+ */
+APP_WEAK void {{ get_handler_name(event_name, event_config) }}(uint16_t __attribute__((unused))status, void __attribute__((unused))*event_data)
+{
+    //! Add handling here
+}
+
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+/*==============================================*/
+/**
+ * @fn          void {{ get_handler_name(event_name, event_config) }}(uint16_t __attribute__((unused))status, void __attribute__((unused))*event_data)
+ * @brief       handler for {{ event_name }} to be executed in ble task context
+ * @param[in]   uint16_t , event_status 
+ * @param[in]   void, event_data
+ * @return      None
+ *
+ * @section description
+ * handler for {{ event_name }} to be executed in ble task context
+ */
+APP_WEAK void {{ get_handler_name(event_name, event_config) }}(uint16_t __attribute__((unused))status, void __attribute__((unused))*event_data)
+{
+    //! Add handling here
+}
+
+  {%- endfor -%}
+{%- endif -%}
+
+{# Generate event-mapped wrapper function - V9: derive callback name from event name #}
+{%- if event_mapped_wrapper is iterable -%}
+  {%- if event_mapped_wrapper is mapping -%}
+    {# event_mapped_wrapper is a single dict #}
+void {{ event_mapped_wrapper["name"] }}()
+{
+  {%- for callback in event_mapped_wrapper["callbacks"] %}
+  {{ event_mapped_wrapper["registration_api"] }}({{ callback["event_id"] }},
+                                            (void *)rsi_ble_{{ callback["callback"] }}_driver_callback);
+  {%- endfor %}
+}
+
+  {%- else -%}
+    {# event_mapped_wrapper is a list #}
+    {%- for mapped_impl in event_mapped_wrapper -%}
+void {{ mapped_impl["name"] }}()
+{
+  {%- for callback in mapped_impl["callbacks"] %}
+  {{ mapped_impl["registration_api"] }}({{ callback["event_id"] }},
+                                            (void *)rsi_ble_{{ callback["callback"] }}_driver_callback);
+  {%- endfor %}
+}
+
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{# Generate GAP/SMP wrapper function implementations - V10: derive callback names from event names #}
+{%- if wrapper_implementations is iterable -%}
+  {%- if wrapper_implementations is mapping -%}
+    {# wrapper_implementations is a dict - iterate over keys #}
+    {%- for wrapper_key in wrapper_implementations.keySet() %}{% set wrapper_impl = wrapper_implementations[wrapper_key] %}
+void {{ wrapper_impl["name"] }}()
+{
+  {# GAP/SMP style - transform callback names or keep NULL #}
+  {{ wrapper_impl["registration_api"] }}(
+  {%- for callback in wrapper_impl["callbacks"] -%}
+{%- if callback -%}
+rsi_ble_{{ callback }}_driver_callback
+{%- else -%}
+NULL
+{%- endif -%}
+{%- if not loop.last %},
+                                 {% else %});
+{% endif -%}
+  {%- endfor -%}
+}
+
+    {%- endfor -%}
+  {%- else -%}
+    {# wrapper_implementations is a list - each item is a wrapper dict #}
+    {%- for wrapper_impl in wrapper_implementations -%}
+void {{ wrapper_impl["name"] }}()
+{
+  {# GAP/SMP style - transform callback names or keep NULL #}
+  {{ wrapper_impl["registration_api"] }}(
+  {%- for callback in wrapper_impl["callbacks"] -%}
+{%- if callback -%}
+rsi_ble_{{ callback }}_driver_callback
+{%- else -%}
+NULL
+{%- endif -%}
+{%- if not loop.last %},
+                                 {% else %});
+{% endif -%}
+  {%- endfor -%}
+}
+
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
