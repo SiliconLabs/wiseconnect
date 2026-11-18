@@ -1,0 +1,36 @@
+id: freertos_config
+label: FreeRTOS Configuration
+package: platform_siwx91x
+description: 'This component allows users to configure FreeRTOS behavior through options
+  in its configuration file. To modify the options, click the configure button in
+  the configuration wizard. For more information related to the configurations and
+  usage please refer https://www.freertos.org/.
+
+  '
+quality: production
+metadata:
+  sbom:
+    license: MIT
+root_path: components/device/silabs/si91x/mcu/core/common/freertos_config
+category: RTOS|FreeRTOS|Configuration
+include:
+- path: ../inc
+  file_list:
+  - path: sl_si91x_os.h
+config_file:
+- path: FreeRTOSConfig.h
+  file_id: freertos_config
+  unless:
+  - freertos
+- path: FreeRTOSConfig.h
+  unless:
+  - matter
+  override:
+    component: freertos
+    file_id: freertos_config
+    vendor: silabs
+provides:
+- name: freertos_config
+define:
+- name: __FREERTOS_OS_WISECONNECT
+  value: '1'

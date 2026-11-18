@@ -1,0 +1,12 @@
+id: si91x_non_tickless_mode
+label: Non tickless mode
+package: platform_siwx91x
+description: Non tickless mode
+category: Device|Si91x|MCU|Service|Power Manager
+quality: evaluation
+metadata:
+  sbom:
+    license: MSLA
+component_root_path: "components/device/silabs/si91x/mcu/drivers/service/power_manager"
+provides:
+  - name: SL_SI91X_PM_STATE_TRANSITION

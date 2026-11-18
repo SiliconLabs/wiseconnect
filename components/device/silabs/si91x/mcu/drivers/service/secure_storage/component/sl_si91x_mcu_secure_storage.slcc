@@ -1,0 +1,29 @@
+id: sl_si91x_mcu_secure_storage
+label: MCU Secure Storage
+package: platform_siwx91x
+description: >
+  Secure Storage is a Si91x MCU peripheral that provides non-volatile storage
+  for sensitive data (keys, credentials). It supports write protection through a write key.
+  Configurable parameters (through app config component):
+    - Write key enable/disable
+  Use with config/sl_si91x_secure_storage_config.h for UC screen and config header.
+category: Device|Si91x|MCU|Service
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+root_path: "components/device/silabs/si91x/mcu/drivers/service/secure_storage"
+config_file:
+  - path: config/sl_si91x_secure_storage_config.h
+    file_id: sl_si91x_secure_storage_config
+source:
+  - path: "src/sl_si91x_secure_storage.c"
+include:
+  - path: "inc"
+    file_list:
+      - path: "sl_si91x_secure_storage.h"
+provides:
+  - name: sl_si91x_mcu_secure_storage
+requires:
+  - name: status
+  - name: log_none

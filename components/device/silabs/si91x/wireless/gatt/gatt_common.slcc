@@ -1,0 +1,90 @@
+id: gatt_common
+package: bluetooth_le_siwx91x
+description: >
+  GATT Common - Shared code and configuration for GATT Server and Client
+label: GATT Common
+category: Device|Si91x|Wireless|BLE|GATT
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/device/silabs/si91x/wireless/gatt
+provides:
+  - name: gatt_common
+define:
+  - name: SL_SI91X_BLE_GATT_COMMON_COMPONENT
+source:
+  - path: common/src/gatt_common_event_hdlrs.c
+  - path: common/src/gatt_common_init.c
+
+include:
+  - path: common/inc
+    file_list:
+      - path: gatt_common.h
+
+config_file:
+  - path: common/inc/gatt_common_config.h
+    directory: ble_config
+    file_id: gatt_common_config
+
+requires:
+  - name: ble_unified_framework
+  - name: gap
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "gatt_common_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_gatt_common_init
+      ble_unified_init_label: "GATT Common"
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_GATT_ASYNC_ENABLE
+      ble_unified_bt_bitmap_guard: RSI_BLE_GATT_ASYNC_ENABLE
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST
+      ble_unified_bt_bitmap_guard: RSI_BLE_MTU_EXCHANGE_FROM_HOST
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_GATT_INIT
+      ble_unified_bt_bitmap_guard: BLE_SIMPLE_GATT
+  - name: wrapper_implementations
+    value:
+      name: sl_btc_ble_gatt_common_register_callbacks_wrapper
+      registration_api: rsi_ble_gatt_common_register_callbacks
+      callbacks:
+        - event_gatt_write
+  - name: ble_events
+    value:
+      event_gatt_write:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_event_write
+            type: rsi_ble_event_write_p
+        event_data:
+          name: rsi_ble_event_write
+  - name: agents_slab
+    value:
+      id: gatt_common
+      context: |
+        ## GATT Common Component (Si91x Wireless BLE Unified)
+        Shared GATT plumbing required by both `gatt_server` and `gatt_client`. Selected automatically when either Server or Client is selected. Defines `SL_SI91X_BLE_GATT_COMMON_COMPONENT`.
+        ### Init hook
+        - Function: `ble_gatt_common_init` (registered via `ble_unified_init_hooks`).
+        - Registers the cross-cutting GATT-common callback wrapper `sl_btc_ble_gatt_common_register_callbacks_wrapper()` (currently `event_gatt_write` — fired on incoming write/write-without-response from a peer regardless of role).
+        ### Configuration (`gatt_common_config.h` — copied to `config/ble_config/`)
+        Key macros (each gated by a `*_guard` so the bitmap entry is contributed only when defined):
+        - `RSI_BLE_GATT_ASYNC_ENABLE` → contributes `SL_SI91X_BLE_GATT_ASYNC_ENABLE` (async GATT command/response model — required for the modern API).
+        - `RSI_BLE_MTU_EXCHANGE_FROM_HOST` → contributes `SL_SI91X_BLE_MTU_EXCHANGE_FROM_HOST` (host issues MTU exchange instead of letting the controller initiate).
+        - `BLE_SIMPLE_GATT` → contributes `SL_SI91X_BLE_GATT_INIT` (legacy simple-GATT init path).
+        ### Common Mistakes to Avoid
+        - Selecting `gatt_server` or `gatt_client` without `gatt_common` — SLC will surface this as an unmet `requires:`, but if you wire components manually you'll get linker errors on `ble_gatt_common_init` and missing `event_gatt_write` registration.
+        - Toggling `RSI_BLE_GATT_ASYNC_ENABLE` off — the BLE Unified GATT Server/Client implementations rely on the async response/event model; turning it off effectively breaks them.
+        - Disabling `RSI_BLE_MTU_EXCHANGE_FROM_HOST` if your throughput-sensitive service expects a specific MTU — without host-side exchange the controller may negotiate a smaller MTU than desired.
+    priority: -5305

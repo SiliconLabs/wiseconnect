@@ -1,0 +1,212 @@
+#ifndef BLE_AUTO_GEN_H
+#define BLE_AUTO_GEN_H
+#include "event_loop.h"
+#include "rsi_ble_apis.h"
+#include "rsi_common_utils.h"
+#include "rsi_ble.h"
+
+#ifdef FRDM_K28F
+#define APP_WEAK __attribute__((weak))
+#else
+#ifdef MXRT_595s
+#define APP_WEAK __weak
+#else
+#define APP_WEAK __attribute__((weak))
+#endif
+#endif
+
+{# Macro to derive handler name from event name #}
+{%- macro get_handler_name(event_name, event_config) -%}
+{%- if "handler" in event_config and event_config["handler"] != Null -%}
+{{ event_config["handler"] }}
+{%- else -%}
+rsi_ble_{{ event_name }}
+{%- endif -%}
+{%- endmacro -%}
+
+{# Macro to derive data type from parameter type #}
+{%- macro get_data_type(event_config) -%}
+{%- for param in event_config.callback_params -%}
+{%- if param.name == event_config.event_data.name -%}
+{%- if param.type.endswith('_p') -%}
+{{ param.type[:-2] }}_t
+{%- elif '*' in param.type -%}
+{{ param.type.replace('*', '').strip() }}
+{%- else -%}
+{{ param.type }}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+
+{# Event ID enumeration #}
+enum ble_enum_ids {
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+    {{ event_name }}_event_id,
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+    {{ event_name }}_event_id,
+  {%- endfor -%}
+{%- endif %}
+    max_ble_event_id
+};
+
+{# V8: Wrapper function declarations - derive from wrapper_implementations #}
+{%- if wrapper_implementations is iterable -%}
+  {%- if wrapper_implementations is mapping -%}
+    {# wrapper_implementations is a dict - iterate over keys #}
+    {%- for wrapper_key in wrapper_implementations.keySet() %}{% set wrapper_impl = wrapper_implementations[wrapper_key] %}
+void {{ wrapper_impl["name"] }}();
+      
+    {%- endfor -%}
+  {%- else -%}
+    {# wrapper_implementations is a list #}
+    {%- for wrapper_impl in wrapper_implementations %}
+void {{ wrapper_impl["name"] }}();
+      
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{# V8: Wrapper function declarations - derive from event_mapped_wrapper #}
+{%- if event_mapped_wrapper is iterable -%}
+  {%- if event_mapped_wrapper is mapping -%}
+void {{ event_mapped_wrapper["name"] }}();
+      
+  {%- else -%}
+    {%- for mapped_impl in event_mapped_wrapper %}
+void {{ mapped_impl["name"] }}();
+      
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{# Message structures - only for events with event_data #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+{% if event_config.event_data %}
+{%- set data_type = get_data_type(event_config) -%}
+{% if data_type and not data_type in ['uint8_t', 'uint16_t', 'uint32_t', 'void'] %}
+typedef struct rsi_ble_{{ event_name }}_msg_s {
+    void *next;
+    uint16_t status;
+    void (*free_callback)(void *);
+    {{ data_type }} rsi_ble_{{ event_name }};
+} rsi_ble_{{ event_name }}_msg_t;
+{% else %}
+typedef struct rsi_ble_{{ event_name }}_msg_s {
+    void *next;
+    uint16_t status;
+    void (*free_callback)(void *);
+} rsi_ble_{{ event_name }}_msg_t;
+{% endif %}
+{% endif %}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+{% if event_config.event_data %}
+{%- set data_type = get_data_type(event_config) -%}
+{% if data_type and not data_type in ['uint8_t', 'uint16_t', 'uint32_t', 'void'] %}
+typedef struct rsi_ble_{{ event_name }}_msg_s {
+    void *next;
+    uint16_t status;
+    void (*free_callback)(void *);
+    {{ data_type }} {{ event_config.event_data.name }};
+} rsi_ble_{{ event_name }}_msg_t;
+{% else %}
+typedef struct rsi_ble_{{ event_name }}_msg_s {
+    void *next;
+    uint16_t status;
+    void (*free_callback)(void *);
+} rsi_ble_{{ event_name }}_msg_t;
+{% endif %}
+{% endif %}
+  {%- endfor -%}
+{%- endif -%}
+
+{# Driver callback declarations #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+void rsi_ble_{{ event_name }}_driver_callback(
+{%- if event_config.callback_params -%}
+{%- for param in event_config.callback_params -%}
+{{ param.type }} {{ param.name }}
+{%- if not loop.last %}, {% endif -%}
+{%- endfor -%}
+{%- else %}void{%- endif %});
+
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+void rsi_ble_{{ event_name }}_driver_callback(
+{%- if event_config.callback_params -%}
+{%- for param in event_config.callback_params -%}
+{{ param.type }} {{ param.name }}
+{%- if not loop.last %}, {% endif -%}
+{%- endfor -%}
+{%- else %}void{%- endif %});
+
+  {%- endfor -%}
+{%- endif -%}
+
+{# Event wrapper function declarations #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+void rsi_ble_{{ event_name }}_wrapper(void *msg);
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+void rsi_ble_{{ event_name }}_wrapper(void *msg);
+  {%- endfor -%}
+{%- endif -%}
+
+{# Event handler function declarations #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+void {{ get_handler_name(event_name, event_config) }}(uint16_t status, void *event_data);
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+void {{ get_handler_name(event_name, event_config) }}(uint16_t status, void *event_data);
+  {%- endfor -%}
+{%- endif -%}
+
+{# External event handler declarations #}
+{%- if ble_events is iterable and ble_events is not mapping -%}
+  {%- for event_dict in ble_events -%}
+    {%- if event_dict -%}
+      {%- for event_name in event_dict.keySet() %}{% set event_config = event_dict[event_name] %}
+extern void {{ get_handler_name(event_name, event_config) }}(uint16_t status, void *event_data);
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for event_name in ble_events.keySet() %}{% set event_config = ble_events[event_name] %}
+extern void {{ get_handler_name(event_name, event_config) }}(uint16_t status, void *event_data);
+  {%- endfor -%}
+{%- endif -%}
+extern generic_event_handler_lut_entry_t ble_events_lut[];
+
+#endif //BLE_AUTO_GEN_H

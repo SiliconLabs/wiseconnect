@@ -1,0 +1,61 @@
+id: si91x_ble_legacy_adv_scan_config
+label: 'Legacy BLE Adv Scan Configuration'
+package: bluetooth_le_siwx91x
+metadata:
+  sbom:
+    license: Zlib
+description: >
+  Provides Bluetooth Low Energy Legacy Advertisement Scan configuration for the Si91x.
+category: Device|Si91x|Wireless|BLE Advertisement Scan Configuration
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless
+provides:
+  - name: si91x_ble_legacy_adv_scan_config
+  - name: si91x_ble_adv_scan_implementation
+source:
+  - path: legacy_adv/src/legacy_adv_init.c
+  - path: legacy_adv/src/legacy_adv_user_event_handler.c
+include:
+  - path: legacy_adv/inc
+    file_list:
+      - path: legacy_adv.h
+
+config_file:
+  - path: legacy_adv/inc/legacy_adv_config.h
+    directory: ble_config
+    file_id: legacy_adv_config
+
+requires:
+  - name: gap
+
+conflicts:
+  - name: si91x_ble_extended_adv_scan_config
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "legacy_adv_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_legacy_adv_init
+      ble_unified_init_label: "Legacy Advertising"
+  - name: agents_slab
+    value:
+      id: si91x_ble_legacy_adv_scan_config
+      context: |
+        ## Legacy BLE Advertising/Scanning Component (Si91x Wireless BLE Unified)
+        Implements `si91x_ble_adv_scan_implementation` for **legacy** (pre-5.0) advertising and scanning. Mutually exclusive with `si91x_ble_extended_adv_scan_config` (`conflicts:` declared) — exactly one of the two must be selected by any BLE Unified application. Sets `SL_SI91X_SI917_BLE_ADV_SCAN_TYPE=0`.
+        ### Init hook
+        - Function: `ble_legacy_adv_init` (registered via `ble_unified_init_hooks`).
+        - Reads `gap_config.h` (`RSI_BT_LOCAL_NAME`, `RSI_BLE_MAX_NBR_CENTRALS`, `RSI_BLE_MAX_NBR_PERIPHERALS`, `ADV_ENABLED_DEFAULT`, `SCAN_ENABLED_DEFAULT`) and `legacy_adv_config.h` (`LEGACY_ADV_DATA_MAX_LEN`) to populate the AD payload, then conditionally calls `rsi_ble_start_advertising()` and/or `rsi_ble_start_scanning()` based on the role configuration.
+        ### Configuration (`legacy_adv_config.h` — copied to `config/ble_config/`)
+        Key macro: `LEGACY_ADV_DATA_MAX_LEN` (max bytes of advertising data — hard-capped at **31 bytes** by the legacy BLE specification; 27 bytes after the mandatory flags AD). Adv data format follows Core Spec 5.4 Vol 3 Part C: each element is `length (1 byte) + AD-type (1 byte) + data`.
+        ### Common Mistakes to Avoid
+        - Selecting BOTH `si91x_ble_legacy_adv_scan_config` and `si91x_ble_extended_adv_scan_config` — SLC will refuse the project; you must pick exactly one.
+        - Putting more than 31 bytes of payload into `RSI_BLE_ADV_DATA` — the controller silently truncates; the device name will be invisible to peers.
+        - Calling `rsi_ble_extended_connect_with_params()` against a peer found via legacy scan — use `rsi_ble_connect()` / `rsi_ble_connect_with_params()` instead. Extended-connect APIs only work when Extended Advertising is selected.
+        - Setting `ADV_ENABLED_DEFAULT=1` and `SCAN_ENABLED_DEFAULT=1` simultaneously while `RSI_BLE_MAX_NBR_PERIPHERALS=0` — init will skip scanning silently, which can be surprising.
+    priority: -5308
+
+define:
+  - name: SL_SI91X_SI917_BLE_ADV_SCAN_TYPE
+    value: '0'

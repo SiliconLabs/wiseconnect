@@ -1,0 +1,170 @@
+id: si91x_ble_extended_adv_scan_config
+label: 'Extended BLE Adv Scan Configuration'
+package: bluetooth_le_siwx91x
+metadata:
+  sbom:
+    license: Zlib
+description: >
+  Provides Bluetooth Low Energy Extended Advertisement Scan configuration for the Si91x.
+category: Device|Si91x|Wireless|BLE Advertisement Scan Configuration
+quality: production
+component_root_path: ./components/device/silabs/si91x/wireless
+provides:
+  - name: si91x_ble_extended_adv_scan_config
+  - name: si91x_ble_adv_scan_implementation
+conflicts:
+  - name: si91x_ble_adv_scan_default_config
+requires:
+  - name: ble_unified_framework
+  - name: gap
+source:
+  - path: ext_adv/src/ext_adv_init.c
+  - path: ext_adv/src/ext_adv_utilities.c
+  - path: ext_adv/src/ext_adv_user_event_hdlrs.c
+include:
+  - path: ext_adv/inc
+    file_list:
+      - path: ext_adv.h
+
+config_file:
+  - path: ext_adv/inc/ext_adv_config.h
+    directory: ble_config
+    file_id: ext_adv_config
+
+define:
+  - name: SL_SI91X_SI917_BLE_ADV_SCAN_TYPE
+    value: '1'
+
+template_contribution:
+  - name: ble_unified_config_includes
+    value: "ext_adv_config.h"
+  - name: ble_unified_init_hooks
+    value:
+      ble_unified_init_func: ble_ext_adv_init
+      ble_unified_init_label: "Extended Advertising"
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_ENABLE_ADV_EXTN
+      ble_unified_bt_bitmap_guard: RSI_BLE_ENABLE_ADV_EXTN
+  - name: ble_unified_bt_bitmap_entries
+    value:
+      ble_unified_bt_bitmap_type: ble_ext_feature_bit_map
+      ble_unified_bt_bitmap_value: SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)
+      ble_unified_bt_bitmap_guard: RSI_BLE_AE_MAX_ADV_SETS
+  - name: event_mapped_wrapper
+    value:
+      name: sl_btc_ble_adv_extended_register_callbacks_wrapper
+      registration_api: rsi_ble_adv_ext_events_register_callbacks
+      callbacks:
+        - event_id: RSI_BLE_ON_ADV_EXT_ADVERTISE_REPORT_EVENT
+          callback: ae_adv_report
+        - event_id: RSI_BLE_ON_ADV_EXT_PERIODIC_ADV_SYNC_ESTBL_EVENT
+          callback: per_adv_sync_estbl
+        - event_id: RSI_BLE_ON_ADV_EXT_PERIODIC_ADVERTISE_REPORT_EVENT
+          callback: per_adv_report
+        - event_id: RSI_BLE_ON_ADV_EXT_PERIODIC_ADV_SYNC_LOST_EVENT
+          callback: per_adv_sync_lost
+        - event_id: RSI_BLE_ON_ADV_EXT_SCAN_TIMEOUT_EVENT
+          callback: scan_timeout
+        - event_id: RSI_BLE_ON_ADV_EXT_ADVERTISE_SET_TERMINATED_EVENT
+          callback: adv_set_terminated
+        - event_id: RSI_BLE_ON_ADV_EXT_SCAN_REQUEST_RECEIVED_EVENT
+          callback: scan_req_recvd
+  - name: ble_events
+    value:
+      ae_adv_report:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_ae_adv_report
+            type: rsi_ble_ae_adv_report_p
+        event_data:
+          name: rsi_ble_ae_adv_report
+      
+      per_adv_sync_estbl:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_per_adv_sync_estbl
+            type: rsi_ble_per_adv_sync_estbl_p
+        event_data:
+          name: rsi_ble_per_adv_sync_estbl
+      
+      per_adv_report:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_per_adv_report
+            type: rsi_ble_per_adv_report_p
+        event_data:
+          name: rsi_ble_per_adv_report
+      
+      per_adv_sync_lost:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_per_adv_sync_lost
+            type: rsi_ble_per_adv_sync_lost_p
+        event_data:
+          name: rsi_ble_per_adv_sync_lost
+      
+      scan_timeout:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_scan_timeout
+            type: rsi_ble_scan_timeout_p
+        event_data:
+          name: rsi_ble_scan_timeout
+      
+      adv_set_terminated:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_adv_set_terminated
+            type: rsi_ble_adv_set_terminated_p
+        event_data:
+          name: rsi_ble_adv_set_terminated
+      
+      scan_req_recvd:
+        callback_params:
+          - name: status
+            type: uint16_t
+          - name: rsi_ble_scan_req_recvd
+            type: rsi_ble_scan_req_recvd_p
+        event_data:
+          name: rsi_ble_scan_req_recvd
+  - name: agents_slab
+    value:
+      id: si91x_ble_extended_adv_scan_config
+      context: |
+        ## Extended BLE Advertising/Scanning (AE) Component (Si91x Wireless BLE Unified)
+        Implements `si91x_ble_adv_scan_implementation` for **BLE 5.0 Advertising Extensions** (extended adv, periodic adv, periodic sync). Mutually exclusive with `si91x_ble_legacy_adv_scan_config` (`conflicts:` declared) — pick exactly one. Sets `SL_SI91X_SI917_BLE_ADV_SCAN_TYPE=1`.
+        ### Init hook
+        - Function: `ble_ext_adv_init` (registered via `ble_unified_init_hooks`).
+        - Registers AE callbacks via `event_mapped_wrapper` → `sl_btc_ble_adv_extended_register_callbacks_wrapper` (`rsi_ble_adv_ext_events_register_callbacks`): `ae_adv_report` (RSI_BLE_ON_ADV_EXT_ADVERTISE_REPORT_EVENT), `per_adv_sync_estbl`, `per_adv_report`, `per_adv_sync_lost`, `scan_timeout`, `adv_set_terminated`, `scan_req_recvd`.
+        ### Feature-bitmap entries contributed
+        - `SL_SI91X_BLE_ENABLE_ADV_EXTN` (gated by `RSI_BLE_ENABLE_ADV_EXTN`) — required for the controller to accept AE commands.
+        - `SL_SI91X_BLE_AE_MAX_ADV_SETS(RSI_BLE_AE_MAX_ADV_SETS)` (gated by `RSI_BLE_AE_MAX_ADV_SETS`) — sizes the controller's advertising-set table.
+        ### Configuration (`ext_adv_config.h` — copied to `config/ble_config/`)
+        Key macros: `RSI_BLE_ENABLE_ADV_EXTN` (must be `1` for AE), `RSI_BLE_AE_MAX_ADV_SETS` (number of simultaneous adv sets), AE adv data sizes (up to **1024 bytes** vs. 31 for legacy), per-set parameters (PHY, primary/secondary intervals, TX power).
+        ### AE Workflow (Peripheral)
+        1. (Optional) `rsi_ble_set_ae_set_random_address()` per advertising set.
+        2. `rsi_ble_set_ae_params()` for each set.
+        3. `rsi_ble_set_ae_data()` for adv-data and (if used) scan-response data.
+        4. (Optional periodic) `rsi_ble_app_set_periodic_ae_params()` then `rsi_ble_app_set_periodic_ae_enable()`.
+        5. `rsi_ble_start_ae_advertising()`.
+        6. Watch for `adv_set_terminated` (per-set lifecycle) and connection events from GAP.
+        ### AE Workflow (Central — scanning + connecting)
+        1. `rsi_ble_ae_set_scan_params()` then `rsi_ble_ae_set_scan_enable()`.
+        2. Receive `ae_adv_report` callbacks; capture target address + SID.
+        3. Connect with `rsi_ble_extended_connect_with_params()` (NOT the legacy `rsi_ble_connect*`).
+        4. (Optional periodic sync) `rsi_ble_ae_dev_to_periodic_list()` add → `rsi_ble_ae_set_periodic_sync()` create → receive `per_adv_sync_estbl` and `per_adv_report` → `rsi_ble_ae_set_periodic_sync()` terminate to stop.
+        ### Common Mistakes to Avoid
+        - Selecting BOTH legacy and extended adv components — SLC blocks this; pick one.
+        - Calling legacy `rsi_ble_connect()` / `rsi_ble_connect_with_params()` to connect to a peer discovered via AE — only `rsi_ble_extended_connect_with_params()` works.
+        - Forgetting `rsi_ble_set_ae_data()` before `rsi_ble_start_ae_advertising()` — the controller will advertise an empty payload.
+        - Setting `RSI_BLE_AE_MAX_ADV_SETS` higher than the controller supports — `rsi_ble_set_ae_params()` returns an error.
+        - Using PHY combinations the controller doesn't expose (e.g. coded PHY when `RSI_BLE_DISABLE_CODED_PHY_FROM_HOST=1` in `gap_config.h`).
+    priority: -5309

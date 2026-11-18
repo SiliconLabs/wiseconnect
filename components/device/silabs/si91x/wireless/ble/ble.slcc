@@ -1,0 +1,145 @@
+id: ble
+package: bluetooth_le_siwx91x
+description: >
+  BLE API Implementation
+label: BLE
+category: Device|Si91x|Wireless
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: ./components/device/silabs/si91x/wireless/ble
+provides:
+- name: ble
+source:
+- path: src/rsi_ble_gap_apis.c
+- path: src/rsi_ble_gatt_apis.c
+- path: src/rsi_bt_common_apis.c
+- path: src/rsi_bt_ble.c
+- path: src/rsi_common_apis.c
+- path: src/rsi_utils.c
+- path: src/sl_si91x_ble.c
+include:
+- path: inc
+  file_list:
+    - path: rsi_ble_apis.h
+    - path: rsi_ble_common_config.h
+    - path: rsi_ble.h
+    - path: rsi_bt_common_apis.h
+    - path: rsi_bt_common_config.h
+    - path: rsi_bt_common.h
+    - path: rsi_common_apis.h
+    - path: rsi_common.h
+    - path: rsi_user.h
+    - path: rsi_utils.h
+    - path: sl_si91x_ble.h
+
+define:
+- name: SLI_SI91X_ENABLE_BLE
+- name: SL_SI91X_ENABLE_LITTLE_ENDIAN
+
+requires:
+- name: sl_si91x_wireless
+
+template_contribution:
+- name: agents_slab
+  value:
+    id: ble
+    context: |
+      ## BLE Component (Si91x Wireless)
+      Bluetooth Low Energy Silicon Labs APIs for Si91x devices. Supports Central, Peripheral, Broadcaster, and Observer roles.
+      ### Initialization Sequence (CRITICAL)
+      Always follow this exact order:
+      1. `sl_wifi_init()` with BLE feature bits enabled (this internally initializes BLE stack)
+      2. Register ALL callbacks (GAP, GATT, SMP, AE) BEFORE starting any BLE operations
+      3. Start advertising/scanning/connecting
+      **Note:** `sl_wifi_init()` handles BLE stack initialization when BLE feature bits are configured. No separate BLE init call is required.
+      **Failure to register callbacks before operations will result in missed events.**
+      ### Callback Registration Requirements
+      - `rsi_ble_gap_register_callbacks()` - Must be called before advertising, scanning, or connecting
+      - `rsi_ble_gatt_register_callbacks()` - Must be called before any GATT operations and data transfer operations
+      - `rsi_ble_smp_register_callbacks()` - Must be called before any SMP pairing/bonding operations
+      - `rsi_ble_ae_events_register_callbacks()` - Must be called when using Advertising Extensions (AE)
+      - Callbacks receive events asynchronously; use semaphores/events for synchronization
+      ### GATT Operations Constraint
+      All GATT client operations (read/write/discover services) require an active connection. The application must call `rsi_ble_connect()` / `rsi_ble_connect_with_params()` (legacy) or `rsi_ble_extended_connect_with_params()` (AE) successfully BEFORE any GATT API.
+      **Note:** The stack relies on async commands for GATT operations. Responses are received via registered callbacks.
+      ### Connection Handling
+      - Legacy: `rsi_ble_connect()` / `rsi_ble_connect_with_params()` block indefinitely if remote device is unreachable. AE: use `rsi_ble_extended_connect_with_params()` (legacy connect APIs do not work with extended advertising).
+      - Application must implement timeout and call `rsi_ble_connect_cancel()` to recover
+      - Connection parameters can be updated post-connection via `rsi_ble_conn_params_update()`
+      ### Advertising/Scan Response Data
+      - **Legacy Advertising:** Maximum payload 31 bytes (standard BLE limitation)
+      - **Advertising Extensions (AE):** Maximum payload 1024 bytes
+      - Use format: length + type + data (see Core Spec 5.4 Vol 3 Part C)
+      - Device name limited to 16 bytes in BLE-only mode (error 0x4E66 if exceeded)
+      ### Power Save (CoEx Mode)
+      When using WLAN + BLE together:
+      - MUST enable power save for BOTH protocols
+      - Device enters power save only when both are enabled
+      - **Order:** Call `sl_wifi_set_performance_profile()` for WLAN FIRST, then `rsi_bt_power_save_profile()` for BLE
+      - Ensure both are configured for proper power management
+      ### API Characteristics
+      - API calls are **blocking** (they return after the command is sent to the controller)
+      - Responses/events are received **asynchronously** via registered callbacks
+      - Return `0` on success, non-zero error codes on failure
+      - Most operations complete in order called; no reordering
+      ### Common Mistakes to Avoid
+      - Starting advertising/scanning before registering callbacks
+      - Calling GATT/SMP operations without an active connection
+      - Forgetting to handle connection timeout scenarios
+      - Exceeding 31-byte advertising data limit for legacy advertising
+      - Setting power save in CoEx mode without enabling both protocols
+      - Not registering SMP callbacks before pairing operations
+      ### Typical Peripheral Workflow (Legacy)
+      ```
+      sl_wifi_init() → rsi_ble_gap_register_callbacks() → 
+      rsi_ble_gatt_register_callbacks() → rsi_ble_smp_register_callbacks() → 
+      rsi_ble_set_advertise_data() → rsi_ble_start_advertising() → 
+      [wait for connection event] → handle SMP and GATT operations
+      ```
+      ### Typical Peripheral Workflow (Advertising Extensions / AE)
+      ```
+      sl_wifi_init() → rsi_ble_gap_register_callbacks() → rsi_ble_gatt_register_callbacks() → 
+      rsi_ble_smp_register_callbacks() → rsi_ble_ae_events_register_callbacks() → 
+      rsi_ble_set_ae_params() → rsi_ble_set_ae_data() → rsi_ble_start_ae_advertising() → 
+      [wait for connection / adv set terminated in AE callbacks] → handle SMP and GATT operations
+      ```
+      **Optional (Peripheral AE):**
+      - **Per-adv-set random address:** Call `rsi_ble_set_ae_set_random_address()` for each advertising set as needed.
+      - **Periodic advertising:** Before `rsi_ble_start_ae_advertising()`, call:
+        - `rsi_ble_app_set_periodic_ae_params()`
+        - `rsi_ble_app_set_periodic_ae_enable()`
+      ### Typical Central Workflow (Legacy)
+      ```
+      sl_wifi_init() → rsi_ble_gap_register_callbacks() → 
+      rsi_ble_gatt_register_callbacks() → rsi_ble_start_scanning() → 
+      [receive adv reports in callback] → rsi_ble_connect() / rsi_ble_connect_with_params() → 
+      [wait for connection] → (optional SMP pairing) → rsi_ble_get_profiles_async() → 
+      rsi_ble_get_char_services_async() → rsi_ble_get_att_value_async() or rsi_ble_set_att_value_async()
+      ```
+      **Optional (Central – SMP after connection):**
+      - Set capabilities: `rsi_ble_set_smp_pairing_cap_data()`
+      - Initiate pairing: `rsi_ble_smp_pair_request()`
+      - Respond to pairing (on SMP request/response events): `rsi_ble_smp_pair_response()`
+      - Send passkey (on passkey / passkey_display events): `rsi_ble_smp_passkey()`
+      - Reject pairing: `rsi_ble_smp_pair_failed()`
+      ### Typical Central Workflow (Advertising Extensions / AE)
+      ```
+      sl_wifi_init() → rsi_ble_gap_register_callbacks() → rsi_ble_gatt_register_callbacks() → 
+      rsi_ble_ae_events_register_callbacks() → rsi_ble_ae_set_scan_params() → 
+      rsi_ble_ae_set_scan_enable() → [receive ext adv reports in ble_ae_report_complete_event] → 
+      rsi_ble_extended_connect_with_params() → [wait for connection] → (optional SMP pairing) → rsi_ble_get_profiles_async() → 
+      rsi_ble_get_char_services_async() → rsi_ble_get_att_value_async() or rsi_ble_set_att_value_async()
+      ```
+      **Optional (Central AE – SMP after connection):**
+      - Set capabilities: `rsi_ble_set_smp_pairing_cap_data()`
+      - Initiate pairing: `rsi_ble_smp_pair_request()`
+      - Respond to pairing (on SMP request/response events): `rsi_ble_smp_pair_response()`
+      - Send passkey (on passkey / passkey_display events): `rsi_ble_smp_passkey()`
+      - Reject pairing: `rsi_ble_smp_pair_failed()`
+      **Optional (Central AE – periodic advertising):** Use when receiving **periodic advertising** from specific advertiser(s) without connecting. Order (after `rsi_ble_ae_set_scan_enable()` and after you have advertiser address/SID from ext adv reports in `ble_ae_report_complete_event`):
+      1. **Add advertiser to periodic list (optional):** `rsi_ble_ae_dev_to_periodic_list()` with type add — so the scanner can sync to that advertiser.
+      2. **Create periodic sync:** `rsi_ble_ae_set_periodic_sync()` (create). Sync established and periodic adv reports are received in callbacks.
+      3. **List management (as needed):** `rsi_ble_ae_read_periodic_adv_list_size()` to query list size; `rsi_ble_ae_dev_to_periodic_list()` to add/remove/clear devices. Use `rsi_ble_ae_set_periodic_sync()` (terminate/cancel) to stop sync.
+  priority: -5300
